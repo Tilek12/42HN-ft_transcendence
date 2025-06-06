@@ -75,3 +75,19 @@ Module									Type	Points	Reason
 🎯 Total (4 Major + 6 Minor): 					 7 points
 
 =========================================================================================
+
+🧠 Why This Is the Best Strategy
+
+✔️ Aligns Naturally With Mandatory Part
+	- Mandatory already includes matchmaking, user aliases, and Pong.
+	- Adding User Management, SQLite, Stats, Customization, Chat, and Remote Play extends the core logically.
+
+✔️ Easy Learning Curve for Team of 5
+	- No heavy DevOps (ELK, Prometheus), 3D, or Blockchain.
+	- Avoids major redesigns (like server-authoritative Pong or CLI clients).
+
+✔️ Modular, Assignable, and Testable
+	- Each module can be developed independently, ideal for parallel work.
+	- Team members can own end-to-end features.
+
+=========================================================================================
