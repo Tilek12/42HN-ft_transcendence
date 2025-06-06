@@ -19,34 +19,34 @@ Each module is rated as:
 🟨 Medium
 🟥 Hard
 
-#	Module								Type	Difficulty	Why?
+#	Module					Type	Difficulty	Why?
 
 1	Use backend framework (Fastify)		Major	🟨 Medium	Adds backend complexity; not mandatory
-2	Use Tailwind CSS					Minor	🟩 Easy		Simple, helpful in frontend styling
-3	Use SQLite DB						Minor	🟩 Easy		Easy integration with backend
-4	Blockchain storage					Major	🟥 Hard		Requires Solidity + Avalanche + smart contract
-5	Standard User Management			Major	🟩 Easy		Needed anyway, solid base
+2	Use Tailwind CSS			Minor	🟩 Easy		Simple, helpful in frontend styling
+3	Use SQLite DB				Minor	🟩 Easy		Easy integration with backend
+4	Blockchain storage			Major	🟥 Hard		Requires Solidity + Avalanche + smart contract
+5	Standard User Management		Major	🟩 Easy		Needed anyway, solid base
 6	Remote Authentication (Google)		Major	🟨 Medium	API setup, token exchange
-7	Remote Players						Major	🟨 Medium	Needs WebSockets, but manageable
-8	Multiplayer > 2 players				Major	🟥 Hard		Complex rules and gameplay sync
-9	Add another game					Major	🟥 Hard		Extra game logic, matchmaking
-10	Game customization					Minor	🟩 Easy		Simple optional settings
-11	Live chat							Major	🟩 Easy		Common WebSocket use case
-12	AI opponent							Major	🟥 Hard		AI prediction + keyboard input sim
-13	Stats dashboards					Minor	🟩 Easy		Can use Chart.js, not critical path
-14	WAF/ModSecurity + Vault				Major	🟥 Hard		Complex infra config, DevOps-heavy
-15	GDPR compliance						Minor	🟨 Medium	Legal complexity, data removal logic
-16	2FA + JWT							Major	🟨 Medium	Secure auth setup, but realistic
-17	ELK logging system					Major	🟥 Hard		Complex infra with Logstash/Kibana
+7	Remote Players				Major	🟨 Medium	Needs WebSockets, but manageable
+8	Multiplayer > 2 players			Major	🟥 Hard		Complex rules and gameplay sync
+9	Add another game			Major	🟥 Hard		Extra game logic, matchmaking
+10	Game customization			Minor	🟩 Easy		Simple optional settings
+11	Live chat				Major	🟩 Easy		Common WebSocket use case
+12	AI opponent				Major	🟥 Hard		AI prediction + keyboard input sim
+13	Stats dashboards			Minor	🟩 Easy		Can use Chart.js, not critical path
+14	WAF/ModSecurity + Vault			Major	🟥 Hard		Complex infra config, DevOps-heavy
+15	GDPR compliance				Minor	🟨 Medium	Legal complexity, data removal logic
+16	2FA + JWT				Major	🟨 Medium	Secure auth setup, but realistic
+17	ELK logging system			Major	🟥 Hard		Complex infra with Logstash/Kibana
 18	Prometheus/Grafana monitoring		Minor	🟥 Hard		Advanced DevOps stack
-19	Microservices backend				Major	🟥 Hard		Very complex for 5-person student project
+19	Microservices backend			Major	🟥 Hard		Very complex for 5-person student project
 20	Advanced 3D graphics (Babylon.js)	Major	🟥 Hard		3D engine, complex rendering
-21	Mobile/Device support				Minor	🟩 Easy		Use responsive CSS
-22	Browser compatibility				Minor	🟩 Easy		Browser testing
-23	Multiple language support			Minor	🟩 Easy		Language JSON files, toggle logic
+21	Mobile/Device support			Minor	🟩 Easy		Use responsive CSS
+22	Browser compatibility			Minor	🟩 Easy		Browser testing
+23	Multiple language support		Minor	🟩 Easy		Language JSON files, toggle logic
 24	Accessibility (visually impaired)	Minor	🟩 Easy		alt-text, contrast, screen reader
-25	Server-side Pong + API				Major	🟥 Hard		Requires re-architecting Pong engine
-26	CLI Pong against Web				Major	🟥 Hard		LI-client sync + API integration
+25	Server-side Pong + API			Major	🟥 Hard		Requires re-architecting Pong engine
+26	CLI Pong against Web			Major	🟥 Hard		LI-client sync + API integration
 
 =========================================================================================
 
@@ -59,20 +59,20 @@ and avoid all 🟥 Hard modules.
 
 ✅ Recommended 7 Major Modules (Easy + Safe Path)
 
-Module									Type	Points	Reason
+Module					Type	Points	Reason
 
-1. Standard User Management				Major	1.0		Needed for auth, profiles, match history
-2. Remote Players						Major	1.0		Needed for real online gameplay
-3. Live Chat							Major	1.0		Easy via WebSocket, enhances UX
-4. 2FA + JWT Auth						Major	1.0		Enhances security and real-world auth
-5. Tailwind CSS							Minor	0.5		Lightweight styling tool for frontend
-6. SQLite DB							Minor	0.5		Easy to integrate, supports persistence
-7. Game Customization					Minor	0.5		Sliders/settings for power-ups, etc.
-8. Stats Dashboards						Minor	0.5		Simple charts from game/user data
-9. Multilingual Support					Minor	0.5		Translate strings via JSON files
+1. Standard User Management		Major	1.0		Needed for auth, profiles, match history
+2. Remote Players			Major	1.0		Needed for real online gameplay
+3. Live Chat				Major	1.0		Easy via WebSocket, enhances UX
+4. 2FA + JWT Auth			Major	1.0		Enhances security and real-world auth
+5. Tailwind CSS				Minor	0.5		Lightweight styling tool for frontend
+6. SQLite DB				Minor	0.5		Easy to integrate, supports persistence
+7. Game Customization			Minor	0.5		Sliders/settings for power-ups, etc.
+8. Stats Dashboards			Minor	0.5		Simple charts from game/user data
+9. Multilingual Support			Minor	0.5		Translate strings via JSON files
 10. Accessibility (Visually Impaired)	Minor	0.5		Add alt-text, keyboard nav, contrast
 
-🎯 Total (4 Major + 6 Minor): 					 7 points
+🎯 Total (4 Major + 6 Minor): 			7 points
 
 =========================================================================================
 
