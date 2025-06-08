@@ -1,5 +1,18 @@
 =========================================================================================
 
+✅ Mandatory Part Requirements:
+
+1. Basic Pong Game: Real-time multiplayer Pong with tournament system, matchmaking,
+	and local play (same keyboard).
+2. Single-Page Application (SPA): Must work in Firefox, no unhandled errors.
+3. Docker: Single command to run the entire project.
+4. Security: HTTPS, password hashing, SQL/XSS protection, input validation.
+5. Tech Stack:
+	- Backend: Pure PHP (unless overridden by a module).
+	- Frontend: TypeScript (can be modified by modules).
+
+=========================================================================================
+
 ✅ Objective
 
 We need 7 major modules total, where:
@@ -57,37 +70,7 @@ and avoid all 🟥 Hard modules.
 
 =========================================================================================
 
-✅ Recommended 7 Major Modules (Easy + Safe Path)
-
-Module					Type	Points	Reason
-
-1. Standard User Management		Major	1.0		Needed for auth, profiles, match history
-2. Remote Players			Major	1.0		Needed for real online gameplay
-3. Live Chat				Major	1.0		Easy via WebSocket, enhances UX
-4. 2FA + JWT Auth			Major	1.0		Enhances security and real-world auth
-5. Tailwind CSS				Minor	0.5		Lightweight styling tool for frontend
-6. SQLite DB				Minor	0.5		Easy to integrate, supports persistence
-7. Game Customization			Minor	0.5		Sliders/settings for power-ups, etc.
-8. Stats Dashboards			Minor	0.5		Simple charts from game/user data
-9. Multilingual Support			Minor	0.5		Translate strings via JSON files
-10. Accessibility (Visually Impaired)	Minor	0.5		Add alt-text, keyboard nav, contrast
-
-🎯 Total (4 Major + 6 Minor): 			7 points
-
-=========================================================================================
-
-🧠 Why This Is the Best Strategy
-
-✔️ Aligns Naturally With Mandatory Part
-	- Mandatory already includes matchmaking, user aliases, and Pong.
-	- Adding User Management, SQLite, Stats, Customization, Chat, and Remote Play extends the core logically.
-
-✔️ Easy Learning Curve for Team of 5
-	- No heavy DevOps (ELK, Prometheus), 3D, or Blockchain.
-	- Avoids major redesigns (like server-authoritative Pong or CLI clients).
-
-✔️ Modular, Assignable, and Testable
-	- Each module can be developed independently, ideal for parallel work.
-	- Team members can own end-to-end features.
-
-=========================================================================================
+ORM - Type ORM
+MVC
+API
+WebSocket
