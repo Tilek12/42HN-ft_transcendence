@@ -1,0 +1,42 @@
+
+
+ft_transcendence/
+├── backend/                      # Fastify (Node.js) backend
+│   ├── src/
+│   │   ├── auth/                 # JWT + 2FA
+│   │   │   ├── strategies/
+│   │   │   ├── routes.ts
+│   │   │   └── schemas.ts
+│   │   ├── game/                 # Server-side Pong
+│   │   │   ├── api/              # REST API
+│   │   │   ├── engine/           # Game logic
+│   │   │   └── websocket/        # Remote players
+│   │   ├── user/                 # User management
+│   │   │   ├── models.ts         # SQLite schema
+│   │   │   └── routes.ts
+│   │   ├── database/             # SQLite
+│   │   │   └── client.ts
+│   │   └── server.ts
+│   ├── Dockerfile
+│   └── package.json
+│
+├── frontend/                     # Tailwind + TypeScript
+│   ├── src/
+│   │   ├── assets/               # Localization files
+│   │   │   └── locales/
+│   │   ├── game/                 # Pong UI
+│   │   │   ├── customization.ts  # Game options
+│   │   │   └── renderer.ts
+│   │   ├── services/
+│   │   │   ├── api.ts            # API client
+│   │   │   └── auth.ts
+│   │   ├── utils/
+│   │   │   ├── responsive.ts     # Device support
+│   │   │   └── i18n.ts           # Multi-language
+│   │   ├── app.ts
+│   │   └── index.html
+│   ├── Dockerfile
+│   └── tailwind.config.js
+│
+├── docker-compose.yml
+└── .env                          # Secrets (JWT, DB path)
