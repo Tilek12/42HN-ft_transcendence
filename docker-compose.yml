@@ -3,30 +3,45 @@ version: '3.8'
 services:
   backend:
     build:
-      context: .
-      dockerfile: backend/Dockerfile
-    ports: ["3000:3000"]
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "3000:3000"
     volumes:
-      - .backend:/app
-      - ./data:/data
-      - /app/node_modules
+      - .backend:/app     # Bind mount for live code updates
+      - ./data:/data      # Persistent SQLite database
+      - /app/node_modules # Isolate container dependencies
     environment:
       - NODE_ENV=development
-      - DB_PATH=/data/pong.db
+      - DATABASE_URL=file:/app/database/pong.db
     restart: unless-stopped
-    command: npm run dev
+    command: npm run dev  # Auto-reload with nodemon
+    working_dir: /app
+    networks:
+      - pong-network
 
   frontend:
     build:
-      context: .
-      dockerfile: frontend/Dockerfile
-    ports: ["5173:5173"]
+      context: .frontend/
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "5173:5173"
     volumes:
-      - ./frontend:/app
+      - ./frontend:/app:cached  # Live updates for frontend
+      # - /app/dist               # Vite output (excluded from bind mount)
       - /app/node_modules
     environment:
       - NODE_ENV=development
+      # - VITE_API_URL=http://localhost:3000
     depends_on:
       - backend
     restart: unless-stopped
-    command: npm run dev
+    command: npm run dev        # Vite HMR enabled
+    networks:
+      - pong-network
+
+networks:
+  pong-network:
+    driver: bridge
