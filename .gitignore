@@ -1,1 +1,9 @@
 .env
+backend/.env
+node_modules
+secrets
+.fastify-blog
+dir
+main.js
+dist
+database/*.db
