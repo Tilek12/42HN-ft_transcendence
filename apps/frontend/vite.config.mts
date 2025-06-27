@@ -1,9 +1,16 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vite';
 
 export default defineConfig({
+  root: './src/',
   server: {
-    host: true, // 👈 expose to host (0.0.0.0)
-    port: 5173, // keep consistent with Docker
-    strictPort: true // fail if port is taken (useful for debugging)
+    host: '0.0.0.0',
+    port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://backend:3001',
+        changeOrigin: true,
+        secure: false
+      }
+    }
   }
-})
+});

@@ -48,6 +48,35 @@
 #     driver: bridge
 
 
+# version: "3.9"
+
+# services:
+#   backend:
+#     build:
+#       context: .
+#       dockerfile: apps/backend/Dockerfile.backend
+#     container_name: backend
+#     volumes:
+#       - ./apps/backend:/app
+#     ports:
+#       - "3001:3001"
+#     environment:
+#       - NODE_ENV=development
+
+#   frontend:
+#     build:
+#       context: .
+#       dockerfile: apps/frontend/Dockerfile.frontend
+#     container_name: frontend
+#     volumes:
+#       - ./apps/frontend:/app
+#     ports:
+#       - "5173:5173"
+#     environment:
+#       - NODE_ENV=development
+#     depends_on:
+#       - backend
+
 version: "3.9"
 
 services:
@@ -56,21 +85,23 @@ services:
       context: .
       dockerfile: apps/backend/Dockerfile.backend
     container_name: backend
-    # volumes:
-      # - ./apps/backend:/app
     ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=development
+      - "3001:3001"
+    volumes:
+      - ./apps/backend:/app
+      - /app/node_modules  # ✅ Prevent overwriting node_modules
+    working_dir: /app
+    command: npm run dev
 
   frontend:
     build:
       context: .
       dockerfile: apps/frontend/Dockerfile.frontend
     container_name: frontend
-    # volumes:
-      # - ./apps/frontend:/app
     ports:
       - "5173:5173"
-    environment:
-      - NODE_ENV=development
+    volumes:
+      - ./apps/frontend:/app
+      - /app/node_modules  # ✅ Prevent overwriting node_modules
+    working_dir: /app
+    command: npm run dev

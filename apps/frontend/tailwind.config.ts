@@ -1,10 +1,10 @@
-import type { Config } from 'tailwindcss'
+import type { Config } from 'tailwindcss';
 
 const config: Config = {
-  content: ['./index.html', './src/**/*.{ts,js}'],
+  content: ['./src/**/*.{html,ts}'],
   theme: {
     extend: {}
   },
   plugins: []
-}
-export default config
+};
+export default config;
