@@ -1,12 +1,14 @@
 import Fastify from 'fastify';
 import websocket from '@fastify/websocket';
 import wsConnectionPlugin from './game/websocket/connections';
+import authRoutes from './auth/routes';
 
 const server = Fastify({ logger: true });
 
 async function main() {
   await server.register(websocket);                 // 👈 Add WebSocket support
   await server.register(wsConnectionPlugin);        // 👈 Register WS logic
+  await server.register(authRoutes);                // 👈 Register routes
 
   server.get('/api/ping', async () => {
     return { pong: true, time: new Date().toISOString() };
