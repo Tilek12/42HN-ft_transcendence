@@ -1,14 +1,17 @@
 import { Player } from './types';
 import { GameRoom } from './game-room';
 
-const waiting: Player[] = [];
+const waitingDuel: Player[] = [];
 
-export function enqueuePlayer(player: Player) {
-  waiting.push(player);
-
-  if (waiting.length >= 2) {
-    const p1 = waiting.shift()!;
-    const p2 = waiting.shift()!;
-    new GameRoom(p1, p2); // start game
+export function startGame(player: Player, mode: 'solo' | 'duel') {
+  if (mode === 'solo') {
+    new GameRoom(player, null); // solo player vs self or AI later
+  } else {
+    waitingDuel.push(player);
+    if (waitingDuel.length >= 2) {
+      const p1 = waitingDuel.shift()!;
+      const p2 = waitingDuel.shift()!;
+      new GameRoom(p1, p2);
+    }
   }
 }

@@ -1,7 +1,7 @@
 import { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
 import { WebSocket as WS } from 'ws';
-import { enqueuePlayer } from '../engine/matchmaking';
+import { startGame } from '../engine/matchmaking';
 import { Player } from '../engine/types';
 
 interface ConnectedUser {
@@ -17,6 +17,7 @@ const PING_INTERVAL_MS = 10000;
 const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
   fastify.get('/ws', { websocket: true }, (connection, req) => {
     const userId = req.headers['sec-websocket-protocol'];
+    const mode = req.url.includes('mode=solo') ? 'solo' : 'duel';
 
     if (!userId || typeof userId !== 'string') {
       connection.socket.close(1008, 'Invalid user');
@@ -35,8 +36,8 @@ const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
     console.log(`✅ User connected: ${userId}`);
 
     // Send player to matchmaking
-    const player: Player = { id: userId, socket };
-    enqueuePlayer(player);
+    const player: Player = { id: userId, socket: connection.socket };
+    startGame(player, mode);
 
     socket.on('message', (msg) => {
       const text = msg.toString();

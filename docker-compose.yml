@@ -86,7 +86,7 @@ services:
       dockerfile: apps/backend/Dockerfile.backend
     container_name: backend
     ports:
-      - "3001:3001"
+      - "3000:3000"
     volumes:
       - ./apps/backend:/app
       - /app/node_modules  # ✅ Prevent overwriting node_modules
@@ -99,7 +99,7 @@ services:
       dockerfile: apps/frontend/Dockerfile.frontend
     container_name: frontend
     ports:
-      - "5173:5173"
+      - "8080:8080"
     volumes:
       - ./apps/frontend:/app
       - /app/node_modules  # ✅ Prevent overwriting node_modules

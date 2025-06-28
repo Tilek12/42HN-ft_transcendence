@@ -14,3 +14,10 @@ export interface GameState {
   status: 'playing' | 'ended';
 }
 
+export interface MoveMessage {
+  type: 'move';
+  direction: 'up' | 'down';
+  side?: 'left' | 'right'; // ← optional, used in solo mode
+}
+
+export type GameMode = 'solo' | 'duel';

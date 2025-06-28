@@ -2,7 +2,7 @@
 export const userId = 'user42'
 
 // Connect to WebSocket server
-export const socket = new WebSocket('ws://localhost:3001/ws', userId)
+export const socket = new WebSocket('ws://localhost:3000/ws', userId)
 
 socket.onopen = () => {
   console.log('✅ WebSocket connected')
