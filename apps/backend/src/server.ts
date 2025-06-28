@@ -1,15 +1,24 @@
-import Fastify from 'fastify'
+import Fastify from 'fastify';
+import websocket from '@fastify/websocket';
+import wsConnectionPlugin from './game/websocket/connections';
 
-const server = Fastify()
+const server = Fastify({ logger: true });
 
-server.get('/ping', async () => {
-  return { pong: true, time: new Date().toISOString() }
-})
+async function main() {
+  await server.register(websocket);                 // 👈 Add WebSocket support
+  await server.register(wsConnectionPlugin);        // 👈 Register WS logic
 
-server.listen({ port: 3001, host: '0.0.0.0' }, (err, addr) => {
-  if (err) {
-    console.error(err)
-    process.exit(1)
+  server.get('/api/ping', async () => {
+    return { pong: true, time: new Date().toISOString() };
+  });
+
+  try {
+    await server.listen({ port: 3001, host: '0.0.0.0' });
+    console.log('✅ Backend running on http://localhost:3001');
+  } catch (err) {
+    server.log.error(err);
+    process.exit(1);
   }
-  console.log(`✅ Backend running at ${addr}`)
-})
+}
+
+main();
