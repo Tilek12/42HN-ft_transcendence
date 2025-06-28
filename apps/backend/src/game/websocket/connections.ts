@@ -1,6 +1,8 @@
 import { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
 import { WebSocket as WS } from 'ws';
+import { enqueuePlayer } from '../engine/matchmaking';
+import { Player } from '../engine/types';
 
 interface ConnectedUser {
   id: string;
@@ -21,39 +23,49 @@ const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
       return;
     }
 
+    const socket = connection.socket;
+
+    // Track in heartbeat list
     const user: ConnectedUser = {
       id: userId,
-      socket: connection.socket,
+      socket,
       isAlive: true
     };
-
     connectedUsers.push(user);
     console.log(`✅ User connected: ${userId}`);
 
-    connection.socket.on('message', (message) => {
-      const text = message.toString();
+    // Send player to matchmaking
+    const player: Player = { id: userId, socket };
+    enqueuePlayer(player);
+
+    socket.on('message', (msg) => {
+      const text = msg.toString();
+
       if (text === 'pong') {
         user.isAlive = true;
-      } else {
-        console.log(`[${userId}] says: ${text}`);
+        return;
       }
+
+      // Optional: log or ignore non-ping/pong messages here.
+      // GameRoom handles move input internally per player.
     });
 
-    connection.socket.on('close', () => {
+    socket.on('close', () => {
       console.log(`❌ User disconnected: ${userId}`);
       const index = connectedUsers.findIndex((u) => u.id === userId);
       if (index !== -1) connectedUsers.splice(index, 1);
+      // GameRoom will also handle clean-up per match on player close.
     });
   });
 
-  // Global ping interval
+  // Ping-pong heartbeat
   setInterval(() => {
     connectedUsers.forEach((user, i) => {
       if (user.socket.readyState !== WS.OPEN) return;
 
       if (!user.isAlive) {
         console.log(`💀 Removing dead user: ${user.id}`);
-        user.socket.terminate?.(); // Not all runtimes support terminate(), use close() if needed
+        user.socket.close();
         connectedUsers.splice(i, 1);
         return;
       }
@@ -65,3 +77,4 @@ const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
 };
 
 export default fp(wsConnectionPlugin);
+
