@@ -6,7 +6,7 @@ export class GameRoom {
   private state: GameState;
   private interval: NodeJS.Timeout;
 
-  constructor(player1: Player, player2: Player | null) {
+  constructor(player1: Player, player2: Player) {
     this.players = [player1, player2 || null];
     this.mode = player2 ? 'duel' : 'solo';
     this.state = this.initState();

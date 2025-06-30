@@ -6,6 +6,7 @@ export function renderGame(root: HTMLElement) {
     <div class="flex justify-center gap-4 mb-6">
       <button id="play-alone" class="bg-blue-500 text-white px-4 py-2 rounded">Play Alone</button>
       <button id="play-online" class="bg-green-500 text-white px-4 py-2 rounded">Play Online</button>
+	  <button id="play-four" class="bg-green-500 text-white px-4 py-2 rounded">Play with Four Players</button>
     </div>
     <canvas id="pong" width="600" height="400" class="mx-auto border border-black bg-white hidden"></canvas>
     <p class="mt-4 text-gray-600 text-center" id="info">Choose a game mode to begin</p>
@@ -23,17 +24,18 @@ export function renderGame(root: HTMLElement) {
 
   document.getElementById('play-alone')!.addEventListener('click', () => startGame('solo'));
   document.getElementById('play-online')!.addEventListener('click', () => startGame('duel'));
+  document.getElementById('play-four')!.addEventListener('click', () => startGame('four'));
 
-  function startGame(mode: 'solo' | 'duel') {
+  function startGame(mode: 'solo' | 'duel' | 'four') {
     if (socket) {
       socket.close();
       socket = null;
     }
 
     canvas.classList.remove('hidden');
-    info.textContent = mode === 'solo'
-      ? 'Solo mode: Use W/S for left paddle, ↑/↓ for right paddle'
-      : 'Online mode: Use ↑/↓ arrows. Waiting for opponent...';
+    info.textContent = mode === 'solo' ? 'Solo mode: Use W/S for left paddle, ↑/↓ for right paddle'
+      : mode === 'duel' ? 'Online mode: Use ↑/↓ arrows. Waiting for opponent...' 
+	  : 'Four-Players mode: Use W/S for left paddle, ↑/↓ for right paddle, C/V for up paddle, </> for down paddle' ;
 
     // ✅ Create WebSocket connection now
     socket = new WebSocket(`ws://localhost:3000/ws?mode=${mode}`, userId);
@@ -77,7 +79,15 @@ export function renderGame(root: HTMLElement) {
       } else if (e.key === 'w') {
         socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'left' }));
       } else if (e.key === 's') {
-        socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'left' }));
+        socket.send(JSON.stringify({ type: 'move', direction: 'left', side: 'left' }));
+      } else if (e.key === 'c') {
+        socket.send(JSON.stringify({ type: 'move', direction: 'left', side: 'top' }));
+      } else if (e.key === 's') {
+        socket.send(JSON.stringify({ type: 'move', direction: 'right', side: 'top' }));
+      } else if (e.key === ',') {
+        socket.send(JSON.stringify({ type: 'move', direction: 'left', side: 'bottom' }));
+      } else if (e.key === '.') {
+        socket.send(JSON.stringify({ type: 'move', direction: 'right', side: 'bottom' }));
       }
     });
 

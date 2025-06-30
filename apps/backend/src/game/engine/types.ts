@@ -7,7 +7,11 @@ export interface Player {
 
 export interface GameState {
   ball: { x: number; y: number; vx: number; vy: number };
-  paddles: { [id: string]: number }; // Y position
+  paddles: { [id: PlayerID]: {
+	side: 'left' | 'right' | 'top' | 'bottom';
+	pos: number;
+   };
+  }; // Y position
   score: { [id: string]: number };
   width: number;
   height: number;
@@ -16,8 +20,8 @@ export interface GameState {
 
 export interface MoveMessage {
   type: 'move';
-  direction: 'up' | 'down';
-  side?: 'left' | 'right'; // ← optional, used in solo mode
+  direction: 'up' | 'down' | 'left' | 'right';
+  side: 'left' | 'right' | 'top' | 'bottom'; // ← optional, used in solo mode
 }
 
-export type GameMode = 'solo' | 'duel';
+export type GameMode = 'solo' | 'duel' | 'four';
