@@ -1,33 +1,45 @@
-import { Player, GameState } from './types';
+import { Player, GameState, GameMode, MoveMessage } from './types';
 
 export class GameRoom {
-  private players: [Player, Player?];
-  private mode: 'solo' | 'duel';
+  private players: [Player?, Player?, Player?, Player?];
+  private mode: GameMode;
   private state: GameState;
   private interval: NodeJS.Timeout;
 
-  constructor(player1: Player, player2: Player) {
-    this.players = [player1, player2 || null];
-    this.mode = player2 ? 'duel' : 'solo';
+  constructor(player1: Player, player2: Player, player3: Player, player4: Player) {
+    this.players = [player1, player2 || null, player3 || null, player4 || null];
+
+    if (player2 && player3 && player4) {
+      this.mode = 'four';
+    } else if (player2) {
+      this.mode = 'duel';
+    } else {
+      this.mode = 'solo';
+    }
+
     this.state = this.initState();
     this.setupListeners();
     this.start();
   }
 
   private initState(): GameState {
+    const sides: Array<'left' | 'right' | 'top' | 'bottom'> = ['left', 'right', 'top', 'bottom'];
+    const paddles: GameState['paddles'] = {};
+    const score: GameState['score'] = {};
+
+    this.players.forEach((player, index) => {
+      if (!player) return;
+      paddles[player.id] = { side: sides[index], pos: 50 };
+      score[player.id] = 0;
+    });
+
     return {
       ball: { x: 50, y: 50, vx: 0.6, vy: 0.5 },
-      paddles: {
-        [this.players[0].id]: 50,
-        [this.players[1]?.id || '__ghost']: 50
-      },
-      score: {
-        [this.players[0].id]: 0,
-        [this.players[1]?.id || '__ghost']: 0
-      },
+      paddles,
+      score,
       width: 100,
       height: 100,
-      status: 'playing'
+      status: 'playing',
     };
   }
 
@@ -37,26 +49,18 @@ export class GameRoom {
 
       player.socket.on('message', (msg) => {
         const text = msg.toString();
-
-        // Ignore keep-alive pings
         if (text === 'pong') return;
 
-        let m: any;
+        let m: MoveMessage;
         try {
           m = JSON.parse(text);
-        } catch (e) {
-          console.warn(`⚠️ Received non-JSON message:`, text);
+        } catch {
+          console.warn('⚠️ Received non-JSON message:', text);
           return;
         }
 
         if (m.type === 'move') {
-          let targetId = player.id;
-
-          if (this.mode === 'solo' && m.side === 'right') {
-            targetId = '__ghost'; // right paddle in solo mode
-          }
-
-          this.move(targetId, m.direction);
+          this.move(player.id, m.direction);
         }
       });
 
@@ -67,10 +71,14 @@ export class GameRoom {
     }
   }
 
-  private move(playerId: string, direction: 'up' | 'down') {
-    const delta = direction === 'up' ? -2 : 2;
-    const y = this.state.paddles[playerId] || 50;
-    this.state.paddles[playerId] = Math.max(0, Math.min(100, y + delta));
+  private move(playerId: string, direction: 'up' | 'down' | 'left' | 'right') {
+    const paddle = this.state.paddles[playerId];
+    if (!paddle) return;
+
+    const delta = (direction === 'up' || direction === 'left') ? -2 : 2;
+    const size = paddle.side === 'left' || paddle.side === 'right' ? this.state.height : this.state.width;
+
+    paddle.pos = Math.max(0, Math.min(size - 20, paddle.pos + delta));
   }
 
   private start() {
@@ -79,40 +87,64 @@ export class GameRoom {
 
   private tick() {
     const { ball, paddles, score, width, height } = this.state;
+
     ball.x += ball.vx;
     ball.y += ball.vy;
 
-    if (ball.y <= 0 || ball.y >= height) ball.vy *= -1;
-
-    const [p1, p2] = this.players;
-    const pad1 = paddles[p1.id];
-    const pad2 = paddles[p2?.id || '__ghost'];
-
-    const hit = (py: number) => ball.y >= py && ball.y <= py + 20;
-
-    if (ball.x <= 2 && hit(pad1)) ball.vx *= -1;
-    else if (ball.x <= 0) {
-      score[p2?.id || '__ghost']++;
-      this.resetBall(1);
+    if (this.mode !== 'four' && (ball.y <= 0 || ball.y >= height)) {
+      ball.vy *= -1;
     }
 
-    if (ball.x >= width - 2 && hit(pad2)) ball.vx *= -1;
-    else if (ball.x >= width) {
-      score[p1.id]++;
-      this.resetBall(-1);
+    const paddleEntries = Object.entries(paddles);
+    for (const [id, paddle] of paddleEntries) {
+      const { side, pos } = paddle;
+      const paddleSize = 20;
+
+      const hit =
+        side === 'left' || side === 'right'
+          ? ball.y >= pos && ball.y <= pos + paddleSize
+          : ball.x >= pos && ball.x <= pos + paddleSize;
+
+      if (side === 'left' && ball.x <= 2 && hit) ball.vx *= -1;
+      else if (side === 'left' && ball.x <= 0) this.scoreAgainst(id);
+
+      if (side === 'right' && ball.x >= width - 2 && hit) ball.vx *= -1;
+      else if (side === 'right' && ball.x >= width) this.scoreAgainst(id);
+
+      if (side === 'top' && ball.y <= 2 && hit) ball.vy *= -1;
+      else if (side === 'top' && ball.y <= 0) this.scoreAgainst(id);
+
+      if (side === 'bottom' && ball.y >= height - 2 && hit) ball.vy *= -1;
+      else if (side === 'bottom' && ball.y >= height) this.scoreAgainst(id);
     }
 
-    if (score[p1.id] >= 5 || score[p2?.id || '__ghost'] >= 5) {
-      this.broadcast({ type: 'end', winner: score[p1.id] > score[p2?.id || '__ghost'] ? p1.id : p2?.id });
-      this.end();
-      return;
+    // Check for winner
+    for (const pid in score) {
+      if (score[pid] >= 5) {
+        this.broadcast({ type: 'end', winner: pid });
+        this.end();
+        return;
+      }
     }
 
     this.broadcast({ type: 'update', state: this.state });
   }
 
-  private resetBall(direction: 1 | -1) {
-    this.state.ball = { x: 50, y: 50, vx: 0.6 * direction, vy: 0.5 };
+  private scoreAgainst(loserId: string) {
+    for (const pid in this.state.score) {
+      if (pid !== loserId) this.state.score[pid]++;
+    }
+    this.resetBall();
+  }
+
+  private resetBall() {
+    const angle = Math.random() * 2 * Math.PI;
+    this.state.ball = {
+      x: 50,
+      y: 50,
+      vx: 0.6 * Math.cos(angle),
+      vy: 0.5 * Math.sin(angle),
+    };
   }
 
   private broadcast(msg: any) {
