@@ -2,7 +2,10 @@ export type PlayerID = string;
 
 export interface Player {
   id: PlayerID;
-  socket: WebSocket;
+  name: string;
+  socket?: WebSocket;
+  points?: number;
+  winner?: boolean;
 }
 
 export interface GameState {
