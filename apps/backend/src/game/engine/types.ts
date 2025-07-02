@@ -3,9 +3,9 @@ export type PlayerID = string;
 export interface Player {
   id: PlayerID;
   name: string;
-  socket?: WebSocket;
-  points?: number;
-  winner?: boolean;
+  socket?: WebSocket; // thomas
+  points?: number; // thomas
+  winner?: boolean; // thomas
 }
 
 export interface GameState {

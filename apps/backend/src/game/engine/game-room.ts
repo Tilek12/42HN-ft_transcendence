@@ -48,14 +48,11 @@ export class GameRoom {
           console.warn(`⚠️ Received non-JSON message:`, text);
           return;
         }
-
         if (m.type === 'move') {
           let targetId = player.id;
-
           if (this.mode === 'solo' && m.side === 'right') {
             targetId = '__ghost'; // right paddle in solo mode
           }
-
           this.move(targetId, m.direction);
         }
       });

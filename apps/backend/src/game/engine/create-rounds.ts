@@ -16,7 +16,7 @@ import {Player, GameState} from './types'
   export function createRounds(players: Player[]): Round[] {
 	let rounds: Round[] = [];
 	let currentPlayers = shuffle(players);
-  
+
 	currentPlayers.forEach((player)=>{player.points =  0; player.winner = false;});
 	while (currentPlayers.length > 1) {
 		rounds.push(currentPlayers);
@@ -33,7 +33,7 @@ import {Player, GameState} from './types'
 			}
 			while(player1.points < 5 && player2.points < 5)
 			{
-				let pl1 = Math.random();
+				let pl1 = Math.random();// game
 				let pl2 = Math.random();
 				if (pl1 > pl2)
 					player1.points++;

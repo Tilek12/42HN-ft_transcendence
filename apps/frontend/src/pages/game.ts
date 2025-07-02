@@ -24,6 +24,7 @@ export function renderGame(root: HTMLElement) {
   document.getElementById('play-alone')!.addEventListener('click', () => startGame('solo'));
   document.getElementById('play-online')!.addEventListener('click', () => startGame('duel'));
 
+  // here 
   function startGame(mode: 'solo' | 'duel') {
     if (socket) {
       socket.close();
@@ -51,12 +52,8 @@ export function renderGame(root: HTMLElement) {
 
       if (msg.type === 'update') {
         gameState = msg.state;
-      } else if (msg.type === 'end') {
-        alert(`🏁 Game over! Winner: ${msg.winner}`);
-        socket?.close();
-        socket = null;
-      } else if (msg.type === 'disconnect') {
-        alert(`❌ Opponent disconnected`);
+      } else if (msg.type === 'end' || msg.type === 'disconnect') {
+        msg.type === 'end' ? alert(`🏁 Game over! Winner: ${msg.winner}`) : alert(`❌ Opponent disconnected`) ;
         socket?.close();
         socket = null;
       }
