@@ -5,7 +5,7 @@ export function renderLogin(root: HTMLElement) {
     <div class="fixed inset-0 bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900">
       <!-- Animated background elements -->
       <div class="fixed inset-0 opacity-20 pointer-events-none">
-        <div class="absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
+        <div class="absolute top-40 left-10 w-72 h-72 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-bounce"></div>
         <div class="absolute top-60 right-10 w-72 h-72 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse animation-delay-2000"></div>
         <div class="absolute bottom-32 left-1/2 w-72 h-72 bg-gradient-to-r from-indigo-400 to-blue-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse animation-delay-4000"></div>
       </div>
@@ -27,7 +27,7 @@ export function renderLogin(root: HTMLElement) {
 
             <!-- Google login button -->
             <button id="google-login" class="w-full bg-white/10 hover:bg-white/20 border border-white/30 text-white py-3 px-4 rounded-xl mb-6 transition-all duration-300 flex items-center justify-center space-x-3 hover:scale-105 backdrop-blur-sm group">
-              <svg class="w-5 h-5 transition-transform group-hover:rotate-12" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 transition-transform group-hover:rotate-15" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                 <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -174,7 +174,7 @@ export function renderLogin(root: HTMLElement) {
       const data = await res.json();
 
       if (!res.ok) {
-        errorText.textContent = data.message || 'Login failed';
+        errorText.textContent = data.message || '❌ Login failed';
         errorContainer.classList.remove('hidden');
 
         // auto hiding
@@ -230,76 +230,3 @@ export function renderLogin(root: HTMLElement) {
     // location.href = '/api/auth/google'
   });
 }
-
-
-
-
-// import { renderNav } from './nav'
-
-// export function renderLogin(root: HTMLElement) {
-//   root.innerHTML = renderNav() + `
-//     <div class="max-w-md mx-auto mt-10 bg-white p-8 rounded shadow">
-//       <h1 class="text-3xl font-bold mb-6 text-center">Sign In</h1>
-
-//       <button id="google-login" class="w-full bg-red-500 text-white py-2 px-4 rounded mb-6 hover:bg-red-600">
-//         🔒 Login via Google
-//       </button>
-
-//       <form id="login-form" class="space-y-6">
-//         <div>
-//           <label for="username" class="block text-left text-sm font-medium text-gray-700">Username</label>
-//           <input type="text" id="username" class="mt-1 block w-full border px-3 py-2 rounded shadow-sm" required />
-//         </div>
-
-//         <div>
-//           <label for="password" class="block text-left text-sm font-medium text-gray-700">Password</label>
-//           <input type="password" id="password" class="mt-1 block w-full border px-3 py-2 rounded shadow-sm" required />
-//         </div>
-
-//         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
-//           Login
-//         </button>
-
-//         <p id="login-error" class="text-red-600 text-sm mt-2 hidden"></p>
-//       </form>
-
-//       <div class="text-center mt-6">
-//         <p class="text-sm text-gray-600">No account?</p>
-//         <a href="#/register" class="text-blue-600 hover:underline font-semibold">Register</a>
-//       </div>
-//     </div>
-//   `;
-
-//   const form = document.getElementById('login-form') as HTMLFormElement;
-//   const error = document.getElementById('login-error')!;
-//   const googleBtn = document.getElementById('google-login')!;
-
-//   form.addEventListener('submit', async (e) => {
-//     e.preventDefault();
-//     const username = (document.getElementById('username') as HTMLInputElement).value;
-//     const password = (document.getElementById('password') as HTMLInputElement).value;
-
-//     const res = await fetch('/api/login', {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ username, password }),
-//     });
-
-//     const data = await res.json();
-
-//     if (!res.ok) {
-//       error.textContent = data.message || 'Login failed';
-//       error.classList.remove('hidden');
-//     } else {
-//       alert('✅ Logged in!');
-//       location.hash = '#/profile';
-//     }
-//   });
-
-//   googleBtn.addEventListener('click', async () => {
-//     // Replace with actual redirect or popup flow later
-//     alert('🧪 Google login not implemented yet.');
-//     // Optional: Redirect to OAuth endpoint
-//     // location.href = '/api/auth/google'
-//   });
-// }
