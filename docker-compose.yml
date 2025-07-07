@@ -89,7 +89,8 @@ services:
       - "3000:3000"
     volumes:
       - ./apps/backend:/app
-      - /app/node_modules  # ✅ Prevent overwriting node_modules
+      - ./cert:/app/cert    # ✅ Mount certs into backend
+      - /app/node_modules   # ✅ Prevent overwriting node_modules
     working_dir: /app
     command: npm run dev
 
@@ -102,6 +103,7 @@ services:
       - "8080:8080"
     volumes:
       - ./apps/frontend:/app
-      - /app/node_modules  # ✅ Prevent overwriting node_modules
+      - ./cert:/app/cert    # ✅ Mount certs into frontend
+      - /app/node_modules   # ✅ Prevent overwriting node_modules
     working_dir: /app
     command: npm run dev

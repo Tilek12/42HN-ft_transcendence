@@ -1,22 +1,29 @@
 // Simulated user ID (⚠️ replace with real JWT-based ID later)
 export const userId = 'user42'
 
-// Connect to WebSocket server
-export const socket = new WebSocket('ws://localhost:3000/ws', userId)
+// Create WebSocket only when needed (on game start)
+export function createGameSocket(mode: 'solo' | 'duel'): WebSocket {
+	const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://localhost:3000'
+	const wsUrl = backendUrl.replace(/^http/, 'ws') + `/ws?mode=${mode}`
 
-socket.onopen = () => {
-  console.log('✅ WebSocket connected')
-  socket.send('Hello from frontend!')
-}
+	const socket = new WebSocket(wsUrl, userId)
 
-socket.onmessage = (event) => {
-	const msg = event.data;
-	if (msg === 'ping') {
-	  socket.send('pong');
-	  console.log('🏓 Sent pong');
+	socket.onopen = () => {
+	  console.log('✅ WebSocket connected')
+	  socket.send('Hello from frontend!')
 	}
-  };
 
-socket.onclose = () => {
-  console.log('❌ WebSocket disconnected')
-}
+	socket.onmessage = (event) => {
+	  const msg = event.data
+	  if (msg === 'ping') {
+		socket.send('pong')
+		console.log('🏓 Sent pong')
+	  }
+	}
+
+	socket.onclose = () => {
+	  console.log('❌ WebSocket disconnected')
+	}
+
+	return socket
+  }

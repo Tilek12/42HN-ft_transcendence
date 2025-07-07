@@ -1,9 +1,10 @@
 .env
-backend/.env
+apps/backend/.env
+apps/frontend/.env
+cert
+apps/backend/cert
+apps/frontend/cert
 node_modules
-secrets
 .fastify-blog
-dir
-main.js
 dist
 database/*.db
