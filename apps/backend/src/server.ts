@@ -8,6 +8,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const LOCAL_IP = process.env.LOCAL_IP || '127.0.0.1';
+const PORT = parseInt(process.env.BACKEND_PORT || 3000);
 
 const server = Fastify({
   logger: true,
@@ -27,8 +28,10 @@ async function main() {
   });
 
   try {
-    await server.listen({ port: 3000, host: '0.0.0.0' });
-    console.log(`✅ Server running on https://${LOCAL_IP}:3000`);
+    await server.listen({ port: PORT, host: '0.0.0.0' });
+    console.log('✅ Server running on:');
+    console.log(`     Local: https://localhost:${PORT}`);
+    console.log(`   Network: https://${LOCAL_IP}:${PORT}`);
   } catch (err) {
     server.log.error(err);
     process.exit(1);

@@ -29,9 +29,11 @@ append_to_env() {
     fi
 }
 
+ENV_GLOBAL="./env"
 ENV_BACKEND="./apps/backend/.env"
 ENV_FRONTEND="./apps/frontend/.env"
 
+append_to_env "$ENV_GLOBAL" "LOCAL_IP" "$LOCAL_IP"
 append_to_env "$ENV_BACKEND" "LOCAL_IP" "$LOCAL_IP"
 append_to_env "$ENV_FRONTEND" "LOCAL_IP" "$LOCAL_IP"
 
