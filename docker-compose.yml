@@ -13,7 +13,7 @@ services:
       - ./cert:/app/cert    # ✅ Mount certs into backend
       - /app/node_modules   # ✅ Prevent overwriting node_modules
     env_file:
-      - ./apps/backend/.env
+      - ./.env
     environment:
       - NODE_ENV=development
       - LOCAL_IP=${LOCAL_IP}
@@ -33,7 +33,7 @@ services:
       - ./cert:/app/cert    # ✅ Mount certs into frontend
       - /app/node_modules   # ✅ Prevent overwriting node_modules
     env_file:
-      - ./apps/frontend/.env
+      - ./.env
     environment:
       - NODE_ENV=development
       - LOCAL_IP=${LOCAL_IP}

@@ -1,20 +1,20 @@
 #!/bin/bash
 set -e
 
-# Load env vars
+# 1. Load env vars
 if [ ! -f .env ]; then
-  echo "❌ .env file not found. Please create it with NGROK_AUTHTOKEN and NGROK_DOMAIN."
+  echo "❌ .env file not found. Please create it with BACKEND_PORT, NGROK_AUTHTOKEN and NGROK_DOMAIN."
   exit 1
 fi
 
 source .env
 
-if [ -z "$NGROK_AUTHTOKEN" ] || [ -z "$NGROK_DOMAIN" ]; then
-  echo "❌ NGROK_AUTHTOKEN or NGROK_DOMAIN is not set in .env file."
+if [ -z "$BACKEND_PORT" ] || [ -z "$NGROK_AUTHTOKEN" ] || [ -z "$NGROK_DOMAIN" ]; then
+  echo "❌ BACKEND_PORT, NGROK_AUTHTOKEN or NGROK_DOMAIN is not set in .env file."
   exit 1
 fi
 
-# Check if ngrok is installed
+# 2. Check if ngrok is installed
 if ! command -v ngrok &> /dev/null; then
   echo "🛠️  Ngrok not found. Installing..."
 
@@ -33,7 +33,7 @@ if ! command -v ngrok &> /dev/null; then
   fi
 fi
 
-# Set ngrok token if not exist
+# 3. Set ngrok token if not exist
 if ! grep -q "authtoken:" ~/.config/ngrok/ngrok.yml 2>/dev/null; then
   echo "🔐 Setting up ngrok token..."
   ngrok config add-authtoken "$NGROK_AUTHTOKEN"
@@ -42,30 +42,27 @@ else
 fi
 
 
-# Check if ngrok is already running
+# 4. Check if ngrok is already running
 if pgrep -x "ngrok" >/dev/null; then
   echo "ℹ️  Ngrok is already running, skipping..."
 else
   # Start ngrok with reserved domain to HTTPS localhost
-  echo "🌐 Starting ngrok with reserved domain: $NGROK_DOMAIN (forwarding to https://localhost:3000)"
-  ngrok http --domain="$NGROK_DOMAIN" https://localhost:3000 > /dev/null &
+  echo "🌐 Starting ngrok with reserved domain: $NGROK_DOMAIN (forwarding to https://localhost:$BACKEND_PORT)"
+  ngrok http --domain="$NGROK_DOMAIN" https://localhost:$BACKEND_PORT > /dev/null &
   NGROK_PID=$!
 
   # Wait a few seconds to ensure it's up
   sleep 3
 fi
 
-# Inject the domain into frontend if not already exists
-FRONTEND_ENV=./apps/frontend/.env
-if [ ! -f "$FRONTEND_ENV" ]; then
-  touch "$FRONTEND_ENV"
-fi
+# 5. Inject the domain into .env if not already exists
+ENV=./.env
 
-if ! grep -q "VITE_BACKEND_URL=" "$FRONTEND_ENV"; then
-  echo "VITE_BACKEND_URL=https://$NGROK_DOMAIN" >> "$FRONTEND_ENV"
-  echo "📝 Added VITE_BACKEND_URL=https://$NGROK_DOMAIN to $FRONTEND_ENV"
+if ! grep -q "VITE_BACKEND_URL=" "$ENV"; then
+  echo "VITE_BACKEND_URL=https://$NGROK_DOMAIN" >> "$ENV"
+  echo "📝 Added VITE_BACKEND_URL=https://$NGROK_DOMAIN to $ENV"
 else
-  echo "ℹ️  VITE_BACKEND_URL already exists in $FRONTEND_ENV, skipping..."
+  echo "ℹ️  VITE_BACKEND_URL already exists in $ENV, skipping..."
 fi
 
 echo "✅ ngrok setup completed successfully"

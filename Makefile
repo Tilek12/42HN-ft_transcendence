@@ -26,7 +26,6 @@ COMPOSE := $(DOCKER_COMPOSE) -f $(COMPOSE_FILE)
 
 # Environment validation
 ENV_FILE := .env
-ENV_FILES := $(ENV_FILE) ./apps/backend/.env ./apps/frontend/.env
 
 ## --------------------------- ##
 ##  Project Lifecycle Targets  ##
@@ -44,7 +43,6 @@ re: clean start		## 🔄 Restart everything
 
 up:		## 🐳 Start containers with build
 	@printf "$(BLUE)🐳 Starting Docker containers...$(RESET)\n"
-	@trap '$(COMPOSE) down' INT TERM
 	$(COMPOSE) up --build
 	@printf "$(RED)🛑 Containers stopped$(RESET)\n"
 
@@ -78,13 +76,11 @@ logs:		## 📄 View container logs
 ps:			## 📊 Show container status
 	$(COMPOSE) ps
 
-env-check:	## 🔍 Verify environment files exist
-	@for file in $(ENV_FILES); do \
-		if [ ! -f $$file ]; then \
-			printf "$(RED)❌ Missing required file: $$file$(RESET)\n"; \
-			exit 1; \
-		fi; \
-	done
+env-check:	## 🔍 Verify environment file exist
+	@if [ ! -f $(ENV_FILE) ]; then \
+		printf "$(RED)❌ Missing required .env in project root$(RESET)\n"; \
+		exit 1; \
+	fi
 
 help:		## 🆘 Display this help message
 	@printf "\n$(BLUE)🏓 Pong Game Management$(RESET)\n\n"

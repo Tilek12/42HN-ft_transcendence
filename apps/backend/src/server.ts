@@ -36,6 +36,19 @@ async function main() {
     server.log.error(err);
     process.exit(1);
   }
+
+  const shutdown = async () => {
+    try {
+      await server.close();
+      process.exit(0);
+    } catch (err) {
+      console.error('❌ Error during shutdown:', err);
+      process.exit(1);
+    }
+  }
+
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
 }
 
 main();
