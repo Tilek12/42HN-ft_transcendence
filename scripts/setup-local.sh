@@ -29,7 +29,7 @@ append_to_env() {
     fi
 }
 
-ENV_GLOBAL="./env"
+ENV_GLOBAL="./.env"
 ENV_BACKEND="./apps/backend/.env"
 ENV_FRONTEND="./apps/frontend/.env"
 
