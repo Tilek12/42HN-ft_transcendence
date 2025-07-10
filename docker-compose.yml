@@ -7,7 +7,7 @@ services:
       dockerfile: apps/backend/Dockerfile.backend
     container_name: backend
     ports:
-      - "3000:3000"
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
     volumes:
       - ./apps/backend:/app
       - ./cert:/app/cert    # ✅ Mount certs into backend
@@ -16,8 +16,6 @@ services:
       - ./.env
     environment:
       - NODE_ENV=development
-      - LOCAL_IP=${LOCAL_IP}
-      - BACKEND_PORT=${BACKEND_PORT}
     networks:
       - pong-network
 
@@ -27,7 +25,7 @@ services:
       dockerfile: apps/frontend/Dockerfile.frontend
     container_name: frontend
     ports:
-      - "8080:8080"
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     volumes:
       - ./apps/frontend:/app
       - ./cert:/app/cert    # ✅ Mount certs into frontend
@@ -36,7 +34,6 @@ services:
       - ./.env
     environment:
       - NODE_ENV=development
-      - LOCAL_IP=${LOCAL_IP}
     depends_on:
       backend:
         condition: service_started
