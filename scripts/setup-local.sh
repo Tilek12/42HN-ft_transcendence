@@ -48,12 +48,12 @@ append_to_env() {
 append_to_env "$ENV_FILE" "LOCAL_IP" "$LOCAL_IP"
 
 # 4. Check OpenSSL
-check_openssl() {
+check_ssl_tool() {
     if ! command -v openssl &> /dev/null; then
-        echo "❌ OpenSSL not found. Attempting to install via Homebrew..."
+        echo "❌ Neither OpenSSL nor LibreSSL found. Attempting to install OpenSSL via Homebrew..."
 
         if ! command -v brew &> /dev/null; then
-            echo "❌ Homebrew not installed. Please install Homebrew first:"
+            echo "❌ Homebrew not installed. Please install it first:"
             echo "    /bin/bash -c $(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
             exit 1
         fi
@@ -71,11 +71,11 @@ check_openssl() {
         fi
         echo "✅ OpenSSL installed successfully"
     else
-        echo "✅ OpenSSL found: $(openssl version)"
+        echo "✅ Found $(openssl version)"
     fi
 }
 
-check_openssl
+check_ssl_tool
 
 # 5. Create self-signed cert for IP if not exists
 CERT_DIR="./cert"
@@ -86,11 +86,25 @@ CERT_FILE="$CERT_DIR/cert.pem"
 
 if [[ ! -f "$KEY_FILE" || ! -f "$CERT_FILE" ]]; then
   echo "🔐 Generating self-signed HTTPS certificate for $LOCAL_IP..."
-  openssl req -x509 -newkey rsa:2048 -sha256 -days 365 -nodes \
-    -keyout "$KEY_FILE" \
-    -out "$CERT_FILE" \
-    -subj "/C=DE/ST=Dev/L=LAN/O=42/CN=$LOCAL_IP" \
-    -addext "subjectAltName=IP:$LOCAL_IP"
+
+  # Check if LibreSSL (macOS default) or OpenSSL is used
+  if openssl version | grep -q "LibreSSL"; then
+    # LibreSSL
+    openssl req -x509 -newkey rsa:2048 -sha256 -days 365 -nodes \
+      -keyout "$KEY_FILE" \
+      -out "$CERT_FILE" \
+      -subj "/C=DE/ST=Dev/L=LAN/O=42/CN=$LOCAL_IP" \
+      -extensions SAN \
+      -config <(echo "[req]"; echo "distinguished_name=req"; echo "[SAN]"; echo "subjectAltName=IP:$LOCAL_IP")
+  else
+    # OpenSSL (standard)
+    openssl req -x509 -newkey rsa:2048 -sha256 -days 365 -nodes \
+      -keyout "$KEY_FILE" \
+      -out "$CERT_FILE" \
+      -subj "/C=DE/ST=Dev/L=LAN/O=42/CN=$LOCAL_IP" \
+      -addext "subjectAltName=IP:$LOCAL_IP"
+  fi
+
   echo "✅ Certificate created at $CERT_DIR"
 else
   echo "✅ Existing certificate found at $CERT_DIR"
