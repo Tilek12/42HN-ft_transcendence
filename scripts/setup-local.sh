@@ -48,24 +48,34 @@ append_to_env() {
 append_to_env "$ENV_FILE" "LOCAL_IP" "$LOCAL_IP"
 
 # 4. Check OpenSSL
-if ! command -v openssl &>/dev/null; then
-  echo "❌ OpenSSL is not installed."
+check_openssl() {
+    if ! command -v openssl &> /dev/null; then
+        echo "❌ OpenSSL not found. Attempting to install via Homebrew..."
 
-  UNAME=$(uname)
-  if [[ "$UNAME" == "Darwin" ]]; then
-    echo "🛠️ Installing OpenSSL via Homebrew..."
-    if ! command -v brew &>/dev/null; then
-      echo "❌ Homebrew not found. Please install it first: https://brew.sh"
-      exit 1
+        if ! command -v brew &> /dev/null; then
+            echo "❌ Homebrew not installed. Please install Homebrew first:"
+            echo "    /bin/bash -c $(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            exit 1
+        fi
+
+        brew install openssl
+        # Add openssl to PATH if installed but not found
+        if [ -f "/usr/local/opt/openssl/bin/openssl" ]; then
+            export PATH="/usr/local/opt/openssl/bin:$PATH"
+        fi
+
+        # Verify installation
+        if ! command -v openssl &> /dev/null; then
+            echo "❌ Failed to install OpenSSL. Please install it manually."
+            exit 1
+        fi
+        echo "✅ OpenSSL installed successfully"
+    else
+        echo "✅ OpenSSL found: $(openssl version)"
     fi
-    brew install openssl
-  else
-    echo "⚠️ Please install OpenSSL manually (e.g. with apt, yum, or other)."
-    exit 1
-  fi
-else
-  echo "✅ OpenSSL is installed."
-fi
+}
+
+check_openssl
 
 # 5. Create self-signed cert for IP if not exists
 CERT_DIR="./cert"
