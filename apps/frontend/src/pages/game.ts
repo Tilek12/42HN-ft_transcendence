@@ -1,4 +1,5 @@
 import { renderNav } from './nav';
+import { createGameSocket, userId } from '../socket'
 
 export function renderGame(root: HTMLElement) {
   root.innerHTML = renderNav() + `
@@ -16,7 +17,6 @@ export function renderGame(root: HTMLElement) {
   const info = document.getElementById('info')!;
   const width = canvas.width;
   const height = canvas.height;
-  const userId = 'user42'; // Replace with real user ID (e.g. from JWT)
 
   let socket: WebSocket | null = null;
   let gameState: any = null;
@@ -36,9 +36,7 @@ export function renderGame(root: HTMLElement) {
       : 'Online mode: Use ↑/↓ arrows. Waiting for opponent...';
 
     // ✅ Create WebSocket connection now
-    socket = new WebSocket(`ws://localhost:3000/ws?mode=${mode}`, userId);
-
-    socket.onopen = () => console.log('✅ WebSocket connected');
+    socket = createGameSocket(mode);
 
     socket.onmessage = (event) => {
       // ✅ Handle keep-alive ping-pong
