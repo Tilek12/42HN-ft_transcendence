@@ -1,13 +1,17 @@
 #!/bin/bash
 set -e
 
+echo "🔧 Starting local setup..."
+
 # 1. Load env vars
-if [ ! -f .env ]; then
+ENV_FILE="./.env"
+
+if [ ! -f "$ENV_FILE" ]; then
   echo "❌ .env file not found. Please create it with BACKEND_PORT or FRONTEND_PORT."
   exit 1
 fi
 
-source .env
+source "$ENV_FILE"
 
 if [ -z "$BACKEND_PORT" ] || [ -z "$FRONTEND_PORT" ]; then
   echo "❌ BACKEND_PORT or FRONTEND_PORT is not set in .env file."
@@ -24,12 +28,11 @@ fi
 
 echo "🖥️  Detected local IP: $LOCAL_IP"
 
-# 3. Write to .env files (only if variable doesn't exist)
+# 3. Append to .env if not already defined
 append_to_env() {
     local file="$1"
     local key="$2"
     local value="$3"
-
     if [ ! -f "$file" ]; then
         touch "$file"
     fi
@@ -42,11 +45,29 @@ append_to_env() {
     fi
 }
 
-ENV="./.env"
+append_to_env "$ENV_FILE" "LOCAL_IP" "$LOCAL_IP"
 
-append_to_env "$ENV" "LOCAL_IP" "$LOCAL_IP"
+# 4. Check OpenSSL
+if ! command -v openssl &>/dev/null; then
+  echo "❌ OpenSSL is not installed."
 
-# 4. Create self-signed cert for IP if not exists
+  UNAME=$(uname)
+  if [[ "$UNAME" == "Darwin" ]]; then
+    echo "🛠️ Installing OpenSSL via Homebrew..."
+    if ! command -v brew &>/dev/null; then
+      echo "❌ Homebrew not found. Please install it first: https://brew.sh"
+      exit 1
+    fi
+    brew install openssl
+  else
+    echo "⚠️ Please install OpenSSL manually (e.g. with apt, yum, or other)."
+    exit 1
+  fi
+else
+  echo "✅ OpenSSL is installed."
+fi
+
+# 5. Create self-signed cert for IP if not exists
 CERT_DIR="./cert"
 mkdir -p "$CERT_DIR"
 
@@ -65,7 +86,7 @@ else
   echo "✅ Existing certificate found at $CERT_DIR"
 fi
 
-# 5. Output usage info
+# 6. Output usage info
 echo
 echo "🌐 Use this URL to access the server:"
 echo "➡️  Backend:  https://$LOCAL_IP:$BACKEND_PORT"
