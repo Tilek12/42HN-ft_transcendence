@@ -3,20 +3,25 @@
 ft_transcendence/
 ├── backend/                      # Fastify (Node.js) backend
 │   ├── src/
-│   │   ├── auth/                 # JWT + 2FA
-│   │   │   ├── strategies/
-│   │   │   ├── routes.ts
-│   │   │   └── schemas.ts
-│   │   ├── game/                 # Server-side Pong
-│   │   │   ├── api/              # REST API
-│   │   │   ├── engine/           # Game logic
-│   │   │   └── websocket/        # Remote players
-│   │   ├── user/                 # User management
-│   │   │   ├── models.ts         # SQLite schema
-│   │   │   └── routes.ts
-│   │   ├── database/             # SQLite
-│   │   │   └── client.ts
-│   │   └── server.ts
+│   │   ├── server.ts                  # Main Fastify bootstrap file
+│   │   ├── auth/                      # 🔐 Authentication logic
+│   │   │   ├── routes.ts              # /api/login, /api/register, /api/auth/google
+│   │   │   ├── schemas.ts             # Zod or custom Fastify schemas
+│   │   │   ├── strategies/            # Passport, 2FA logic, or OAuth strategies
+│   │   │   └── utils.ts               # token generation, hash helpers, etc.
+│   │   ├── game/                      # 🕹️ Pong logic
+│   │   │   ├── api/                   # Optional: REST endpoints like /api/match-history
+│   │   │   ├── engine/                # Core game logic
+│   │   │   └── websocket/             # WebSocket connection manager
+│   │   ├── user/                      # 👤 User management (profile, settings, friends)
+│   │   │   ├── routes.ts              # /api/user/:id, /api/me
+│   │   │   ├── models.ts              # DB schema for users
+│   │   │   └── controllers.ts         # Logic to handle user actions
+│   │   ├── database/
+│   │   │   ├── client.ts              # SQLite init/connection
+│   │   │   └── migrate.ts             # Optional: seeders/migrations
+│   │   └── plugins/                   # ✅ Fastify plugins (auth, db, etc.)
+│   │       └── auth.ts                # Register verifyJWT hook, etc.
 │   ├── Dockerfile
 │   └── package.json
 │

@@ -20,15 +20,17 @@ function customNetworkLogger(): Plugin {
 }
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), ['LOCAL_IP', 'FRONTEND_PORT'])
-  const port = parseInt(env.FRONTEND_PORT || '8080')
+  const env = loadEnv(mode, process.cwd(), '');
+  const frontendPort = parseInt(env.FRONTEND_PORT || '8080');
+  const backendPort = parseInt(env.BACKEND_PORT) || '3000'
+  const ip = env.LOCAL_IP || '127.0.0.1'
 
   return {
     root: './src/',
     plugins: [customNetworkLogger()],
     server: {
       host: true,
-      port: port,
+      port: frontendPort,
       strictPort: true,
       open: false,
       https: {
@@ -37,12 +39,12 @@ export default defineConfig(({ mode }) => {
       },
       proxy: {
         '/api': {
-          target: `https://${env.LOCAL_IP}:${env.BACKEND_PORT}`,
+          target: `https://${ip}:${backendPort}`,
           changeOrigin: true,
           secure: false
         },
         '/ws': {
-          target: `wss://${env.LOCAL_IP}:${env.BACKEND_PORT}`,
+          target: `wss://${ip}:${backendPort}`,
           ws: true,
           changeOrigin: true,
           secure: false
