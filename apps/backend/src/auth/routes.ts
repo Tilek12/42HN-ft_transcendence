@@ -1,37 +1,42 @@
 import { FastifyPluginAsync } from 'fastify';
+import { hashPassword, verifyPassword, generateToken, verifyToken } from './utils';
+import { loginSchema, registerSchema } from './schemas';
+import {
+  findUserByUsername,
+  findUserByEmail,
+  createUser
+} from '../database/user';
 
 const authRoutes: FastifyPluginAsync = async (fastify) => {
-  // Basic login
-  fastify.post('/api/login', async (req, res) => {
-    const { username, password } = req.body as any;
-
-    // TEMP logic
-    if (username === 'admin' && password === 'admin') {
-      return { message: 'Logged in', token: 'mock-token' };
-    }
-
-    return res.status(401).send({ message: 'Invalid credentials' });
-  });
-
-  // Register (no DB yet)
-  fastify.post('/api/register', async (req, res) => {
+  // Register
+  fastify.post('/api/register', { schema: registerSchema }, async (req, res) => {
     const { username, email, password } = req.body as any;
 
-    if (!username || !email || !password) {
-      return res.status(400).send({ message: 'All fields are required' });
+    if (await findUserByUsername(username)) {
+      return res.status(400).send({ message: 'Username already taken' });
     }
 
-    // TODO: Check for existing user in DB
-    // TODO: Hash password and save to DB
+    if (await findUserByEmail(email)) {
+      return res.status(400).send({ message: 'Email already registered' });
+    }
 
-    console.log(`📝 Registered new user: ${username} (${email})`);
-    return res.send({ message: 'User registered successfully' });
+    const hashed = await hashPassword(password);
+    await createUser(username, email, hashed);
+
+    res.send({ message: 'User registered successfully' });
   });
 
-  // Google login placeholder
-  fastify.get('/api/auth/google', async (req, res) => {
-    // Normally: redirect to Google OAuth
-    return res.send({ message: 'Google login not yet implemented' });
+  // Login
+  fastify.post('/api/login', { schema: loginSchema }, async (req, res) => {
+    const { username, password } = req.body as any;
+    const user = await findUserByUsername(username);
+
+    if (!user || !(await verifyPassword(password, user.password))) {
+      return res.status(401).send({ message: 'Invalid credentials' });
+    }
+
+    const token = generateToken(user.id);
+    res.send({ token });
   });
 };
 

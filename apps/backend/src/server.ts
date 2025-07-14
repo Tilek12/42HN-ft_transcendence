@@ -3,7 +3,10 @@ import fs from 'fs';
 import websocket from '@fastify/websocket';
 import wsConnectionPlugin from './game/websocket/connections';
 import authRoutes from './auth/routes';
+import userRoutes from './user/routes';
+import authPlugin from './plugins/auth';
 import dotenv from 'dotenv';
+import { connectToDB } from './database/client';
 
 dotenv.config();
 
@@ -19,9 +22,12 @@ const server = Fastify({
 });
 
 async function main() {
-  await server.register(websocket);                 // 👈 Add WebSocket support
-  await server.register(wsConnectionPlugin);        // 👈 Register WS logic
-  await server.register(authRoutes);                // 👈 Register routes
+  await connectToDB();                          // ✅ Init DB tables
+  await server.register(websocket);             // 👈 Add WebSocket support
+  await server.register(wsConnectionPlugin);    // 👈 Register WS logic
+  await server.register(authRoutes);            // 👈 Register auth routes
+  await server.register(userRoutes);            // 👈 Register user routes
+  await server.register(authPlugin);
 
   server.get('/api/ping', async () => {
     return { pong: true, time: new Date().toISOString() };
