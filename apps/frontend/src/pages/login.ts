@@ -1,4 +1,5 @@
 import { renderNav } from './nav'
+import { saveToken } from '../utils/auth';
 
 export function renderLogin(root: HTMLElement) {
   root.innerHTML = renderNav() + `
@@ -182,6 +183,7 @@ export function renderLogin(root: HTMLElement) {
           errorContainer.classList.add('hidden');
         }, 5000);
       } else {
+        saveToken(data.token);
         // success animation
         submitBtn.innerHTML = `
           <div class="flex items-center justify-center space-x-2">

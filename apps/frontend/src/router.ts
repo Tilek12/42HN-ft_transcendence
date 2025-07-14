@@ -9,6 +9,11 @@ import { renderFriends } from './pages/friends'
 import { renderLeaderboard } from './pages/leaderboard'
 import { renderSettings } from './pages/settings'
 import { renderNotFound } from './pages/not-found'
+import { isLoggedIn } from './utils/auth'
+
+function protectedRoute(renderFn: (r: HTMLElement) => void) {
+  return (root: HTMLElement) => isLoggedIn() ? renderFn(root) : location.hash = '#/login';
+}
 
 export function router() {
   const root = document.getElementById('app')!
@@ -17,7 +22,7 @@ export function router() {
   switch (location.hash) {
     case '#/tournament': return renderTournament(root)
     case '#/game': return renderGame(root)
-    case '#/profile': return renderProfile(root)
+    case '#/profile': return protectedRoute(renderProfile)(root)
     case '#/spectate': return renderSpectate(root)
     case '#/login': return renderLogin(root)
     case '#/register': return renderRegister(root)
