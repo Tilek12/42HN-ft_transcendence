@@ -1,5 +1,6 @@
 import { renderNav } from './nav';
-import { createGameSocket, userId } from '../socket'
+import { createGameSocket } from '../socket'
+import { getToken } from '../utils/auth';
 
 export function renderGame(root: HTMLElement) {
   root.innerHTML = renderNav() + `
@@ -98,19 +99,17 @@ export function renderGame(root: HTMLElement) {
         ctx.fillStyle = 'blue';
         for (const playerId in gameState.paddles) {
           const y = gameState.paddles[playerId];
-          const x = playerId === userId ? 0 : width - 10;
+          const x = Object.keys(gameState.paddles).indexOf(playerId) === 0 ? 0 : width - 10;
           ctx.fillRect(x, y * scaleY, 10, 60);
         }
 
         // Scores
         ctx.fillStyle = 'gray';
         ctx.font = '16px sans-serif';
-        ctx.fillText(`You: ${gameState.score[userId] ?? 0}`, 20, 20);
-
+        let xOffset = 20;
         for (const id in gameState.score) {
-          if (id !== userId) {
-            ctx.fillText(`Opponent: ${gameState.score[id] ?? 0}`, width - 130, 20);
-          }
+          ctx.fillText(`${id}: ${gameState.score[id]}`, xOffset, 20);
+          xOffset += 140;
         }
       }
 

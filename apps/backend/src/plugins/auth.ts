@@ -1,22 +1,25 @@
 import { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
-import { verifyToken } from '../auth/utils';
 
 const authPlugin: FastifyPluginAsync = async (fastify) => {
-  fastify.decorateRequest('user', null);
+  if (!fastify.hasRequestDecorator('user')) {
+    fastify.decorateRequest('user', null);
+  }
 
   fastify.addHook('onRequest', async (req, res) => {
-    const authHeader = req.headers.authorization;
+    // Allow unauthenticated access to public endpoints
+    const publicRoutes = ['/api/login', '/api/register', '/api/ping'];
+    if (publicRoutes.includes(req.url)) return;
 
+    const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
       return res.status(401).send({ message: 'Missing or invalid token' });
     }
 
     try {
-      const token = authHeader.split(' ')[1];
-      const decoded = verifyToken(token);
+      const decoded = await req.jwtVerify();
       req.user = decoded.id;
-    } catch (err) {
+    } catch {
       return res.status(401).send({ message: 'Invalid or expired token' });
     }
   });

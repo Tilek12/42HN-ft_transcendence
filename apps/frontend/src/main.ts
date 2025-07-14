@@ -5,3 +5,5 @@ import { router } from './router'
 document.addEventListener('DOMContentLoaded', () => {
   router()
 })
+
+window.addEventListener('hashchange', router)

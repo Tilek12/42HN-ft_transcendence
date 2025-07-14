@@ -1,5 +1,5 @@
 import { FastifyPluginAsync } from 'fastify';
-import { hashPassword, verifyPassword, generateToken, verifyToken } from './utils';
+import { hashPassword, verifyPassword } from './utils';
 import { loginSchema, registerSchema } from './schemas';
 import {
   findUserByUsername,
@@ -35,10 +35,9 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
       return res.status(401).send({ message: 'Invalid credentials' });
     }
 
-    const token = generateToken(user.id);
+    const token = fastify.jwt.sign({ id: user.id });
     res.send({ token });
   });
 };
 
 export default authRoutes;
-

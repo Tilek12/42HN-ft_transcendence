@@ -9,3 +9,4 @@ database/*.db
 cert
 apps/backend/cert
 apps/frontend/cert
+data

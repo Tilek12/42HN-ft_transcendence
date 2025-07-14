@@ -174,7 +174,7 @@ export function renderLogin(root: HTMLElement) {
 
       const data = await res.json();
 
-      if (!res.ok) {
+      if (!res.ok || !data.token) {
         errorText.textContent = data.message || 'Login failed';
         errorContainer.classList.remove('hidden');
 
