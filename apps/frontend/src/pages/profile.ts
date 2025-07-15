@@ -9,7 +9,7 @@ export function renderProfile(root: HTMLElement) {
 
   root.innerHTML = renderNav() + `<div class="text-center">Loading profile...</div>`
 
-  fetch('/api/me', {
+  fetch('/api/private/me', {
     headers: { 'Authorization': `Bearer ${getToken()}` }
   })
     .then(res => res.json())
@@ -38,5 +38,4 @@ export function renderProfile(root: HTMLElement) {
     .catch(() => {
       root.innerHTML = `<p class="text-red-400">❌ Failed to fetch profile.</p>`;
     });
-
 }

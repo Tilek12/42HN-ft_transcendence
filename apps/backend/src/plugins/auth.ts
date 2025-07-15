@@ -7,9 +7,7 @@ const authPlugin: FastifyPluginAsync = async (fastify) => {
   }
 
   fastify.addHook('onRequest', async (req, res) => {
-    // Allow unauthenticated access to public endpoints
-    const publicRoutes = ['/api/login', '/api/register', '/api/ping'];
-    if (publicRoutes.includes(req.url)) return;
+    if (!req.url.startsWith('/api/private')) return;
 
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
@@ -26,4 +24,3 @@ const authPlugin: FastifyPluginAsync = async (fastify) => {
 };
 
 export default fp(authPlugin);
-

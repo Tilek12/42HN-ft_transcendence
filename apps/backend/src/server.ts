@@ -33,15 +33,19 @@ const server = Fastify({
 
 // App setup
 async function main() {
-  await connectToDB();                                // ✅ Init DB tables
-  await server.register(jwt, { secret: JWT_SECRET }); // ✅ Create JWT
-  await server.register(websocket);                   // ✅ Add WebSocket support
+  await connectToDB();                                 // ✅ Init DB tables
+  await server.register(jwt, { secret: JWT_SECRET });  // ✅ Create JWT
+  await server.register(websocket);                    // ✅ Add WebSocket support
 
-  // Register routes
-  await server.register(authRoutes);                  // 👈 Public routes (login/register)
-  await server.register(authPlugin);                  // 👈 Middleware checking token
-  await server.register(userRoutes);                  // 👈 Protected routes: api/me
-  await server.register(wsConnectionPlugin);          // 👈 WebSocket
+  // Public routes
+  await server.register(authRoutes, { prefix: '/api' });  // 👈 Public routes (login/register)
+
+  // Protected scope of routes
+  await server.register(async (protectedScope) => {
+    await protectedScope.register(authPlugin);                // 👈 Middleware checking token
+    await protectedScope.register(userRoutes);                // 👈 Protected routes: api/me
+    await protectedScope.register(wsConnectionPlugin);        // 👈 WebSocket
+  }, { prefix: '/api/private' });
 
   // Simple health check
   server.get('/api/ping', async () => {

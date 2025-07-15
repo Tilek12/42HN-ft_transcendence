@@ -9,7 +9,7 @@ import {
 
 const authRoutes: FastifyPluginAsync = async (fastify) => {
   // Register
-  fastify.post('/api/register', { schema: registerSchema }, async (req, res) => {
+  fastify.post('/register', { schema: registerSchema }, async (req, res) => {
     const { username, email, password } = req.body as any;
 
     if (await findUserByUsername(username)) {
@@ -27,7 +27,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // Login
-  fastify.post('/api/login', { schema: loginSchema }, async (req, res) => {
+  fastify.post('/login', { schema: loginSchema }, async (req, res) => {
     const { username, password } = req.body as any;
     const user = await findUserByUsername(username);
 
