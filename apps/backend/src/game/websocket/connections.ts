@@ -9,7 +9,23 @@ interface ConnectedUser {
   socket: WebSocket;
   isAlive: boolean;
 }
+//-----------thomas---------------------
+//-----Testing sockets------------------
 
+const wsConnectionPluginTest: FastifyPluginAsync = async (fastify)=> {
+
+	fastify.get('ws-echo', {websocket: true}, (con : any) => {
+		const socket  = con.socket;
+	   
+	   socket.on('message', (msg : any) => {
+		   console.log(`Received:  ${msg}`);
+		   socket.send(`Echo: ${msg}`);
+	   });
+	});
+}
+
+
+//-----------thomas---------------------
 const connectedUsers: ConnectedUser[] = [];
 
 const PING_INTERVAL_MS = 10000;
