@@ -1,13 +1,13 @@
 export function saveToken(token: string) {
-	localStorage.setItem('jwt', token);
+	sessionStorage.setItem('jwt', token);
 }
 
 export function getToken(): string | null {
-	return localStorage.getItem('jwt');
+	return sessionStorage.getItem('jwt');
 }
 
 export function clearToken() {
-	localStorage.removeItem('jwt');
+	sessionStorage.removeItem('jwt');
 }
 
 export function isLoggedIn(): boolean {

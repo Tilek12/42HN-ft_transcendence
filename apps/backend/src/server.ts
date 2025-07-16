@@ -46,6 +46,7 @@ async function main() {
     await protectedScope.register(userRoutes);            // 👈 Protected routes: api/me
   }, { prefix: '/api/private' });
 
+  // WebSocket handling
   await server.register(wsConnectionPlugin);    // 👈 WebSocket
 
   // Simple health check

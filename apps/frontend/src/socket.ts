@@ -7,8 +7,8 @@ export function createGameSocket(mode: 'solo' | 'duel'): WebSocket {
 	const wsUrl = backendUrl.replace(/^http/, 'ws') + `/ws?mode=${mode}&token=${token}`
 
 	// 🐞 Debug output
-	console.log('[WS] Token:', token);
-	console.log('[WS] URL:', wsUrl);
+	// console.log('[WS] Token:', token);
+	// console.log('[WS] URL:', wsUrl);
 
 	const socket = new WebSocket(wsUrl)
 

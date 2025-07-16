@@ -35,7 +35,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
       return res.status(401).send({ message: 'Invalid credentials' });
     }
 
-    const token = fastify.jwt.sign({ id: user.id });
+    const token = fastify.jwt.sign({ id: user.id }, { expiresIn: '2h' });
     res.send({ token });
   });
 };
