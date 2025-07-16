@@ -5,7 +5,7 @@ export let db: Database;
 
 export async function connectToDB() {
   db = await open({
-    filename: './data/pong.db',
+    filename: './database/pong.db',
     driver: sqlite3.Database,
   });
 

@@ -21,7 +21,7 @@ export function renderProfile(root: HTMLElement) {
       }
 
       root.innerHTML = renderNav() + `
-        <div class="max-w-xl mx-auto text-white p-6">
+        <div class="max-w-xl mx-auto text-black p-6">
           <h1 class="text-3xl font-bold mb-4">Your Profile</h1>
           <p><strong>Username:</strong> ${data.username}</p>
           <p><strong>Email:</strong> ${data.email}</p>
