@@ -14,7 +14,7 @@ dotenv.config();
 
 // Environment
 const LOCAL_IP = process.env.LOCAL_IP || '127.0.0.1';
-const PORT = parseInt(process.env.BACKEND_PORT || 3000);
+const PORT = parseInt(process.env.BACKEND_PORT || '3000');
 const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
@@ -42,13 +42,14 @@ async function main() {
 
   // Protected scope of routes
   await server.register(async (protectedScope) => {
-    await protectedScope.register(authPlugin);                // 👈 Middleware checking token
-    await protectedScope.register(userRoutes);                // 👈 Protected routes: api/me
-    await protectedScope.register(wsConnectionPlugin);        // 👈 WebSocket
+    await protectedScope.register(authPlugin);            // 👈 Middleware checking token
+    await protectedScope.register(userRoutes);            // 👈 Protected routes: api/me
   }, { prefix: '/api/private' });
 
+  await server.register(wsConnectionPlugin);    // 👈 WebSocket
+
   // Simple health check
-  server.get('/api/ping', async () => {
+  server.get('/ping', async () => {
     return { pong: true, time: new Date().toISOString() };
   });
 

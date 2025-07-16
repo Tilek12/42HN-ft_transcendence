@@ -26,6 +26,13 @@ export function renderGame(root: HTMLElement) {
   document.getElementById('play-online')!.addEventListener('click', () => startGame('duel'));
 
   function startGame(mode: 'solo' | 'duel') {
+    const token = getToken();
+    if (!token) {
+      alert('❌ You must be logged in to play');
+      location.hash = '#/login';
+      return;
+    }
+
     if (socket) {
       socket.close();
       socket = null;
@@ -61,23 +68,23 @@ export function renderGame(root: HTMLElement) {
       }
     };
 
-    socket.onclose = () => {
+    socket.onclose = (event) => {
       console.log('❌ WebSocket disconnected');
+      console.log(`❗ Close code: ${event.code}, reason: ${event.reason}`);
     };
 
     // ✅ Player controls
     document.addEventListener('keydown', (e) => {
       if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
-      if (e.key === 'ArrowUp') {
-        socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'right' }));
-      } else if (e.key === 'ArrowDown') {
-        socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'right' }));
-      } else if (e.key === 'w') {
-        socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'left' }));
-      } else if (e.key === 's') {
-        socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'left' }));
-      }
+      const move = (direction: 'up' | 'down', side: 'left' | 'right') => {
+        socket!.send(JSON.stringify({ type: 'move', direction, side }));
+      };
+
+      if (e.key === 'ArrowUp') move('up', 'right');
+      if (e.key === 'ArrowDown') move('down', 'right');
+      if (e.key === 'w') move('up', 'left');
+      if (e.key === 's') move('down', 'left');
     });
 
     // ✅ Render game state
