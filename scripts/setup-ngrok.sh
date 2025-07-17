@@ -58,11 +58,11 @@ fi
 # 5. Inject the domain into .env if not already exists
 ENV=./.env
 
-if ! grep -q "VITE_BACKEND_URL=" "$ENV"; then
-  echo "VITE_BACKEND_URL=https://$NGROK_DOMAIN" >> "$ENV"
-  echo "📝 Added VITE_BACKEND_URL=https://$NGROK_DOMAIN to $ENV"
+if ! grep -q "VITE_NGROK_URL=" "$ENV"; then
+  echo "VITE_NGROK_URL=https://$NGROK_DOMAIN" >> "$ENV"
+  echo "📝 Added VITE_NGROK_URL=https://$NGROK_DOMAIN to $ENV"
 else
-  echo "ℹ️  VITE_BACKEND_URL already exists in $ENV, skipping..."
+  echo "ℹ️  VITE_NGROK_URL already exists in $ENV, skipping..."
 fi
 
 echo "✅ ngrok setup completed successfully"

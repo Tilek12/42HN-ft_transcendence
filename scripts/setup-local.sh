@@ -46,6 +46,7 @@ append_to_env() {
 }
 
 append_to_env "$ENV_FILE" "LOCAL_IP" "$LOCAL_IP"
+append_to_env "$ENV_FILE" "VITE_BACKEND_URL" "https://$LOCAL_IP:$BACKEND_PORT"
 
 # 4. Check OpenSSL
 check_ssl_tool() {

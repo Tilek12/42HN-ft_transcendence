@@ -1,6 +1,7 @@
 import { FastifyPluginAsync } from 'fastify';
-import fp from 'fastify-plugin';
 import { WebSocket as WS } from 'ws';
+import fp from 'fastify-plugin';
+
 import { startGame } from '../engine/matchmaking';
 import { Player } from '../engine/types';
 
@@ -27,16 +28,28 @@ const wsConnectionPluginTest: FastifyPluginAsync = async (fastify)=> {
 
 //-----------thomas---------------------
 const connectedUsers: ConnectedUser[] = [];
-
 const PING_INTERVAL_MS = 10000;
 
 const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
-  fastify.get('/ws', { websocket: true }, (connection, req) => {
-    const userId = req.headers['sec-websocket-protocol'];
-    const mode = req.url.includes('mode=solo') ? 'solo' : 'duel';
+  fastify.get('/ws', { websocket: true }, async (connection, req) => {
+    console.log('🌐 Incoming WS connection');
+    const url = req.url || '';
+    const params = new URLSearchParams(url?.split('?')[1] || '');
+    const mode = params.get('mode') === 'duel' ? 'duel' : 'solo';
+    const token = params.get('token');
 
-    if (!userId || typeof userId !== 'string') {
-      connection.socket.close(1008, 'Invalid user');
+    // Validate token
+    if (!token) {
+      connection.socket.close(4001, 'Missing token');
+      return;
+    }
+
+    let userId: string;
+    try {
+      const payload = await fastify.jwt.verify(token);
+      userId = payload.id;
+    } catch {
+      connection.socket.close(4002, 'Invalid or expired token');
       return;
     }
 
@@ -49,15 +62,14 @@ const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
       isAlive: true
     };
     connectedUsers.push(user);
-    console.log(`✅ User connected: ${userId}`);
+    console.log(`✅ WebSocket connected: ${userId} (${mode})`);
 
     // Send player to matchmaking
-    const player: Player = { id: userId, socket: connection.socket };
+    const player: Player = { id: userId, socket };
     startGame(player, mode);
 
     socket.on('message', (msg) => {
       const text = msg.toString();
-
       if (text === 'pong') {
         user.isAlive = true;
         return;
@@ -81,7 +93,7 @@ const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
       if (user.socket.readyState !== WS.OPEN) return;
 
       if (!user.isAlive) {
-        console.log(`💀 Removing dead user: ${user.id}`);
+        console.log(`💀 Terminating inactive: ${user.id}`);
         user.socket.close();
         connectedUsers.splice(i, 1);
         return;
@@ -94,4 +106,3 @@ const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
 };
 
 export default fp(wsConnectionPlugin);
-

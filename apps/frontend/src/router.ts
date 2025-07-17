@@ -9,12 +9,21 @@ import { renderFriends } from './pages/friends'
 import { renderLeaderboard } from './pages/leaderboard'
 import { renderSettings } from './pages/settings'
 import { renderNotFound } from './pages/not-found'
+import { isLoggedIn } from './utils/auth'
 
 export function router() {
   const root = document.getElementById('app')!
   root.innerHTML = ''
 
-  switch (location.hash) {
+  const route = location.hash || '#/'
+
+  const protectedRoutes = ['#/profile', '#/friends', '#/game', '#/settings']
+  if (protectedRoutes.includes(route) && !isLoggedIn()) {
+    location.hash = '#/login'
+    return
+  }
+
+  switch (route) {
     case '#/tournament': return renderTournament(root)
     case '#/game': return renderGame(root)
     case '#/profile': return renderProfile(root)
@@ -25,9 +34,8 @@ export function router() {
     case '#/leaderboard': return renderLeaderboard(root)
     case '#/settings': return renderSettings(root)
     case '#/not-found': return renderNotFound(root)
-    case '#/': case '': return renderGreeting(root)
+    case '#/':
+    case '': return renderGreeting(root)
     default: return renderNotFound(root)
   }
 }
-
-window.addEventListener('hashchange', router)

@@ -12,6 +12,7 @@ services:
       - ./apps/backend:/app
       - ./cert:/app/cert    # ✅ Mount certs into backend
       - /app/node_modules   # ✅ Prevent overwriting node_modules
+      - ./database:/app/database
     env_file:
       - ./.env
     environment:
