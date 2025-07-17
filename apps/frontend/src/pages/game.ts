@@ -1,6 +1,7 @@
 import { renderNav } from './nav';
 import { createGameSocket } from '../socket';
 import { getToken } from '../utils/auth';
+import { COLORS } from '../constants/colors';
 
 export function renderGame(root: HTMLElement) {
   root.innerHTML =
@@ -8,8 +9,8 @@ export function renderGame(root: HTMLElement) {
     `
     <h1 class="text-2xl font-bold mb-4">Pong Game</h1>
     <div class="flex justify-center gap-4 mb-6">
-      <button id="play-alone" class="bg-green-600 text-white px-4 py-2 rounded">Play Alone</button>
-      <button id="play-online" class="bg-pink-600 text-white px-4 py-2 rounded">Play Online</button>
+      <button id="play-alone" class="bg-[#037a76] text-white px-4 py-2 rounded">Play Alone</button>
+      <button id="play-online" class="bg-[#ed1b76] text-white px-4 py-2 rounded">Play Online</button>
     </div>
     <canvas id="pong" width="600" height="400" class="mx-auto border border-black bg-white hidden"></canvas>
     <p class="mt-4 text-gray-600 text-center" id="info">Choose a game mode to begin</p>
@@ -31,27 +32,11 @@ export function renderGame(root: HTMLElement) {
   let socket: WebSocket | null = null;
   let gameState: any = null;
 
+  const heldKeys: Record<string, boolean> = {};
+  let moveInterval: NodeJS.Timeout | null = null;
+
   document.getElementById('play-alone')!.addEventListener('click', () => startGame('solo'));
   document.getElementById('play-online')!.addEventListener('click', () => startGame('duel'));
-
-  let inputAttached = false;
-
-  function attachControls() {
-    if (inputAttached) return;
-    document.addEventListener('keydown', (e) => {
-      if (!socket || socket.readyState !== WebSocket.OPEN) return;
-
-      const move = (direction: 'up' | 'down', side: 'left' | 'right') => {
-        socket!.send(JSON.stringify({ type: 'move', direction, side }));
-      };
-
-      if (e.key === 'ArrowUp') move('up', 'right');
-      if (e.key === 'ArrowDown') move('down', 'right');
-      if (e.key === 'w') move('up', 'left');
-      if (e.key === 's') move('down', 'left');
-    });
-    inputAttached = true;
-  }
 
   function startGame(mode: 'solo' | 'duel') {
     const token = getToken();
@@ -73,7 +58,6 @@ export function renderGame(root: HTMLElement) {
         : 'Online mode: Use ↑/↓ arrows. Waiting for opponent...';
 
     socket = createGameSocket(mode);
-    attachControls();
 
     socket.onmessage = (event) => {
       if (event.data === 'ping') {
@@ -88,14 +72,19 @@ export function renderGame(root: HTMLElement) {
       } else if (msg.type === 'end') {
         const myId = Object.keys(gameState?.score || {})[0];
         const winnerId = msg.winner;
-        const resultMsg = winnerId === myId ? '🏆 You win!' : '❌ You lose!';
+        let resultMsg = 'Game ended';
+        if (winnerId) {
+          resultMsg = winnerId === myId ? '🏆 You win!' : '❌ You lose!';
+        }
         alert(`🏁 Game over!\n${resultMsg}`);
         socket?.close();
         socket = null;
+        clearInterval(moveInterval!);
       } else if (msg.type === 'disconnect') {
         alert(`❌ Opponent disconnected`);
         socket?.close();
         socket = null;
+        clearInterval(moveInterval!);
       }
     };
 
@@ -103,6 +92,24 @@ export function renderGame(root: HTMLElement) {
       console.log('❌ WebSocket disconnected');
       console.log(`❗ Close code: ${event.code}, reason: ${event.reason}`);
     };
+
+    // Key tracking
+    document.addEventListener('keydown', (e) => {
+      heldKeys[e.key] = true;
+    });
+    document.addEventListener('keyup', (e) => {
+      heldKeys[e.key] = false;
+    });
+
+    // Send movement continuously while keys held
+    moveInterval = setInterval(() => {
+      if (!socket || socket.readyState !== WebSocket.OPEN) return;
+
+      if (heldKeys['ArrowUp']) socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'right' }));
+      if (heldKeys['ArrowDown']) socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'right' }));
+      if (heldKeys['w']) socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'left' }));
+      if (heldKeys['s']) socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'left' }));
+    }, 50);
   }
 
   function draw() {
@@ -127,7 +134,9 @@ export function renderGame(root: HTMLElement) {
         const x = index === 0 ? 0 : width - paddleWidth;
 
         const isMainPlayer = id === mainPlayerId;
-        ctx.fillStyle = isMainPlayer ? '#16A34A' : '#FF0066'; // Green vs Pink
+        ctx.fillStyle = isMainPlayer
+          ? COLORS.squidGame.greenLight
+          : COLORS.squidGame.pinkLight;
         ctx.fillRect(x, y, paddleWidth, paddleHeight);
       });
 
