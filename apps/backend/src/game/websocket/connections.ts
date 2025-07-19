@@ -4,6 +4,10 @@ import fp from 'fastify-plugin';
 
 import { startGame } from '../engine/matchmaking';
 import { Player } from '../engine/types';
+import { joinTournament, getAvailableTournaments } from '../tournament/tournament-manager';
+
+const connectedUsers: ConnectedUser[] = [];
+const PING_INTERVAL_MS = 10000;
 
 interface ConnectedUser {
   id: string;
@@ -11,16 +15,23 @@ interface ConnectedUser {
   isAlive: boolean;
 }
 
-const connectedUsers: ConnectedUser[] = [];
-const PING_INTERVAL_MS = 10000;
+function broadcastAll(msg: any) {
+  const data = JSON.stringify(msg);
+  connectedUsers.forEach(u => {
+    if (u.socket.readyState === WS.OPEN) {
+      u.socket.send(data);
+    }
+  });
+}
 
 const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
   fastify.get('/ws', { websocket: true }, async (connection, req) => {
     console.log('🌐 Incoming WS connection');
     const url = req.url || '';
     const params = new URLSearchParams(url?.split('?')[1] || '');
-    const mode = params.get('mode') === 'duel' ? 'duel' : 'solo';
+    const mode = params.get('mode') ?? 'solo';
     const token = params.get('token');
+    const size = parseInt(params.get('size') || '4') as 4 | 8;
 
     // Validate token
     if (!token) {
@@ -50,7 +61,14 @@ const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
 
     // Send player to matchmaking
     const player: Player = { id: userId, socket };
-    startGame(player, mode);
+
+    // Tournament defining
+    if (mode === 'tournament') {
+      const t = joinTournament(player, size);
+      broadcastAll({ type: 'tournamentUpdate', tournaments: getAvailableTournaments() });
+    } else {
+      startGame(player, mode === 'duel' ? 'duel' : 'solo');
+    }
 
     socket.on('message', (msg) => {
       const text = msg.toString();

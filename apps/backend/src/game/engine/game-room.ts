@@ -1,4 +1,5 @@
 import { Player, GameState } from './types';
+import { advanceTournament } from '../tournament/tournament-manager';
 
 const FRAME_RATE = 1000 / 60;
 const PADDLE_HEIGHT = 20;
@@ -10,12 +11,15 @@ const WIN_SCORE = 5;
 export class GameRoom {
   private players: [Player, Player?];
   private mode: 'solo' | 'duel';
+  private tournamentId?: string;
   private state: GameState;
   private interval: NodeJS.Timeout;
+  private winner: Player | null = null;
 
-  constructor(player1: Player, player2: Player | null) {
+  constructor(player1: Player, player2: Player | null, tournamentId?: string) {
     this.players = [player1, player2 || null];
     this.mode = player2 ? 'duel' : 'solo';
+    this.tournamentId = tournamentId;
     this.state = this.initState();
     this.setupListeners();
     this.start();
@@ -59,7 +63,6 @@ export class GameRoom {
           if (this.mode === 'solo' && m.side === 'right') {
             targetId = '__ghost';
           }
-
           this.move(targetId, m.direction);
         }
       });
@@ -119,9 +122,17 @@ export class GameRoom {
     }
 
     if (score[p1.id] >= WIN_SCORE || score[p2?.id || '__ghost'] >= WIN_SCORE) {
-      const winner = score[p1.id] > score[p2?.id || '__ghost'] ? p1.id : p2?.id;
-      this.broadcast({ type: 'end', winner });
+      const winnerId = score[p1.id] > score[p2?.id || '__ghost'] ? p1.id : p2?.id;
+      const winner = this.players.find(p => p?.id === winnerId) || null;
+      this.winner = winner;
+
+      this.broadcast({ type: 'end', winner: winner?.id });
       this.end();
+
+      // If part of a tournament, progress to next round
+      if (this.tournamentId && this.winner) {
+        advanceTournament(this.tournamentId, this.winner);
+      }
       return;
     }
 
@@ -130,7 +141,7 @@ export class GameRoom {
 
   private resetBall(direction: 1 | -1) {
     const vyDirection = Math.random() > 0.5 ? 1 : -1;
-    const vyVariation = 0.4 + Math.random() * 0.6; // 0.4 to 1.0
+    const vyVariation = 0.4 + Math.random() * 0.6;
     this.state.ball = {
       x: 50,
       y: 50,
@@ -145,6 +156,10 @@ export class GameRoom {
         p.socket.send(JSON.stringify(msg));
       }
     }
+  }
+
+  public getWinner(): Player | null {
+    return this.winner;
   }
 
   private end() {

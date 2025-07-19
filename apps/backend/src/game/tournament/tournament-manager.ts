@@ -1,0 +1,109 @@
+import { Player } from '../engine/types';
+import { GameRoom } from '../engine/game-room';
+
+export type TournamentSize = 4 | 8;
+export type TournamentStatus = 'waiting' | 'active' | 'finished';
+
+interface Tournament {
+  id: string;
+  size: TournamentSize;
+  players: Player[];
+  status: TournamentStatus;
+  rounds: GameRoom[][]; // Each round contains a list of matches
+}
+
+let tournaments: Tournament[] = [];
+let nextId = 1;
+
+function createTournament(size: TournamentSize): Tournament {
+  const tournament: Tournament = {
+    id: `t${nextId++}`,
+    size,
+    players: [],
+    status: 'waiting',
+    rounds: []
+  };
+  tournaments.push(tournament);
+  return tournament;
+}
+
+function getAvailableTournaments(): Tournament[] {
+  return tournaments.filter(t => t.status === 'waiting');
+}
+
+function getTournamentById(id: string): Tournament | undefined {
+  return tournaments.find(t => t.id === id);
+}
+
+function addPlayerToTournament(tournamentId: string, player: Player) {
+  const tournament = getTournamentById(tournamentId);
+  if (!tournament || tournament.status !== 'waiting') return;
+
+  tournament.players.push(player);
+
+  if (tournament.players.length >= tournament.size) {
+    startTournament(tournament);
+  }
+}
+
+function joinTournament(player: Player, size: TournamentSize): Tournament {
+  let tournament = tournaments.find(t => t.status === 'waiting' && t.size === size && t.players.length < size);
+
+  if (!tournament) {
+    tournament = createTournament(size);
+  }
+
+  tournament.players.push(player);
+
+  if (tournament.players.length === tournament.size) {
+    startTournament(tournament);
+  }
+
+  return tournament;
+}
+
+function startTournament(tournament: Tournament) {
+  tournament.status = 'active';
+  const roundMatches: GameRoom[] = [];
+
+  for (let i = 0; i < tournament.players.length; i += 2) {
+    const p1 = tournament.players[i];
+    const p2 = tournament.players[i + 1];
+    const gameRoom = new GameRoom(p1, p2, tournament.id);
+    roundMatches.push(gameRoom);
+  }
+
+  tournament.rounds.push(roundMatches);
+}
+
+function advanceTournament(tournamentId: string, winner: Player) {
+  const tournament = getTournamentById(tournamentId);
+  if (!tournament || tournament.status !== 'active') return;
+
+  const lastRound = tournament.rounds[tournament.rounds.length - 1];
+  const winners = lastRound
+    .map(r => r.getWinner())
+    .filter(w => w !== null) as Player[];
+
+  if (winners.length === 1) {
+    tournament.status = 'finished';
+    // TODO: store tournament history later
+    return;
+  }
+
+  const newRound: GameRoom[] = [];
+  for (let i = 0; i < winners.length; i += 2) {
+    const gameRoom = new GameRoom(winners[i], winners[i + 1], tournamentId);
+    newRound.push(gameRoom);
+  }
+  tournament.rounds.push(newRound);
+}
+
+export {
+  joinTournament,
+  getAvailableTournaments,
+  getTournamentById,
+  addPlayerToTournament,
+  advanceTournament,
+  Tournament
+};

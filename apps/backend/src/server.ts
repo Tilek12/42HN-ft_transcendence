@@ -9,6 +9,7 @@ import wsConnectionPlugin from './game/websocket/connections';
 import authRoutes from './auth/routes';
 import userRoutes from './user/routes';
 import authPlugin from './plugins/auth';
+import tournamentRoutes from './game/tournament/routes';
 
 dotenv.config();
 
@@ -47,7 +48,10 @@ async function main() {
   }, { prefix: '/api/private' });
 
   // WebSocket handling
-  await server.register(wsConnectionPlugin);    // 👈 WebSocket
+  await server.register(wsConnectionPlugin);
+
+  // Tournament handling
+  await server.register(tournamentRoutes, {prefix: '/api/private/tournaments'});
 
   // Simple health check
   server.get('/ping', async () => {
