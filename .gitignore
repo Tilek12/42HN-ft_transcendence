@@ -1,5 +1,5 @@
 .env
-node_modules
+node_module*
 apps/backend/node_modules
 apps/frontend/node_modules
 secrets

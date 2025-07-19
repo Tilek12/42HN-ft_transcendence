@@ -1,11 +1,12 @@
-FROM node:20-alpine
+FROM node:24
 
 WORKDIR /app
 
-COPY apps/backend/package*.json ./
-RUN npm install
-
 COPY ./apps/backend ./
+RUN mkdir -p /init
+COPY ./scripts/init.sh /init/init.sh
+RUN chmod +x /init/init.sh
 
 EXPOSE 3000
-CMD ["npm", "run", "dev"]
+ENTRYPOINT ["tail", "-f", "/dev/null"]
+CMD ["/init/init.sh"]

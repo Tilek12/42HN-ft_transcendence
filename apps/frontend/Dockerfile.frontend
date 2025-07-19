@@ -1,11 +1,13 @@
-FROM node:20-alpine
+FROM node:24
 
 WORKDIR /app
 
-COPY apps/frontend/package*.json ./
-RUN npm install
-
 COPY ./apps/frontend ./
+RUN mkdir -p /init
+COPY ./scripts/init.sh /init/init.sh
+RUN chmod +x /init/init.sh
 
 EXPOSE 8080
-CMD ["npm", "run", "dev"]
+# ENTRYPOINT ["tail", "-f", "/dev/null"]
+ENTRYPOINT ["/init/init.sh"]
+
