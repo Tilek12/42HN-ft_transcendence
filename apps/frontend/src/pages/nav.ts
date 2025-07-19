@@ -1,3 +1,12 @@
+import { getActiveTournaments, onPresenceUpdate } from "../websocket/presence"
+
+let tournamentCount = 0
+onPresenceUpdate(() => {
+	tournamentCount = getActiveTournaments().length
+	const badge = document.getElementById('active-users-count')
+	if (badge) badge.innerText = `${tournamentCount}`
+})
+
 export function renderNav() {
 	return `
 	  <nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/10 border-b border-white/20 shadow-2xl">

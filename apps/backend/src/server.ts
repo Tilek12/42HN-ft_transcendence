@@ -5,11 +5,13 @@ import jwt from '@fastify/jwt';
 import dotenv from 'dotenv';
 
 import { connectToDB } from './database/client';
-import wsConnectionPlugin from './game/websocket/connections';
+import onlineUsersRoute from './user/online-users';
+import wsPresencePlugin from './websocket/presence';
+import wsGamePlugin from './game/websocket/connections';
+import tournamentRoutes from './game/tournament/routes';
 import authRoutes from './auth/routes';
 import userRoutes from './user/routes';
 import authPlugin from './plugins/auth';
-import tournamentRoutes from './game/tournament/routes';
 
 dotenv.config();
 
@@ -37,6 +39,8 @@ async function main() {
   await connectToDB();                                 // ✅ Init DB tables
   await server.register(jwt, { secret: JWT_SECRET });  // ✅ Create JWT
   await server.register(websocket);                    // ✅ Add WebSocket support
+  await server.register(wsPresencePlugin);             // 🔁 Persistent socket
+  await server.register(wsGamePlugin);                 // 🕹️ Game-only socket
 
   // Public routes
   await server.register(authRoutes, { prefix: '/api' });  // 👈 Public routes (login/register)
@@ -45,10 +49,8 @@ async function main() {
   await server.register(async (protectedScope) => {
     await protectedScope.register(authPlugin);            // 👈 Middleware checking token
     await protectedScope.register(userRoutes);            // 👈 Protected routes: api/me
+    await protectedScope.register(onlineUsersRoute);      // 👈 Protected routes: online/-users
   }, { prefix: '/api/private' });
-
-  // WebSocket handling
-  await server.register(wsConnectionPlugin);
 
   // Tournament handling
   await server.register(tournamentRoutes, {prefix: '/api/private/tournaments'});

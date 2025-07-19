@@ -17,7 +17,7 @@ export function router() {
 
   const route = location.hash || '#/'
 
-  const protectedRoutes = ['#/profile', '#/friends', '#/game', '#/settings']
+  const protectedRoutes = ['#/profile', '#/friends', '#/game', '#/settings', '#/tournament']
   if (protectedRoutes.includes(route) && !isLoggedIn()) {
     location.hash = '#/login'
     return

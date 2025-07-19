@@ -1,3 +1,4 @@
+// import { randomUUID } from 'crypto'
 import { Player } from '../engine/types';
 import { GameRoom } from '../engine/game-room';
 
@@ -8,6 +9,7 @@ interface Tournament {
   id: string;
   size: TournamentSize;
   players: Player[];
+  hostId: string,
   status: TournamentStatus;
   rounds: GameRoom[][]; // Each round contains a list of matches
 }
@@ -15,11 +17,13 @@ interface Tournament {
 let tournaments: Tournament[] = [];
 let nextId = 1;
 
-function createTournament(size: TournamentSize): Tournament {
+function createTournament(size: TournamentSize, hostId: string): Tournament {
   const tournament: Tournament = {
-    id: `t${nextId++}`,
+    // id: `t-${randomUUID()}`,
+    id: `t-${nextId++}`,
     size,
     players: [],
+    hostId,
     status: 'waiting',
     rounds: []
   };
@@ -39,7 +43,9 @@ function addPlayerToTournament(tournamentId: string, player: Player) {
   const tournament = getTournamentById(tournamentId);
   if (!tournament || tournament.status !== 'waiting') return;
 
-  tournament.players.push(player);
+  if (!tournament.players.find(p => p.id === player.id)) {
+    tournament.players.push(player);
+  }
 
   if (tournament.players.length >= tournament.size) {
     startTournament(tournament);
@@ -50,10 +56,12 @@ function joinTournament(player: Player, size: TournamentSize): Tournament {
   let tournament = tournaments.find(t => t.status === 'waiting' && t.size === size && t.players.length < size);
 
   if (!tournament) {
-    tournament = createTournament(size);
+    tournament = createTournament(size, player.id);
   }
 
-  tournament.players.push(player);
+  if (!tournament.players.find(p => p.id === player.id)) {
+    tournament.players.push(player);
+  }
 
   if (tournament.players.length === tournament.size) {
     startTournament(tournament);
@@ -99,11 +107,24 @@ function advanceTournament(tournamentId: string, winner: Player) {
   tournament.rounds.push(newRound);
 }
 
+function getSafeTournamentData() {
+  return tournaments
+    .filter(t => t.status === 'waiting')
+    .map(t => ({
+      id: t.id,
+      size: t.size,
+      joined: t.players.length,
+      hostId: t.hostId,
+      status: t.status
+    }));
+}
+
 export {
   joinTournament,
   getAvailableTournaments,
   getTournamentById,
   addPlayerToTournament,
   advanceTournament,
+  getSafeTournamentData,
   Tournament
 };

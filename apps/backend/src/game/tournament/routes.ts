@@ -1,4 +1,3 @@
-
 import { FastifyPluginAsync } from 'fastify';
 import { getAvailableTournaments } from './tournament-manager';
 

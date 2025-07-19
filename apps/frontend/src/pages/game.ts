@@ -1,5 +1,5 @@
 import { renderNav } from './nav';
-import { createGameSocket } from '../socket';
+import { createGameSocket } from '../websocket/game';
 import { getToken } from '../utils/auth';
 import { COLORS } from '../constants/colors';
 
@@ -10,7 +10,8 @@ export function renderGame(root: HTMLElement) {
     <h1 class="text-2xl font-bold mb-4">Pong Game</h1>
     <div class="flex justify-center gap-4 mb-6">
       <button id="play-alone" class="bg-[#037a76] text-white px-4 py-2 rounded">Play Alone</button>
-      <button id="play-online" class="bg-[#ed1b76] text-white px-4 py-2 rounded">Play Online</button>
+      <button id="play-online" class="bg-[#ed1b76] text-white px-4 py-2 rounded">Play Online (1v1)</button>
+      <button id="play-tournament" class="bg-[#facc15] text-black px-4 py-2 rounded">Play Tournament</button>
     </div>
     <canvas id="pong" width="600" height="400" class="mx-auto border border-black bg-white hidden"></canvas>
     <p class="mt-4 text-gray-600 text-center" id="info">Choose a game mode to begin</p>
@@ -37,6 +38,9 @@ export function renderGame(root: HTMLElement) {
 
   document.getElementById('play-alone')!.addEventListener('click', () => startGame('solo'));
   document.getElementById('play-online')!.addEventListener('click', () => startGame('duel'));
+  document.getElementById('play-tournament')!.addEventListener('click', () => {
+    location.hash = '#/tournament';
+  });
 
   function startGame(mode: 'solo' | 'duel') {
     const token = getToken();

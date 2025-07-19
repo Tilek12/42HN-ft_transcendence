@@ -4,7 +4,7 @@ import fp from 'fastify-plugin';
 
 import { startGame } from '../engine/matchmaking';
 import { Player } from '../engine/types';
-import { joinTournament, getAvailableTournaments } from '../tournament/tournament-manager';
+import { joinTournament, getSafeTournamentData } from '../tournament/tournament-manager';
 
 const connectedUsers: ConnectedUser[] = [];
 const PING_INTERVAL_MS = 10000;
@@ -65,7 +65,7 @@ const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
     // Tournament defining
     if (mode === 'tournament') {
       const t = joinTournament(player, size);
-      broadcastAll({ type: 'tournamentUpdate', tournaments: getAvailableTournaments() });
+      broadcastAll({ type: 'tournamentUpdate', tournaments: getSafeTournamentData() });
     } else {
       startGame(player, mode === 'duel' ? 'duel' : 'solo');
     }
