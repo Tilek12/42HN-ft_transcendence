@@ -1,4 +1,3 @@
-// import { randomUUID } from 'crypto'
 import { Player } from '../engine/types';
 import { GameRoom } from '../engine/game-room';
 
@@ -19,7 +18,6 @@ let nextId = 1;
 
 function createTournament(size: TournamentSize, hostId: string): Tournament {
   const tournament: Tournament = {
-    // id: `t-${randomUUID()}`,
     id: `t-${nextId++}`,
     size,
     players: [],

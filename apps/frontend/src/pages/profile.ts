@@ -1,9 +1,10 @@
 import { renderNav } from './nav'
-import { getToken, isLoggedIn, clearToken } from '../utils/auth';
+import { getToken, clearToken, validateLogin } from '../utils/auth'
 
-export function renderProfile(root: HTMLElement) {
-  if (!isLoggedIn()) {
-    location.hash = '#/login';
+export async function renderProfile(root: HTMLElement) {
+  const isValid = await validateLogin()
+  if (!isValid) {
+    location.hash = '#/login'
     return;
   }
 

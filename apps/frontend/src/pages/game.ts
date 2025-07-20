@@ -1,9 +1,15 @@
 import { renderNav } from './nav';
 import { createGameSocket } from '../websocket/game';
-import { getToken } from '../utils/auth';
+import { getToken, validateLogin } from '../utils/auth';
 import { COLORS } from '../constants/colors';
 
-export function renderGame(root: HTMLElement) {
+export async function renderGame(root: HTMLElement) {
+  const isValid = await validateLogin();
+  if (!isValid) {
+    location.hash = '#/login';
+    return;
+  }
+
   root.innerHTML =
     renderNav() +
     `

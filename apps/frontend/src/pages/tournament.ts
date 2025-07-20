@@ -1,9 +1,15 @@
 import { renderNav } from './nav';
-import { getToken } from '../utils/auth';
+import { getToken, validateLogin } from '../utils/auth';
 import { createGameSocket } from '../websocket/game';
 import { connectPresenceSocket, getActiveTournaments, onPresenceUpdate } from '../websocket/presence';
 
-export function renderTournament(root: HTMLElement) {
+export async function renderTournament(root: HTMLElement) {
+  const isValid = await validateLogin();
+  if (!isValid) {
+    location.hash = '#/login';
+    return;
+  }
+
   root.innerHTML =
     renderNav() + `
     <div class="max-w-3xl mx-auto mt-20 p-6 bg-white/10 rounded-xl shadow-lg backdrop-blur-md">

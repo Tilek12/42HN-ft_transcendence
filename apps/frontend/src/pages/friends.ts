@@ -1,6 +1,13 @@
 import { renderNav } from './nav'
+import { validateLogin } from '../utils/auth'
 
-export function renderFriends(root: HTMLElement) {
+export async function renderFriends(root: HTMLElement) {
+  const isValid = await validateLogin()
+  if (!isValid) {
+    location.hash = '#/login'
+    return;
+  }
+
   root.innerHTML = renderNav() + `
     <div class="text-center">
       <h1 class="text-3xl font-semibold">Friends</h1>
