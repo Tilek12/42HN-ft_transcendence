@@ -8,58 +8,43 @@ interface Tournament {
   id: string;
   size: TournamentSize;
   players: Player[];
-  hostId: string,
+  hostId: string;
   status: TournamentStatus;
-  rounds: GameRoom[][]; // Each round contains a list of matches
+  rounds: GameRoom[][];
 }
 
 let tournaments: Tournament[] = [];
 let nextId = 1;
 
-function createTournament(size: TournamentSize, hostId: string): Tournament {
-  const tournament: Tournament = {
-    id: `t-${nextId++}`,
-    size,
-    players: [],
-    hostId,
-    status: 'waiting',
-    rounds: []
-  };
-  tournaments.push(tournament);
-  return tournament;
-}
-
-function getAvailableTournaments(): Tournament[] {
-  return tournaments.filter(t => t.status === 'waiting');
-}
-
-function getTournamentById(id: string): Tournament | undefined {
+function getTournamentById(id: string) {
   return tournaments.find(t => t.id === id);
 }
 
-function addPlayerToTournament(tournamentId: string, player: Player) {
-  const tournament = getTournamentById(tournamentId);
-  if (!tournament || tournament.status !== 'waiting') return;
-
-  if (!tournament.players.find(p => p.id === player.id)) {
-    tournament.players.push(player);
-  }
-
-  if (tournament.players.length >= tournament.size) {
-    startTournament(tournament);
-  }
+function getUserTournament(userId: string): Tournament | undefined {
+  return tournaments.find(t =>
+    t.status === 'waiting' && t.players.some(p => p.id === userId)
+  );
 }
 
-function joinTournament(player: Player, size: TournamentSize): Tournament {
+function joinOrCreateTournament(player: Player, size: TournamentSize): Tournament | null {
+  const existing = getUserTournament(player.id);
+  if (existing) return existing;
+
   let tournament = tournaments.find(t => t.status === 'waiting' && t.size === size && t.players.length < size);
 
   if (!tournament) {
-    tournament = createTournament(size, player.id);
+    tournament = {
+      id: `t-${nextId++}`,
+      size,
+      players: [],
+      hostId: player.id,
+      status: 'waiting',
+      rounds: []
+    };
+    tournaments.push(tournament);
   }
 
-  if (!tournament.players.find(p => p.id === player.id)) {
-    tournament.players.push(player);
-  }
+  tournament.players.push(player);
 
   if (tournament.players.length === tournament.size) {
     startTournament(tournament);
@@ -68,41 +53,37 @@ function joinTournament(player: Player, size: TournamentSize): Tournament {
   return tournament;
 }
 
-function startTournament(tournament: Tournament) {
-  tournament.status = 'active';
-  const roundMatches: GameRoom[] = [];
+function startTournament(t: Tournament) {
+  t.status = 'active';
+  const round: GameRoom[] = [];
 
-  for (let i = 0; i < tournament.players.length; i += 2) {
-    const p1 = tournament.players[i];
-    const p2 = tournament.players[i + 1];
-    const gameRoom = new GameRoom(p1, p2, tournament.id);
-    roundMatches.push(gameRoom);
+  for (let i = 0; i < t.players.length; i += 2) {
+    const p1 = t.players[i];
+    const p2 = t.players[i + 1];
+    round.push(new GameRoom(p1, p2, t.id));
   }
 
-  tournament.rounds.push(roundMatches);
+  t.rounds.push(round);
 }
 
 function advanceTournament(tournamentId: string, winner: Player) {
-  const tournament = getTournamentById(tournamentId);
-  if (!tournament || tournament.status !== 'active') return;
+  const t = getTournamentById(tournamentId);
+  if (!t || t.status !== 'active') return;
 
-  const lastRound = tournament.rounds[tournament.rounds.length - 1];
-  const winners = lastRound
-    .map(r => r.getWinner())
-    .filter(w => w !== null) as Player[];
+  const lastRound = t.rounds[t.rounds.length - 1];
+  const winners = lastRound.map(g => g.getWinner()).filter(Boolean) as Player[];
 
   if (winners.length === 1) {
-    tournament.status = 'finished';
-    // TODO: store tournament history later
+    t.status = 'finished';
     return;
   }
 
   const newRound: GameRoom[] = [];
   for (let i = 0; i < winners.length; i += 2) {
-    const gameRoom = new GameRoom(winners[i], winners[i + 1], tournamentId);
-    newRound.push(gameRoom);
+    newRound.push(new GameRoom(winners[i], winners[i + 1], tournamentId));
   }
-  tournament.rounds.push(newRound);
+
+  t.rounds.push(newRound);
 }
 
 function getSafeTournamentData() {
@@ -113,16 +94,15 @@ function getSafeTournamentData() {
       size: t.size,
       joined: t.players.length,
       hostId: t.hostId,
+      playerIds: t.players.map(p => p.id),
       status: t.status
     }));
 }
 
 export {
-  joinTournament,
-  getAvailableTournaments,
-  getTournamentById,
-  addPlayerToTournament,
-  advanceTournament,
+  Tournament,
+  joinOrCreateTournament,
   getSafeTournamentData,
-  Tournament
+  getUserTournament,
+  advanceTournament
 };

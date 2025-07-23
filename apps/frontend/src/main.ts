@@ -5,12 +5,9 @@ import { connectPresenceSocket, disconnectPresenceSocket } from './websocket/pre
 
 // Initialize SPA router
 document.addEventListener('DOMContentLoaded', () => {
-  if (isLoggedIn())
-    connectPresenceSocket()
+  if (isLoggedIn()) connectPresenceSocket()
   router()
 })
 
 window.addEventListener('hashchange', router)
-window.addEventListener('beforeunload', () => {
-  disconnectPresenceSocket(); // Graceful disconnect on page/tab close
-})
+window.addEventListener('beforeunload', disconnectPresenceSocket) // Graceful disconnect on page/tab close

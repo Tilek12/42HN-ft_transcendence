@@ -83,10 +83,10 @@ export class GameRoom {
   }
 
   private start() {
-    this.interval = setInterval(() => this.tick(), FRAME_RATE);
+    this.interval = setInterval(() => this.updateGame(), FRAME_RATE);
   }
 
-  private tick() {
+  private updateGame() {
     const { ball, paddles, score, width, height } = this.state;
     ball.x += ball.vx;
     ball.y += ball.vy;

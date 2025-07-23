@@ -9,10 +9,8 @@ let reconnectTimeout: any = null;
 const listeners: Array<() => void> = [];
 
 export function connectPresenceSocket() {
-  if (socket) return;
-
   const token = getToken();
-  if (!token) return;
+  if (socket || !getToken()) return;
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://localhost:3000';
   const wsUrl = backendUrl.replace(/^http/, 'ws') + `/ws/presence?token=${token}`;
@@ -32,11 +30,10 @@ export function connectPresenceSocket() {
       const msg = JSON.parse(event.data);
       if (msg.type === 'presenceUpdate') {
         activeUsers = msg.count || 0;
-        notifyListeners();
       } else if (msg.type === 'tournamentUpdate') {
         activeTournaments = msg.tournaments || [];
-        notifyListeners();
       }
+      notifyListeners();
     } catch {
       console.warn('Unknown message format: ', event.data);
     }

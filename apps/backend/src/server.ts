@@ -36,24 +36,26 @@ const server = Fastify({
 
 // App setup
 async function main() {
-  await connectToDB();                                 // ✅ Init DB tables
-  await server.register(jwt, { secret: JWT_SECRET });  // ✅ Create JWT
-  await server.register(websocket);                    // ✅ Add WebSocket support
-  await server.register(wsPresencePlugin);             // 🔁 Persistent socket
-  await server.register(wsGamePlugin);                 // 🕹️ Game-only socket
+  await connectToDB();                                    // ✅ Init DB tables
+  await server.register(jwt, { secret: JWT_SECRET });     // ✅ Create JWT
+  await server.register(websocket);                       // ✅ Add WebSocket support
 
-  // Public routes
-  await server.register(authRoutes, { prefix: '/api' });  // 👈 Public routes (login/register)
+  // Public auth routes                                   // 👈 Public routes: /api/login
+  await server.register(authRoutes, { prefix: '/api' });  // 👈 Public routes: /api/register
 
   // Protected scope of routes
   await server.register(async (protectedScope) => {
     await protectedScope.register(authPlugin);            // 👈 Middleware checking token
-    await protectedScope.register(userRoutes);            // 👈 Protected routes: api/me
-    await protectedScope.register(onlineUsersRoute);      // 👈 Protected routes: online/-users
+    await protectedScope.register(userRoutes);            // 👈 Protected routes: /api/private/me
+    await protectedScope.register(onlineUsersRoute);      // 👈 Protected routes: /api/private/online-users
+    await protectedScope.register(tournamentRoutes);      // 👈 Protected routes: /api/private/tournaments
   }, { prefix: '/api/private' });
 
-  // Tournament handling
-  await server.register(tournamentRoutes, {prefix: '/api/private/tournaments'});
+  // WebSocket scope of routes
+  await server.register(async (websocketScope) => {
+    await websocketScope.register(wsPresencePlugin);      // 🔁 Persistent socket: /ws/presence
+    await websocketScope.register(wsGamePlugin);          // 🕹️ Game-only socket:  /ws/game
+  }, { prefix: '/ws' });
 
   // Simple health check
   server.get('/ping', async () => {

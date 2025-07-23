@@ -28,7 +28,7 @@ export const broadcastTournaments = () => {
 };
 
 const presencePlugin: FastifyPluginAsync = async (fastify) => {
-  fastify.get('/ws/presence', { websocket: true }, async (connection, req) => {
+  fastify.get('/presence', { websocket: true }, async (connection, req) => {
     console.log('🌐 Incoming PRESENCE WS connection');
     const url = req.url || '';
     const params = new URLSearchParams(url?.split('?')[1] || '');

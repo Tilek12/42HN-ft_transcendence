@@ -4,7 +4,11 @@ import fp from 'fastify-plugin';
 
 import { startGame } from '../engine/matchmaking';
 import { Player } from '../engine/types';
-import { joinTournament, getSafeTournamentData } from '../tournament/tournament-manager';
+import {
+  joinOrCreateTournament,
+  getSafeTournamentData,
+  getUserTournament
+} from '../tournament/tournament-manager';
 
 const connectedUsers: ConnectedUser[] = [];
 const PING_INTERVAL_MS = 10000;
@@ -25,7 +29,7 @@ function broadcastAll(msg: any) {
 }
 
 const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
-  fastify.get('/ws/game', { websocket: true }, async (connection, req) => {
+  fastify.get('/game', { websocket: true }, async (connection, req) => {
     console.log('🌐 Incoming GAME WS connection');
     const url = req.url || '';
     const params = new URLSearchParams(url?.split('?')[1] || '');
@@ -64,7 +68,13 @@ const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
 
     // Tournament defining
     if (mode === 'tournament') {
-      const t = joinTournament(player, size);
+      const tournament = joinOrCreateTournament(player, size);
+      if (!tournament) {
+        socket.send(JSON.stringify({ type: 'error', message: 'Tournament join failed.' }));
+        return;
+      }
+      socket.send(JSON.stringify({ type: 'tournamentJoined', id: tournament.id }));
+      console.log(`✅ Joined tournament ${tournament.id}`);
       broadcastAll({ type: 'tournamentUpdate', tournaments: getSafeTournamentData() });
     } else {
       startGame(player, mode === 'duel' ? 'duel' : 'solo');
@@ -76,16 +86,12 @@ const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
         user.isAlive = true;
         return;
       }
-
-      // Optional: log or ignore non-ping/pong messages here.
-      // GameRoom handles move input internally per player.
     });
 
     socket.on('close', () => {
       console.log(`❌ Player disconnected: ${userId}`);
       const index = connectedUsers.findIndex((u) => u.id === userId);
       if (index !== -1) connectedUsers.splice(index, 1);
-      // GameRoom will also handle clean-up per match on player close.
     });
   });
 
