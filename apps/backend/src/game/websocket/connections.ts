@@ -25,8 +25,8 @@ function broadcastAll(msg: any) {
 }
 
 const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
-  fastify.get('/ws', { websocket: true }, async (connection, req) => {
-    console.log('🌐 Incoming WS connection');
+  fastify.get('/ws/game', { websocket: true }, async (connection, req) => {
+    console.log('🌐 Incoming GAME WS connection');
     const url = req.url || '';
     const params = new URLSearchParams(url?.split('?')[1] || '');
     const mode = params.get('mode') ?? 'solo';
@@ -57,7 +57,7 @@ const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
       isAlive: true
     };
     connectedUsers.push(user);
-    console.log(`✅ WebSocket connected: ${userId} (${mode})`);
+    console.log(`🎮 Game WebSocket connected: ${userId} (${mode})`);
 
     // Send player to matchmaking
     const player: Player = { id: userId, socket };
@@ -82,7 +82,7 @@ const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
     });
 
     socket.on('close', () => {
-      console.log(`❌ User disconnected: ${userId}`);
+      console.log(`❌ Player disconnected: ${userId}`);
       const index = connectedUsers.findIndex((u) => u.id === userId);
       if (index !== -1) connectedUsers.splice(index, 1);
       // GameRoom will also handle clean-up per match on player close.

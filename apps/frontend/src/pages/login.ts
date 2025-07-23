@@ -1,5 +1,6 @@
 import { renderNav } from './nav'
 import { saveToken } from '../utils/auth';
+import { connectPresenceSocket } from '../websocket/presence';
 
 export function renderLogin(root: HTMLElement) {
   root.innerHTML = renderNav() + `
@@ -193,7 +194,7 @@ export function renderLogin(root: HTMLElement) {
             <span>Success!</span>
           </div>
         `;
-
+        connectPresenceSocket();
         setTimeout(() => {
           location.hash = '#/profile';
         }, 1000);

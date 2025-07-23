@@ -4,6 +4,7 @@ import { getToken } from '../utils/auth';
 let socket: WebSocket | null = null;
 let activeUsers = 0;
 let activeTournaments: any[] = [];
+let reconnectTimeout: any = null;
 
 const listeners: Array<() => void> = [];
 
@@ -27,20 +28,39 @@ export function connectPresenceSocket() {
       return;
     }
 
-    const msg = JSON.parse(event.data);
-    if (msg.type === 'presenceUpdate') {
-      activeUsers = msg.count || 0;
-      notifyListeners();
-    } else if (msg.type === 'tournamentUpdate') {
-      activeTournaments = msg.tournaments || [];
-      notifyListeners();
+    try {
+      const msg = JSON.parse(event.data);
+      if (msg.type === 'presenceUpdate') {
+        activeUsers = msg.count || 0;
+        notifyListeners();
+      } else if (msg.type === 'tournamentUpdate') {
+        activeTournaments = msg.tournaments || [];
+        notifyListeners();
+      }
+    } catch {
+      console.warn('Unknown message format: ', event.data);
     }
   };
 
   socket.onclose = () => {
     console.log('❌ Presence WebSocket disconnected');
     socket = null;
+    if (getToken()) {
+      reconnectTimeout = setTimeout(connectPresenceSocket, 3000);
+    }
   };
+
+  socket.onerror = () => {
+    console.error('⚠️ Presence socket error');
+  };
+}
+
+export function disconnectPresenceSocket() {
+  if (reconnectTimeout) clearTimeout(reconnectTimeout);
+  if (socket) {
+    socket.close();
+    socket = null;
+  }
 }
 
 export function getActiveTournaments() {

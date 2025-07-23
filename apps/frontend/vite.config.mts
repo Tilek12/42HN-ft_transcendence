@@ -43,7 +43,7 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false
         },
-        '/wss': {
+        '/ws': {
           target: `wss://${ip}:${backendPort}`,
           ws: true,
           changeOrigin: true,

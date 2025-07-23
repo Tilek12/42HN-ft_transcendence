@@ -99,8 +99,7 @@ export async function renderGame(root: HTMLElement) {
     };
 
     socket.onclose = (event) => {
-      console.log('❌ WebSocket disconnected');
-      console.log(`❗ Close code: ${event.code}, reason: ${event.reason}`);
+      console.log('❌ Game WebSocket disconnected');
     };
 
     // Key tracking
