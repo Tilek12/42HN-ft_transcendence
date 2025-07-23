@@ -4,7 +4,11 @@ import { loginSchema, registerSchema } from './schemas';
 import {
   findUserByUsername,
   findUserByEmail,
-  createUser
+  createUser, 
+  findProfileByUsername,
+  findProfileByEmail,
+  updateProfileLogInState,
+  createProfile,
 } from '../database/user';
 
 const authRoutes: FastifyPluginAsync = async (fastify) => {
@@ -22,7 +26,9 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 
     const hashed = await hashPassword(password);
     await createUser(username, email, hashed);
-
+	//-----Thomas--------
+	await createProfile(username);
+	//-----Thomas--------
     res.send({ message: 'User registered successfully' });
   });
 
@@ -30,14 +36,21 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post('/login', { schema: loginSchema }, async (req, res) => {
     const { username, password } = req.body as any;
     const user = await findUserByUsername(username);
-
     if (!user || !(await verifyPassword(password, user.password))) {
       return res.status(401).send({ message: 'Invalid credentials' });
     }
-
+	await updateProfileLogInState(user. id, true);
     const token = fastify.jwt.sign({ id: user.id }, { expiresIn: '2h' });
     res.send({ token });
+  });
+  
+  fastify.post('/logout', async (req, res) =>
+  {
+		  const user = await req.jwtVerify();
+		  await updateProfileLogInState(user.id, false);
+		  res.send({message: 'Logged out successfully'});
   });
 };
 
 export default authRoutes;
+

@@ -8,6 +8,17 @@ export const loginSchema = {
 	  },
 	},
   };
+  export const profileSchema = {
+	body: {
+	  type: 'object',
+	  required: ['logged_in', 'username', 'password'],
+	  properties: {
+		logged_in: {type: 'boolean'},
+		username: { type: 'string' },
+		password: { type: 'string' },
+	  },
+	},
+  };
 
   export const registerSchema = {
 	body: {

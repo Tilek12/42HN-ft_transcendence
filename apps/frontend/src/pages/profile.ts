@@ -31,12 +31,28 @@ export async function renderProfile(root: HTMLElement) {
         </div>
       `;
 
-      document.getElementById('logout-btn')?.addEventListener('click', () => {
-        clearToken();
-        location.hash = '#/login';
-      });
-    })
-    .catch(() => {
-      root.innerHTML = `<p class="text-red-400">❌ Failed to fetch profile.</p>`;
-    });
+    //   document.getElementById('logout-btn')?.addEventListener('click', () => {
+    //     clearToken();
+    //     location.hash = '#/login';
+    //   });
+    // })
+    // .catch(() => {
+    //   root.innerHTML = `<p class="text-red-400">❌ Failed to fetch profile.</p>`;
+    // });
+	document.getElementById('logout-btn')?.addEventListener('click', async () =>
+		{
+			const token = getToken();
+				await fetch('/api/logout',
+					{
+						method: 'POST',
+						headers: {'Authorization': `Bearer ${token}`},
+					});
+				clearToken();
+				location.hash = '#/login';
+			});
+	})
+	.catch(() => {
+	  root.innerHTML = `<p class="text-red-400">❌ Failed to fetch profile.</p>`;
+	});
 }
+

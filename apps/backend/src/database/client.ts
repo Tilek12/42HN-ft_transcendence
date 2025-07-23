@@ -18,6 +18,13 @@ export async function connectToDB() {
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
   `);
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS profiles (
+      id INTEGER PRIMARY KEY, -- same as user.id
+	  logged_in BOOLEAN DEFAULT FALSE,
+      FOREIGN KEY (id) REFERENCES users(id)
+    );
+  `);
 }
 
 //SEQUELIZE - ORM
