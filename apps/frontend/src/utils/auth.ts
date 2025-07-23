@@ -17,7 +17,6 @@ export function isLoggedIn(): boolean {
 export async function validateLogin(): Promise<boolean> {
 	const token = getToken();
 	if (!token) return false;
-
 	try {
 	  const res = await fetch('/api/private/me', {
 		headers: { Authorization: `Bearer ${token}` },

@@ -16,6 +16,9 @@ export const loginSchema = {
 		logged_in: {type: 'boolean'},
 		username: { type: 'string' },
 		password: { type: 'string' },
+		wins: {type: 'integer', minimum: 0},
+		losses: {type: 'integer', minimum: 0},
+		trophies: {type: 'integer', minimum: 0}
 	  },
 	},
   };

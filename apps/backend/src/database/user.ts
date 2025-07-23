@@ -20,7 +20,7 @@ export async function createUser(username: string, email: string, hashedPassword
     hashedPassword
   );
 }
-//----------functions for users data base-----------
+//----------functions for profiles data base-----------
 export async function findProfileByUsername(username:string)
 {
 	return await db.get('SELECT * FROM profiles WHERE username = ?', username);
@@ -33,15 +33,15 @@ export async function findProfileByEmail(email: string)
 
 export async function findProfileById(id:  number)
 {
-	return await db.get('SELECT * FROM users WHERE id = ?', id);
+	return await db.get('SELECT * FROM profiles WHERE id = ?', id);
 }
 
 export async function createProfile(username: string)
 {
 	let user = await findUserByUsername(username);
 	await db.run(
-		'INSERT INTO profiles (id, logged_in) VALUES (?,?)',
-		user.id, false
+		'INSERT INTO profiles (id, logged_in, wins, losses, trophies) VALUES (?,?,?,?,?)',
+		user.id, false, 0, 0, 0
 	);
 }
 export async function updateProfileLogInState(id: number, status: boolean)
@@ -49,6 +49,14 @@ export async function updateProfileLogInState(id: number, status: boolean)
 	await db.run(
 		'UPDATE profiles SET logged_in = ? WHERE id = ?',
 		status,
+		id
+	);
+}
+
+export async function incrementWinsOrLossesOrTrophies(id: number, field: 'wins' | 'losses' | 'trophies')
+{
+	await db.run(
+		`UPDATE profiles SET ${field} = ${field} + 1 WHERE id = ?`,
 		id
 	);
 }

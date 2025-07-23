@@ -22,10 +22,18 @@ export async function connectToDB() {
     CREATE TABLE IF NOT EXISTS profiles (
       id INTEGER PRIMARY KEY, -- same as user.id
 	  logged_in BOOLEAN DEFAULT FALSE,
-      FOREIGN KEY (id) REFERENCES users(id)
+	  wins INTEGER DEFAULT 0,
+	  losses INTEGER DEFAULT 0,
+	  trophies INTEGER DEFAULT 0,
+      FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
     );
   `);
 }
 
 //SEQUELIZE - ORM
 //Prisma - ORM
+//SELECT profiles.* user.username, users.email, users.created_at
+//FROM profile
+//JOIN users ON profiles.id =users.id
+//where profiles.id = ?
+//, userId
