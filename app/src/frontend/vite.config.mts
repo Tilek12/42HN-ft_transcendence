@@ -26,25 +26,25 @@ export default defineConfig(({ mode }) => {
   const ip = env.LOCAL_IP || '127.0.0.1'
 
   return {
-    root: './src/',
-    plugins: [customNetworkLogger()],
+    root: '/app/src/frontend',
+    // plugins: [customNetworkLogger()],
     server: {
-      host: true,
-      port: frontendPort,
+      host: "0.0.0.0",
+      port: 5000,
       strictPort: true,
       open: false,
       https: {
-        key: fs.readFileSync(path.resolve(__dirname, './cert/key.pem')),
-        cert: fs.readFileSync(path.resolve(__dirname, './cert/cert.pem')),
+        key: fs.readFileSync(path.resolve(__dirname, '/app/cert/key.pem')),
+        cert: fs.readFileSync(path.resolve(__dirname, '/app/cert/cert.pem')),
       },
       proxy: {
         '/api': {
-          target: `https://${ip}:${backendPort}`,
+          target: `https://localhost:3000`,
           changeOrigin: true,
           secure: false
         },
         '/wss': {
-          target: `wss://${ip}:${backendPort}`,
+          target: `wss://localhost:3000`,
           ws: true,
           changeOrigin: true,
           secure: false

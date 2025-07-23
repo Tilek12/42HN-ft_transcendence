@@ -27,11 +27,18 @@ COMPOSE := $(DOCKER_COMPOSE) -f $(COMPOSE_FILE)
 # Environment validation
 ENV_FILE := .env
 
+# Mode switches
+DEV = APP_MODE=development
+PROD = APP_MODE=production
+
+
 ## --------------------------- ##
 ##  Project Lifecycle Targets  ##
 ## --------------------------- ##
 
 start: setup-local setup-ngrok up	## 🚀 Full start process (setup + run)
+
+dev: setup-local setup-ngrok updev
 
 stop: clean		## 🛑 Stop all services (graceful shutdown)
 
@@ -43,7 +50,14 @@ re: clean start		## 🔄 Restart everything
 
 up:		## 🐳 Start containers with build
 	@printf "$(BLUE)🐳 Starting Docker containers...$(RESET)\n"
-	$(COMPOSE) up --build || true
+	@printf "$(RED)🐳 BE AWARE, THIS IS PRODUCTION MODE!$(RESET)\n"
+	$(PROD) $(COMPOSE) up --build || true
+	@printf "$(RED)🛑 Containers stopped$(RESET)\n"
+
+updev:
+	@printf "$(BLUE)🐳 Starting Docker containers...$(RESET)\n"
+	@printf "$(GREEN)🐳 ENTERING IN DEVELOPMENT MODE $(RESET)\n"
+	$(DEV) $(COMPOSE) up --build || true
 	@printf "$(RED)🛑 Containers stopped$(RESET)\n"
 
 down:	## 🛑 Stop containers

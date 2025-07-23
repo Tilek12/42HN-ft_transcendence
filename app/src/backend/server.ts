@@ -57,14 +57,15 @@ async function main() {
   // Start listening
   try {
     await server.listen({ port: PORT, host: '0.0.0.0' });
-    console.log('✅ Server running on:');
-    console.log(`     Local: https://localhost:${PORT}`);
-    console.log(`   Network: https://${LOCAL_IP}:${PORT}`);
+    // console.log('✅ Server running on:');
+    // console.log(`     Local: https://localhost:${PORT}`);
+    // console.log(`   Network: https://${LOCAL_IP}:${PORT}`);
   } catch (err) {
     server.log.error(err, '❌ Failed to start server');
     process.exit(1);
   }
 
+  
   // Graceful shutdown
   const shutdown = async () => {
     console.log('\n🛑 Gracefully shutting down...');
@@ -81,5 +82,5 @@ async function main() {
   process.on('SIGINT', shutdown);
   process.on('SIGTERM', shutdown);
 }
-
+ 
 main();

@@ -1,5 +1,5 @@
 import { renderNav } from './nav'
-import {Player} from '../../../backend/src/game/engine/types'
+import {Player} from '../../../../backend/src/game/engine/types'
 // import {createRounds} from '../../../backend/src/game/engine/create-rounds'
 
 //training with sockets
