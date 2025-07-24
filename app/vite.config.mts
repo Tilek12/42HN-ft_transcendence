@@ -30,9 +30,10 @@ export default defineConfig(({ mode }) => {
     // plugins: [customNetworkLogger()],
     server: {
       host: "0.0.0.0",
-      port: 5000,
+      port: frontendPort,
       strictPort: true,
       open: false,
+      base: "/app/distbuilding",
       https: {
         key: fs.readFileSync(path.resolve(__dirname, '/app/cert/key.pem')),
         cert: fs.readFileSync(path.resolve(__dirname, '/app/cert/cert.pem')),

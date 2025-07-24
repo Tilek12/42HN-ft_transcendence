@@ -1,5 +1,8 @@
 #! /bin/bash
 
+# npm install
+# npm i -g typescript tsx concurrently
+
 if [ "$APP_MODE" = "development" ]; then
 	echo "Starting in DEVELOPMENT mode!"
 	npm run dev;
@@ -11,4 +14,4 @@ else
 	exit 1
 fi
 
-tail -f /dev/null
+# tail -f /dev/null
