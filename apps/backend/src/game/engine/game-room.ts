@@ -1,5 +1,6 @@
 import { Player, GameState } from './types';
 import { advanceTournament } from '../tournament/tournament-manager';
+import { findProfileById, incrementWinsOrLossesOrTrophies } from '../../database/user';
 
 const FRAME_RATE = 1000 / 60;
 const PADDLE_HEIGHT = 20;
@@ -15,9 +16,10 @@ export class GameRoom {
   private state: GameState;
   private interval: NodeJS.Timeout;
   private winner: Player | null = null;
+  private losser: Player | null = null;
 
   constructor(player1: Player, player2: Player | null, tournamentId?: string) {
-    this.players = [player1, player2 || null];
+    this.players = [player1, player2 || undefined];
     this.mode = player2 ? 'duel' : 'solo';
     this.tournamentId = tournamentId;
     this.state = this.initState();
@@ -125,6 +127,23 @@ export class GameRoom {
       const winnerId = score[p1.id] > score[p2?.id || '__ghost'] ? p1.id : p2?.id;
       const winner = this.players.find(p => p?.id === winnerId) || null;
       this.winner = winner;
+
+	  //------Thomas code-------
+	  (async () =>
+	  {
+		 let state : 'wins' | 'losses' = winnerId === p1.id ? 'wins' : 'losses';
+			await incrementWinsOrLossesOrTrophies(parseInt(p1.id), state);
+			const profile_one = await findProfileById(parseInt(p1.id));
+			console.log(profile_one);
+		 if (p2 !== undefined)
+		 {
+			 state = state !== 'wins' ? 'wins' : 'losses'
+			await incrementWinsOrLossesOrTrophies(parseInt(p2?.id), state);
+			const profile_two : any = await findProfileById(parseInt(p2?.id));
+			console.log(profile_two);
+		 }
+	  })();
+	  //------Thomas code-------
 
       this.broadcast({ type: 'end', winner: winner?.id });
       this.end();

@@ -1,5 +1,6 @@
 import { Player } from '../engine/types';
 import { GameRoom } from '../engine/game-room';
+import { findProfileById, incrementWinsOrLossesOrTrophies } from '../../database/user';
 
 export type TournamentSize = 4 | 8;
 export type TournamentStatus = 'waiting' | 'active' | 'finished';
@@ -91,10 +92,15 @@ function advanceTournament(tournamentId: string, winner: Player) {
     .map(r => r.getWinner())
     .filter(w => w !== null) as Player[];
 
-  if (winners.length === 1) {
-    tournament.status = 'finished';
-    // TODO: store tournament history later
-    return;
+  if (winners.length === 1) 
+  {
+		(async() => 
+		{
+			await incrementWinsOrLossesOrTrophies(parseInt(winners[0].id), 'trophies');
+		})();
+		tournament.status = 'finished';
+		// TODO: store tournament history later
+		return;
   }
 
   const newRound: GameRoom[] = [];

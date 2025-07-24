@@ -1,7 +1,11 @@
 export type PlayerID = string;
 
 export interface Player {
+logged_in: boolean;
   id: PlayerID;
+  wins: number;
+  losses: number;
+  trophies: number;
   socket: WebSocket;
 }
 

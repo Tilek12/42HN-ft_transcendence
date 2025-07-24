@@ -5,12 +5,17 @@ import fp from 'fastify-plugin';
 import { startGame } from '../engine/matchmaking';
 import { Player } from '../engine/types';
 import { joinTournament, getSafeTournamentData } from '../tournament/tournament-manager';
+import {findProfileById } from '../../database/user'
 
 const connectedUsers: ConnectedUser[] = [];
 const PING_INTERVAL_MS = 10000;
 
 interface ConnectedUser {
+  logged_in: boolean;
   id: string;
+  wins: number;
+  losses: number;
+  trophies: number;
   socket: WebSocket;
   isAlive: boolean;
 }
@@ -40,9 +45,10 @@ const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
     }
 
     let userId: string;
+	let profile: any;
     try {
       const payload = await fastify.jwt.verify(token);
-      userId = payload.id;
+	  profile = await findProfileById(payload.id);
     } catch {
       connection.socket.close(4002, 'Invalid or expired token');
       return;
@@ -52,15 +58,27 @@ const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
 
     // Track in heartbeat list
     const user: ConnectedUser = {
-      id: userId,
+	  logged_in: profile.logged_in,
+      id: profile.id.toString(),
+	  wins: profile.wins,
+	  losses: profile.losses,
+	  trophies:profile.trophies,
       socket,
       isAlive: true
     };
     connectedUsers.push(user);
-    console.log(`✅ WebSocket connected: ${userId} (${mode})`);
+    console.log(`✅ WebSocket connected: ${profile.id.toString()} (${mode})`);
 
     // Send player to matchmaking
-    const player: Player = { id: userId, socket };
+    const player: Player = 
+	{
+		logged_in: profile.logged_in, 
+		id: profile.id.toString(), 
+		wins: profile.wins,
+		losses: profile.losses, 
+		trophies: profile.trophies, 
+		socket
+	};
 
     // Tournament defining
     if (mode === 'tournament') {
