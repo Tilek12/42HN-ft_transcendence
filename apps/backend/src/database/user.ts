@@ -52,11 +52,20 @@ export async function updateProfileLogInState(id: number, status: boolean)
 		id
 	);
 }
-
+//-----Matches and tournaments-------------------------
 export async function incrementWinsOrLossesOrTrophies(id: number, field: 'wins' | 'losses' | 'trophies')
 {
 	await db.run(
 		`UPDATE profiles SET ${field} = ${field} + 1 WHERE id = ?`,
 		id
 	);
+//-----Profile path or url-----------------------------
 }
+
+export async function updatePicturePath(id: number, path_or_url: string) {
+	await db.run(
+	  `UPDATE profiles SET path_or_url_to_image = ? WHERE id = ?`,
+	  path_or_url,
+	  id
+	);
+  }

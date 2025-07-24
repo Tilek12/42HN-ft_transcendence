@@ -1,7 +1,8 @@
 export type PlayerID = string;
 
 export interface Player {
-logged_in: boolean;
+  profile_pic: string;
+  logged_in: boolean;
   id: PlayerID;
   wins: number;
   losses: number;

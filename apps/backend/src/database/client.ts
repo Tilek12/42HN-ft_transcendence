@@ -21,6 +21,7 @@ export async function connectToDB() {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS profiles (
       id INTEGER PRIMARY KEY, -- same as user.id
+	  path_or_url_to_image TEXT,
 	  logged_in BOOLEAN DEFAULT FALSE,
 	  wins INTEGER DEFAULT 0,
 	  losses INTEGER DEFAULT 0,
