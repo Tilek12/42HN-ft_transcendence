@@ -70,7 +70,7 @@ export async function renderTournament(root: HTMLElement) {
           <p class="text-sm text-gray-300">${t.joined}/${t.size} players joined</p>
         </div>
         <button
-          ${isFull || userTournament ? 'disabled' : ''}
+        ${isFull || userTournament ? 'disabled' : ''}
           class="px-4 py-2 rounded bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-medium"
           data-id="${t.id}"
           data-size="${t.size}"
@@ -82,7 +82,7 @@ export async function renderTournament(root: HTMLElement) {
       const button = div.querySelector('button')!;
       if (!isFull && !userTournament && !userInTournament) {
         button.addEventListener('click', () => {
-          joinTournament(t.size);
+          joinTournament(t.id, t.size);
         });
       }
 
@@ -104,15 +104,15 @@ export async function renderTournament(root: HTMLElement) {
     `;
 
     document.getElementById('start-tournament-4')?.addEventListener('click', () => {
-      if (!userTournament) joinTournament(4);
+      if (!userTournament) joinTournament('', 4);
     });
 
     document.getElementById('start-tournament-8')?.addEventListener('click', () => {
-      if (!userTournament) joinTournament(8);
+      if (!userTournament) joinTournament('', 8);
     });
   }
 
-  function joinTournament(size: 4 | 8) {
+  function joinTournament(id: string, size: 4 | 8) {
     if (currentTournamentId) {
       alert(`⚠️ You're already in Tournament ${currentTournamentId}.`);
       return;
@@ -125,7 +125,7 @@ export async function renderTournament(root: HTMLElement) {
       return;
     }
 
-    const socket = createGameSocket('tournament', size);
+    const socket = createGameSocket('tournament', size, id);
     socket.onmessage = (event) => {
       const msg = event.data;
       if (msg === 'ping') {
@@ -138,6 +138,7 @@ export async function renderTournament(root: HTMLElement) {
 
         if (parsed.type === 'tournamentJoined') {
           currentTournamentId = parsed.id;
+          alert('🎮 Joined tournament. Waiting for match...');
           renderTournamentList();
         } else if (parsed.type === 'end') {
           alert(`🏁 Tournament finished! Winner: ${parsed.winner}`);
@@ -149,6 +150,5 @@ export async function renderTournament(root: HTMLElement) {
       }
     };
 
-    alert('🎮 Joined tournament. Waiting for match...');
   }
 }

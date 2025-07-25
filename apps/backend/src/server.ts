@@ -5,13 +5,14 @@ import jwt from '@fastify/jwt';
 import dotenv from 'dotenv';
 
 import { connectToDB } from './database/client';
-import onlineUsersRoute from './user/online-users';
-import wsPresencePlugin from './websocket/presence';
-import wsGamePlugin from './game/websocket/connections';
-import tournamentRoutes from './game/tournament/routes';
 import authRoutes from './auth/routes';
 import userRoutes from './user/routes';
 import authPlugin from './plugins/auth';
+import onlineUsersRoute from './user/online-users';
+import tournamentsDataRoute from './game/tournament/routes';
+import wsPresencePlugin from './websocket/presence';
+import wsGamePlugin from './websocket/game';
+import wsTournamentPlugin from './websocket/tournament';
 
 dotenv.config();
 
@@ -48,13 +49,14 @@ async function main() {
     await protectedScope.register(authPlugin);            // 👈 Middleware checking token
     await protectedScope.register(userRoutes);            // 👈 Protected routes: /api/private/me
     await protectedScope.register(onlineUsersRoute);      // 👈 Protected routes: /api/private/online-users
-    await protectedScope.register(tournamentRoutes);      // 👈 Protected routes: /api/private/tournaments
+    await protectedScope.register(tournamentsDataRoute);  // 👈 Protected routes: /api/private/tournaments
   }, { prefix: '/api/private' });
 
   // WebSocket scope of routes
   await server.register(async (websocketScope) => {
-    await websocketScope.register(wsPresencePlugin);      // 🔁 Persistent socket: /ws/presence
     await websocketScope.register(wsGamePlugin);          // 🕹️ Game-only socket:  /ws/game
+    await websocketScope.register(wsPresencePlugin);      // 🔁 Persistent socket: /ws/presence
+    await websocketScope.register(wsTournamentPlugin);    // 🏆 Tournament socket: /ws/tournament
   }, { prefix: '/ws' });
 
   // Simple health check

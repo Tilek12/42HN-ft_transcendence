@@ -1,31 +1,41 @@
-import { getToken } from '../utils/auth'
+import { getToken } from '../utils/auth';
 
-// Create Game WebSocket connection
-export function createGameSocket(mode: 'solo' | 'duel' | 'tournament', size?: number): WebSocket {
-	const token = getToken();
-	const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://localhost:3000';
-	let wsUrl = backendUrl.replace(/^http/, 'ws') + `/ws/game?mode=${mode}&token=${token}`;
+let gameSocket: WebSocket | null = null;
 
-	if (mode === 'tournament' && size) {
-		wsUrl += `&size=${size}`;
-	}
+export function createGameSocket(mode: 'solo' | 'duel' | 'tournament', size?: number, id?: string): WebSocket {
+  const token = getToken();
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://localhost:3000';
+  let wsUrl = backendUrl.replace(/^http/, 'ws') + `/ws/game?mode=${mode}&token=${token}`;
 
-	const socket = new WebSocket(wsUrl);
+  if (mode === 'tournament' && size) {
+    wsUrl += `&size=${size}`;
+    if (id) wsUrl += `&id=${id}`;
+  }
 
-	socket.onopen = () => {
-	  console.log('✅ Game WebSocket connected');
-	};
+  gameSocket = new WebSocket(wsUrl);
 
-	socket.onmessage = (event) => {
-	  const msg = event.data;
-	  if (msg === 'ping') {
-		socket.send('pong');
-	  }
-	};
+  gameSocket.onopen = () => {
+    console.log('✅ Game WebSocket connected');
+  };
 
-	socket.onclose = () => {
-	  console.log('❌ Game WebSocket disconnected');
-	};
+  gameSocket.onmessage = (event) => {
+    if (event.data === 'ping') {
+      gameSocket?.send('pong');
+    }
+  };
 
-	return socket;
+  gameSocket.onclose = () => {
+    console.log('❌ Game WebSocket disconnected');
+    gameSocket = null;
+  };
+
+  return gameSocket;
+}
+
+export function disconnectGameSocket() {
+  if (gameSocket) {
+    console.log('🔌 Manually closing Game WebSocket');
+    gameSocket.close();
+    gameSocket = null;
+  }
 }

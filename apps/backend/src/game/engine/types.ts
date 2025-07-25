@@ -21,11 +21,3 @@ export interface MoveMessage {
 }
 
 export type GameMode = 'solo' | 'duel' | 'tournament';
-
-export interface Tournament {
-  id: string;
-  players: Player[];
-  size: number; // 4 or 8
-  matches: { p1: Player; p2: Player | null }[];
-  started: boolean;
-}

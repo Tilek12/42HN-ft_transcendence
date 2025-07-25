@@ -1,4 +1,5 @@
 import { getToken } from '../utils/auth';
+import { disconnectGameSocket } from './game';
 
 // Create Presence WebSocket connection
 let socket: WebSocket | null = null;
@@ -42,6 +43,9 @@ export function connectPresenceSocket() {
   socket.onclose = () => {
     console.log('❌ Presence WebSocket disconnected');
     socket = null;
+
+    disconnectGameSocket();
+
     if (getToken()) {
       reconnectTimeout = setTimeout(connectPresenceSocket, 3000);
     }

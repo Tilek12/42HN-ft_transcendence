@@ -29,9 +29,7 @@ export const broadcastTournaments = () => {
 
 const presencePlugin: FastifyPluginAsync = async (fastify) => {
   fastify.get('/presence', { websocket: true }, async (connection, req) => {
-    console.log('🌐 Incoming PRESENCE WS connection');
-    const url = req.url || '';
-    const params = new URLSearchParams(url?.split('?')[1] || '');
+    const params = new URLSearchParams(req.url?.split('?')[1] || '');
     const token = params.get('token');
 
     if (!token) {
@@ -49,22 +47,26 @@ const presencePlugin: FastifyPluginAsync = async (fastify) => {
     }
 
     const socket = connection.socket;
-    const user: PresenceUser = {
-      id: userId,
-      socket,
-      isAlive: true
-    };
+    const user: PresenceUser = { id: userId, socket, isAlive: true };
     presenceUsers.push(user);
     console.log(`🟢 Presence WS connected: ${userId}`);
 
+    socket.send(JSON.stringify({
+      type: 'tournamentUpdate',
+      tournaments: getSafeTournamentData()
+    }));
+
+    socket.send(JSON.stringify({
+      type: 'presenceUpdate',
+      count: presenceUsers.length
+    }));
+
     socket.on('message', (msg) => {
-      if (msg.toString() === 'pong') {
-        user.isAlive = true;
-      }
+      if (msg.toString() === 'pong') user.isAlive = true;
     });
 
     socket.on('close', () => {
-      const index = presenceUsers.findIndex((u) => u.id === userId);
+      const index = presenceUsers.findIndex(u => u.id === userId);
       if (index !== -1) presenceUsers.splice(index, 1);
       console.log(`🔴 Presence WS disconnected: ${userId}`);
     });
@@ -74,7 +76,6 @@ const presencePlugin: FastifyPluginAsync = async (fastify) => {
     presenceUsers.forEach((user, index) => {
       if (user.socket.readyState !== WS.OPEN) return;
       if (!user.isAlive) {
-        console.log(`💀 Presence timeout: ${user.id}`);
         user.socket.close();
         presenceUsers.splice(index, 1);
         return;
