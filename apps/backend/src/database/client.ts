@@ -29,6 +29,56 @@ export async function connectToDB() {
       FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
     );
   `);
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS matches (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      player1_id INTEGER NOT NULL,
+      player2_id INTEGER NOT NULL,
+      player1_score INTEGER NOT NULL,
+      player2_score INTEGER NOT NULL,
+      winner_id INTEGER,
+      is_tie BOOLEAN DEFAULT 0,
+      is_tournament_match BOOLEAN DEFAULT 0,
+      played_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(player1_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY(player2_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY(winner_id) REFERENCES users(id)
+    );
+  `);
+  
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS tournaments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      created_by_user_id INTEGER NOT NULL,
+      status TEXT CHECK(status IN ('waiting', 'ongoing', 'completed')) DEFAULT 'waiting',
+      start_time DATETIME,
+      end_time DATETIME,
+      FOREIGN KEY(created_by_user_id) REFERENCES users(id)
+    );
+  `);
+  
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS tournament_participants (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      tournament_id INTEGER NOT NULL,
+      user_id INTEGER NOT NULL,
+      FOREIGN KEY(tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE,
+      FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+      UNIQUE(tournament_id, user_id)
+    );
+  `);
+  
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS tournament_matches (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      tournament_id INTEGER NOT NULL,
+      match_id INTEGER NOT NULL,
+      FOREIGN KEY(tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE,
+      FOREIGN KEY(match_id) REFERENCES matches(id) ON DELETE CASCADE
+    );
+  `);
+  
 }
 
 //SEQUELIZE - ORM
