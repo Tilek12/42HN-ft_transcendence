@@ -49,7 +49,7 @@ const presencePlugin: FastifyPluginAsync = async (fastify) => {
     const socket = connection.socket;
     const user: PresenceUser = { id: userId, socket, isAlive: true };
     presenceUsers.push(user);
-    console.log(`🟢 Presence WS connected: ${userId}`);
+    console.log(`🟢 [Presence WS] Connected: ${userId}`);
 
     socket.send(JSON.stringify({
       type: 'tournamentUpdate',
@@ -68,7 +68,7 @@ const presencePlugin: FastifyPluginAsync = async (fastify) => {
     socket.on('close', () => {
       const index = presenceUsers.findIndex(u => u.id === userId);
       if (index !== -1) presenceUsers.splice(index, 1);
-      console.log(`🔴 Presence WS disconnected: ${userId}`);
+      console.log(`🔴 [Presence WS] Disconnected: ${userId}`);
     });
   });
 

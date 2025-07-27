@@ -1,11 +1,15 @@
 import { renderNav } from './nav';
 import { getToken, validateLogin } from '../utils/auth';
-import { createGameSocket } from '../websocket/game';
 import {
   connectPresenceSocket,
   getActiveTournaments,
   onPresenceUpdate
 } from '../websocket/presence';
+import {
+  createTournamentSocket,
+  quitTournament,
+  disconnectTournamentSocket
+} from '../websocket/tournament';
 
 let currentTournamentId: string | null = null;
 
@@ -16,7 +20,6 @@ export async function renderTournament(root: HTMLElement) {
     return;
   }
 
-  // Ensure presence connection is active
   connectPresenceSocket();
 
   root.innerHTML =
@@ -34,25 +37,44 @@ export async function renderTournament(root: HTMLElement) {
 
   function renderTournamentList() {
     const list = document.getElementById('tournament-list')!;
+    list.innerHTML = '';
+
     const tournaments = getActiveTournaments();
     const token = getToken();
     const userId = token ? JSON.parse(atob(token.split('.')[1])).id : null;
 
-    list.innerHTML = '';
-
     const userTournament = tournaments.find(t => t.playerIds.includes(userId));
+    currentTournamentId = userTournament ? userTournament.id : null;
 
+    // User joined info + quit button
     if (userTournament) {
-      currentTournamentId = userTournament.id;
-      list.innerHTML = `
+      const infoBox = document.createElement('div');
+      infoBox.innerHTML = `
         <div class="text-center text-green-400 mb-4">
           ✅ You have joined Tournament <strong>${userTournament.id}</strong> (${userTournament.joined}/${userTournament.size})
         </div>
+        <div class="text-center mb-4">
+          <button id="quit-tournament-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+            Quit Tournament
+          </button>
+        </div>
       `;
+      list.appendChild(infoBox);
+
+      infoBox.querySelector('#quit-tournament-btn')?.addEventListener('click', () => {
+        quitTournament();
+        currentTournamentId = null;
+        alert('🚪 You left the tournament.');
+        disconnectTournamentSocket();
+        renderTournamentList();
+      });
     }
 
     if (tournaments.length === 0) {
-      list.innerHTML += `<p class="text-center text-gray-400">No active tournaments yet.</p>`;
+      const emptyMsg = document.createElement('p');
+      emptyMsg.className = 'text-center text-gray-400';
+      emptyMsg.textContent = 'No active tournaments yet.';
+      list.appendChild(emptyMsg);
     }
 
     for (const t of tournaments) {
@@ -70,7 +92,7 @@ export async function renderTournament(root: HTMLElement) {
           <p class="text-sm text-gray-300">${t.joined}/${t.size} players joined</p>
         </div>
         <button
-        ${isFull || userTournament ? 'disabled' : ''}
+          ${isFull || userTournament ? 'disabled' : ''}
           class="px-4 py-2 rounded bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-medium"
           data-id="${t.id}"
           data-size="${t.size}"
@@ -89,27 +111,30 @@ export async function renderTournament(root: HTMLElement) {
       list.appendChild(div);
     }
 
-    // Start buttons (disabled if already joined)
-    list.innerHTML += `
-      <div class="text-center mt-6">
-        <button class="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold"
-          id="start-tournament-4" ${userTournament ? 'disabled' : ''}>
-          Start 4-Player Tournament
-        </button>
-        <button class="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold ml-4"
-          id="start-tournament-8" ${userTournament ? 'disabled' : ''}>
-          Start 8-Player Tournament
-        </button>
-      </div>
+    // Create buttons block
+    const createDiv = document.createElement('div');
+    createDiv.className = 'text-center mt-6';
+
+    createDiv.innerHTML = `
+      <button class="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold"
+        id="create-tournament-4" ${userTournament ? 'disabled' : ''}>
+        Create 4-Player Tournament
+      </button>
+      <button class="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold ml-4"
+        id="create-tournament-8" ${userTournament ? 'disabled' : ''}>
+        Create 8-Player Tournament
+      </button>
     `;
 
-    document.getElementById('start-tournament-4')?.addEventListener('click', () => {
-      if (!userTournament) joinTournament('', 4);
+    createDiv.querySelector('#create-tournament-4')?.addEventListener('click', () => {
+      if (!userTournament) createTournament(4);
     });
 
-    document.getElementById('start-tournament-8')?.addEventListener('click', () => {
-      if (!userTournament) joinTournament('', 8);
+    createDiv.querySelector('#create-tournament-8')?.addEventListener('click', () => {
+      if (!userTournament) createTournament(8);
     });
+
+    list.appendChild(createDiv);
   }
 
   function joinTournament(id: string, size: 4 | 8) {
@@ -118,37 +143,44 @@ export async function renderTournament(root: HTMLElement) {
       return;
     }
 
-    const token = getToken();
-    if (!token) {
-      alert('Login required');
-      location.hash = '#/login';
+    const socket = createTournamentSocket('join', size, id, (msg) => {
+      if (msg.type === 'tournamentJoined') {
+        currentTournamentId = msg.id;
+        alert('🎮 Joined tournament. Waiting for match...');
+        renderTournamentList();
+      } else if (msg.type === 'tournamentLeft') {
+        currentTournamentId = null;
+        renderTournamentList();
+      } else if (msg.type === 'end') {
+        alert(`🏁 Tournament finished! Winner: ${msg.winner}`);
+        currentTournamentId = null;
+        disconnectTournamentSocket();
+        renderTournamentList();
+      }
+    });
+
+    if (!socket) alert('Connection failed');
+  }
+
+  function createTournament(size: 4 | 8) {
+    if (currentTournamentId) {
+      alert(`⚠️ You're already in a tournament.`);
       return;
     }
 
-    const socket = createGameSocket('tournament', size, id);
-    socket.onmessage = (event) => {
-      const msg = event.data;
-      if (msg === 'ping') {
-        socket.send('pong');
-        return;
+    const socket = createTournamentSocket('create', size, undefined, (msg) => {
+      if (msg.type === 'tournamentJoined') {
+        currentTournamentId = msg.id;
+        alert(`🎉 Created Tournament ${msg.id}`);
+        renderTournamentList();
+      } else if (msg.type === 'end') {
+        alert(`🏁 Tournament finished! Winner: ${msg.winner}`);
+        currentTournamentId = null;
+        disconnectTournamentSocket();
+        renderTournamentList();
       }
+    });
 
-      try {
-        const parsed = JSON.parse(msg);
-
-        if (parsed.type === 'tournamentJoined') {
-          currentTournamentId = parsed.id;
-          alert('🎮 Joined tournament. Waiting for match...');
-          renderTournamentList();
-        } else if (parsed.type === 'end') {
-          alert(`🏁 Tournament finished! Winner: ${parsed.winner}`);
-          currentTournamentId = null;
-          socket.close();
-        }
-      } catch (err) {
-        console.warn('❌ Invalid tournament message:', msg);
-      }
-    };
-
+    if (!socket) alert('Failed to create tournament');
   }
 }

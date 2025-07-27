@@ -39,13 +39,13 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
     const player: Player = { id: userId, socket };
 
     connectedUsers.push({ id: userId, socket, isAlive: true });
-    console.log(`🎮 Game WebSocket connected: ${userId} (${mode})`);
+    console.log(`🏓 [Game WS] Connected: ${userId} (${mode})`);
 
     // Only handle solo or duel games
     if (mode === 'duel' || mode === 'solo') {
       startGame(player, mode);
     } else {
-      console.warn(`⚠️ Invalid mode: ${mode}`);
+      console.warn(`⛔️ [Game WS] Invalid mode: ${mode}`);
       socket.close(4003, 'Unsupported mode');
       return;
     }
@@ -58,7 +58,7 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
     });
 
     socket.on('close', () => {
-      console.log(`❌ Player disconnected: ${userId}`);
+      console.log(`❌ [Game WS] Player disconnected: ${userId}`);
       const index = connectedUsers.findIndex(u => u.id === userId);
       if (index !== -1) connectedUsers.splice(index, 1);
     });
@@ -70,7 +70,7 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
       if (user.socket.readyState !== WS.OPEN) return;
 
       if (!user.isAlive) {
-        console.log(`💀 Terminating inactive: ${user.id}`);
+        console.log(`💀 [Game WS] Terminating inactive: ${user.id}`);
         user.socket.close();
         connectedUsers.splice(i, 1);
         return;

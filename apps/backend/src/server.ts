@@ -80,7 +80,7 @@ async function main() {
     console.log('\n🛑 Gracefully shutting down...');
     try {
       await server.close();
-      console.log('✅ Server closed');
+      console.log('❎ Server closed');
       process.exit(0);
     } catch (err) {
       console.error('❌ Error during shutdown:', err);

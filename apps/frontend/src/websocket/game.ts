@@ -15,17 +15,19 @@ export function createGameSocket(mode: 'solo' | 'duel' | 'tournament', size?: nu
   gameSocket = new WebSocket(wsUrl);
 
   gameSocket.onopen = () => {
-    console.log('✅ Game WebSocket connected');
+    console.log('🕹️ [Game WS] Connected');
   };
 
   gameSocket.onmessage = (event) => {
     if (event.data === 'ping') {
       gameSocket?.send('pong');
+    } else {
+      console.log('🕹️ [Game WS] Message:', event.data);
     }
   };
 
   gameSocket.onclose = () => {
-    console.log('❌ Game WebSocket disconnected');
+    console.log('🕹️ [Game WS] Disconnected');
     gameSocket = null;
   };
 
@@ -34,7 +36,7 @@ export function createGameSocket(mode: 'solo' | 'duel' | 'tournament', size?: nu
 
 export function disconnectGameSocket() {
   if (gameSocket) {
-    console.log('🔌 Manually closing Game WebSocket');
+    console.log('🕹️ [Game WS] Manually closing Game WebSocket 🔌');
     gameSocket.close();
     gameSocket = null;
   }

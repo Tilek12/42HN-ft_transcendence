@@ -1,12 +1,12 @@
-import { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
+import { FastifyPluginAsync } from 'fastify';
+import { Player } from '../game/engine/types';
 import {
   Tournament,
   createTournament,
   joinTournament,
   quitTournament
 } from '../game/tournament/tournament-manager';
-import { Player } from '../game/engine/types';
 
 const tournamentSockets: Map<string, WebSocket> = new Map();
 
@@ -49,6 +49,7 @@ const tournamentPlugin: FastifyPluginAsync = async (fastify) => {
     }
 
     tournamentSockets.set(userId, socket);
+    console.log(`🌐 [Tournament WS] Opened for Player: ${userId}`);
     socket.send(JSON.stringify({ type: 'tournamentJoined', id: tournament.id }));
 
     socket.on('message', (msg) => {
@@ -63,14 +64,14 @@ const tournamentPlugin: FastifyPluginAsync = async (fastify) => {
           socket.send(JSON.stringify({ type: 'tournamentLeft' }));
         }
       } catch (err) {
-        console.warn('Invalid tournament message:', text);
+        console.warn('📛 [Tournament WS] Invalid message:', text);
       }
     });
 
     socket.on('close', () => {
       quitTournament(userId);
       tournamentSockets.delete(userId);
-      console.log(`🔴 Tournament WS closed for ${userId}`);
+      console.log(`🚫 [Tournament WS] Closed for ${userId}`);
     });
   });
 };

@@ -40,6 +40,7 @@ function createTournament(player: Player, size: TournamentSize): Tournament | nu
   };
 
   tournaments.push(tournament);
+  console.log(`🏆 [Tournament: ${tournament.id}] Created`);
   broadcastTournaments();
   return tournament;
 }
@@ -59,6 +60,7 @@ function joinTournament(player: Player, tournamentId: string): Tournament | null
     startTournament(tournament);
   }
 
+  console.log(`🏆 [Tournament: ${tournamentId}] Player joined: ${player.id}`);
   return tournament;
 }
 
@@ -73,6 +75,7 @@ function startTournament(t: Tournament) {
   }
 
   t.rounds.push(round);
+  console.log(`🏆 [Tournament: ${t.id}] Started`);
   broadcastTournaments();
 }
 
@@ -116,11 +119,12 @@ function quitTournament(userId: string) {
   if (!t) return;
 
   t.players = t.players.filter(p => p.id !== userId);
+  console.log(`❌ [Tournament: ${t.id}] Player quit: ${userId}`);
 
   // Remove if empty
   if (t.players.length === 0) {
     tournaments = tournaments.filter(x => x.id !== t.id);
-    console.log(`🗑 Deleted empty tournament ${t.id}`);
+    console.log(`🗑 [Tournament: ${t.id}] Empty tournament deleted`);
   }
 
   broadcastTournaments();

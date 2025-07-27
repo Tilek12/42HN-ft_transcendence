@@ -6,6 +6,8 @@ let socket: WebSocket | null = null;
 let activeUsers = 0;
 let activeTournaments: any[] = [];
 let reconnectTimeout: any = null;
+let retryAttempts = 0;
+const maxRetries = 10; // stop after 5 failed tries
 
 const listeners: Array<() => void> = [];
 
@@ -18,7 +20,7 @@ export function connectPresenceSocket() {
   socket = new WebSocket(wsUrl);
 
   socket.onopen = () => {
-    console.log('✅ Presence WebSocket connected');
+    console.log('👥 [Presence WS] Connected');
   };
 
   socket.onmessage = (event) => {
@@ -29,6 +31,7 @@ export function connectPresenceSocket() {
 
     try {
       const msg = JSON.parse(event.data);
+      console.log('👥 [Presence WS] Message:', msg);
       if (msg.type === 'presenceUpdate') {
         activeUsers = msg.count || 0;
       } else if (msg.type === 'tournamentUpdate') {
@@ -36,23 +39,29 @@ export function connectPresenceSocket() {
       }
       notifyListeners();
     } catch {
-      console.warn('Unknown message format: ', event.data);
+      console.warn('👥 [Presence WS] Invalid message:', event.data);
     }
   };
 
   socket.onclose = () => {
-    console.log('❌ Presence WebSocket disconnected');
+    console.log('👥 [Presence WS] Disconnected');
     socket = null;
 
     disconnectGameSocket();
 
     if (getToken()) {
-      reconnectTimeout = setTimeout(connectPresenceSocket, 3000);
+      retryAttempts++;
+      if (retryAttempts <= maxRetries) {
+        console.log(`👥 [Presence WS] Retry attempt ${retryAttempts}/${maxRetries}`);
+        reconnectTimeout = setTimeout(connectPresenceSocket, 3000);
+      } else {
+        console.warn(`👥 [Presence WS] Stopped trying to reconnect after ${maxRetries} attempts.`);
+      }
     }
   };
 
   socket.onerror = () => {
-    console.error('⚠️ Presence socket error');
+    console.error('👥 [Presence WS] Error');
   };
 }
 
