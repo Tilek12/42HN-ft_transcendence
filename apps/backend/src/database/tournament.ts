@@ -39,23 +39,23 @@ export async function getTournamentParticipants(tournamentId: number) {
 	);
   }
 
-  export async function linkMatchToTournament(tournamentId: number, matchId: number) {
-	await db.run(
-	  `INSERT INTO tournament_matches (tournament_id, match_id) VALUES (?, ?)`,
-	  tournamentId,
-	  matchId
-	);
-  }
+export async function linkMatchToTournament(tournamentId: number, matchId: number) {
+await db.run(
+	`INSERT INTO tournament_matches (tournament_id, match_id) VALUES (?, ?)`,
+	tournamentId,
+	matchId
+);
+}
 
-  export async function getMatchesByTournamentId(tournamentId: number) {
-	return db.all(
-	  `
-	  SELECT m.*
-	  FROM tournament_matches tm
-	  JOIN matches m ON tm.match_id = m.id
-	  WHERE tm.tournament_id = ?
-	  ORDER BY m.played_at DESC
-	  `,
-	  tournamentId
-	);
-  }
+export async function getMatchesByTournamentId(tournamentId: number) {
+return db.all(
+	`
+	SELECT m.*
+	FROM tournament_matches tm
+	JOIN matches m ON tm.match_id = m.id
+	WHERE tm.tournament_id = ?
+	ORDER BY m.played_at DESC
+	`,
+	tournamentId
+);
+}
