@@ -30,6 +30,10 @@ export async function renderProfile(root: HTMLElement) {
         <div class="max-w-xl mx-auto text-black p-6">
           <h1 class="text-3xl font-bold mb-4">Your Profile</h1>
 		  <img src= "${data.profile.path_or_url_to_image}" alt = "First Image">
+		  <form id=upload-form>
+		    <input type="file" id="profile-pic-input" accept="image/*"/>
+			<button type="submit">Update Profile Picture</button>
+		  <form/>
 		  <input type = "text" id = "pic-path" placeholder="Enter the image URL or path" />
 		  <button id="update-pic-btn" class="mt-6 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Update</button>
           <button id="delete-pic-btn" class="mt-6 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Delete</button>
@@ -44,6 +48,30 @@ export async function renderProfile(root: HTMLElement) {
           <button id="logout-btn" class="mt-6 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Logout</button>
         </div>
       `;
+	document.getElementById('upload-form')?.addEventListener('submit', async (e) =>
+	{
+		e.preventDefault();
+		const fileInput = document.getElementById('profile-pic-input');
+		const file =fileInput.files[0];
+		if (!file)
+		{
+			alert('Please select an image. ');
+			return;
+		}
+		const formData = new FormData();
+		formData.append('profile_pic', file);
+		const res = await fetch('/api/upload_pic',
+			{
+				method: 'POST',
+				headers: {
+					'Authorization': `Bearer ${getToken()}`,
+				},
+				body: formData,
+			});
+
+		const result = await res.json();
+		console.log(result);
+	})
 	document.getElementById('update-pic-btn')?.addEventListener('click', async () =>
 	{
 		const input = document.getElementById('pic-path') as HTMLInputElement;

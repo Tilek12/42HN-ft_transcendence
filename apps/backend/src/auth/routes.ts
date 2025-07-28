@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+
 import { FastifyPluginAsync } from 'fastify';
 import { hashPassword, verifyPassword } from './utils';
 import { loginSchema, registerSchema } from './schemas';
@@ -92,20 +95,49 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 		res.status(401).send({message: 'Invalid or expired token'});
 	}
 })
-fastify.post('/update_pic',
-	async (req, res) =>
+// fastify.post('/update_pic',
+// 	async (req, res) =>
+// 	{
+// 		try{
+// 			const jwt = await req.jwtVerify();
+// 			const profile_pic = req.body.profile_pic;
+// 			await updatePicturePath(jwt.id, profile_pic); // the body is an object
+// 			res.send({message: 'Profile picture updated'});
+// 		}catch (err)
+// 		{
+// 			console.log("here7");
+// 			res.status(401).send({message: 'Unauthorized or error'});
+// 		}
+// 	});
+fastify.post ('/upload_pic', async (req, res) =>
+{
+	try {
+		const jwt = await req.jwtVerify();
+		const data = await req.file();
+
+		if (!data)
+			return res.status(400).send({message: 'No file uploaded'});
+		const ext = path.extname(data.filename);
+		const allowed = ['.png', 'jpg', '.jpeg'];
+		if (!allowed.includes(ext.toLowerCase()))
+				return res.status(400).send({message:'Invalid file type'});
+		const dir = path.join(__dirname, 'assets', 'profile_pics');
+		if (!fs.existsSync(dir))
+			fs.mkdirSync(dir, { recursive: true });
+		const fileName = `user_${jwt.id}_${Date.now()}${ext}`;
+		const uploadPath = path.join(__dirname, 'assets', 'profile_pics', fileName);
+		const writeStream = fs.createWriteStream(uploadPath);
+		await data.file.pipe(writeStream);
+
+		const relativePath = `/assets/profile_pics/${fileName}`;
+		await updatePicturePath(jwt.id, relativePath);
+		res.send({message: 'Profile picture updated', path: relativePath});
+	} catch (err)
 	{
-		try{
-			const jwt = await req.jwtVerify();
-			const profile_pic = req.body.profile_pic;
-			await updatePicturePath(jwt.id, profile_pic); // the body is an object
-			res.send({message: 'Profile picture updated'});
-		}catch (err)
-		{
-			console.log("here7");
-			res.status(401).send({message: 'Unauthorized or error'});
-		}
-	});
+		console.error(err);
+		res.status(500).send({message: 'Upload failed'});
+	}
+})
 };
 
 export default authRoutes;

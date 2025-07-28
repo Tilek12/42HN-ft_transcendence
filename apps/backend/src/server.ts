@@ -2,6 +2,9 @@ import Fastify from 'fastify';
 import fs from 'fs';
 import websocket from '@fastify/websocket';
 import jwt from '@fastify/jwt';
+import fastifyStatic from '@fastify/static';
+import path from 'path';
+import multipart from '@fastify/multipart'
 import dotenv from 'dotenv';
 
 import { connectToDB } from './database/client';
@@ -38,10 +41,17 @@ const server = Fastify({
 async function main() {
   await connectToDB();                                 // ✅ Init DB tables
   await server.register(jwt, { secret: JWT_SECRET });  // ✅ Create JWT
-  await server.register(websocket);                    // ✅ Add WebSocket support
+  await server.register(websocket); 
+  await server.register(multipart);                   // ✅ Add WebSocket support
   await server.register(wsPresencePlugin);             // 🔁 Persistent socket
   await server.register(wsGamePlugin);                 // 🕹️ Game-only socket
-
+  //upload pics path register
+  server.register(fastifyStatic,
+	{
+		root: path.join(__dirname, 'assets'),
+		prefix: '/assets',
+	}
+  );
   // Public routes
   await server.register(authRoutes, { prefix: '/api' });  // 👈 Public routes (login/register)
 
