@@ -26,11 +26,12 @@ export async function renderProfile(root: HTMLElement) {
 	  // after data is not invalid I need to 
 	  // fetch from the api/profile that is fetching all the information 
 	  // that I need
+	  const BACKEND_URL : string = import.meta.env.VITE_BACKEND_URL;
       root.innerHTML = renderNav() + `
         <div class="max-w-xl mx-auto text-black p-6">
 		<form id=upload-form>
 			<h1 class="text-3xl font-bold mb-4">Your Profile</h1>
-			<img src= "https://localhost:3000/profile_pics/${data.profile.image_path}" alt = "First Image">
+			<img src= "${BACKEND_URL}/profile_pics/${data.profile.image_path}" alt = "First Image">
 		    <input type="file" id="profile-pic-input" accept="image/*"/>
 			<button type="submit" class="mt-6 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Update Profile Picture</button>
 		  <form/>

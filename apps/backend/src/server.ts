@@ -48,6 +48,7 @@ async function main() {
   await server.register(wsGamePlugin);                 // 🕹️ Game-only socket
   //upload pics path register
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  console.log(`here is the __dirname : ${__dirname}`);
   server.register(fastifyStatic,
 	{
 		root: path.join(__dirname, 'auth/assets/profile_pics'),
