@@ -64,7 +64,7 @@ export async function incrementWinsOrLossesOrTrophies(id: number, field: 'wins' 
 
 export async function updatePicturePath(id: number, path_or_url: string) {
 	await db.run(
-	  `UPDATE profiles SET path_or_url_to_image = ? WHERE id = ?`,
+	  `UPDATE profiles SET image_path = ? WHERE id = ?`,
 	  path_or_url,
 	  id
 	);

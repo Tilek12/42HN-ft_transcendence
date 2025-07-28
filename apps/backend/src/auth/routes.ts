@@ -22,7 +22,6 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
   // Register
   fastify.post('/register', { schema: registerSchema }, async (req, res) => {
     const { username, email, password } = req.body as any;
-	console.log("break1");
     if (await findUserByUsername(username)) {
       return res.status(400).send({ message: 'Username already taken' });
     }
@@ -30,14 +29,10 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
     if (await findUserByEmail(email)) {
       return res.status(400).send({ message: 'Email already registered' });
     }
-	console.log("break2");
     const hashed = await hashPassword(password);
-	console.log("break3");
     await createUser(username, email, hashed);
-	console.log("break4");
 	//-----Thomas--------
 	await createProfile(username);
-	console.log("break5");
 	//-----Thomas--------
     res.send({ message: 'User registered successfully' });
   });
@@ -77,7 +72,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 			{	
 				profile: 
 				{
-					profile_pic: profile.path_or_url_to_image,
+					image_path: profile.image_path,
 					logged_in: profile.logged_in,
 					wins: profile.wins,
 					losses: profile.losses,
@@ -114,14 +109,15 @@ fastify.post ('/upload_pic', async (req, res) =>
 	try {
 		const jwt = await req.jwtVerify();
 		const data = await req.file();
-
 		if (!data)
 			return res.status(400).send({message: 'No file uploaded'});
 		const ext = path.extname(data.filename);
-		const allowed = ['.png', 'jpg', '.jpeg'];
+		const allowed = ['.png', '.jpg', '.jpeg'];
 		if (!allowed.includes(ext.toLowerCase()))
 				return res.status(400).send({message:'Invalid file type'});
 		const dir = path.join(__dirname, 'assets', 'profile_pics');
+		console.log("here is dir: ");
+		console.log(dir);
 		if (!fs.existsSync(dir))
 			fs.mkdirSync(dir, { recursive: true });
 		const fileName = `user_${jwt.id}_${Date.now()}${ext}`;
@@ -129,8 +125,9 @@ fastify.post ('/upload_pic', async (req, res) =>
 		const writeStream = fs.createWriteStream(uploadPath);
 		await data.file.pipe(writeStream);
 
-		const relativePath = `/assets/profile_pics/${fileName}`;
+		const relativePath = `${fileName}`;
 		await updatePicturePath(jwt.id, relativePath);
+		console.log(relativePath);
 		res.send({message: 'Profile picture updated', path: relativePath});
 	} catch (err)
 	{

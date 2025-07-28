@@ -5,6 +5,7 @@ import jwt from '@fastify/jwt';
 import fastifyStatic from '@fastify/static';
 import path from 'path';
 import multipart from '@fastify/multipart'
+import {fileURLToPath} from 'url';
 import dotenv from 'dotenv';
 
 import { connectToDB } from './database/client';
@@ -46,10 +47,11 @@ async function main() {
   await server.register(wsPresencePlugin);             // 🔁 Persistent socket
   await server.register(wsGamePlugin);                 // 🕹️ Game-only socket
   //upload pics path register
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
   server.register(fastifyStatic,
 	{
-		root: path.join(__dirname, 'assets'),
-		prefix: '/assets',
+		root: path.join(__dirname, 'auth/assets/profile_pics'),
+		prefix: '/profile_pics/',
 	}
   );
   // Public routes
