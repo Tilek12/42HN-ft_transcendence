@@ -90,20 +90,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 		res.status(401).send({message: 'Invalid or expired token'});
 	}
 })
-// fastify.post('/update_pic',
-// 	async (req, res) =>
-// 	{
-// 		try{
-// 			const jwt = await req.jwtVerify();
-// 			const profile_pic = req.body.profile_pic;
-// 			await updatePicturePath(jwt.id, profile_pic); // the body is an object
-// 			res.send({message: 'Profile picture updated'});
-// 		}catch (err)
-// 		{
-// 			console.log("here7");
-// 			res.status(401).send({message: 'Unauthorized or error'});
-// 		}
-// 	});
+
 fastify.post ('/upload_pic', async (req, res) =>
 {
 	try {
@@ -115,6 +102,7 @@ fastify.post ('/upload_pic', async (req, res) =>
 		const allowed = ['.png', '.jpg', '.jpeg'];
 		if (!allowed.includes(ext.toLowerCase()))
 				return res.status(400).send({message:'Invalid file type'});
+		const __dirname = '/app/src';
 		const dir = path.join(__dirname, 'assets', 'profile_pics');
 		console.log("here is dir: ");
 		console.log(dir);
@@ -127,7 +115,7 @@ fastify.post ('/upload_pic', async (req, res) =>
 
 		const relativePath = `${fileName}`;
 		await updatePicturePath(jwt.id, relativePath);
-		console.log(relativePath);
+		// console.log(relativePath);
 		res.send({message: 'Profile picture updated', path: relativePath});
 	} catch (err)
 	{
