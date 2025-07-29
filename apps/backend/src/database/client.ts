@@ -21,7 +21,7 @@ export async function connectToDB() {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS profiles (
       id INTEGER PRIMARY KEY, -- same as user.id
-	  image_path TEXT,
+	  image_path TEXT DEFAULT 'default_pic.png',
 	  logged_in BOOLEAN DEFAULT FALSE,
 	  wins INTEGER DEFAULT 0,
 	  losses INTEGER DEFAULT 0,
@@ -29,16 +29,16 @@ export async function connectToDB() {
       FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
     );
   `);
-  await db.exec(
-	`CREATE TABLE IF NOT EXISTS friends
-	(
-		user_id INTEGER NOT NULL,
-		friend_id INTEGER NOT NULL,
-		PRIMARY KEY (user_id, friend_id),
-		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-		FOREIGN KEY (friend_id) REFERENCES users(id) ON DELETE CASCADE
-	)`
-	);
+//   await db.exec(
+// 	`CREATE TABLE IF NOT EXISTS friends
+// 	(
+// 		user_id INTEGER NOT NULL,
+// 		friend_id INTEGER NOT NULL,
+// 		PRIMARY KEY (user_id, friend_id),
+// 		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+// 		FOREIGN KEY (friend_id) REFERENCES users(id) ON DELETE CASCADE
+// 	)`
+// 	);
 }
 
 //SEQUELIZE - ORM

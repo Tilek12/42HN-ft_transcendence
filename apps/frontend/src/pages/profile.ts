@@ -33,7 +33,10 @@ export async function renderProfile(root: HTMLElement) {
 			<h1 class="text-3xl font-bold mb-4">Your Profile</h1>
 			<img src= "${BACKEND_URL}/profile_pics/${data.profile.image_path}" alt = "First Image">
 		    <input type="file" id="profile-pic-input" accept="image/*"/>
-			<button type="submit" class="mt-6 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Update Profile Picture</button>
+			<div class="mt-4 space-x-2">
+				<button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Update</button>
+	            <button type="button" id="delete-pic-btn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Delete</button>
+			</div>
 		  <form/>
 		  </div>
 		  <p><strong>logged_in:</strong> ${data.profile.logged_in == 1 ? 'yes' : 'no'}</p>
@@ -103,7 +106,27 @@ export async function renderProfile(root: HTMLElement) {
 			});
 
 		const result = await res.json();
-		console.log(result);
+		if (res.ok)
+			location.reload();
+		else
+			alert(result.message || 'Failed to delete profile picture');
+	})
+	document.getElementById('delete-pic-btn')?.addEventListener('click', async () => {
+
+		const res = await fetch(`/api/delete_pic`,
+			{
+				method: 'POST',
+				headers:
+				{
+					Authorization: `Bearer ${getToken()}`,
+				}
+			}
+		)
+		const data = await res.json();
+		if (res.ok)
+			location.reload();
+		else
+			alert(data.message || 'Failed to delete profile picture');
 	})
 	document.getElementById('logout-btn')?.addEventListener('click', async () =>
 		{

@@ -1,4 +1,5 @@
 import fs from 'fs';
+import sharp from 'sharp';
 import path from 'path';
 
 import { FastifyPluginAsync } from 'fastify';
@@ -121,28 +122,45 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 					return res.status(400).send({message:'Invalid file type'});
 			const __dirname = '/app/src';
 			const dir = path.join(__dirname, 'assets', 'profile_pics');
-			console.log("here is dir: ");
-			console.log(dir);
 			if (!fs.existsSync(dir))
 				fs.mkdirSync(dir, { recursive: true });
-			const fileName = `user_${jwt.id}_${Date.now()}${ext}`;
+			const fileName = `user_${jwt.id}_${Date.now()}.webp`;
 			const uploadPath = path.join(__dirname, 'assets', 'profile_pics', fileName);
-			const writeStream = fs.createWriteStream(uploadPath);
-			
-			await new Promise<void>((resolve, reject) => {
-				data.file.pipe(writeStream)
-				.on('finish', resolve)
-				.on('error', reject);
-			});
+			//-----resizing-----------
+			const chunks: Buffer[] = [];
+			for await (const chunk of data.file)
+				chunks.push(chunk);
+			const buffer = Buffer.concat(chunks);
 
+			await sharp(buffer)
+				.resize(200, 200, {fit: 'cover', position: 'center',})
+				.webp({ quality: 80})
+				.toFile(uploadPath);
+			//----uploading-------------
 			const relativePath = `${fileName}`;
 			await updatePicturePath(jwt.id, relativePath);
-			// console.log(relativePath);
-			res.send({message: 'Profile picture updated', path: relativePath});
+			res.send({message: 'Profile picture updated and resized', path: relativePath});
 		} catch (err)
 		{
 			console.error(err);
 			res.status(500).send({message: 'Upload failed'});
+		}
+	})
+
+	fastify.post('/delete_pic', async (req, res) => {
+		try {
+			const jwt = await req.jwtVerify();
+			const profile = await findProfileById(jwt.id);
+			if (profile.image_path && profile.image_path !== 'default_pic.png')
+			{
+				const filePath = path.join(__dirname, 'assets', 'profile_pics', profile.image_path);
+				if (fs.existsSync(filePath))
+					fs.unlinkSync(filePath);
+			}
+			await updatePicturePath(jwt.id, 'default_pic.png');
+			res.send({message: 'Profile picture deleted and reset to default'});
+		} catch(err) {
+			res.status(401).send({message: 'Unauthorized or error'});
 		}
 	})
 // 	fastify.get('/friends', async (req, res) => {
