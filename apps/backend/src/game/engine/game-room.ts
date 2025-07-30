@@ -7,6 +7,7 @@ const BALL_SPEED = 0.6;
 const FIELD_WIDTH = 100;
 const FIELD_HEIGHT = 100;
 const WIN_SCORE = 5;
+const FREEZE = 5;
 
 export class GameRoom {
   private players: [Player, Player?];
@@ -22,7 +23,7 @@ export class GameRoom {
     this.tournamentId = tournamentId;
     this.state = this.initState();
     this.setupListeners();
-    this.start();
+    this.startCountdown();
   }
 
   private initState(): GameState {
@@ -82,8 +83,22 @@ export class GameRoom {
     this.state.paddles[playerId] = Math.max(0, Math.min(maxY, newY));
   }
 
+  private startCountdown() {
+    let count = FREEZE;
+    const countdownInterval = setInterval(() => {
+      this.broadcast({ type: 'countdown', value: count });
+      if (count === 0) {
+        clearInterval(countdownInterval);
+        this.start();
+      }
+      count--;
+    }, 1000);
+  }
+
   private start() {
     this.interval = setInterval(() => this.updateGame(), FRAME_RATE);
+    console.log(`🕹️ [GameRoom] Game started!`);
+    this.broadcast({ type: 'start' });
   }
 
   private updateGame() {
@@ -170,8 +185,5 @@ export class GameRoom {
   private end() {
     clearInterval(this.interval);
     this.state.status = 'ended';
-
-    // TODO: Save match result to DB: this.tournamentId, this.winner?.id, this.players.map(p => p.id)
-
   }
 }

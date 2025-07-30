@@ -35,6 +35,22 @@ export async function renderTournament(root: HTMLElement) {
   renderTournamentList();
   onPresenceUpdate(renderTournamentList);
 
+  function handleTournamentMessage(msg: any) {
+    if (msg.type === 'matchStart') {
+      const token = getToken();
+      const userId = token ? JSON.parse(atob(token.split('.')[1])).id : null;
+
+      if (msg.player1 === userId || msg.player2 === userId) {
+        // 🎯 Player is part of this match – redirect to tournament-match
+        sessionStorage.setItem('currentTournamentMatch', JSON.stringify(msg));
+        location.hash = '#/tournament-match';
+      } else {
+        console.log('🎯 Spectating match in tournament bracket');
+        // Optionally update bracket display live here
+      }
+    }
+  }
+
   function renderTournamentList() {
     const list = document.getElementById('tournament-list')!;
     list.innerHTML = '';
@@ -144,6 +160,7 @@ export async function renderTournament(root: HTMLElement) {
     }
 
     const socket = createTournamentSocket('join', size, id, (msg) => {
+      handleTournamentMessage(msg);
       if (msg.type === 'tournamentJoined') {
         currentTournamentId = msg.id;
         alert('🎮 Joined tournament. Waiting for match...');
@@ -169,6 +186,7 @@ export async function renderTournament(root: HTMLElement) {
     }
 
     const socket = createTournamentSocket('create', size, undefined, (msg) => {
+      handleTournamentMessage(msg);
       if (msg.type === 'tournamentJoined') {
         currentTournamentId = msg.id;
         alert(`🎉 Created Tournament ${msg.id}`);
