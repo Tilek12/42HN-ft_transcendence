@@ -36,8 +36,10 @@ export function createGameSocket(mode: 'solo' | 'duel' | 'tournament', size?: nu
 
 export function disconnectGameSocket() {
   if (gameSocket) {
-    console.log('🕹️ [Game WS] Manually closing Game WebSocket 🔌');
-    gameSocket.close();
+    if (gameSocket.readyState === WebSocket.OPEN) {
+      gameSocket.send('quit'); // Notify backend
+      gameSocket.close();
+    }
     gameSocket = null;
   }
 }

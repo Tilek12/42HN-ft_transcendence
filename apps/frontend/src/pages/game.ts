@@ -1,5 +1,5 @@
 import { renderNav } from './nav';
-import { createGameSocket } from '../websocket/game';
+import { createGameSocket, disconnectGameSocket } from '../websocket/game';
 import { getToken, validateLogin } from '../utils/auth';
 import { COLORS } from '../constants/colors';
 
@@ -57,10 +57,8 @@ export async function renderGame(root: HTMLElement) {
       return;
     }
 
-    if (socket) {
-      socket.close();
-      socket = null;
-    }
+    disconnectGameSocket();
+    gameState = null;
 
     info.textContent =
       mode === 'solo'
@@ -97,13 +95,11 @@ export async function renderGame(root: HTMLElement) {
           resultMsg = winnerId === myId ? '🏆 You win!' : '❌ You lose!';
         }
         alert(`🏁 Game over!\n${resultMsg}`);
-        socket?.close();
-        socket = null;
+        disconnectGameSocket();
         clearInterval(moveInterval!);
       } else if (msg.type === 'disconnect') {
         alert(`❌ Opponent disconnected`);
-        socket?.close();
-        socket = null;
+        disconnectGameSocket();
         clearInterval(moveInterval!);
       }
     };
@@ -112,11 +108,9 @@ export async function renderGame(root: HTMLElement) {
       console.log('❌ Game WebSocket disconnected');
     };
 
-    // Key tracking
     document.addEventListener('keydown', (e) => heldKeys[e.key] = true);
     document.addEventListener('keyup', (e) => heldKeys[e.key] = false);
 
-    // Send movement continuously while keys held
     moveInterval = setInterval(() => {
       if (!socket || socket.readyState !== WebSocket.OPEN) return;
       if (heldKeys['ArrowUp']) socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'right' }));
@@ -130,14 +124,12 @@ export async function renderGame(root: HTMLElement) {
     ctx.clearRect(0, 0, width, height);
 
     if (gameState) {
-      // Ball
       const ball = gameState.ball;
       ctx.fillStyle = 'black';
       ctx.beginPath();
       ctx.arc(ball.x * scaleX, ball.y * scaleY, 5, 0, Math.PI * 2);
       ctx.fill();
 
-      // Paddles
       const paddleHeight = PADDLE_HEIGHT * scaleY;
       const paddleWidth = 10;
       const ids = Object.keys(gameState.paddles);
@@ -146,13 +138,11 @@ export async function renderGame(root: HTMLElement) {
       ids.forEach((id, index) => {
         const y = gameState.paddles[id] * scaleY;
         const x = index === 0 ? 0 : width - paddleWidth;
-
         const isMainPlayer = id === mainPlayerId;
         ctx.fillStyle = isMainPlayer ? COLORS.squidGame.greenLight : COLORS.squidGame.pinkLight;
         ctx.fillRect(x, y, paddleWidth, paddleHeight);
       });
 
-      // Scores
       ctx.fillStyle = 'gray';
       ctx.font = '16px sans-serif';
       let xOffset = 20;

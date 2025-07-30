@@ -65,6 +65,9 @@ export class GameRoom {
             targetId = '__ghost';
           }
           this.move(targetId, m.direction);
+        } else if (m.type === 'quit') {
+          this.broadcast({ type: 'disconnect', who: player.id });
+          this.end();
         }
       });
 
@@ -106,7 +109,6 @@ export class GameRoom {
     ball.x += ball.vx;
     ball.y += ball.vy;
 
-    // Bounce off top and bottom
     if (ball.y <= 0 || ball.y >= height) {
       ball.vy *= -1;
       ball.y = Math.max(0, Math.min(height, ball.y));
@@ -115,10 +117,8 @@ export class GameRoom {
     const [p1, p2] = this.players;
     const pad1 = paddles[p1.id];
     const pad2 = paddles[p2?.id || '__ghost'];
-
     const hit = (py: number) => ball.y >= py && ball.y <= py + PADDLE_HEIGHT;
 
-    // Left paddle
     if (ball.x <= 2 && hit(pad1)) {
       ball.x = 2;
       ball.vx *= -1;
@@ -127,7 +127,6 @@ export class GameRoom {
       this.resetBall(1);
     }
 
-    // Right paddle
     if (ball.x >= width - 2 && hit(pad2)) {
       ball.x = width - 2;
       ball.vx *= -1;
@@ -140,11 +139,9 @@ export class GameRoom {
       const winnerId = score[p1.id] > score[p2?.id || '__ghost'] ? p1.id : p2?.id;
       const winner = this.players.find(p => p?.id === winnerId) || null;
       this.winner = winner;
-
       this.broadcast({ type: 'end', winner: winner?.id });
-      this.end();
+      setTimeout(() => this.end(), 1000); // give frontend time to show result
 
-      // If part of a tournament, progress to next round
       if (this.tournamentId && this.winner) {
         advanceTournament(this.tournamentId, this.winner);
       }
@@ -185,5 +182,13 @@ export class GameRoom {
   private end() {
     clearInterval(this.interval);
     this.state.status = 'ended';
+
+    for (const p of this.players) {
+      try {
+        if (p?.socket.readyState === p.socket.OPEN) {
+          p.socket.close(1000, 'Game Ended');
+        }
+      } catch {}
+    }
   }
 }
