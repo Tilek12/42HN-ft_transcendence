@@ -1,6 +1,7 @@
 import { Player } from '../engine/types';
 import { GameRoom } from '../engine/game-room';
 import { broadcastTournaments } from '../../websocket/presence';
+import { tournamentSockets } from '../../websocket/tournament'
 
 export type TournamentSize = 4 | 8;
 export type TournamentStatus = 'waiting' | 'active' | 'finished';
@@ -12,6 +13,14 @@ interface Tournament {
   hostId: string;
   status: TournamentStatus;
   rounds: GameRoom[][];
+}
+
+interface MatchStartNotification {
+  type: 'matchStart';
+  tournamentId: string;
+  matchId: string;
+  player1: string;
+  player2: string;
 }
 
 let tournaments: Tournament[] = [];
@@ -71,7 +80,15 @@ function startTournament(t: Tournament) {
   for (let i = 0; i < t.players.length; i += 2) {
     const p1 = t.players[i];
     const p2 = t.players[i + 1];
-    round.push(new GameRoom(p1, p2, t.id));
+    const game = new GameRoom(p1, p2, t.id);
+    round.push(game);
+
+    // 🔔 Notify both players to redirect to match view
+    notifyMatchStart(t.id, p1.id, p2.id);
+
+    // DB //
+    // TODO: Save match start to DB (with p1.id, p2.id, t.id, timestamp)
+    ////////
   }
 
   t.rounds.push(round);
@@ -86,8 +103,22 @@ function advanceTournament(tournamentId: string, winner: Player) {
   const lastRound = t.rounds[t.rounds.length - 1];
   const winners = lastRound.map(g => g.getWinner()).filter(Boolean) as Player[];
 
+  // 🔖 TODO: Save each game's result to DB
+  // for (const game of lastRound) {
+  //   const w = game.getWinner();
+  //   const l = game.getLoser?.();
+  //   if (w && l) {
+  //     // Example: await saveMatchResultToDB(w.id, l.id, t.id, game.getId());
+  //   }
+  // }
+
   if (winners.length === 1) {
     t.status = 'finished';
+
+    // 🔖 TODO: Save tournament result to DB: t.id, winner.id, etc.
+    // Example: await saveTournamentResult(t.id, winners[0].id);
+
+    console.log(`🏁 [Tournament: ${t.id}] Finished! Winner: ${winners[0].id}`);
     broadcastTournaments();
     return;
   }
@@ -96,7 +127,14 @@ function advanceTournament(tournamentId: string, winner: Player) {
   for (let i = 0; i < winners.length; i += 2) {
     const p1 = winners[i];
     const p2 = winners[i + 1] || null;
-    newRound.push(new GameRoom(p1, p2, tournamentId));
+    const game = new GameRoom(p1, p2, tournamentId);
+    newRound.push(game);
+
+    if (p2) notifyMatchStart(t.id, p1.id, p2.id);
+
+    // DB //
+    // TODO: Save new match start to DB
+    ////////
   }
 
   t.rounds.push(newRound);
@@ -128,6 +166,24 @@ function quitTournament(userId: string) {
   }
 
   broadcastTournaments();
+}
+
+// Helper to notify players
+function notifyMatchStart(tournamentId: string, player1Id: string, player2Id: string) {
+  const payload: MatchStartNotification = {
+    type: 'matchStart',
+    tournamentId,
+    matchId: `m-${Date.now()}`, // optionally match IDs could be tracked in state
+    player1: player1Id,
+    player2: player2Id
+  };
+
+  for (const id of [player1Id, player2Id]) {
+    const ws = tournamentSockets.get(id);
+    if (ws && ws.readyState === ws.OPEN) {
+      ws.send(JSON.stringify(payload));
+    }
+  }
 }
 
 export {

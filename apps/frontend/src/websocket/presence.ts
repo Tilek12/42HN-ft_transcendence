@@ -7,7 +7,7 @@ let activeUsers = 0;
 let activeTournaments: any[] = [];
 let reconnectTimeout: any = null;
 let retryAttempts = 0;
-const maxRetries = 10; // stop after 5 failed tries
+const maxRetries = 10; // stop after 10 failed tries
 
 const listeners: Array<() => void> = [];
 
@@ -21,6 +21,7 @@ export function connectPresenceSocket() {
 
   socket.onopen = () => {
     console.log('👥 [Presence WS] Connected');
+    retryAttempts = 0;
   };
 
   socket.onmessage = (event) => {

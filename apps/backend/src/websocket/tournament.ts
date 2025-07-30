@@ -9,6 +9,7 @@ import {
 } from '../game/tournament/tournament-manager';
 
 const tournamentSockets: Map<string, WebSocket> = new Map();
+export { tournamentSockets };
 
 const tournamentPlugin: FastifyPluginAsync = async (fastify) => {
   fastify.get('/tournament', { websocket: true }, async (connection, req) => {

@@ -162,8 +162,16 @@ export class GameRoom {
     return this.winner;
   }
 
+  public getLoser(): Player | null {
+    if (!this.winner) return null;
+    return this.players.find(p => p?.id !== this.winner?.id) || null;
+  }
+
   private end() {
     clearInterval(this.interval);
     this.state.status = 'ended';
+
+    // TODO: Save match result to DB: this.tournamentId, this.winner?.id, this.players.map(p => p.id)
+
   }
 }

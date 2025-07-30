@@ -42,8 +42,8 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
     console.log(`🏓 [Game WS] Connected: ${userId} (${mode})`);
 
     // Only handle solo or duel games
-    if (mode === 'duel' || mode === 'solo') {
-      startGame(player, mode);
+    if (mode === 'duel' || mode === 'solo' || mode === 'tournament' ) {
+      startGame(player, mode as 'solo' | 'duel' );  // tournament mode will be handled manually by tournament manager
     } else {
       console.warn(`⛔️ [Game WS] Invalid mode: ${mode}`);
       socket.close(4003, 'Unsupported mode');
