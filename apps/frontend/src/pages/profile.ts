@@ -46,6 +46,7 @@ export async function renderProfile(root: HTMLElement) {
 		  <p><strong>trophies:</strong> ${data.profile.trophies}</p>
           <p><strong>Joined:</strong> ${new Date(data.user.created_at).toLocaleString()}</p>
 		  <div id="friends-list"></div>
+		  <div id="users-list"></div>
           <button id="logout-btn" class="mt-6 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Logout</button>
         </div>
       `;
@@ -60,7 +61,7 @@ export async function renderProfile(root: HTMLElement) {
 				{headers: {Authorization: `Bearer ${getToken()}`}
 			});
 		const data = await res.json();
-		container.innerHTML = data.friends.map((friend: any) => 
+		container.innerHTML = `<h1 class="text-2xl font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Friends List</h1>` + data.friends.map((friend: any) => 
 			`<div class = "flex items-center bg-white p-4 rounded-xl shadow mb-2">
 				<img src= "${BACKEND_URL}/profile_pics/${friend.image_path}" class="w-12 h-12 rounded-full mr-4" />
 			<div>
@@ -77,6 +78,40 @@ export async function renderProfile(root: HTMLElement) {
 			container.innerHTML = `<p class="text-red-500>Could not load friends list.</p>`
 		}
 	})();
+	(async () =>
+		{
+			const container = document.getElementById('users-list');
+			console.log("Here!");
+			if (!container) return;
+			try
+			{
+				const res = await fetch('/api/profiles', 
+					{headers: {Authorization: `Bearer ${getToken()}`}
+				});
+			// I need a logic only if they are friends or not if they are friends I need to show a button send friend request or an friend icon
+
+			const data = await res.json();
+			container.innerHTML = `<h1 class="text-2xl font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Users List</h1>` + data.profiles.map((profile: any) => 
+				`<div class = "flex items-center bg-white p-4 rounded-xl shadow mb-2">
+					<img src= "${BACKEND_URL}/profile_pics/${profile.image_path}" class="w-12 h-12 rounded-full mr-4" />
+					<div>
+						<a href="" class="text-lg font-semibold text-blue-600 hover:underline">${profile.username}</a>
+						<p class="text-sm text-gray-600"> 🏆 ${profile.trophies} | ✅ ${profile.wins} | ❌ ${profile.losses} </p>
+						<span class="${profile.logged_in ? 'text-green-600' :'text-gray-500'}">
+							${profile.logged_in ? 'Online' : 'Offline'}
+						</span>
+						<span class="${profile.is_friend ? 'text-green-600' :'text-gray-500'}">
+							${profile.is_friend ? 'friend' : 'not friend'}
+						</span>
+					</div>
+
+				</div>`
+			).join('');
+			} catch (err){
+				console.error('Failed to fetch friends: ', err);
+				container.innerHTML = `<p class="text-red-500>Could not load friends list.</p>`
+			}
+		})();
 	document.getElementById('upload-form')?.addEventListener('submit', async (e) =>
 	{
 		e.preventDefault();

@@ -17,8 +17,9 @@ import {
   findProfileById,
   findUserById,
   updatePicturePath,
-  parseFriendsArrayByUserId,
+  parseFriends,
   bidirectionalAddAFriend,
+  parseProfiles,
 } from '../database/user';
 
 const authRoutes: FastifyPluginAsync = async (fastify) => {
@@ -153,8 +154,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 			console.log('Verified JWT: ', jwt);
 			const userId = jwt.id;
 			await bidirectionalAddAFriend(userId, 2);
-			const rows = await parseFriendsArrayByUserId(userId);
-			console.log(rows);
+			const rows = await parseFriends(userId);
 			res.send({friends: rows});
 		} catch (err)
 		{
@@ -162,6 +162,24 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 			console.log(err);
 		}
 	} )
+	fastify.get('/profiles', async (req, res) =>
+		{
+			try {
+				const jwt = await req.jwtVerify();
+				const profiles = await parseProfiles(jwt.id);
+				const friends = await parseFriends(jwt.id);
+				console.log("friends : ", friends);
+				const friendsIds = new Set (friends.map((row : any )=> row.id));
+				console.log("friends : ", friendsIds);
+				const profilesWithFriendFlag = profiles.map((profile :any) => ({...profile, is_friend: friendsIds.has(profile.id),}));
+				console.log(profilesWithFriendFlag);
+				res.send({profiles: profilesWithFriendFlag});
+			} catch (err)
+			{
+				res.status(401).send({message: 'Unauthorized'});
+				console.log(err);
+			}
+		} )
 };
 
 

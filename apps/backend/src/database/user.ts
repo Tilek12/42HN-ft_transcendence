@@ -52,6 +52,21 @@ export async function updateProfileLogInState(id: number, status: boolean)
 		id
 	);
 }
+export async function parseProfiles(prof_id : number) : Promise<any[]>
+{
+	return await db.all(
+		`SELECT
+		  u.id,
+		  u.username,
+		  p.wins,
+		  p.losses,
+		  p.trophies,
+		  p.image_path,
+		  p.logged_in
+		FROM users u
+		JOIN profiles p ON u.id = p.id
+		WHERE u.id != ?`, prof_id);
+}
 //-----Matches and tournaments-------------------------
 export async function incrementWinsOrLossesOrTrophies(id: number, field: 'wins' | 'losses' | 'trophies')
 {
@@ -70,13 +85,13 @@ export async function updatePicturePath(id: number, path_or_url: string) {
 	);
 }
 //-----Friends list-------------------------------------
-export async function parseFriendsArrayByUserId(id: number)
+export async function parseFriends(id: number)
 {
 	const rows : any = await db.all(
 		`
 			SELECT
 			u.id, u.username, u.created_at,
-			p.wins, p.loses, p.trophies, p.image_path, p.logged_in
+			p.wins, p.losses, p.trophies, p.image_path, p.logged_in
 			FROM friends f
 			JOIN users u ON f.friend_id = u.id
 			JOIN profiles p ON u.id = p.id
