@@ -46,14 +46,13 @@ export async function renderProfile(root: HTMLElement) {
 		  <p><strong>trophies:</strong> ${data.profile.trophies}</p>
           <p><strong>Joined:</strong> ${new Date(data.user.created_at).toLocaleString()}</p>
 		  <div id="friends-list"></div>
-		  <div id="users-list"></div>
+		  <div id="profiles-list"></div>
           <button id="logout-btn" class="mt-6 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Logout</button>
         </div>
       `;
 	(async () =>
 	{
 		const container = document.getElementById('friends-list');
-		console.log("Here!");
 		if (!container) return;
 		try
 		{
@@ -68,7 +67,7 @@ export async function renderProfile(root: HTMLElement) {
 				<a href="" class="text-lg font-semibold text-blue-600 hover:underline">${friend.username}</a>
 				<p class="text-sm text-gray-600"> 🏆 ${friend.trophies} | ✅ ${friend.wins} | ❌ ${friend.losses} </p>
 				<span class="${friend.logged_in ? 'text-green-600' :'text-gray-500'}">
-					${friend.logged_in ? 'Online' : 'Offline'}
+					${friend.logged_in ? 'online' : 'offline'}
 				</span>
 			</div>
 			</div>`
@@ -80,8 +79,7 @@ export async function renderProfile(root: HTMLElement) {
 	})();
 	(async () =>
 		{
-			const container = document.getElementById('users-list');
-			console.log("Here!");
+			const container = document.getElementById('profiles-list');
 			if (!container) return;
 			try
 			{
@@ -101,15 +99,16 @@ export async function renderProfile(root: HTMLElement) {
 							${profile.logged_in ? 'Online' : 'Offline'}
 						</span>
 						<span class="${profile.is_friend ? 'text-green-600' :'text-gray-500'}">
-							${profile.is_friend ? 'friend' : 'not friend'}
+							${profile.is_friend ? '<button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Follow</button>' : '<button type="submit" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded">Unfollow</button><button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Block</button>'
+}
 						</span>
 					</div>
 
 				</div>`
 			).join('');
 			} catch (err){
-				console.error('Failed to fetch friends: ', err);
-				container.innerHTML = `<p class="text-red-500>Could not load friends list.</p>`
+				console.error('Failed to fetch profiles: ', err);
+				container.innerHTML = `<p class="text-red-500>Could not load profiles list.</p>`
 			}
 		})();
 	document.getElementById('upload-form')?.addEventListener('submit', async (e) =>
