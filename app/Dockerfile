@@ -6,10 +6,10 @@ WORKDIR /app
 COPY ./app/ ./
 COPY scripts/setup-docker.sh /init/
 RUN chmod +x /init/setup-docker.sh
-RUN npm install
-RUN npm install -g typescript
+RUN npm install ci
+# RUN npm ci -g typescript concurrently tsx vite
 
-EXPOSE 8080
+EXPOSE 8080 3000
 
 # CMD ["tail", "-f", "/dev/null"]
 CMD ["/init/setup-docker.sh"]

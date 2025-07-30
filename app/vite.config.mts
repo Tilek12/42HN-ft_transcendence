@@ -26,7 +26,7 @@ export default defineConfig(({ mode }) => {
   const ip = env.LOCAL_IP || '127.0.0.1'
 
   return {
-    root: '/app/src/frontend',
+    root: '/app/src/frontend/',
     // plugins: [customNetworkLogger()],
     server: {
       host: "0.0.0.0",
