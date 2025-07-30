@@ -1,6 +1,7 @@
 import { Player } from '../engine/types';
 import { GameRoom } from '../engine/game-room';
 import { findProfileById, incrementWinsOrLossesOrTrophies } from '../../database/user';
+import { createTournamentDB, joinTournamentDB } from '../../database/tournament';
 
 export type TournamentSize = 4 | 8;
 export type TournamentStatus = 'waiting' | 'active' | 'finished';
@@ -17,7 +18,7 @@ interface Tournament {
 let tournaments: Tournament[] = [];
 let nextId = 1;
 
-function createTournament(size: TournamentSize, hostId: string): Tournament {
+async function createTournament(size: TournamentSize, hostId: string): Promise<Tournament> {
   const tournament: Tournament = {
     id: `t-${nextId++}`,
     size,
@@ -27,6 +28,8 @@ function createTournament(size: TournamentSize, hostId: string): Tournament {
     rounds: []
   };
   tournaments.push(tournament);
+  // 🔥 Add DB insert
+  await createTournamentDB(`Tournament ${tournament.id}`, parseInt(hostId));
   return tournament;
 }
 

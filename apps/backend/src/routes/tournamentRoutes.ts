@@ -1,7 +1,7 @@
 import { FastifyPluginAsync } from 'fastify';
 import {
-  createTournament,
-  joinTournament,
+  createTournamentDB,
+  joinTournamentDB,
   getAllTournaments,
   getTournamentById,
   getTournamentParticipants,
@@ -20,7 +20,7 @@ const tournamentRoutes: FastifyPluginAsync = async (fastify) => {
         return res.status(400).send({ message: 'Invalid tournament name' });
       }
 
-      await createTournament(name, jwt.id);
+      await createTournamentDB(name, jwt.id);
       res.send({ message: 'Tournament created' });
     } catch (err) {
       res.status(401).send({ message: 'Unauthorized or error creating tournament' });
@@ -37,7 +37,7 @@ const tournamentRoutes: FastifyPluginAsync = async (fastify) => {
         return res.status(400).send({ message: 'Invalid tournament ID' });
       }
 
-      await joinTournament(tournamentId, jwt.id);
+      await joinTournamentDB(tournamentId, jwt.id);
       res.send({ message: 'Joined tournament successfully' });
     } catch (err) {
       res.status(401).send({ message: 'Unauthorized or error joining tournament' });

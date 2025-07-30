@@ -1,6 +1,6 @@
 import { db } from './client';
 //----------functions for tournament data base-----------
-export async function createTournament(name: string, createdByUserId: number) {
+export async function createTournamentDB(name: string, createdByUserId: number) {
 	await db.run(
 	  `INSERT INTO tournaments (name, created_by_user_id) VALUES (?, ?)`,
 	  name,
@@ -8,7 +8,7 @@ export async function createTournament(name: string, createdByUserId: number) {
 	);
   }
 
-export async function joinTournament(tournamentId: number, userId: number) {
+export async function joinTournamentDB(tournamentId: number, userId: number) {
 await db.run(
 	`INSERT OR IGNORE INTO tournament_participants (tournament_id, user_id) VALUES (?, ?)`,
 	tournamentId,
