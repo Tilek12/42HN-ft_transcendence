@@ -1,7 +1,7 @@
 import { getToken} from '../utils/auth'
 
 
-export async function renderProfiles () 
+export async function renderProfilesList () 
 {
 
 	const container = document.getElementById('profiles-list');
