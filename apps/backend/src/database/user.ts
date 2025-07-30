@@ -102,11 +102,17 @@ export async function parseFriends(id: number)
 
 export async function bidirectionalAddAFriend(id_user: number, id_of_invited_user: number)
 {
-	console.log('Here 2');
 	if (id_user !== id_of_invited_user)
 	{
-		console.log('Here');
 		await db.run( `INSERT OR IGNORE INTO friends (user_id, friend_id) VALUES (?, ?)`, [id_user, id_of_invited_user]);
 		await db.run( `INSERT OR IGNORE INTO friends (user_id, friend_id) VALUES (?, ?)`, [id_of_invited_user, id_user]);
+	}
+}
+export async function bidirectionalDeleteAFriend(id_user: number, id_of_invited_user: number)
+{
+	if (id_user !== id_of_invited_user)
+	{
+		await db.run( `DELETE FROM friends WHERE user_id = ? AND friend_id = ?`, [id_user, id_of_invited_user]);
+		await db.run( `DELETE FROM friends WHERE user_id = ? AND friend_id = ?`, [id_of_invited_user, id_user]);
 	}
 }

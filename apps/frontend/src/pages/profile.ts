@@ -1,5 +1,6 @@
 import { renderNav } from './nav'
 import { getToken, clearToken, validateLogin } from '../utils/auth'
+import { renderProfiles } from './renderProfiles';
 
 export async function renderProfile(root: HTMLElement) {
   const isValid = await validateLogin()
@@ -7,7 +8,6 @@ export async function renderProfile(root: HTMLElement) {
     location.hash = '#/login'
     return;
   }
-
   root.innerHTML = renderNav() + `<div class="text-center">Loading profile...</div>`
 
   fetch('/api/profile', {
@@ -50,13 +50,14 @@ export async function renderProfile(root: HTMLElement) {
           <button id="logout-btn" class="mt-6 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Logout</button>
         </div>
       `;
+	renderProfiles();
 	(async () =>
 	{
 		const container = document.getElementById('friends-list');
 		if (!container) return;
 		try
 		{
-			const res = await fetch('/api/friends', 
+			const res = await fetch('/api/parse-friends', 
 				{headers: {Authorization: `Bearer ${getToken()}`}
 			});
 		const data = await res.json();
@@ -77,40 +78,78 @@ export async function renderProfile(root: HTMLElement) {
 			container.innerHTML = `<p class="text-red-500>Could not load friends list.</p>`
 		}
 	})();
-	(async () =>
+	//Link | Unlink | Block buttons event listeners
+	document.getElementById('profiles-list')?.addEventListener
+	('click', async (e) => {
+
+		const target = e.target;
+		if (!(target instanceof HTMLElement) )  return;
+		console.log('clicked link');
+		const profileId = target.getAttribute('data-profile-id');
+		if (!profileId) return;
+		let res;
+		if(target.classList.contains('link-btn'))
 		{
-			const container = document.getElementById('profiles-list');
-			if (!container) return;
-			try
-			{
-				const res = await fetch('/api/profiles', 
-					{headers: {Authorization: `Bearer ${getToken()}`}
-				});
-			// I need a logic only if they are friends or not if they are friends I need to show a button send friend request or an friend icon
-
-			const data = await res.json();
-			container.innerHTML = `<h1 class="text-2xl font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Users List</h1>` + data.profiles.map((profile: any) => 
-				`<div class = "flex items-center bg-white p-4 rounded-xl shadow mb-2">
-					<img src= "${BACKEND_URL}/profile_pics/${profile.image_path}" class="w-12 h-12 rounded-full mr-4" />
-					<div>
-						<a href="" class="text-lg font-semibold text-blue-600 hover:underline">${profile.username}</a>
-						<p class="text-sm text-gray-600"> 🏆 ${profile.trophies} | ✅ ${profile.wins} | ❌ ${profile.losses} </p>
-						<span class="${profile.logged_in ? 'text-green-600' :'text-gray-500'}">
-							${profile.logged_in ? 'Online' : 'Offline'}
-						</span>
-						<span class="${profile.is_friend ? 'text-green-600' :'text-gray-500'}">
-							${profile.is_friend ? '<button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Follow</button>' : '<button type="submit" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded">Unfollow</button><button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Block</button>'
-}
-						</span>
-					</div>
-
-				</div>`
-			).join('');
-			} catch (err){
-				console.error('Failed to fetch profiles: ', err);
-				container.innerHTML = `<p class="text-red-500>Could not load profiles list.</p>`
+			console.log('clicked link');
+			res = await fetch(`/api/link-profile`,
+				{
+					method: 'POST',
+					headers:
+					{
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${getToken()}`,
+					}, 
+					body: JSON.stringify({profileId}),
+				}
+			)
+		}
+		else if(target.classList.contains('unlink-btn'))
+		{
+			console.log('clicked unlink');
+			res = await fetch(`/api/unlink-profile`,
+				{
+					method: 'POST',
+					headers:
+					{
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${getToken()}`,
+					}, 
+					body: JSON.stringify({profileId}),
+				}
+			)
+		}
+		else if(target.classList.contains('block-btn'))
+		{
+			console.log('clicked block');
+			res = await fetch(`/api/block-profile`,
+				{
+					method: 'POST',
+					headers:
+					{
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${getToken()}`,
+					}, 
+					body: JSON.stringify({profileId}),
+				}
+			)
+		}
+		if (res) {
+			let data;
+			try {
+				const text = await res.text();
+				data = text ? JSON.parse(text) : {};
+			} catch (err) {
+				console.error("Failed to parse JSON:", err);
+				data = {};
 			}
-		})();
+		
+			if (res.ok) {
+				renderProfiles();
+			} else {
+				alert(data.message || 'Failed to perform the action');
+			}
+		}
+	})
 	document.getElementById('upload-form')?.addEventListener('submit', async (e) =>
 	{
 		e.preventDefault();

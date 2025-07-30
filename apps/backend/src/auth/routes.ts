@@ -20,6 +20,7 @@ import {
   parseFriends,
   bidirectionalAddAFriend,
   parseProfiles,
+  bidirectionalDeleteAFriend,
 } from '../database/user';
 
 const authRoutes: FastifyPluginAsync = async (fastify) => {
@@ -147,13 +148,13 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 			res.status(401).send({message: 'Unauthorized or error'});
 		}
 	})
-	fastify.get('/friends', async (req, res) =>
+	fastify.get('/parse-friends', async (req, res) =>
 	{
 		try {
 			const jwt = await req.jwtVerify();
 			console.log('Verified JWT: ', jwt);
 			const userId = jwt.id;
-			await bidirectionalAddAFriend(userId, 2);
+			// await bidirectionalAddAFriend(userId, 2);
 			const rows = await parseFriends(userId);
 			res.send({friends: rows});
 		} catch (err)
@@ -162,7 +163,36 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 			console.log(err);
 		}
 	} )
-	fastify.get('/profiles', async (req, res) =>
+
+	fastify.post('/unlink-profile', async (req, res) =>
+		{
+			try {
+				const jwt = await req.jwtVerify();
+				const userId = jwt.id;
+				const {profileId} = req.body as any;
+				await bidirectionalDeleteAFriend(userId, profileId);
+			} catch (err)
+			{
+				res.status(401).send({message: 'Unauthorized'});
+				console.log(err);
+			}
+		})
+	fastify.post('/link-profile', async (req, res) =>
+		{
+			try {
+				const jwt = await req.jwtVerify();
+				const userId = jwt.id;
+				const {profileId} = req.body as any;
+				console.log('userid====>',userId);
+				console.log(profileId);
+				await bidirectionalAddAFriend(userId, profileId);
+			} catch (err)
+			{
+				res.status(401).send({message: 'Unauthorized'});
+				console.log(err);
+			}
+		})
+	fastify.get('/parse-profiles', async (req, res) =>
 		{
 			try {
 				const jwt = await req.jwtVerify();
