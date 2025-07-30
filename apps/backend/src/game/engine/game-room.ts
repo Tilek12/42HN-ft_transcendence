@@ -24,6 +24,7 @@ export class GameRoom {
     this.tournamentId = tournamentId;
     this.state = this.initState();
     this.setupListeners();
+	//------------player1 and player2 saving the game names and the game date-------
     this.start();
   }
 
@@ -125,9 +126,10 @@ export class GameRoom {
 
     if (score[p1.id] >= WIN_SCORE || score[p2?.id || '__ghost'] >= WIN_SCORE) {
       const winnerId = score[p1.id] > score[p2?.id || '__ghost'] ? p1.id : p2?.id;
+	  //---------------score of player1 vs the score of player2-----------------
       const winner = this.players.find(p => p?.id === winnerId) || null;
       this.winner = winner;
-
+	  //-------------------------------------------------------------------------
 	  //------Thomas code-------
 	  (async () =>
 	  {

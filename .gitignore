@@ -1,6 +1,6 @@
 .env
 node_modules
-apps/backend/src/assets
+apps/backend/src/assets/profile_pics/user*
 apps/backend/node_modules
 apps/frontend/node_modules
 secrets

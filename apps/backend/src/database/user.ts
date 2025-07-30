@@ -68,4 +68,30 @@ export async function updatePicturePath(id: number, path_or_url: string) {
 	  path_or_url,
 	  id
 	);
-  }
+}
+//-----Friends list-------------------------------------
+export async function parseFriendsArrayByUserId(id: number)
+{
+	const rows : any = await db.all(
+		`
+			SELECT
+			u.id, u.username, u.created_at,
+			p.wins, p.loses, p.trophies, p.image_path, p.logged_in
+			FROM friends f
+			JOIN users u ON f.friend_id = u.id
+			JOIN profiles p ON u.id = p.id
+			WHERE f.user_id = ?
+		`, id);
+	return rows; 
+}
+
+export async function bidirectionalAddAFriend(id_user: number, id_of_invited_user: number)
+{
+	console.log('Here 2');
+	if (id_user !== id_of_invited_user)
+	{
+		console.log('Here');
+		await db.run( `INSERT OR IGNORE INTO friends (user_id, friend_id) VALUES (?, ?)`, [id_user, id_of_invited_user]);
+		await db.run( `INSERT OR IGNORE INTO friends (user_id, friend_id) VALUES (?, ?)`, [id_of_invited_user, id_user]);
+	}
+}

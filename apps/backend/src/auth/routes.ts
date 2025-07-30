@@ -17,6 +17,8 @@ import {
   findProfileById,
   findUserById,
   updatePicturePath,
+  parseFriendsArrayByUserId,
+  bidirectionalAddAFriend,
 } from '../database/user';
 
 const authRoutes: FastifyPluginAsync = async (fastify) => {
@@ -66,7 +68,6 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 			const jwt = await req.jwtVerify();
 			const user = await findUserById(jwt.id);
 			const profile = await findProfileById(jwt.id);
-			console.log(profile);
 			if (!user || !profile)
 				return res.status(404).send({message: 'User or profile not found'});
 			res.send(
@@ -91,24 +92,6 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 			res.status(401).send({message: 'Invalid or expired token'});
 		}
 	})
-	// get a profile when you are clicking on the username
-	// fastify.get('profile/:id', async (req, res) =>
-	// {
-	// 	const {id} = req.params;
-	// 	const user = await findUserById(id);
-	// 	const profile = await findProfileById(id);
-	// 	if (!user || !profile)
-	// 		return res.status(404).send({message: 'User  not found'});
-	// 	res.send(
-	// 		{
-	// 			username: user.username,
-	// 			created_at: user.created_at,
-	// 			image_path: profile.image_path,
-	// 			wins: profile.wins,
-	// 			losses: profile.losses,
-	// 			trophies:profile.trophies
-	// 		});
-	// })
 	fastify.post ('/upload_pic', async (req, res) =>
 	{
 		try {
@@ -151,40 +134,36 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 		try {
 			const jwt = await req.jwtVerify();
 			const profile = await findProfileById(jwt.id);
-			if (profile.image_path && profile.image_path !== 'default_pic.png')
+			if (profile.image_path && profile.image_path !== 'default_pic.webp')
 			{
 				const filePath = path.join(__dirname, 'assets', 'profile_pics', profile.image_path);
 				if (fs.existsSync(filePath))
 					fs.unlinkSync(filePath);
 			}
-			await updatePicturePath(jwt.id, 'default_pic.png');
+			await updatePicturePath(jwt.id, 'default_pic.webp');
 			res.send({message: 'Profile picture deleted and reset to default'});
 		} catch(err) {
 			res.status(401).send({message: 'Unauthorized or error'});
 		}
 	})
-// 	fastify.get('/friends', async (req, res) => {
-// 		try
-// 		{
-// 			const jwt = await req.jwtVerify();
-// 			const userId = jwt.id;
-// 			const rows = await db.all(`
-// 				SELECT
-// 					u.id, u.username, u.created_at,
-// 					p.wins, p.losses, p,trophies, p.image_path
-// 				FROM friends f
-// 				JOIN users u ON f.friend_id = u.id
-// 				JOIN profiles p ON u.id = p.id
-// 				WHERE f.user_id = ?`, userId);
-// 			res.send({friends: rows});
-// 		} catch (err)
-// 		{
-// 			res.status(401).send({message: 'Unauthorized'});
-// 		}
-// 	});
+	fastify.get('/friends', async (req, res) =>
+	{
+		try {
+			const jwt = await req.jwtVerify();
+			console.log('Verified JWT: ', jwt);
+			const userId = jwt.id;
+			await bidirectionalAddAFriend(userId, 2);
+			const rows = await parseFriendsArrayByUserId(userId);
+			console.log(rows);
+			res.send({friends: rows});
+		} catch (err)
+		{
+			res.status(401).send({message: 'Umauthorized'});
+			console.log(err);
+		}
+	} )
 };
 
-// friends endpoint
 
 
 export default authRoutes;

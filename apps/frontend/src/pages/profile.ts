@@ -22,7 +22,6 @@ export async function renderProfile(root: HTMLElement) {
         	location.hash = '#/login';
         	return;
       };
-	  console.log(data);
 	  // after data is not invalid I need to 
 	  // fetch from the api/profile that is fetching all the information 
 	  // that I need
@@ -46,44 +45,38 @@ export async function renderProfile(root: HTMLElement) {
 		  <p><strong>losses:</strong> ${data.profile.losses}</p>
 		  <p><strong>trophies:</strong> ${data.profile.trophies}</p>
           <p><strong>Joined:</strong> ${new Date(data.user.created_at).toLocaleString()}</p>
-		  <div class="friends-list">
-		  </div>
+		  <div id="friends-list"></div>
           <button id="logout-btn" class="mt-6 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Logout</button>
         </div>
       `;
-	// function loadProfileView(userId : number)
-	// {
-	// 	fetch (`/api/profile/${userId}`, {
-	// 		headers: {Authorization: `Bearer ${getToken()}`}
-	// 	}).then(res => res.json())
-	// 	.then(data => {
-	// 		root.innerHTML = `
-	// 		<h1> ${data.usrname}'s Profile</h1>
-	// 		<img src="/profile_pics/${data.image_path}" width= "100">
-	// 		<p>Wins: ${data.wins}</p>
-	// 		<p>Losses: ${data.losses}</p>
-	// 		<p>Trophies: ${data.trophies}</p>
-	// 		<p>Joined: ${new Date(data.created_at).toLocaleDateString()}</p>
-	// 		`;
-	// 	});
-
-	// }
-	// fetch('/api/friends',
-	// 	{
-	// 		headers: {Authorization: `Bearer ${getToken()}`}
-	// 	}).then(res =>res.json())
-	// 	  .then(data =>
-	// 	  {
-	// 		const container : any= document.querySelector('.friends-list');
-	// 		container?.innerHTML = data.friends.map(friend => 
-	// 			`<div class= "flex items-cneter bg-white p-4 rounded-xl shadow">
-	// 				<img src= "profile_pics/${friend.image_path} class = "w-12 h-12 rounded-full mr-4">
-	// 				<div>
-	// 					<a href="#/profile/${friend.id}" class="text-lg front-semibold text-blue-600 hover:underline"> ${friend.username}</a>
-	// 					<p class="text-sm text-gray-600> 🏆 ${friend.trophies} | ✅ ${friend.wins} | ❌ ${friend.losses}</p>
-	// 				</div>
-	// 			</div>`).join('');
-	// 	  });
+	(async () =>
+	{
+		const container = document.getElementById('friends-list');
+		console.log("Here!");
+		if (!container) return;
+		try
+		{
+			const res = await fetch('/api/friends', 
+				{headers: {Authorization: `Bearer ${getToken()}`}
+			});
+		const data = await res.json();
+		container.innerHTML = data.friends.map((friend: any) => 
+			`<div class = "flex items-center bg-white p-4 rounded-xl shadow mb-2">
+				<img src= "${BACKEND_URL}/profile_pics/${friend.image_path}" class="w-12 h-12 rounded-full mr-4" />
+			<div>
+				<a href="" class="text-lg font-semibold text-blue-600 hover:underline">${friend.username}</a>
+				<p class="text-sm text-gray-600"> 🏆 ${friend.trophies} | ✅ ${friend.wins} | ❌ ${friend.losses} </p>
+				<span class="${friend.logged_in ? 'text-green-600' :'text-gray-500'}">
+					${friend.logged_in ? 'Online' : 'Offline'}
+				</span>
+			</div>
+			</div>`
+		).join('');
+		} catch (err){
+			console.error('Failed to fetch friends: ', err);
+			container.innerHTML = `<p class="text-red-500>Could not load friends list.</p>`
+		}
+	})();
 	document.getElementById('upload-form')?.addEventListener('submit', async (e) =>
 	{
 		e.preventDefault();
