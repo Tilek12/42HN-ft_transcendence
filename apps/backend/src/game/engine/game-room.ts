@@ -1,6 +1,7 @@
 import { Player, GameState } from './types';
 import { advanceTournament } from '../tournament/tournament-manager';
 import { findProfileById, incrementWinsOrLossesOrTrophies } from '../../database/user';
+import { createMatch } from '../../database/match';
 
 const FRAME_RATE = 1000 / 60;
 const PADDLE_HEIGHT = 20;
@@ -142,6 +143,16 @@ export class GameRoom {
 			const profile_two : any = await findProfileById(parseInt(p2?.id));
 			console.log(profile_two);
 		 }
+    //------ Save to matches table -------
+    if (p2 !== undefined) {
+      await createMatch(
+        parseInt(p1.id),
+        parseInt(p2.id),
+        score[p1.id],
+        score[p2.id],
+        this.mode === 'duel' && !!this.tournamentId
+      );
+    }
 	  })();
 	  //------Thomas code-------
 
