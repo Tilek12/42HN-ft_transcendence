@@ -41,29 +41,33 @@ function getTournamentById(id: string): Tournament | undefined {
   return tournaments.find(t => t.id === id);
 }
 
-function addPlayerToTournament(tournamentId: string, player: Player) {
+async function addPlayerToTournament(tournamentId: string, player: Player) {
   const tournament = getTournamentById(tournamentId);
   if (!tournament || tournament.status !== 'waiting') return;
 
   if (!tournament.players.find(p => p.id === player.id)) {
     tournament.players.push(player);
   }
+  // 🔥 Save to DB
+  await joinTournamentDB(parseInt(tournament.id.split('-')[1]), parseInt(player.id));
 
   if (tournament.players.length >= tournament.size) {
     startTournament(tournament);
   }
 }
 
-function joinTournament(player: Player, size: TournamentSize): Tournament {
+async function joinTournament(player: Player, size: TournamentSize): Promise<Tournament> {
   let tournament = tournaments.find(t => t.status === 'waiting' && t.size === size && t.players.length < size);
 
   if (!tournament) {
-    tournament = createTournament(size, player.id);
+    tournament = await createTournament(size, player.id);
   }
 
   if (!tournament.players.find(p => p.id === player.id)) {
     tournament.players.push(player);
   }
+  // 🔥 Save to DB
+  await joinTournamentDB(parseInt(tournament.id.split('-')[1]), parseInt(player.id));
 
   if (tournament.players.length === tournament.size) {
     startTournament(tournament);
