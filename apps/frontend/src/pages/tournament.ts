@@ -1,15 +1,6 @@
 import { renderNav } from './nav';
 import { getToken, validateLogin } from '../utils/auth';
-import {
-  connectPresenceSocket,
-  getActiveTournaments,
-  onPresenceUpdate
-} from '../websocket/presence';
-import {
-  createTournamentSocket,
-  quitTournament,
-  disconnectTournamentSocket
-} from '../websocket/tournament';
+import { wsManager } from '../websocket/ws-manager';
 
 let currentTournamentId: string | null = null;
 
@@ -19,8 +10,6 @@ export async function renderTournament(root: HTMLElement) {
     location.hash = '#/login';
     return;
   }
-
-  connectPresenceSocket();
 
   root.innerHTML =
     renderNav() +
@@ -33,7 +22,7 @@ export async function renderTournament(root: HTMLElement) {
   `;
 
   renderTournamentList();
-  onPresenceUpdate(renderTournamentList);
+  wsManager.subscribeToPresence(renderTournamentList);
 
   function handleTournamentMessage(msg: any) {
     if (msg.type === 'matchStart') {
@@ -55,14 +44,13 @@ export async function renderTournament(root: HTMLElement) {
     const list = document.getElementById('tournament-list')!;
     list.innerHTML = '';
 
-    const tournaments = getActiveTournaments();
+    const tournaments = wsManager.onlineTournaments;
     const token = getToken();
     const userId = token ? JSON.parse(atob(token.split('.')[1])).id : null;
 
     const userTournament = tournaments.find(t => t.playerIds.includes(userId));
     currentTournamentId = userTournament ? userTournament.id : null;
 
-    // User joined info + quit button
     if (userTournament) {
       const infoBox = document.createElement('div');
       infoBox.innerHTML = `
@@ -78,10 +66,10 @@ export async function renderTournament(root: HTMLElement) {
       list.appendChild(infoBox);
 
       infoBox.querySelector('#quit-tournament-btn')?.addEventListener('click', () => {
-        quitTournament();
+        wsManager.quitTournament();
         currentTournamentId = null;
         alert('🚪 You left the tournament.');
-        disconnectTournamentSocket();
+        wsManager.disconnectTournamentSocket();
         renderTournamentList();
       });
     }
@@ -127,7 +115,6 @@ export async function renderTournament(root: HTMLElement) {
       list.appendChild(div);
     }
 
-    // Create buttons block
     const createDiv = document.createElement('div');
     createDiv.className = 'text-center mt-6';
 
@@ -159,7 +146,7 @@ export async function renderTournament(root: HTMLElement) {
       return;
     }
 
-    const socket = createTournamentSocket('join', size, id, (msg) => {
+    const socket = wsManager.connectTournamentSocket('join', size, id, (msg) => {
       handleTournamentMessage(msg);
       if (msg.type === 'tournamentJoined') {
         currentTournamentId = msg.id;
@@ -171,7 +158,7 @@ export async function renderTournament(root: HTMLElement) {
       } else if (msg.type === 'end') {
         alert(`🏁 Tournament finished! Winner: ${msg.winner}`);
         currentTournamentId = null;
-        disconnectTournamentSocket();
+        wsManager.disconnectTournamentSocket();
         renderTournamentList();
       }
     });
@@ -185,7 +172,7 @@ export async function renderTournament(root: HTMLElement) {
       return;
     }
 
-    const socket = createTournamentSocket('create', size, undefined, (msg) => {
+    const socket = wsManager.connectTournamentSocket('create', size, undefined, (msg) => {
       handleTournamentMessage(msg);
       if (msg.type === 'tournamentJoined') {
         currentTournamentId = msg.id;
@@ -194,7 +181,7 @@ export async function renderTournament(root: HTMLElement) {
       } else if (msg.type === 'end') {
         alert(`🏁 Tournament finished! Winner: ${msg.winner}`);
         currentTournamentId = null;
-        disconnectTournamentSocket();
+        wsManager.disconnectTournamentSocket();
         renderTournamentList();
       }
     });

@@ -48,6 +48,13 @@ const presencePlugin: FastifyPluginAsync = async (fastify) => {
 
     const socket = connection.socket;
     const user: PresenceUser = { id: userId, socket, isAlive: true };
+    const existing = presenceUsers.find(u => u.id === userId);
+    if (existing) {
+      console.warn(`🔁 [Presence WS] Replacing existing connection for: ${userId}`);
+      existing.socket.close();
+      presenceUsers.splice(presenceUsers.indexOf(existing), 1);
+    }
+
     presenceUsers.push(user);
     console.log(`🟢 [Presence WS] Connected: ${userId}`);
 
@@ -58,7 +65,8 @@ const presencePlugin: FastifyPluginAsync = async (fastify) => {
 
     socket.send(JSON.stringify({
       type: 'presenceUpdate',
-      count: presenceUsers.length
+      count: presenceUsers.length,
+      users: presenceUsers.map(u => ({ id: u.id}))
     }));
 
     socket.on('message', (msg) => {

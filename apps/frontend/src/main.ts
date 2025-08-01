@@ -1,19 +1,22 @@
 import './styles.css'
 import { router } from './router'
 import { isLoggedIn } from './utils/auth'
-import { connectPresenceSocket, disconnectPresenceSocket } from './websocket/presence'
-import { disconnectGameSocket } from './websocket/game'
-import { disconnectTournamentSocket } from './websocket/tournament'
+import { wsManager } from './websocket/ws-manager'
 
-// Initialize SPA router
+// Initialize SPA router and WebSocket connections
 document.addEventListener('DOMContentLoaded', () => {
-  if (isLoggedIn()) connectPresenceSocket()
-  router()
-})
+  // Only connect presence WS if logged in
+  if (isLoggedIn()) {
+    wsManager.connectPresenceSocket();
+  }
 
-window.addEventListener('hashchange', router)
+  router();
+});
+
+// SPA page changes
+window.addEventListener('hashchange', router);
+
+// Handle tab/browser close
 window.addEventListener('beforeunload', () => {
-  disconnectGameSocket();
-  disconnectPresenceSocket();
-  disconnectTournamentSocket();
+  wsManager.disconnectAllSockets();
 });

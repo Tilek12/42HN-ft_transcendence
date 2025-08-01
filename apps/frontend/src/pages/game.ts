@@ -1,5 +1,6 @@
 import { renderNav } from './nav';
 import { createGameSocket, disconnectGameSocket } from '../websocket/game';
+import { wsManager } from '../websocket/ws-manager';
 import { getToken, validateLogin } from '../utils/auth';
 import { COLORS } from '../constants/colors';
 

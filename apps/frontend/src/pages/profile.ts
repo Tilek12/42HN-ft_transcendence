@@ -1,5 +1,6 @@
 import { renderNav } from './nav'
 import { getToken, clearToken, validateLogin } from '../utils/auth'
+import { wsManager } from '../websocket/ws-manager'
 
 export async function renderProfile(root: HTMLElement) {
   const isValid = await validateLogin()
@@ -7,6 +8,8 @@ export async function renderProfile(root: HTMLElement) {
     location.hash = '#/login'
     return;
   }
+
+  wsManager.connectPresenceSocket();
 
   root.innerHTML = renderNav() + `<div class="text-center">Loading profile...</div>`
 
@@ -32,6 +35,8 @@ export async function renderProfile(root: HTMLElement) {
       `;
 
       document.getElementById('logout-btn')?.addEventListener('click', () => {
+        wsManager.disconnectAllSockets();
+        wsManager.clearPresenceData();
         clearToken();
         location.hash = '#/login';
       });
