@@ -30,6 +30,18 @@ export async function connectToDB() {
       FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
     );
   `);
+  //------------blocked_users_table--------------
+  await db.exec (
+	`
+	 CREATE TABLE IF NOT EXISTS blocked_list 
+	 (
+	   user_id INTEGER NOT NULL,
+	   blocked_id INTEGER NOT NULL,
+	   PRIMARY KEY (user_id, blocked_id),
+	   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+	   FOREIGN KEY (blocked_id) REFERENCES users(id) ON DELETE CASCADE
+	 )
+	`);
   //-------------friends table-------------------
   await db.exec (
 	`
@@ -56,5 +68,4 @@ export async function connectToDB() {
 		)
 	`
  );
-
 }

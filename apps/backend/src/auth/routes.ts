@@ -25,6 +25,10 @@ import {
   addFriendRequest,
   parseBidirectionalPendingRequests,
   deleteFriendRequest,
+  parseBlockedList,
+  AddToBlockedList,
+  DeleteFromBlockedList,
+  userIsBlocked,
 } from '../database/user';
 
 const authRoutes: FastifyPluginAsync = async (fastify) => {
@@ -181,6 +185,33 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 				console.log(err);
 			}
 		});
+		fastify.post('/block-profile', async (req, res) =>
+			{
+				try {
+					const jwt = await req.jwtVerify();
+					const userId = jwt.id;
+					const {profileId} = req.body as any;
+					await AddToBlockedList(userId, profileId);
+					await bidirectionalDeleteAFriend(userId, profileId);
+				} catch (err)
+				{
+					res.status(401).send({message: 'Unauthorized'});
+					console.log(err);
+				}
+			});
+		fastify.post('/unblock-profile', async (req, res) =>
+			{
+				try {
+					const jwt = await req.jwtVerify();
+					const userId = jwt.id;
+					const {profileId} = req.body as any;
+					await DeleteFromBlockedList(userId, profileId);
+				} catch (err)
+				{
+					res.status(401).send({message: 'Unauthorized'});
+					console.log(err);
+				}
+			});
 	fastify.post('/link-profile', async (req, res) =>
 		{
 			try {
@@ -234,19 +265,19 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 			try {
 				const jwt = await req.jwtVerify();
 				const profiles = await parseProfiles(jwt.id);
+
 				const friends = await parseFriends(jwt.id);
-				console.log("friends : ", friends);
 				const friendsIds = new Set (friends.map((row : any )=> row.id));
+
 				const pendingRequests = await parseBidirectionalPendingRequests(jwt.id, jwt.id);
-				console.log("Pending: ")
-				console.log(pendingRequests);
 				const sentRequests = new Set ( pendingRequests.filter((r: any)=> r.sender_id === jwt.id && r.receiver_id !== jwt.id).map((r : any)=>  r.receiver_id));
-				console.log("sent: ");
-				console.log(sentRequests);
 				const receivedRequests = new Set (pendingRequests.filter((r: any) => r.receiver_id && r.sender_id !== jwt.id).map((r: any) => r.sender_id));
-				console.log("received: ");
-				console.log(receivedRequests);
-				const profilesWithFriendFlag = profiles.map((profile :any) => 
+
+				const blockingList = await parseBlockedList(jwt.id);
+				console.log("Blocked_list:");
+				console.log(blockingList);
+				const blockingListIds = new Set (blockingList.map((row : any)=> row.blocked_id));
+				const profilesWithFriendFlag = await Promise.all(profiles.map(async (profile :any) => 
 					(
 						{...profile, 
 							is_friend : friendsIds.has(profile.id),
@@ -254,9 +285,10 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 							pending_direction: sentRequests.has(profile.id) ? "sent" : 
 											   receivedRequests.has(profile.id) ? "recieved" :
 											   null,
-
+							is_blocking: blockingListIds.has(profile.id) ? 1 : 0,
+							is_blocked: await userIsBlocked(jwt.id, profile.id)
 						}
-					));
+					)));
 				res.send({profiles: profilesWithFriendFlag});
 				console.log(profilesWithFriendFlag);
 			} catch (err)

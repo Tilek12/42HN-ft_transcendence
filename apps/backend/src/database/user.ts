@@ -116,6 +116,29 @@ export async function bidirectionalDeleteAFriend(id_user: number, id_of_invited_
 		await db.run( `DELETE FROM friends WHERE user_id = ? AND friend_id = ?`, [id_of_invited_user, id_user]);
 	}
 }
+//-----------Blocked list-----------------------------------
+export async function AddToBlockedList(id_user: number, id_of_blocked_user: number)
+{
+	if (id_user !== id_of_blocked_user)
+		await db.run(`INSERT OR IGNORE INTO blocked_list (user_id, blocked_id) VALUES (?, ?)`, [id_user, id_of_blocked_user]);
+}
+export async function userIsBlocked(user_id: number, profile_id: number) : Promise<any>
+{
+	let res : any;
+	if (user_id !== profile_id)
+		res = await db.get(`SELECT 1 FROM blocked_list WHERE (user_id = ? AND blocked_id = ?)`, [profile_id, user_id]);
+	return !!res;
+}
+export async function DeleteFromBlockedList(id_user:number, id_of_blocked_user: number)
+{
+	if (id_user !== id_of_blocked_user)
+			await db.run(`DELETE FROM blocked_list WHERE user_id = ? AND blocked_id = 
+		?`, [id_user, id_of_blocked_user])
+}
+export async function parseBlockedList(user_id: number) : Promise<any[]>
+{
+	return await db.all('SELECT user_id, blocked_id FROM blocked_list WHERE user_id = ?', user_id);
+}
 //-------Friend request List--------------------------------
 export async function isExistsFriendRequest(senderId : number, recieverId: number)
 {

@@ -104,6 +104,22 @@ export async function renderProfile(root: HTMLElement) {
 				}
 			)
 		}
+		else if(target.classList.contains('unblock-btn'))
+		{
+			console.log('clicked unblock');
+			res =await fetch (`/api/unblock-profile`,
+				{
+					method: 'POST',
+					headers:
+					{
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${getToken()}`,
+					},
+					body: JSON.stringify({profileId}),
+				}
+
+			)
+		}
 		else if(target.classList.contains('pending-btn'))
 		{
 			console.log('cliked pending');
