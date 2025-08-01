@@ -1,23 +1,14 @@
 import { getToken} from '../utils/auth'
 
 
-const button_action = (is_friend: number, peding_direction : string, other_profile_id: number) => {
-	let res : string = '';
-	if (is_friend)
-		res =` <button data-profile-id = "${other_profile_id}" class="unlink-btn px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded">Unlink</button>`;
-	else
-	{
-		if (peding_direction == null)
-			res = `<button data-profile-id = "${other_profile_id}" class=" link-btn px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Link</button>`;
-		else
-			res =`<button data-profile-id = "${other_profile_id}" class=" pending-btn px-4 py-2 bg-gray-600 text-white opacity-50 rounded">Pending...</button>`;
-	}
-	return res
+const button_action = (is_friend: number, pending_direction : string, other_profile_id: number) => {
+	return `<button data-profile-answer = "accept" data-profile-id = "${other_profile_id}" class="answer-request-btn px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded">Accept</button>
+			<button data-profile-answer = "decline" data-profile-id = "${other_profile_id}" class="answer-request-btn px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Delete</button>`
 }
-export async function renderProfilesList () 
+export async function renderFriendRequestsList () 
 {
 
-	const container = document.getElementById('profiles-list');
+	const container = document.getElementById('friend-requests-list');
 	const BACKEND_URL : string = import.meta.env.VITE_BACKEND_URL;
 	if (!container) return;
 	const token = getToken();
@@ -27,9 +18,13 @@ export async function renderProfilesList ()
 			{headers: {Authorization: `Bearer ${token}`}
 		});
 	// I need a logic only if they are friends or not if they are friends I need to show a button send friend request or an friend icon
-
 	const data = await res.json();
-	container.innerHTML = `<h1 class="text-2xl font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Users List</h1>` + data.profiles.map((profile: any) => 
+	console.log('data:');
+	console.log(data);
+	const recievedRequests : number[]= data.profiles[0].received_requests;
+	console.log('received_profiles:');
+	console.log(data.received_requests);
+	container.innerHTML = `<h1 class="text-2xl font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Requests List</h1>` + data.profiles.filter((r : any) => recievedRequests.includes(r.id)).map((profile: any) => 
 		`<div class = "flex items-center bg-white p-4 rounded-xl shadow mb-2">
 			<img src= "${BACKEND_URL}/profile_pics/${profile.image_path}" class="w-12 h-12 rounded-full mr-4" />
 			<div>
@@ -39,13 +34,12 @@ export async function renderProfilesList ()
 					${profile.logged_in ? 'Online' : 'Offline'}
 				</span>
 					${button_action(profile.is_friend, profile.pending_direction, profile.id)}
-					<button data-profile-id = "${profile.id}" class="block-btn px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Block</button>
 			</div>
 
 		</div>`
 	).join('');
 	} catch (err){
 		console.error('Failed to fetch profiles: ', err);
-		container.innerHTML = `<p class="text-red-500>Could not load profiles list.</p>`
+		container.innerHTML = `<p class="text-red-500>Could not load request list.</p>`
 	}
 }

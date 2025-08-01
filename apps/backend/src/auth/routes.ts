@@ -21,6 +21,10 @@ import {
   bidirectionalAddAFriend,
   parseProfiles,
   bidirectionalDeleteAFriend,
+  isExistsFriendRequest,
+  addFriendRequest,
+  parseBidirectionalPendingRequests,
+  deleteFriendRequest,
 } from '../database/user';
 
 const authRoutes: FastifyPluginAsync = async (fastify) => {
@@ -93,7 +97,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 		} catch (err) {
 			res.status(401).send({message: 'Invalid or expired token'});
 		}
-	})
+	});
 	fastify.post ('/upload_pic', async (req, res) =>
 	{
 		try {
@@ -130,7 +134,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 			console.error(err);
 			res.status(500).send({message: 'Upload failed'});
 		}
-	})
+	});
 
 	fastify.post('/delete_pic', async (req, res) => {
 		try {
@@ -147,7 +151,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 		} catch(err) {
 			res.status(401).send({message: 'Unauthorized or error'});
 		}
-	})
+	});
 	fastify.get('/parse-friends', async (req, res) =>
 	{
 		try {
@@ -162,7 +166,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 			res.status(401).send({message: 'Umauthorized'});
 			console.log(err);
 		}
-	} )
+	} );
 
 	fastify.post('/unlink-profile', async (req, res) =>
 		{
@@ -176,7 +180,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 				res.status(401).send({message: 'Unauthorized'});
 				console.log(err);
 			}
-		})
+		});
 	fastify.post('/link-profile', async (req, res) =>
 		{
 			try {
@@ -185,13 +189,46 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 				const {profileId} = req.body as any;
 				console.log('userid====>',userId);
 				console.log(profileId);
-				await bidirectionalAddAFriend(userId, profileId);
+				await addFriendRequest(userId, profileId);
 			} catch (err)
 			{
 				res.status(401).send({message: 'Unauthorized'});
 				console.log(err);
 			}
-		})
+		});
+	fastify.post('/pending-request', async (req, res) =>
+	{
+		try{
+			const jwt = await req.jwtVerify();
+			const userId = jwt.id;
+			const {profileId} = req.body as any;
+			await deleteFriendRequest(userId, profileId); 
+		} catch (err)
+		{
+			res.status(401).send({message: 'Unauthorized'});
+			console.log(err);
+		}
+	})
+
+	fastify.post('/answer-request', async (req, res)=>
+	{
+		try{
+			console.log("here");
+			const jwt =await req.jwtVerify();
+			const userId = jwt.id;
+			const {profileId, profileAnswer} = req.body as any;
+			console.log("profileId and profileAnswer");
+			console.log(req.body);
+			if (profileAnswer === 'accept')
+				await bidirectionalAddAFriend(userId, profileId);
+			await deleteFriendRequest(profileId, userId);
+			await deleteFriendRequest(userId, profileAnswer);
+		} catch(err)
+		{
+			res.status(401).send({message: 'Unauthorized'});
+			console.log(err);
+		}
+	})
 	fastify.get('/parse-profiles', async (req, res) =>
 		{
 			try {
@@ -200,10 +237,28 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 				const friends = await parseFriends(jwt.id);
 				console.log("friends : ", friends);
 				const friendsIds = new Set (friends.map((row : any )=> row.id));
-				console.log("friends : ", friendsIds);
-				const profilesWithFriendFlag = profiles.map((profile :any) => ({...profile, is_friend: friendsIds.has(profile.id),}));
-				console.log(profilesWithFriendFlag);
+				const pendingRequests = await parseBidirectionalPendingRequests(jwt.id, jwt.id);
+				console.log("Pending: ")
+				console.log(pendingRequests);
+				const sentRequests = new Set ( pendingRequests.filter((r: any)=> r.sender_id === jwt.id && r.receiver_id !== jwt.id).map((r : any)=>  r.receiver_id));
+				console.log("sent: ");
+				console.log(sentRequests);
+				const receivedRequests = new Set (pendingRequests.filter((r: any) => r.receiver_id && r.sender_id !== jwt.id).map((r: any) => r.sender_id));
+				console.log("received: ");
+				console.log(receivedRequests);
+				const profilesWithFriendFlag = profiles.map((profile :any) => 
+					(
+						{...profile, 
+							is_friend : friendsIds.has(profile.id),
+							received_requests: Array.from(receivedRequests),
+							pending_direction: sentRequests.has(profile.id) ? "sent" : 
+											   receivedRequests.has(profile.id) ? "recieved" :
+											   null,
+
+						}
+					));
 				res.send({profiles: profilesWithFriendFlag});
+				console.log(profilesWithFriendFlag);
 			} catch (err)
 			{
 				res.status(401).send({message: 'Unauthorized'});

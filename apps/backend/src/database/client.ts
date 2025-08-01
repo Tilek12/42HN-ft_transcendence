@@ -8,7 +8,7 @@ export async function connectToDB() {
     filename: './database/pong.db',
     driver: sqlite3.Database,
   });
-
+ //---------------users table------------------
   await db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,6 +18,7 @@ export async function connectToDB() {
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
   `);
+  //--------------profile table-----------------
   await db.exec(`
     CREATE TABLE IF NOT EXISTS profiles (
       id INTEGER PRIMARY KEY, -- same as user.id
@@ -29,6 +30,7 @@ export async function connectToDB() {
       FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
     );
   `);
+  //-------------friends table-------------------
   await db.exec (
 	`
 	 CREATE TABLE IF NOT EXISTS friends 
@@ -40,4 +42,19 @@ export async function connectToDB() {
 	   FOREIGN KEY (friend_id) REFERENCES users(id) ON DELETE CASCADE
 	 )
 	`);
+
+ //------------friends request table----------------
+ await db.exec (
+	`
+		CREATE TABLE IF NOT EXISTS friends_requests (
+			sender_id INTEGER NOT NULL,
+			receiver_id INTEGER NOT NULL,
+			sent_at DATATIME DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (sender_id, receiver_id),
+			FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+			FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
+		)
+	`
+ );
+
 }

@@ -2,7 +2,8 @@ import { renderNav } from './nav'
 import { getToken, clearToken, validateLogin } from '../utils/auth'
 import { renderProfilesList } from './renderProfiles';
 import { renderFriendsList } from './renderFriends';
-
+import { renderFriendRequestsList } from './renderFriendRequestList';
+// I need a friend pending table | friend request table
 export async function renderProfile(root: HTMLElement) {
   const isValid = await validateLogin()
   if (!isValid) {
@@ -23,9 +24,6 @@ export async function renderProfile(root: HTMLElement) {
         	location.hash = '#/login';
         	return;
       };
-	  // after data is not invalid I need to 
-	  // fetch from the api/profile that is fetching all the information 
-	  // that I need
 	  const BACKEND_URL : string = import.meta.env.VITE_BACKEND_URL;
       root.innerHTML = renderNav() + `
         <div class="max-w-xl mx-auto text-black p-6">
@@ -48,18 +46,16 @@ export async function renderProfile(root: HTMLElement) {
           <p><strong>Joined:</strong> ${new Date(data.user.created_at).toLocaleString()}</p>
 		  <div id="friends-list"></div>
 		  <div id="profiles-list"></div>
+		  <div id="friend-requests-list"></div>
           <button id="logout-btn" class="mt-6 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Logout</button>
         </div>
       `;
 	renderProfilesList();
-	renderFriendsList();
-	//Link | Unlink | Block buttons event listeners
 	document.getElementById('profiles-list')?.addEventListener
 	('click', async (e) => {
 
 		const target = e.target;
 		if (!(target instanceof HTMLElement) )  return;
-		console.log('clicked link');
 		const profileId = target.getAttribute('data-profile-id');
 		if (!profileId) return;
 		let res;
@@ -108,6 +104,21 @@ export async function renderProfile(root: HTMLElement) {
 				}
 			)
 		}
+		else if(target.classList.contains('pending-btn'))
+		{
+			console.log('cliked pending');
+			res = await fetch(`/api/pending-request`,
+				{
+					method: 'POST',
+					headers:
+					{
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${getToken()}`,
+					}, 
+					body: JSON.stringify({profileId}),
+				}
+			)
+		}
 		if (res) {
 			let data;
 			try {
@@ -119,7 +130,6 @@ export async function renderProfile(root: HTMLElement) {
 			}
 		
 			if (res.ok) {
-				renderFriendsList();
 				renderProfilesList();
 			} else {
 				alert(data.message || 'Failed to perform the action');

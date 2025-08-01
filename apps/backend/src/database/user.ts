@@ -116,3 +116,33 @@ export async function bidirectionalDeleteAFriend(id_user: number, id_of_invited_
 		await db.run( `DELETE FROM friends WHERE user_id = ? AND friend_id = ?`, [id_of_invited_user, id_user]);
 	}
 }
+//-------Friend request List--------------------------------
+export async function isExistsFriendRequest(senderId : number, recieverId: number)
+{
+	return await db.get(
+		`SELECT 1 FROM friends_requests
+		WHERE (sender_id = ? AND receiver_id = ?)`,
+		[senderId, recieverId]
+	)
+}
+export async function addFriendRequest(senderId: number, receiverId: number)
+{
+
+	const existing= await (isExistsFriendRequest(senderId, receiverId) || isExistsFriendRequest(receiverId,senderId));
+	if ((senderId ===  receiverId) || existing)
+		return ;
+	await db.run(`
+		INSERT OR IGNORE INTO friends_requests (sender_id, receiver_id)
+		VALUES (?, ?)`, [senderId, receiverId]);
+}
+export async function deleteFriendRequest(senderId: number, receiverId: number)
+{
+	if (senderId ===  receiverId)
+		return ;
+	await db.run(`DELETE FROM friends_requests WHERE sender_id = ?  AND receiver_id = ?`, [senderId, receiverId]);
+}
+
+export async function parseBidirectionalPendingRequests(userId: number, profileId: number) : Promise<any[]>
+{
+	return await db.all(`SELECT sender_id, receiver_id FROM friends_requests WHERE sender_id = ? OR receiver_id = ?`,[userId, profileId]);
+}
