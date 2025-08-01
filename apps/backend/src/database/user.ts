@@ -164,6 +164,11 @@ export async function deleteFriendRequest(senderId: number, receiverId: number)
 		return ;
 	await db.run(`DELETE FROM friends_requests WHERE sender_id = ?  AND receiver_id = ?`, [senderId, receiverId]);
 }
+export async function parsePendingRequests(userId: number) : Promise<any[]>
+{
+	const res =  await db.all(`SELECT sender_id, receiver_id sent_at FROM friends_requests WHERE receiver_id = ?`,[userId]);
+	return res;
+}
 
 export async function parseBidirectionalPendingRequests(userId: number, profileId: number) : Promise<any[]>
 {
