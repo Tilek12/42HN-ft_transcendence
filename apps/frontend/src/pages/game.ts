@@ -1,5 +1,5 @@
 import { renderNav } from './nav';
-import { createGameSocket, disconnectGameSocket } from '../websocket/game';
+// import { createGameSocket, disconnectGameSocket } from '../websocket/game';
 import { wsManager } from '../websocket/ws-manager';
 import { getToken, validateLogin } from '../utils/auth';
 import { COLORS } from '../constants/colors';
@@ -58,7 +58,7 @@ export async function renderGame(root: HTMLElement) {
       return;
     }
 
-    disconnectGameSocket();
+    wsManager.disconnectGameSocket();
     gameState = null;
 
     info.textContent =
@@ -66,7 +66,7 @@ export async function renderGame(root: HTMLElement) {
         ? 'Solo mode: Use W/S for left paddle, ↑/↓ for right paddle'
         : 'Online mode: Use ↑/↓ arrows. Waiting for opponent...';
 
-    socket = createGameSocket(mode);
+    socket = wsManager.createGameSocket(mode);
 
     socket.onmessage = (event) => {
       if (event.data === 'ping') {
@@ -96,11 +96,11 @@ export async function renderGame(root: HTMLElement) {
           resultMsg = winnerId === myId ? '🏆 You win!' : '❌ You lose!';
         }
         alert(`🏁 Game over!\n${resultMsg}`);
-        disconnectGameSocket();
+        wsManager.disconnectGameSocket();
         clearInterval(moveInterval!);
       } else if (msg.type === 'disconnect') {
         alert(`❌ Opponent disconnected`);
-        disconnectGameSocket();
+        wsManager.disconnectGameSocket();
         clearInterval(moveInterval!);
       }
     };

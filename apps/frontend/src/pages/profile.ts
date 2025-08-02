@@ -9,8 +9,6 @@ export async function renderProfile(root: HTMLElement) {
     return;
   }
 
-  wsManager.connectPresenceSocket();
-
   root.innerHTML = renderNav() + `<div class="text-center">Loading profile...</div>`
 
   fetch('/api/private/me', {

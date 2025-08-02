@@ -1,6 +1,6 @@
 import { renderNav } from './nav'
 import { saveToken } from '../utils/auth';
-import { connectPresenceSocket } from '../websocket/presence';
+import { wsManager } from '../websocket/ws-manager';
 
 export function renderLogin(root: HTMLElement) {
   root.innerHTML = renderNav() + `
@@ -194,7 +194,8 @@ export function renderLogin(root: HTMLElement) {
             <span>Success!</span>
           </div>
         `;
-        connectPresenceSocket();
+        // connectPresenceSocket();
+        wsManager.connectPresenceSocket();
         setTimeout(() => {
           location.hash = '#/profile';
         }, 1000);

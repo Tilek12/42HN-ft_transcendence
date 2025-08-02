@@ -1,5 +1,5 @@
 import { renderNav } from './nav';
-import { createGameSocket } from '../websocket/game';
+import { wsManager } from '../websocket/ws-manager';
 
 export function renderTournamentMatch(root: HTMLElement) {
   const match = sessionStorage.getItem('currentTournamentMatch');
@@ -30,7 +30,7 @@ export function renderTournamentMatch(root: HTMLElement) {
   const scaleX = width / 100;
   const scaleY = height / 100;
 
-  const socket = createGameSocket('tournament');
+  const socket = wsManager.createGameSocket('tournament');
 
   let gameState: any = null;
   let moveInterval: any;
