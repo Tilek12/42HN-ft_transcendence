@@ -38,6 +38,7 @@ append_to_env() {
     fi
 
     if ! grep -q "^$key=" "$file"; then
+		echo "" >> "$file"
         echo "$key=$value" >> "$file"
         echo "✅ Added $key to $file"
     else
