@@ -7,6 +7,7 @@ import {
   getTournamentParticipants,
   linkMatchToTournament,
   getMatchesByTournamentId,
+  getTournamentLeaderboard,
 } from '../database/tournament';
 
 const tournamentRoutes: FastifyPluginAsync = async (fastify) => {
@@ -116,6 +117,25 @@ const tournamentRoutes: FastifyPluginAsync = async (fastify) => {
     const matches = await getMatchesByTournamentId(tid);
     res.send(matches);
   });
+
+  // Get tournament leaderboard (public)
+fastify.get('/tournament/:id/leaderboard', async (req, res) => {
+  const { id } = req.params as any;
+  const tid = parseInt(id);
+
+  if (isNaN(tid)) {
+    return res.status(400).send({ message: 'Invalid tournament ID' });
+  }
+
+  try {
+    const leaderboard = await getTournamentLeaderboard(tid);
+    res.send(leaderboard);
+  } catch (err) {
+    res.status(500).send({ message: 'Error loading leaderboard' });
+  }
+});
 };
+
+
 
 export default tournamentRoutes;

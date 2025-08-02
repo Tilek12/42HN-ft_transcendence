@@ -59,3 +59,74 @@ return db.all(
 	tournamentId
 );
 }
+
+// export async function getTournamentLeaderboard(tournamentId: number) {
+// 	return db.all(
+// 	  `
+// 	  SELECT
+// 		u.id,
+// 		u.username,
+// 		p.wins,
+// 		p.losses,
+// 		p.trophies,
+// 		COUNT(m.id) AS matches_played,
+// 		SUM(CASE WHEN m.winner_id = u.id THEN 1 ELSE 0 END) AS wins_in_tournament
+// 	  FROM tournament_participants tp
+// 	  JOIN users u ON tp.user_id = u.id
+// 	  JOIN profiles p ON p.id = u.id
+// 	  LEFT JOIN tournament_matches tm ON tm.tournament_id = tp.tournament_id
+// 	  LEFT JOIN matches m ON m.id = tm.match_id AND (m.player1_id = u.id OR m.player2_id = u.id)
+// 	  WHERE tp.tournament_id = ?
+// 	  GROUP BY u.id
+// 	  ORDER BY wins_in_tournament DESC, matches_played DESC, u.username
+// 	  `,
+// 	  tournamentId
+// 	);
+//   }
+export async function getTournamentLeaderboard(tournamentId: number) {
+	return db.all(
+	  `
+	  SELECT 
+		u.id,
+		u.username,
+		COALESCE(SUM(CASE WHEN m.winner_id = u.id THEN 1 ELSE 0 END), 0) AS wins,
+		COUNT(m.id) AS matches_played
+	  FROM tournament_participants tp
+	  JOIN users u ON tp.user_id = u.id
+	  LEFT JOIN tournament_matches tm ON tm.tournament_id = tp.tournament_id
+	  LEFT JOIN matches m ON m.id = tm.match_id AND (m.player1_id = u.id OR m.player2_id = u.id)
+	  WHERE tp.tournament_id = ?
+	  GROUP BY u.id, u.username
+	  ORDER BY wins DESC
+	  `,
+	  tournamentId
+	);
+  }
+  
+  export async function getTournamentMatches(tournamentId: number) {
+	return db.all(
+	  `
+	  SELECT
+		m.id AS match_id,
+		m.played_at,
+		u1.username AS player1,
+		u2.username AS player2,
+		m.player1_score,
+		m.player2_score,
+		CASE
+		  WHEN m.winner_id IS NULL AND m.is_tie = 1 THEN 'Tie'
+		  WHEN m.winner_id = u1.id THEN u1.username
+		  WHEN m.winner_id = u2.id THEN u2.username
+		  ELSE 'Pending'
+		END AS result
+	  FROM tournament_matches tm
+	  JOIN matches m ON tm.match_id = m.id
+	  JOIN users u1 ON u1.id = m.player1_id
+	  JOIN users u2 ON u2.id = m.player2_id
+	  WHERE tm.tournament_id = ?
+	  ORDER BY m.played_at ASC
+	  `,
+	  tournamentId
+	);
+  }
+  
