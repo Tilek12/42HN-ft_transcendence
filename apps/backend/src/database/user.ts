@@ -8,7 +8,7 @@ export async function findUserByEmail(email: string) {
   return await db.get('SELECT * FROM users WHERE email = ?', email);
 }
 
-export async function findUserById(id: number) {
+export async function findUserById(id: string) {
   return await db.get('SELECT * FROM users WHERE id = ?', id);
 }
 
@@ -19,4 +19,8 @@ export async function createUser(username: string, email: string, hashedPassword
     email,
     hashedPassword
   );
+}
+
+export async function findUsernameById(id: string) {
+  return await db.get('SELECT username FROM users WHERE id = ?', id);
 }

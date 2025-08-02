@@ -1,80 +1,111 @@
 import fp from 'fastify-plugin';
 import { FastifyPluginAsync } from 'fastify';
+import { WebSocket as WS } from 'ws';
+
 import { Player } from '../game/engine/types';
+import { userManager } from '../user/user-manager';
+import { PING_INTERVAL_MS } from '../constants';
 import {
-  Tournament,
-  createTournament,
-  joinTournament,
-  quitTournament
+	Tournament,
+	createTournament,
+	joinTournament,
+	quitTournament
 } from '../game/tournament/tournament-manager';
 
-const tournamentSockets: Map<string, WebSocket> = new Map();
-export { tournamentSockets };
-
 const tournamentPlugin: FastifyPluginAsync = async (fastify) => {
-  fastify.get('/tournament', { websocket: true }, async (connection, req) => {
-    const params = new URLSearchParams(req.url?.split('?')[1] || '');
-    const token = params.get('token');
-    const action = params.get('action'); // "create" or "join"
-    const tournamentId = params.get('id');
-    const size = parseInt(params.get('size') || '4') as 4 | 8;
+	fastify.get('/tournament', { websocket: true }, async (connection, req) => {
+		const params = new URLSearchParams(req.url?.split('?')[1] || '');
+		const token = params.get('token');
+		const action = params.get('action'); // "create" or "join"
+		const tournamentId = params.get('id');
+		const size = parseInt(params.get('size') || '4') as 4 | 8;
+		const socket = connection.socket;
 
-    if (!token || !action || (action === 'join' && !tournamentId)) {
-      connection.socket.close(4001, 'Missing or invalid parameters');
-      return;
-    }
+		if (!token || !action || (action === 'join' && !tournamentId)) {
+			return socket.close(4001, 'Missing or invalid parameters');
+		}
 
-    let userId: string;
-    try {
-      const payload = await fastify.jwt.verify(token);
-      userId = payload.id;
-    } catch {
-      connection.socket.close(4002, 'Invalid token');
-      return;
-    }
+		let userId: string;
+		try {
+			const payload = await fastify.jwt.verify(token);
+			userId = payload.id;
+		} catch {
+			return socket.close(4002, 'Invalid token');
+		}
 
-    const socket = connection.socket;
-    const player: Player = { id: userId, socket };
+		const user = userManager.getUser(userId);
+		if (!user) return socket.close(4003, 'Presence connection not found');
 
-    let tournament: Tournament | null = null;
-    if (action === 'create') {
-      tournament = createTournament(player, size);
-    } else if (action === 'join') {
-      tournament = joinTournament(player, tournamentId!);
-    }
+		userManager.setTournamentSocket(userId, socket);
 
-    if (!tournament) {
-      socket.send(JSON.stringify({ type: 'error', message: 'Could not join or create tournament' }));
-      socket.close();
-      return;
-    }
+		const player: Player = { id: userId, socket };
 
-    tournamentSockets.set(userId, socket);
-    console.log(`🌐 [Tournament WS] Opened for Player: ${userId}`);
-    socket.send(JSON.stringify({ type: 'tournamentJoined', id: tournament.id }));
+		let tournament: Tournament | null = null;
+		if (action === 'create') {
+			tournament = createTournament(player, size);
+		} else if (action === 'join') {
+			tournament = joinTournament(player, tournamentId!);
+		}
 
-    socket.on('message', (msg) => {
-      const text = msg.toString();
-      if (text === 'pong') return;
+		if (!tournament) {
+			socket.send(JSON.stringify({ type: 'error', message: 'Could not join or create tournament' }));
+			socket.close();
+			return;
+		}
 
-      try {
-        const data = JSON.parse(text);
-        if (data.type === 'quitTournament') {
-          quitTournament(userId);
-          tournamentSockets.delete(userId);
-          socket.send(JSON.stringify({ type: 'tournamentLeft' }));
-        }
-      } catch (err) {
-        console.warn('📛 [Tournament WS] Invalid message:', text);
-      }
-    });
+		console.log(`🎯 [Tournament WS] Connected: ${userId} (${action})`);
+		socket.send(JSON.stringify({ type: 'tournamentJoined', id: tournament.id }));
 
-    socket.on('close', () => {
-      quitTournament(userId);
-      tournamentSockets.delete(userId);
-      console.log(`🚫 [Tournament WS] Closed for ${userId}`);
-    });
-  });
+		socket.on('message', (msg) => {
+			const text = msg.toString();
+
+			if (text === 'pong') {
+				userManager.setAlive(userId, true);
+				return;
+			}
+
+			try {
+				const data = JSON.parse(text);
+				if (data.type === 'quitTournament') {
+					quitTournament(userId);
+					userManager.removeTournamentSocket(userId);
+					socket.send(JSON.stringify({ type: 'tournamentLeft' }));
+				}
+			} catch (err) {
+				console.warn('📛 [Tournament WS] Invalid message:', text);
+			}
+		});
+
+		socket.on('close', () => {
+			console.log(`❌ [Tournament WS] Disconnected: ${userId}`);
+			quitTournament(userId);
+			userManager.removeTournamentSocket(userId);
+		});
+
+		socket.on('error', (err) => {
+			console.error(`⚠️ [Tournament WS] Error from ${userId}:`, err);
+			socket.close();
+		});
+	});
+
+	setInterval(() => {
+		userManager.getOnlineUsers().forEach(({ id }) => {
+			const user = userManager.getUser(id);
+			if (!user || !user.tournamentSocket) return;
+
+			if (!user.isAlive) {
+				console.log(`💀 [Tournament WS] Inactive, closing: ${id}`);
+				user.tournamentSocket.close();
+				userManager.removeTournamentSocket(id);
+				return;
+			}
+
+			user.isAlive = false;
+			if (user.tournamentSocket.readyState === WS.OPEN) {
+				user.tournamentSocket.send('ping');
+			}
+		});
+	}, PING_INTERVAL_MS);
 };
 
 export default fp(tournamentPlugin);
