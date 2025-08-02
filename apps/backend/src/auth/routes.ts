@@ -9,11 +9,8 @@ import {
   findUserByUsername,
   findUserByEmail,
   createUser, 
-  findProfileByUsername,
-  findProfileByEmail,
   updateProfileLogInState,
   createProfile,
-  incrementWinsOrLossesOrTrophies,
   findProfileById,
   findUserById,
   updatePicturePath,
@@ -21,7 +18,6 @@ import {
   bidirectionalAddAFriend,
   parseProfiles,
   bidirectionalDeleteAFriend,
-  isExistsFriendRequest,
   addFriendRequest,
   parseBidirectionalPendingRequests,
   deleteFriendRequest,
@@ -31,9 +27,9 @@ import {
   userIsBlocked,
 } from '../database/user';
 
-const authRoutes: FastifyPluginAsync = async (fastify) => {
+const authRoutes: FastifyPluginAsync = async (fastify : any) => {
   // Register
-  fastify.post('/register', { schema: registerSchema }, async (req, res) => {
+  fastify.post('/register', { schema: registerSchema }, async (req : any, res : any) => {
     const { username, email, password } = req.body as any;
     if (await findUserByUsername(username)) {
       return res.status(400).send({ message: 'Username already taken' });
@@ -51,7 +47,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // Login
-  fastify.post('/login', { schema: loginSchema }, async (req, res) => {
+  fastify.post('/login', { schema: loginSchema }, async (req : any, res : any) => {
     const { username, password } = req.body as any;
     const user = await findUserByUsername(username);
     if (!user || !(await verifyPassword(password, user.password))) {
@@ -64,14 +60,14 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
     res.send({ token });
   });
 
-  fastify.post('/logout', async (req, res) =>
+  fastify.post('/logout', async (req : any, res : any) =>
   {
 		  const user = await req.jwtVerify();
 		  await updateProfileLogInState(user.id, false);
 		  res.send({message: 'Logged out successfully'});
   });
 
-  fastify.post ('/profile', async (req, res) =>
+  fastify.post ('/profile', async (req : any, res : any) =>
    {
 		try
 		{
@@ -102,7 +98,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 			res.status(401).send({message: 'Invalid or expired token'});
 		}
 	});
-	fastify.post ('/upload_pic', async (req, res) =>
+	fastify.post ('/upload_pic', async (req : any, res : any) =>
 	{
 		try {
 			const jwt = await req.jwtVerify();
@@ -140,12 +136,13 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 		}
 	});
 
-	fastify.post('/delete_pic', async (req, res) => {
+	fastify.post('/delete_pic', async (req : any, res : any) => {
 		try {
 			const jwt = await req.jwtVerify();
 			const profile = await findProfileById(jwt.id);
 			if (profile.image_path && profile.image_path !== 'default_pic.webp')
 			{
+				const __dirname = '/app/src';
 				const filePath = path.join(__dirname, 'assets', 'profile_pics', profile.image_path);
 				if (fs.existsSync(filePath))
 					fs.unlinkSync(filePath);
@@ -156,7 +153,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 			res.status(401).send({message: 'Unauthorized or error'});
 		}
 	});
-	fastify.get('/parse-friends', async (req, res) =>
+	fastify.get('/parse-friends', async (req : any, res : any) =>
 	{
 		try {
 			const jwt = await req.jwtVerify();
@@ -172,7 +169,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 		}
 	} );
 
-	fastify.post('/unlink-profile', async (req, res) =>
+	fastify.post('/unlink-profile', async (req : any, res : any) =>
 		{
 			try {
 				const jwt = await req.jwtVerify();
@@ -185,7 +182,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 				console.log(err);
 			}
 		});
-		fastify.post('/block-profile', async (req, res) =>
+		fastify.post('/block-profile', async (req : any, res : any) =>
 			{
 				try {
 					const jwt = await req.jwtVerify();
@@ -199,7 +196,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 					console.log(err);
 				}
 			});
-		fastify.post('/unblock-profile', async (req, res) =>
+		fastify.post('/unblock-profile', async (req : any, res : any) =>
 			{
 				try {
 					const jwt = await req.jwtVerify();
@@ -212,7 +209,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 					console.log(err);
 				}
 			});
-	fastify.post('/link-profile', async (req, res) =>
+	fastify.post('/link-profile', async (req : any, res : any) =>
 		{
 			try {
 				const jwt = await req.jwtVerify();
@@ -227,7 +224,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 				console.log(err);
 			}
 		});
-	fastify.post('/pending-request', async (req, res) =>
+	fastify.post('/pending-request', async (req : any, res : any) =>
 	{
 		try{
 			const jwt = await req.jwtVerify();
@@ -241,7 +238,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 		}
 	})
 
-	fastify.post('/answer-request', async (req, res)=>
+	fastify.post('/answer-request', async (req : any, res : any)=>
 	{
 		try{
 			console.log("here");
@@ -260,7 +257,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 			console.log(err);
 		}
 	})
-	fastify.get('/parse-profiles', async (req, res) =>
+	fastify.get('/parse-profiles', async (req : any, res : any) =>
 		{
 			try {
 				const jwt = await req.jwtVerify();

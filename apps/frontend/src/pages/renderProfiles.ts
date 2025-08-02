@@ -1,5 +1,5 @@
 import { getToken} from '../utils/auth'
-
+import { getEnvVariable } from './TypeSafe';
 
 const friend_request_action = (is_friend: number, peding_direction : string, other_profile_id: number) => {
 	let res : string = '';
@@ -22,11 +22,11 @@ const block_action = (is_blocking : number, other_profile_id: number) => {
 		res =`<button data-profile-id = "${other_profile_id}" class=" unblock-btn px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded">Unblock</button>`;
 	return res
 }
-export async function renderProfilesList () 
+export async function renderProfilesList (element_id : string) 
 {
-
-	const container = document.getElementById('profiles-list');
-	const BACKEND_URL : string = import.meta.env.VITE_BACKEND_URL;
+	//profiles-list
+	const container  = document.getElementById(element_id);
+	const BACKEND_URL = getEnvVariable('VITE_BACKEND_URL');
 	if (!container) return;
 	const token = getToken();
 	try

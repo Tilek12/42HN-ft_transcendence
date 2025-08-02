@@ -59,7 +59,7 @@ async function main() {
   await server.register(authRoutes, { prefix: '/api' });  // 👈 Public routes (login/register)
 
   // Protected scope of routes
-  await server.register(async (protectedScope) => {
+  await server.register(async (protectedScope : any) => {
     await protectedScope.register(authPlugin);            // 👈 Middleware checking token
     await protectedScope.register(userRoutes);            // 👈 Protected routes: api/me
     await protectedScope.register(onlineUsersRoute);      // 👈 Protected routes: online/-users
