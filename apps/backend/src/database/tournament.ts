@@ -83,21 +83,43 @@ return db.all(
 // 	  tournamentId
 // 	);
 //   }
+// export async function getTournamentLeaderboard(tournamentId: number) {
+// 	return db.all(
+// 	  `
+// 	  SELECT 
+// 		u.id,
+// 		u.username,
+// 		COALESCE(SUM(CASE WHEN m.winner_id = u.id THEN 1 ELSE 0 END), 0) AS wins,
+// 		COUNT(m.id) AS matches_played
+// 	  FROM tournament_participants tp
+// 	  JOIN users u ON tp.user_id = u.id
+// 	  LEFT JOIN tournament_matches tm ON tm.tournament_id = tp.tournament_id
+// 	  LEFT JOIN matches m ON m.id = tm.match_id AND (m.player1_id = u.id OR m.player2_id = u.id)
+// 	  WHERE tp.tournament_id = ?
+// 	  GROUP BY u.id, u.username
+// 	  ORDER BY wins DESC
+// 	  `,
+// 	  tournamentId
+// 	);
+//   }
 export async function getTournamentLeaderboard(tournamentId: number) {
 	return db.all(
 	  `
 	  SELECT 
-		u.id,
 		u.username,
-		COALESCE(SUM(CASE WHEN m.winner_id = u.id THEN 1 ELSE 0 END), 0) AS wins,
-		COUNT(m.id) AS matches_played
-	  FROM tournament_participants tp
-	  JOIN users u ON tp.user_id = u.id
-	  LEFT JOIN tournament_matches tm ON tm.tournament_id = tp.tournament_id
-	  LEFT JOIN matches m ON m.id = tm.match_id AND (m.player1_id = u.id OR m.player2_id = u.id)
-	  WHERE tp.tournament_id = ?
-	  GROUP BY u.id, u.username
-	  ORDER BY wins DESC
+		p.wins,
+		p.losses,
+		p.trophies,
+		COUNT(m.id) AS matches_played,
+		SUM(CASE WHEN m.winner_id = u.id THEN 1 ELSE 0 END) AS wins_in_tournament
+		FROM tournament_participants tp
+		JOIN users u ON u.id = tp.user_id
+		JOIN profiles p ON p.id = u.id
+		LEFT JOIN tournament_matches tm ON tm.tournament_id = tp.tournament_id
+		LEFT JOIN matches m ON m.id = tm.match_id 
+		AND (m.player1_id = u.id OR m.player2_id = u.id)
+		WHERE tp.tournament_id = ?
+		GROUP BY u.id;
 	  `,
 	  tournamentId
 	);

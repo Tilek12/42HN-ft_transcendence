@@ -52,7 +52,7 @@ async function main() {
     await protectedScope.register(authPlugin);            // 👈 Middleware checking token
     await protectedScope.register(userRoutes);            // 👈 Protected routes: api/me
     await protectedScope.register(onlineUsersRoute);      // 👈 Protected routes: online/-users
-    await protectedScope.register(matchRoutes, { prefix: '/api/private/matches' });
+    await protectedScope.register(matchRoutes);
   }, { prefix: '/api/private' });
 
   // Tournament handling

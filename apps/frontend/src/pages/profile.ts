@@ -41,6 +41,7 @@ export async function renderProfile(root: HTMLElement) {
 		  <p><strong>losses:</strong> ${data.profile.losses}</p>
 		  <p><strong>trophies:</strong> ${data.profile.trophies}</p>
           <p><strong>Joined:</strong> ${new Date(data.user.created_at).toLocaleString()}</p>
+    	  <div id="match-history" class="mt-6"></div>
           <button id="logout-btn" class="mt-6 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Logout</button>
         </div>
       `;
@@ -84,5 +85,42 @@ export async function renderProfile(root: HTMLElement) {
 	.catch(() => {
 	  root.innerHTML = `<p class="text-red-400">❌ Failed to fetch profile.</p>`;
 	});
+
+	fetch('/api/match/user', {
+		headers: {
+		  'Authorization': `Bearer ${getToken()}`
+		}
+	  })
+		.then(res => res.json())
+		.then(matches => {
+		  const matchContainer = document.getElementById('match-history') as HTMLElement;
+		  if (!matchContainer) return;
+		  if (!Array.isArray(matches) || matches.length === 0) {
+			matchContainer.innerHTML += `<h2 class="text-xl font-bold mt-6">Match History</h2>
+			  <p>No matches found.</p>`;
+			return;
+		  }
+	  
+		  const matchList = matches.map(match => `
+			<div class="border rounded p-3 my-2 bg-gray-100">
+			  <p><strong>Match ID:</strong> ${match.id}</p>
+			  <p><strong>Opponent:</strong> ${match.player1_id === data.user.id ? match.player2_id : match.player1_id}</p>
+			  <p><strong>Score:</strong> ${match.player1_id === data.user.id 
+				? `${match.player1_score} - ${match.player2_score}` 
+				: `${match.player2_score} - ${match.player1_score}`}</p>
+			  <p><strong>Result:</strong> ${match.winner_id === null ? 'Tie' : 
+				match.winner_id === data.user.id ? 'Win' : 'Loss'}</p>
+			  <p><strong>Played at:</strong> ${new Date(match.played_at).toLocaleString()}</p>
+			</div>
+		  `).join('');
+	  
+		  matchContainer.innerHTML += `
+			<h2 class="text-xl font-bold mt-6">Match History</h2>
+			<div>${matchList}</div>
+		  `;
+		})
+		.catch(err => {
+		  console.error('Failed to load matches:', err);
+		});
 }
 
