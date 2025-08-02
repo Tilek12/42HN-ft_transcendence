@@ -1,9 +1,8 @@
 {
 	"name": "transcendence",
 	"scripts": {
-		"vites": " vite --config vite.config.mts",
-		"dev": " tsx watch src/backend/server.ts",
-		"build": " tsc -p tsconfig.json",
+		"dev": "concurrently \"vite --config /app/src/vite.config.mts\" \"tsx watch /app/src/backend/server.ts\"",
+		"build": " tsc -p src/tsconfig.json",
 		"prod": " npm run build && node dist/backend/server.js"
 	},
 	"dependencies": {

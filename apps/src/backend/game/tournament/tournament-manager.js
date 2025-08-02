@@ -1,6 +1,16 @@
-import { GameRoom } from '../engine/game-room';
-import { broadcastTournaments } from '../../websocket/presence';
-import { tournamentSockets } from '../../websocket/tournament';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Tournament = void 0;
+exports.createTournament = createTournament;
+exports.joinTournament = joinTournament;
+exports.getSafeTournamentData = getSafeTournamentData;
+exports.getUserTournament = getUserTournament;
+exports.advanceTournament = advanceTournament;
+exports.quitTournament = quitTournament;
+const types_1 = require("../engine/types");
+const game_room_1 = require("../engine/game-room");
+const presence_1 = require("../../websocket/presence");
+const tournament_1 = require("../../websocket/tournament");
 let tournaments = [];
 let nextId = 1;
 function getTournamentById(id) {
@@ -22,7 +32,7 @@ function createTournament(player, size) {
     };
     tournaments.push(tournament);
     console.log(`🏆 [Tournament: ${tournament.id}] Created`);
-    broadcastTournaments();
+    (0, presence_1.broadcastTournaments)();
     return tournament;
 }
 function joinTournament(player, tournamentId) {
@@ -33,7 +43,7 @@ function joinTournament(player, tournamentId) {
         return null;
     }
     tournament.players.push(player);
-    broadcastTournaments();
+    (0, presence_1.broadcastTournaments)();
     if (tournament.players.length === tournament.size) {
         startTournament(tournament);
     }
@@ -46,7 +56,7 @@ function startTournament(t) {
     for (let i = 0; i < t.players.length; i += 2) {
         const p1 = t.players[i];
         const p2 = t.players[i + 1];
-        const game = new GameRoom(p1, p2, t.id);
+        const game = new game_room_1.GameRoom(p1, p2, t.id);
         round.push(game);
         // 🔔 Notify both players to redirect to match view
         notifyMatchStart(t.id, p1.id, p2.id);
@@ -56,7 +66,7 @@ function startTournament(t) {
     }
     t.rounds.push(round);
     console.log(`🏆 [Tournament: ${t.id}] Started`);
-    broadcastTournaments();
+    (0, presence_1.broadcastTournaments)();
 }
 function advanceTournament(tournamentId, winner) {
     const t = getTournamentById(tournamentId);
@@ -77,14 +87,14 @@ function advanceTournament(tournamentId, winner) {
         // 🔖 TODO: Save tournament result to DB: t.id, winner.id, etc.
         // Example: await saveTournamentResult(t.id, winners[0].id);
         console.log(`🏁 [Tournament: ${t.id}] Finished! Winner: ${winners[0].id}`);
-        broadcastTournaments();
+        (0, presence_1.broadcastTournaments)();
         return;
     }
     const newRound = [];
     for (let i = 0; i < winners.length; i += 2) {
         const p1 = winners[i];
         const p2 = winners[i + 1] || null;
-        const game = new GameRoom(p1, p2, tournamentId);
+        const game = new game_room_1.GameRoom(p1, p2, tournamentId);
         newRound.push(game);
         if (p2)
             notifyMatchStart(t.id, p1.id, p2.id);
@@ -93,7 +103,7 @@ function advanceTournament(tournamentId, winner) {
         ////////
     }
     t.rounds.push(newRound);
-    broadcastTournaments();
+    (0, presence_1.broadcastTournaments)();
 }
 function getSafeTournamentData() {
     return tournaments.map(t => ({
@@ -116,7 +126,7 @@ function quitTournament(userId) {
         tournaments = tournaments.filter(x => x.id !== t.id);
         console.log(`🗑 [Tournament: ${t.id}] Empty tournament deleted`);
     }
-    broadcastTournaments();
+    (0, presence_1.broadcastTournaments)();
 }
 // Helper to notify players
 function notifyMatchStart(tournamentId, player1Id, player2Id) {
@@ -128,10 +138,10 @@ function notifyMatchStart(tournamentId, player1Id, player2Id) {
         player2: player2Id
     };
     for (const id of [player1Id, player2Id]) {
-        const ws = tournamentSockets.get(id);
+        const ws = tournament_1.tournamentSockets.get(id);
         if (ws && ws.readyState === ws.OPEN) {
             ws.send(JSON.stringify(payload));
         }
     }
 }
-export { createTournament, joinTournament, getSafeTournamentData, getUserTournament, advanceTournament, quitTournament };
+//# sourceMappingURL=tournament-manager.js.map

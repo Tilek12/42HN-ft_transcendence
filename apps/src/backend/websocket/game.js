@@ -1,6 +1,13 @@
-import { WebSocket as WS } from 'ws';
-import fp from 'fastify-plugin';
-import { startGame, cancelDuelSearch } from '../game/engine/matchmaking';
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const fastify_1 = require("fastify");
+const ws_1 = require("ws");
+const fastify_plugin_1 = __importDefault(require("fastify-plugin"));
+const matchmaking_1 = require("../game/engine/matchmaking");
+const types_1 = require("../game/engine/types");
 const connectedUsers = [];
 const PING_INTERVAL_MS = 10000;
 const wsGamePlugin = async (fastify) => {
@@ -28,7 +35,7 @@ const wsGamePlugin = async (fastify) => {
         console.log(`🏓 [Game WS] Connected: ${userId} (${mode})`);
         // Only handle solo or duel games
         if (mode === 'duel' || mode === 'solo') {
-            startGame(player, mode);
+            (0, matchmaking_1.startGame)(player, mode);
         }
         else {
             console.warn(`⛔️ [Game WS] Invalid mode: ${mode}`);
@@ -42,13 +49,13 @@ const wsGamePlugin = async (fastify) => {
                     user.isAlive = true;
             }
             else if (msg.toString() === 'quit') {
-                cancelDuelSearch(userId);
+                (0, matchmaking_1.cancelDuelSearch)(userId);
                 socket.close();
             }
         });
         socket.on('close', () => {
             console.log(`❌ [Game WS] Player disconnected: ${userId}`);
-            cancelDuelSearch(userId);
+            (0, matchmaking_1.cancelDuelSearch)(userId);
             const index = connectedUsers.findIndex(u => u.id === userId);
             if (index !== -1)
                 connectedUsers.splice(index, 1);
@@ -57,13 +64,13 @@ const wsGamePlugin = async (fastify) => {
     // Heartbeat
     setInterval(() => {
         connectedUsers.forEach((user, i) => {
-            if (user.socket.readyState !== WS.OPEN)
+            if (user.socket.readyState !== ws_1.WebSocket.OPEN)
                 return;
             if (!user.isAlive) {
                 console.log(`💀 [Game WS] Terminating inactive: ${user.id}`);
                 user.socket.close();
                 connectedUsers.splice(i, 1);
-                cancelDuelSearch(user.id);
+                (0, matchmaking_1.cancelDuelSearch)(user.id);
                 return;
             }
             user.isAlive = false;
@@ -71,4 +78,5 @@ const wsGamePlugin = async (fastify) => {
         });
     }, PING_INTERVAL_MS);
 };
-export default fp(wsGamePlugin);
+exports.default = (0, fastify_plugin_1.default)(wsGamePlugin);
+//# sourceMappingURL=game.js.map

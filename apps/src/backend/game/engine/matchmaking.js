@@ -1,8 +1,13 @@
-import { GameRoom } from './game-room';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.startGame = startGame;
+exports.cancelDuelSearch = cancelDuelSearch;
+const types_1 = require("./types");
+const game_room_1 = require("./game-room");
 const waitingDuel = new Map();
-export function startGame(player, mode) {
+function startGame(player, mode) {
     if (mode === 'solo') {
-        new GameRoom(player, null);
+        new game_room_1.GameRoom(player, null);
         return;
     }
     if (waitingDuel.has(player.id)) {
@@ -15,12 +20,13 @@ export function startGame(player, mode) {
         const [p1, p2] = players;
         waitingDuel.delete(p1.id);
         waitingDuel.delete(p2.id);
-        new GameRoom(p1, p2);
+        new game_room_1.GameRoom(p1, p2);
     }
 }
-export function cancelDuelSearch(userId) {
+function cancelDuelSearch(userId) {
     if (waitingDuel.has(userId)) {
         waitingDuel.delete(userId);
         console.log(`🛑 [Matchmaking] Removed ${userId} from duel queue`);
     }
 }
+//# sourceMappingURL=matchmaking.js.map

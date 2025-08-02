@@ -9,16 +9,27 @@ services:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     volumes:
-      - ./apps/:/app/
+      - ./apps/src:/app/src
+      - /app/node_modules
+      - ./database:/app/database
+      - ./dist:/app/dist
     env_file:
       - ./.env
     environment:
-      - NODE_ENV=${APP_MODE}
+      - NODE_ENV=development
       - APP_MODE=${APP_MODE}
     networks:
       - pong-network
+    secrets:
+      - ssl_cert
+      - ssl_key
 
 
+secrets:
+      ssl_cert:
+        file: ./cert/cert.pem
+      ssl_key:
+        file: ./cert/key.pem
 
 networks:
   pong-network:

@@ -1,4 +1,7 @@
-export const loginSchema = {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.registerSchema = exports.loginSchema = void 0;
+exports.loginSchema = {
     body: {
         type: 'object',
         required: ['username', 'password'],
@@ -8,7 +11,7 @@ export const loginSchema = {
         },
     },
 };
-export const registerSchema = {
+exports.registerSchema = {
     body: {
         type: 'object',
         required: ['username', 'email', 'password'],
@@ -19,3 +22,4 @@ export const registerSchema = {
         },
     },
 };
+//# sourceMappingURL=schemas.js.map

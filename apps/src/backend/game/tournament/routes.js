@@ -1,7 +1,11 @@
-import { getSafeTournamentData } from './tournament-manager';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const fastify_1 = require("fastify");
+const tournament_manager_1 = require("./tournament-manager");
 const tournamentRoutes = async (fastify) => {
     fastify.get('/tournaments', async (req, res) => {
-        res.send(getSafeTournamentData());
+        res.send((0, tournament_manager_1.getSafeTournamentData)());
     });
 };
-export default tournamentRoutes;
+exports.default = tournamentRoutes;
+//# sourceMappingURL=routes.js.map

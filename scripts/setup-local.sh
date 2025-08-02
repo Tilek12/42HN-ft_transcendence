@@ -79,7 +79,7 @@ check_ssl_tool() {
 check_ssl_tool
 
 # 5. Create self-signed cert for IP if not exists
-CERT_DIR="./apps/cert"
+CERT_DIR="./cert"
 mkdir -p "$CERT_DIR"
 
 KEY_FILE="$CERT_DIR/key.pem"

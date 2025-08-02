@@ -1,21 +1,30 @@
-import fp from 'fastify-plugin';
-import { WebSocket as WS } from 'ws';
-import { getSafeTournamentData } from '../game/tournament/tournament-manager';
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.broadcastTournaments = exports.getPresenceUsers = void 0;
+const fastify_1 = require("fastify");
+const fastify_plugin_1 = __importDefault(require("fastify-plugin"));
+const ws_1 = require("ws");
+const tournament_manager_1 = require("../game/tournament/tournament-manager");
 const presenceUsers = [];
 const HEARTBEAT_INTERVAL = 10000;
 function broadcastPresence(msg) {
     const data = JSON.stringify(msg);
     presenceUsers.forEach((user) => {
-        if (user.socket.readyState === WS.OPEN) {
+        if (user.socket.readyState === ws_1.WebSocket.OPEN) {
             user.socket.send(data);
         }
     });
 }
-export const getPresenceUsers = () => presenceUsers;
-export const broadcastTournaments = () => {
-    const tournaments = getSafeTournamentData();
+const getPresenceUsers = () => presenceUsers;
+exports.getPresenceUsers = getPresenceUsers;
+const broadcastTournaments = () => {
+    const tournaments = (0, tournament_manager_1.getSafeTournamentData)();
     broadcastPresence({ type: 'tournamentUpdate', tournaments });
 };
+exports.broadcastTournaments = broadcastTournaments;
 const presencePlugin = async (fastify) => {
     fastify.get('/presence', { websocket: true }, async (connection, req) => {
         const params = new URLSearchParams(req.url?.split('?')[1] || '');
@@ -45,7 +54,7 @@ const presencePlugin = async (fastify) => {
         console.log(`🟢 [Presence WS] Connected: ${userId}`);
         socket.send(JSON.stringify({
             type: 'tournamentUpdate',
-            tournaments: getSafeTournamentData()
+            tournaments: (0, tournament_manager_1.getSafeTournamentData)()
         }));
         socket.send(JSON.stringify({
             type: 'presenceUpdate',
@@ -65,7 +74,7 @@ const presencePlugin = async (fastify) => {
     });
     setInterval(() => {
         presenceUsers.forEach((user, index) => {
-            if (user.socket.readyState !== WS.OPEN)
+            if (user.socket.readyState !== ws_1.WebSocket.OPEN)
                 return;
             if (!user.isAlive) {
                 user.socket.close();
@@ -77,4 +86,5 @@ const presencePlugin = async (fastify) => {
         });
     }, HEARTBEAT_INTERVAL);
 };
-export default fp(presencePlugin);
+exports.default = (0, fastify_plugin_1.default)(presencePlugin);
+//# sourceMappingURL=presence.js.map

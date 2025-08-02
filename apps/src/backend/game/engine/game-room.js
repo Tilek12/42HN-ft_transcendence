@@ -1,4 +1,8 @@
-import { advanceTournament } from '../tournament/tournament-manager';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GameRoom = void 0;
+const types_1 = require("./types");
+const tournament_manager_1 = require("../tournament/tournament-manager");
 const FRAME_RATE = 1000 / 60;
 const PADDLE_HEIGHT = 20;
 const BALL_SPEED = 0.6;
@@ -6,7 +10,7 @@ const FIELD_WIDTH = 100;
 const FIELD_HEIGHT = 100;
 const WIN_SCORE = 5;
 const FREEZE = 5;
-export class GameRoom {
+class GameRoom {
     players;
     mode;
     tournamentId;
@@ -129,7 +133,7 @@ export class GameRoom {
             this.broadcast({ type: 'end', winner: winner?.id });
             setTimeout(() => this.end(), 1000); // give frontend time to show result
             if (this.tournamentId && this.winner) {
-                advanceTournament(this.tournamentId, this.winner);
+                (0, tournament_manager_1.advanceTournament)(this.tournamentId, this.winner);
             }
             return;
         }
@@ -173,3 +177,5 @@ export class GameRoom {
         }
     }
 }
+exports.GameRoom = GameRoom;
+//# sourceMappingURL=game-room.js.map
