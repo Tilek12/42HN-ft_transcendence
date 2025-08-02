@@ -159,7 +159,6 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 			const jwt = await req.jwtVerify();
 			console.log('Verified JWT: ', jwt);
 			const userId = jwt.id;
-			// await bidirectionalAddAFriend(userId, 2);
 			const rows = await parseFriends(userId);
 			res.send({friends: rows});
 		} catch (err)

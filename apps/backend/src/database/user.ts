@@ -119,7 +119,8 @@ export async function bidirectionalDeleteAFriend(id_user: number, id_of_invited_
 //-----------Blocked list-----------------------------------
 export async function AddToBlockedList(id_user: number, id_of_blocked_user: number)
 {
-	if (id_user !== id_of_blocked_user)
+	const is_already_blocked = await userIsBlocked(id_user, id_of_blocked_user);
+	if (id_user !== id_of_blocked_user && !is_already_blocked)
 		await db.run(`INSERT OR IGNORE INTO blocked_list (user_id, blocked_id) VALUES (?, ?)`, [id_user, id_of_blocked_user]);
 }
 export async function userIsBlocked(user_id: number, profile_id: number) : Promise<any>
