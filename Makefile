@@ -20,18 +20,25 @@ VIOLET	= \033[0;35m
 RESET	= \033[0m
 
 # Docker compose configuration
-DOCKER_COMPOSE := docker-compose
+DOCKER_COMPOSE := docker compose
 COMPOSE_FILE := docker-compose.yml
 COMPOSE := $(DOCKER_COMPOSE) -f $(COMPOSE_FILE)
 
 # Environment validation
 ENV_FILE := .env
 
+# Mode switches
+DEV = APP_MODE=development
+PROD = APP_MODE=production
+
+
 ## --------------------------- ##
 ##  Project Lifecycle Targets  ##
 ## --------------------------- ##
 
 start: setup-local setup-ngrok up	## 🚀 Full start process (setup + run)
+
+dev: setup-local setup-ngrok updev
 
 stop: clean		## 🛑 Stop all services (graceful shutdown)
 
@@ -43,8 +50,15 @@ re: clean start		## 🔄 Restart everything
 
 up:		## 🐳 Start containers with build
 	@printf "$(BLUE)🐳 Starting Docker containers...$(RESET)\n"
-	$(COMPOSE) up --build || true
-	@printf "$(RED)🛑 Containers stopped$(RESET)\n"
+	@printf "$(RED)🐳 BE AWARE, THIS IS PRODUCTION MODE!$(RESET)\n"
+	$(PROD) $(COMPOSE) up --build || true
+	@printf "$(RED)🛑 Container stopped$(RESET)\n"
+
+updev:
+	@printf "$(BLUE)🐳 Starting Docker containers...$(RESET)\n"
+	@printf "$(GREEN)🐳 ENTERING IN DEVELOPMENT MODE $(RESET)\n"
+	$(DEV) $(COMPOSE) up --build || true
+	@printf "$(RED)🛑 Container stopped$(RESET)\n"
 
 down:	## 🛑 Stop containers
 	@printf "$(VIOLET)🛑 Stopping containers...$(RESET)\n"
