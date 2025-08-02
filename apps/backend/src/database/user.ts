@@ -52,10 +52,9 @@ export async function updateProfileLogInState(id: number, status: boolean)
 		id
 	);
 }
-export async function parseProfiles(prof_id : number) : Promise<any[]>
+export async function parseProfiles(prof_id : number, offset_param?: string, limit_param?: string) : Promise<any[]>
 {
-	return await db.all(
-		`SELECT
+	let sqliteString = `SELECT
 		  u.id,
 		  u.username,
 		  p.wins,
@@ -65,7 +64,16 @@ export async function parseProfiles(prof_id : number) : Promise<any[]>
 		  p.logged_in
 		FROM users u
 		JOIN profiles p ON u.id = p.id
-		WHERE u.id != ?`, prof_id);
+		WHERE u.id != ?`;
+	if (offset_param && limit_param)
+	{
+		const offset = parseInt(offset_param);
+		const limit = parseInt(limit_param);
+		sqliteString += ` LIMIT  ? OFFSET ?`;
+		return await db.all(sqliteString, [prof_id, limit, offset])
+	}
+	return await db.all(sqliteString, prof_id);
+
 }
 //-----Matches and tournaments-------------------------
 export async function incrementWinsOrLossesOrTrophies(id: number, field: 'wins' | 'losses' | 'trophies')
@@ -85,9 +93,25 @@ export async function updatePicturePath(id: number, path_or_url: string) {
 	);
 }
 //-----Friends list-------------------------------------
-export async function parseFriends(id: number)
+export async function parseFriends(id: number, offset_param?: string, limit_param?: string)
 {
-	const rows : any = await db.all(
+	let rows : any;
+	if (offset_param && limit_param)
+	{
+		rows = await db.all(
+			`
+				SELECT
+				u.id, u.username, u.created_at,
+				p.wins, p.losses, p.trophies, p.image_path, p.logged_in
+				FROM friends f
+				JOIN users u ON f.friend_id = u.id
+				JOIN profiles p ON u.id = p.id
+				WHERE f.user_id = ?
+				LIMIT ? OFFSET ?
+			`, [id, parseInt(limit_param), parseInt(offset_param)]);
+
+	}
+	rows = await db.all(
 		`
 			SELECT
 			u.id, u.username, u.created_at,
@@ -121,7 +145,12 @@ export async function AddToBlockedList(id_user: number, id_of_blocked_user: numb
 {
 	const is_already_blocked = await userIsBlocked(id_user, id_of_blocked_user);
 	if (id_user !== id_of_blocked_user && !is_already_blocked)
+	{
+		const friend_request_is_exists = await isExistsFriendRequest(id_user, id_of_blocked_user);
+		if (friend_request_is_exists)
+			await deleteFriendRequest(id_user, id_of_blocked_user);
 		await db.run(`INSERT OR IGNORE INTO blocked_list (user_id, blocked_id) VALUES (?, ?)`, [id_user, id_of_blocked_user]);
+	}
 }
 export async function userIsBlocked(user_id: number, profile_id: number) : Promise<any>
 {
@@ -165,9 +194,12 @@ export async function deleteFriendRequest(senderId: number, receiverId: number)
 		return ;
 	await db.run(`DELETE FROM friends_requests WHERE sender_id = ?  AND receiver_id = ?`, [senderId, receiverId]);
 }
-export async function parsePendingRequests(userId: number) : Promise<any[]>
+export async function parsePendingRequests(userId: number, offset_param?: string, limit_param?: string ) : Promise<any[]>
 {
-	const res =  await db.all(`SELECT sender_id, receiver_id sent_at FROM friends_requests WHERE receiver_id = ?`,[userId]);
+	let res : any;
+	if (offset_param && limit_param)
+		res =  await db.all(`SELECT sender_id, receiver_id sent_at FROM friends_requests WHERE receiver_id = ? LIMIT ? OFFSET ?`,[userId, parseInt(offset_param), parseInt(limit_param)]);
+	res =  await db.all(`SELECT sender_id, receiver_id sent_at FROM friends_requests WHERE receiver_id = ?`,[userId]);
 	return res;
 }
 

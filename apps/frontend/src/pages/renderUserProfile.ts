@@ -54,6 +54,7 @@ export function renderUserProfile(backend_url: string, data: any)
           <p id="created_at"></p>
 		  <div id="friends-list"></div>
 		  <div id="profiles-list"></div>
+		  <button id="more-profiles-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
 		  <div id="friend-requests-list"></div>
           <button id="logout-btn" class="mt-6 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Logout</button>
         </div>`

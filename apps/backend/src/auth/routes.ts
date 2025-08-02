@@ -260,6 +260,8 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 		{
 			try {
 				const jwt = await req.jwtVerify();
+				const offset = await req.query.offset as string || "0";
+				const limit = await req.query.limit as string || "25";
 				const profiles = await parseProfiles(jwt.id);
 
 				const friends = await parseFriends(jwt.id);

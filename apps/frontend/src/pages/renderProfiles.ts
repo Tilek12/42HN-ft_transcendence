@@ -14,7 +14,7 @@ const friend_request_action = (is_friend: number, peding_direction : string, oth
 	}
 	return res
 }
-const block_action = (is_blocking : number, is_blocked: number, other_profile_id: number) => {
+const block_action = (is_blocking : number, other_profile_id: number) => {
 	let res : string = '';
 	if(!is_blocking)
 		res = `<button data-profile-id = "${other_profile_id}" class=" block-btn px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Block</button>`;
@@ -47,7 +47,7 @@ export async function renderProfilesList (element_id : string)
 					${profile.logged_in ? 'Online' : 'Offline'}
 				</span>
 					${friend_request_action(profile.is_friend, profile.pending_direction, profile.id)}
-					${block_action(profile.is_blocking, profile.is_blocked, profile.id)}
+					${block_action(profile.is_blocking, profile.id)}
 			</div>
 
 		</div>`

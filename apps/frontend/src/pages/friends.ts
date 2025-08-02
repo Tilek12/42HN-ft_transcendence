@@ -3,6 +3,7 @@ import { getToken, clearToken, validateLogin } from '../utils/auth'
 import { renderProfilesList } from './renderProfiles';
 import { renderFriendsList } from './renderFriends';
 import { renderFriendRequestsList } from './renderFriendRequestList';
+import { getEnvVariable } from './TypeSafe';
 
 export async function renderFriends(root: HTMLElement) {
   const isValid = await validateLogin()
@@ -10,11 +11,12 @@ export async function renderFriends(root: HTMLElement) {
 	location.hash = '#/login'
 	return;
   }
-	  const BACKEND_URL : string = import.meta.env.VITE_BACKEND_URL;
 	  root.innerHTML = renderNav() + `
 		<div class="max-w-xl mx-auto text-black p-6">
 		  <div id="friends-list"></div>
+		  <button id="more-friends-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
 		  <div id="friend-requests-list"></div>
+		  <button id="more-friend-requests-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
 		</div>
 	  `;
 	renderFriendsList();
@@ -58,7 +60,6 @@ export async function renderFriends(root: HTMLElement) {
 			
 				if (res.ok) {
 					renderFriendsList();
-					renderProfilesList();
 					renderFriendRequestsList();
 				} else {
 					alert(data.message || 'Failed to perform the action');
