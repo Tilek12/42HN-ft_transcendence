@@ -63,8 +63,9 @@ export async function renderProfilesList (element_id : string, load: boolean = f
 	
 			</div>`
 
-		));
+		).join(' '));
 		container.innerHTML = `<h1 class="text-2xl font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Users List</h1>` + html;
+		console.log(container.innerHTML);
 		return allProfiles;
 	} catch (err){
 		console.error('Failed to fetch profiles: ', err);

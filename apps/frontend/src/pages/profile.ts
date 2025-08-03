@@ -12,6 +12,7 @@ export async function renderProfile(root: HTMLElement) {
     location.hash = '#/login'
     return;
   }
+  
   root.innerHTML = renderNav() + `<div class="text-center">Loading profile...</div>`
 
   fetch('/api/profile', {
@@ -44,11 +45,12 @@ export async function renderProfile(root: HTMLElement) {
 	//----------------load pagination process--------------------------------------
 	let allProfiles: {profiles : any[]}[] | undefined= [];
 	let profile_offset = 0;
-	let profile_limit = 2;
+	let profile_limit = 3;
 	setTimeout(() => profile_ids(profile_details), 0);
 	(async () =>{
-		allProfiles = await  renderProfilesList('profiles-list', undefined, allProfiles, profile_offset, profile_limit);
-	})()
+		allProfiles = await  renderProfilesList('profiles-list', false, allProfiles, profile_offset, profile_limit);
+	})();
+	console.log("allProfiles: ", allProfiles);
 	document.getElementById('more-profiles-btn')?.addEventListener
 		('click', async () => 
 		{
