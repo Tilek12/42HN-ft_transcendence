@@ -11,32 +11,14 @@ export async function renderFriends(root: HTMLElement) {
 	location.hash = '#/login'
 	return;
   }
+//   <button id="more-friends-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
+//   <button id="more-friend-requests-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
 	  root.innerHTML = renderNav() + `
 		<div class="max-w-xl mx-auto text-black p-6">
 		  <div id="friends-list"></div>
-		  <button id="more-friends-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
 		  <div id="friend-requests-list"></div>
-		  <button id="more-friend-requests-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
 		</div>
 	  `;
-	//----------------load pagination process--------------------------------------
-	// let allProfiles: {profiles : any[]}[] | undefined= [];
-	// let profile_offset = 0;
-	// let profile_limit = 1;
-	// setTimeout(() => profile_ids(profile_details), 0);
-	// (async () =>{
-	// 	allProfiles = await  renderProfilesList('profiles-list', undefined, allProfiles, profile_offset, profile_limit);
-	// })()
-	// document.getElementById('more-profiles-btn')?.addEventListener
-	// 	('click', async () => 
-	// 	{
-	// 		if (allProfiles)
-	// 		{
-	// 			allProfiles = await renderProfilesList('profiles-list', true, allProfiles, profile_offset, profile_limit);
-	// 			profile_offset += profile_limit;
-	// 		}
-	// 	});
-	//----------------load pagination process--------------------------------------
 	//----------------load for friends list----------------------------------------
 	let allFriends: {friends : any[]}[] | undefined= [];
 	let friends_offset = 0;
@@ -81,7 +63,7 @@ export async function renderFriends(root: HTMLElement) {
 				}
 			
 				if (res.ok) {
-					renderFriendsList();
+					renderFriendsList('friends-list');
 					renderFriendRequestsList();
 				} else {
 					alert(data.message || 'Failed to perform the action');
