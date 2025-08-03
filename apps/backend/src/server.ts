@@ -8,7 +8,6 @@ import { connectToDB } from './database/client';
 import onlineUsersRoute from './user/online-users';
 import wsPresencePlugin from './websocket/presence';
 import wsGamePlugin from './game/websocket/connections';
-// import tournamentRoutes from './game/tournament/routes';
 import authRoutes from './auth/routes';
 import userRoutes from './user/routes';
 import authPlugin from './plugins/auth';
