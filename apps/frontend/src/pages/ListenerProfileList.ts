@@ -26,8 +26,9 @@ const asyncFriendRequestHandler = async (attributes : friendRequestAttributes) =
 	});
 	return res;
 }
-export const listenerFriendAndBlock = async (event : any) =>
+export const listenerFriendAndBlock = async (event : any, element_id : string, load: boolean = false,  allProfiles: {profiles: any[]}[] | undefined, offset:number, limit:number) : Promise<any[] | undefined>=>
 {
+	console.log("clicked the listenerFriendAndBlock");
 	const target = event.target;
 	if (!(target instanceof HTMLElement) )  return;
 	const profileId = target.getAttribute('data-profile-id');
@@ -71,7 +72,8 @@ export const listenerFriendAndBlock = async (event : any) =>
 		}
 	
 		if (res.ok) {
-			renderProfilesList(`profiles-list`);
+			// I need the Id as offeset and as limit 1 and I ll replace the updated version with the all one
+			return  renderProfilesList(element_id, false, allProfiles, offset, limit, true);
 		} else {
 			alert(data.message || 'Failed to perform the action');
 		}

@@ -30,7 +30,7 @@ const remove_load_btn = async (offset_pr: number, limit_pr: number, token_async:
 	let newProfiles : {profiles : any[]} = await res_async.json();
 	return newProfiles.profiles.length === 0
 }
-export async function renderProfilesList (element_id : string, load: boolean = false,  allProfiles: any[], offset:number, limit:number)  : Promise<any[] | undefined>
+export async function renderProfilesList (element_id : string, load: boolean = false,  allProfiles: {profiles: any[]}[] | undefined, offset:number, limit:number, actionBtn ?: boolean)  : Promise<any[] | undefined>
 {
 	//profiles-list
 	const container  = document.getElementById(element_id);
@@ -42,28 +42,40 @@ export async function renderProfilesList (element_id : string, load: boolean = f
 	{
 		if(load)
 			offset+=limit;
+		else
+		{
+			limit = offset + limit;
+			offset = 0;
+		}
 		res = await fetch(`/api/parse-profiles?offset=${offset}&limit=${limit}`,{headers: {Authorization: `Bearer ${token}`}});
+		if (actionBtn == true)
+			allProfiles =[];
 		let newProfiles : {profiles : any[]} = await res.json();
+		console.log("newProfiles: ", newProfiles);
+		console.log("allProfiles: ", allProfiles);
 		allProfiles = allProfiles?.concat(newProfiles);
 		const remove_load_button = await remove_load_btn(offset, limit,token, res);
 		if (remove_load_button) document.getElementById('more-profiles-btn')?.remove();
 		let html = ``;
-		allProfiles.map((pr : any) => html+= pr.profiles.filter((profile : any)=> !profile.is_blocked).map((profile: any) => 
-			`<div class = "flex items-center bg-white p-4 rounded-xl shadow mb-2">
-				<img src= "${BACKEND_URL}/profile_pics/${profile.image_path}" class="w-12 h-12 rounded-full mr-4" />
-				<div>
-					<a href="" class="text-lg font-semibold text-blue-600 hover:underline">${profile.username}</a>
-					<p class="text-sm text-gray-600"> 🏆 ${profile.trophies} | ✅ ${profile.wins} | ❌ ${profile.losses} </p>
-					<span class="${profile.logged_in ? 'text-green-600' :'text-gray-500'}">
-						${profile.logged_in ? 'Online' : 'Offline'}
-					</span>
-						${friend_request_action(profile.is_friend, profile.pending_direction, profile.id)}
-						${block_action(profile.is_blocking, profile.id)}
-				</div>
+		if (allProfiles)
+		{
+			allProfiles.map((pr : any) => html+= pr.profiles.filter((profile : any)=> !profile.is_blocked).map((profile: any) => 
+				`<div class = "flex items-center bg-white p-4 rounded-xl shadow mb-2">
+					<img src= "${BACKEND_URL}/profile_pics/${profile.image_path}" class="w-12 h-12 rounded-full mr-4" />
+					<div>
+						<a href="" class="text-lg font-semibold text-blue-600 hover:underline">${profile.username}</a>
+						<p class="text-sm text-gray-600"> 🏆 ${profile.trophies} | ✅ ${profile.wins} | ❌ ${profile.losses} </p>
+						<span class="${profile.logged_in ? 'text-green-600' :'text-gray-500'}">
+							${profile.logged_in ? 'Online' : 'Offline'}
+						</span>
+							${friend_request_action(profile.is_friend, profile.pending_direction, profile.id)}
+							${block_action(profile.is_blocking, profile.id)}
+					</div>
+		
+				</div>`
 	
-			</div>`
-
-		).join(' '));
+			).join(' '));
+		}
 		container.innerHTML = `<h1 class="text-2xl font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Users List</h1>` + html;
 		console.log(container.innerHTML);
 		return allProfiles;

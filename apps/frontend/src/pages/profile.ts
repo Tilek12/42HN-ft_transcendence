@@ -45,24 +45,25 @@ export async function renderProfile(root: HTMLElement) {
 	//----------------load pagination process--------------------------------------
 	let allProfiles: {profiles : any[]}[] | undefined= [];
 	let profile_offset = 0;
-	let profile_limit = 3;
+	let profile_limit = 1;
 	setTimeout(() => profile_ids(profile_details), 0);
 	(async () =>{
 		allProfiles = await  renderProfilesList('profiles-list', false, allProfiles, profile_offset, profile_limit);
 	})();
-	console.log("allProfiles: ", allProfiles);
+	// console.log("allProfiles: ", allProfiles);
 	document.getElementById('more-profiles-btn')?.addEventListener
 		('click', async () => 
 		{
 			if (allProfiles)
 			{
+				console.log("button clicked");
 				allProfiles = await renderProfilesList('profiles-list', true, allProfiles, profile_offset, profile_limit);
 				profile_offset += profile_limit;
 			}
 		});
 	//----------------load pagination process--------------------------------------
 	document.getElementById('profiles-list')?.addEventListener
-		('click', async (e) => listenerFriendAndBlock(e));
+		('click', async (e) => {allProfiles = await listenerFriendAndBlock(e, 'profiles-list', false, allProfiles, profile_offset, profile_limit)});
 	document.getElementById('upload-form')?.addEventListener
 		('submit', async (e) => listenerUploadPicture(e));
 	document.getElementById('delete-pic-btn')?.addEventListener

@@ -216,6 +216,9 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 				const {profileId} = req.body as any;
 				console.log('userid====>',userId);
 				console.log(profileId);
+				const is_blocking = await userIsBlocked(profileId, userId);
+				if (is_blocking)
+					await DeleteFromBlockedList(userId, profileId);
 				await addFriendRequest(userId, profileId);
 			} catch (err)
 			{

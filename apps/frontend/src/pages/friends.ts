@@ -37,7 +37,11 @@ export async function renderFriends(root: HTMLElement) {
 	// 		}
 	// 	});
 	//----------------load pagination process--------------------------------------
-	renderFriendsList();
+	//----------------load for friends list----------------------------------------
+	let allFriends: {friends : any[]}[] | undefined= [];
+	let friends_offset = 0;
+	let friends_limit = 1;
+	renderFriendsList('friends-list');
 	renderFriendRequestsList();
 	document.getElementById('friend-requests-list')?.addEventListener(
 

@@ -1,9 +1,10 @@
 import { getToken} from '../utils/auth'
+import { getEnvVariable } from './TypeSafe';
 
-export async function renderFriendsList()
+export async function renderFriendsList(container_id : string, load?: boolean, allFriends ?: {friends: any[]}, friend_offeset ?: number, friend_limit ?: number )
 {
-	const container = document.getElementById('friends-list');
-	const BACKEND_URL : string = import.meta.env.VITE_BACKEND_URL;
+	const container = document.getElementById(container_id);
+	const BACKEND_URL : string = getEnvVariable('VITE_BACKEND_URL');
 	if (!container) return;
 	try
 	{
