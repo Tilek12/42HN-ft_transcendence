@@ -101,7 +101,6 @@ export async function renderProfile(root: HTMLElement) {
 			<table class="w-full text-left border-collapse shadow rounded-lg">
 			<thead class="bg-gray-100">
 				<tr>
-				<th class="py-2 px-4">Match ID</th>
 				<th class="py-2 px-4">Opponent</th>
 				<th class="py-2 px-4">Score</th>
 				<th class="py-2 px-4">Result</th>
@@ -111,8 +110,7 @@ export async function renderProfile(root: HTMLElement) {
 			<tbody>
 				${matches.map((match, index) => `
 				<tr class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
-					<td class="py-2 px-4">${match.id}</td>
-					<td class="py-2 px-4">${match.player1_id === data.user.id ? match.player2_id : match.player1_id}</td>
+					<td class="py-2 px-4">${match.player1_id === data.user.id ? match.player2_username : match.player1_username}</td>
 					<td class="py-2 px-4">
 					${match.player1_id === data.user.id
 						? `${match.player1_score} - ${match.player2_score}`

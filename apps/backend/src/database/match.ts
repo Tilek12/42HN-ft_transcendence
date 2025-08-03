@@ -35,17 +35,24 @@ export async function createMatch(
 	return db.all(`SELECT * FROM matches ORDER BY played_at DESC`);
   }
 
-  export async function getMatchesByUserId(userId: number) {
+export async function getMatchesByUserId(userId: number) {
 	return db.all(
-	  `
-	  SELECT * FROM matches
-	  WHERE player1_id = ? OR player2_id = ?
-	  ORDER BY played_at DESC
-	  `,
-	  userId,
-	  userId
+	`
+	SELECT
+	m.*,
+	u1.username AS player1_username,
+	u2.username AS player2_username
+	FROM matches m
+	JOIN users u1 ON m.player1_id = u1.id
+	JOIN users u2 ON m.player2_id = u2.id
+	WHERE m.player1_id = ? OR m.player2_id = ?
+	ORDER BY m.played_at DESC
+	`,
+	userId,
+	userId
 	);
-  }
+}
+  
 
   export async function getMatchById(matchId: number) {
 	return db.get(`SELECT * FROM matches WHERE id = ?`, matchId);
