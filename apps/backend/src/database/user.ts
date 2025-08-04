@@ -21,6 +21,7 @@ export async function createUser(username: string, email: string, hashedPassword
   );
 }
 
-export async function findUsernameById(id: string) {
-  return await db.get('SELECT username FROM users WHERE id = ?', id);
+export async function getUsernameById(id: string): Promise<string | null> {
+  const row = await db.get<{ username: string }>('SELECT username FROM users WHERE id = ?', id);
+  return row?.username || null;
 }

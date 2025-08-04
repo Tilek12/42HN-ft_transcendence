@@ -1,4 +1,5 @@
 import { renderNav } from './nav';
+import { renderBackgroundTop } from '../utils/layout';
 import { getToken, validateLogin } from '../utils/auth';
 import { wsManager } from '../websocket/ws-manager';
 
@@ -11,15 +12,13 @@ export async function renderTournament(root: HTMLElement) {
     return;
   }
 
-  root.innerHTML =
-    renderNav() +
-    `
+  root.innerHTML = renderNav() + renderBackgroundTop(`
     <div class="max-w-3xl mx-auto mt-20 p-6 bg-white/10 rounded-xl shadow-lg backdrop-blur-md">
-      <h1 class="text-3xl font-bold mb-4 text-center text-black">🏆 Tournament Lobby</h1>
+      <h1 class="text-3xl font-bold mb-4 text-center text-white">🏆 Tournament Lobby</h1>
       <p class="text-center text-gray-400 mb-6">Join a tournament and compete for glory!</p>
       <div id="tournament-list" class="space-y-4 text-white"></div>
     </div>
-  `;
+  `);
 
   renderTournamentList();
   wsManager.subscribeToPresence(renderTournamentList);

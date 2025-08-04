@@ -1,4 +1,5 @@
 import { WebSocket } from 'ws';
+import { Player } from '../game/engine/types';
 
 interface User {
 	id: string;
@@ -9,10 +10,13 @@ interface User {
 	tournamentId?: number;
 	tournamentMatchId?: number;
 	isAlive: boolean;
+	isInGame: boolean;
+	isInTournament: boolean;
 }
 
 class UserManager {
 	private users = new Map<string, User>();
+	private waitingDuel = new Map<string, Player>();
 
 	getUser(id: string): User | undefined {
 		return this.users.get(id);
@@ -28,6 +32,8 @@ class UserManager {
 			presenceSocket,
 			tournamentSocket: null,
 			isAlive: true,
+			isInGame: false,
+			isInTournament: false,
 		};
 
 		this.users.set(id, user);
@@ -38,8 +44,11 @@ class UserManager {
 		const user = this.getUser(id);
 		if (!user) return;
 
+		// Only forcibly close sockets if this is a *true* logout or lost connection
+		if (user.presenceSocket?.readyState === WebSocket.OPEN)
+			user.presenceSocket.close();
+
 		user.gameSocket?.close();
-		user.presenceSocket?.close();
 		user.tournamentSocket?.close();
 
 		this.users.delete(id);
@@ -50,6 +59,16 @@ class UserManager {
 		if (user) user.isAlive = alive;
 	}
 
+	setInGame(id: string, value: boolean) {
+		const user = this.getUser(id);
+		if (user) user.isInGame = value;
+	}
+
+	setInTornament(id: string, value: boolean) {
+		const user = this.getUser(id);
+		if (user) user.isInTournament = value;
+	}
+
 	getOnlineUsers() {
 		return Array.from(this.users.values()).map(({ id, name }) => ({ id, name }));
 	}
@@ -58,9 +77,27 @@ class UserManager {
 		return this.users.size;
 	}
 
+	getWaitingDuel() {
+		return this.waitingDuel;
+	}
+
+	setWaitingDuelPlayer(id: string, player: Player) {
+		this.waitingDuel.set(id, player);
+	}
+
+	removeWaitingDuelPlayer(id: string) {
+		this.waitingDuel.delete(id);
+	}
+
 	setGameSocket(id: string, socket: WebSocket) {
 		const user = this.getUser(id);
 		if (!user) return;
+
+		if (user.gameSocket && user.gameSocket.readyState === WebSocket.OPEN) {
+			console.warn(`User ${id} already has an active game socket`);
+			socket.close(4005, 'Game already active');
+			return;
+		}
 
 		user.gameSocket?.close();
 		user.gameSocket = socket;

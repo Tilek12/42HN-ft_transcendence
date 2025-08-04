@@ -53,6 +53,7 @@ const tournamentPlugin: FastifyPluginAsync = async (fastify) => {
 			return;
 		}
 
+		userManager.setInTornament(userId, true);
 		console.log(`🎯 [Tournament WS] Connected: ${userId} (${action})`);
 		socket.send(JSON.stringify({ type: 'tournamentJoined', id: tournament.id }));
 
@@ -60,7 +61,7 @@ const tournamentPlugin: FastifyPluginAsync = async (fastify) => {
 			const text = msg.toString();
 
 			if (text === 'pong') {
-				userManager.setAlive(userId, true);
+				userManager.setInTornament(userId, true);
 				return;
 			}
 
@@ -93,14 +94,14 @@ const tournamentPlugin: FastifyPluginAsync = async (fastify) => {
 			const user = userManager.getUser(id);
 			if (!user || !user.tournamentSocket) return;
 
-			if (!user.isAlive) {
+			if (!user.isInTournament) {
 				console.log(`💀 [Tournament WS] Inactive, closing: ${id}`);
 				user.tournamentSocket.close();
 				userManager.removeTournamentSocket(id);
 				return;
 			}
 
-			user.isAlive = false;
+			user.isInTournament = false;
 			if (user.tournamentSocket.readyState === WS.OPEN) {
 				user.tournamentSocket.send('ping');
 			}

@@ -1,7 +1,6 @@
-export type PlayerID = string;
-
 export interface Player {
-  id: PlayerID;
+  id: string;
+  name: string;
   socket: WebSocket;
 }
 

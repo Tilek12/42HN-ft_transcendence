@@ -1,5 +1,5 @@
 import { renderNav } from './nav';
-// import { createGameSocket, disconnectGameSocket } from '../websocket/game';
+import { renderBackgroundTop } from '../utils/layout';
 import { wsManager } from '../websocket/ws-manager';
 import { getToken, validateLogin } from '../utils/auth';
 import { COLORS } from '../constants/colors';
@@ -11,19 +11,19 @@ export async function renderGame(root: HTMLElement) {
     return;
   }
 
-  root.innerHTML =
-    renderNav() +
-    `
-    <h1 class="text-2xl font-bold mb-4">Pong Game</h1>
-    <div class="flex justify-center gap-4 mb-6">
-      <button id="play-alone" class="bg-[#037a76] text-white px-4 py-2 rounded">Play Alone</button>
-      <button id="play-online" class="bg-[#ed1b76] text-white px-4 py-2 rounded">Play Online (1v1)</button>
-      <button id="play-tournament" class="bg-[#facc15] text-black px-4 py-2 rounded">Play Tournament</button>
+  root.innerHTML = renderNav() + renderBackgroundTop(`
+    <div class="pt-24 max-w-xl mx-auto text-white text-center">
+      <h1 class="text-3xl font-bold mb-6">Pong Game</h1>
+      <div class="flex justify-center gap-4 mb-8">
+        <button id="play-alone" class="bg-[#037a76] text-white px-4 py-2 rounded shadow hover:bg-[#249f9c] transition">Play Alone</button>
+        <button id="play-online" class="bg-[#ed1b76] text-white px-4 py-2 rounded shadow hover:bg-[#f44786] transition">Play Online (1v1)</button>
+        <button id="play-tournament" class="bg-[#facc15] text-black px-4 py-2 rounded shadow hover:bg-[#fbbf24] transition">Play Tournament</button>
+      </div>
+      <div id="countdown" class="text-6xl font-bold text-white mb-6 hidden">5</div>
+      <canvas id="pong" width="600" height="400" class="mx-auto border border-white/30 bg-white/10 backdrop-blur-md rounded shadow-lg hidden"></canvas>
+      <p id="info" class="mt-6 text-gray-200 text-sm">Choose a game mode to begin</p>
     </div>
-    <div id="countdown" class="text-6xl font-bold text-center text-gray-700 mb-4 hidden">5</div>
-    <canvas id="pong" width="600" height="400" class="mx-auto border border-black bg-white hidden"></canvas>
-    <p class="mt-4 text-gray-600 text-center" id="info">Choose a game mode to begin</p>
-    `;
+  `);
 
   const canvas = document.getElementById('pong') as HTMLCanvasElement;
   const ctx = canvas.getContext('2d')!;
@@ -42,7 +42,25 @@ export async function renderGame(root: HTMLElement) {
   let socket: WebSocket | null = null;
   let gameState: any = null;
   let moveInterval: NodeJS.Timeout | null = null;
+
   const heldKeys: Record<string, boolean> = {};
+
+  const cleanupListeners = () => {
+    document.removeEventListener('keydown', keyDownHandler);
+    document.removeEventListener('keyup', keyUpHandler);
+    if (moveInterval !== null) {
+      clearInterval(moveInterval);
+      moveInterval = null;
+    }
+  };
+
+  const keyDownHandler = (e: KeyboardEvent) => {
+    heldKeys[e.key] = true;
+  };
+
+  const keyUpHandler = (e: KeyboardEvent) => {
+    heldKeys[e.key] = false;
+  };
 
   document.getElementById('play-alone')!.addEventListener('click', () => startGame('solo'));
   document.getElementById('play-online')!.addEventListener('click', () => startGame('duel'));
@@ -58,6 +76,7 @@ export async function renderGame(root: HTMLElement) {
       return;
     }
 
+    cleanupListeners();
     wsManager.disconnectGameSocket();
     gameState = null;
 
@@ -67,6 +86,10 @@ export async function renderGame(root: HTMLElement) {
         : 'Online mode: Use ↑/↓ arrows. Waiting for opponent...';
 
     socket = wsManager.createGameSocket(mode);
+    if (!socket) {
+      alert('❌ Failed to create game socket');
+      return;
+    }
 
     socket.onmessage = (event) => {
       if (event.data === 'ping') {
@@ -74,7 +97,13 @@ export async function renderGame(root: HTMLElement) {
         return;
       }
 
-      const msg = JSON.parse(event.data);
+      let msg: any;
+      try {
+        msg = JSON.parse(event.data);
+      } catch {
+        console.warn('⚠️ Invalid game message:', event.data);
+        return;
+      }
 
       if (msg.type === 'countdown') {
         countdown.classList.remove('hidden');
@@ -83,37 +112,40 @@ export async function renderGame(root: HTMLElement) {
           countdown.classList.add('hidden');
           canvas.classList.remove('hidden');
         }
-        return;
-      }
-
-      if (msg.type === 'update') {
+      } else if (msg.type === 'update') {
         gameState = msg.state;
       } else if (msg.type === 'end') {
         const myId = Object.keys(gameState?.score || {})[0];
         const winnerId = msg.winner;
-        let resultMsg = 'Game ended';
-        if (winnerId) {
-          resultMsg = winnerId === myId ? '🏆 You win!' : '❌ You lose!';
-        }
+        const resultMsg =
+          winnerId === myId ? '🏆 You win!' : winnerId ? '❌ You lose!' : 'Game ended.';
         alert(`🏁 Game over!\n${resultMsg}`);
         wsManager.disconnectGameSocket();
-        clearInterval(moveInterval!);
+        cleanupListeners();
       } else if (msg.type === 'disconnect') {
         alert(`❌ Opponent disconnected`);
         wsManager.disconnectGameSocket();
-        clearInterval(moveInterval!);
+        cleanupListeners();
       }
     };
 
-    socket.onclose = () => {
-      console.log('❌ Game WebSocket disconnected');
+    socket.onerror = (err) => {
+      console.error('❌ Game socket error:', err);
+      alert('❌ Connection error. Try again.');
+      cleanupListeners();
+      wsManager.disconnectGameSocket();
     };
 
-    document.addEventListener('keydown', (e) => heldKeys[e.key] = true);
-    document.addEventListener('keyup', (e) => heldKeys[e.key] = false);
+    socket.onclose = () => {
+      console.log('❌ Game WebSocket closed');
+    };
+
+    document.addEventListener('keydown', keyDownHandler);
+    document.addEventListener('keyup', keyUpHandler);
 
     moveInterval = setInterval(() => {
       if (!socket || socket.readyState !== WebSocket.OPEN) return;
+
       if (heldKeys['ArrowUp']) socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'right' }));
       if (heldKeys['ArrowDown']) socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'right' }));
       if (heldKeys['w']) socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'left' }));
@@ -126,7 +158,7 @@ export async function renderGame(root: HTMLElement) {
 
     if (gameState) {
       const ball = gameState.ball;
-      ctx.fillStyle = 'black';
+      ctx.fillStyle = 'white';
       ctx.beginPath();
       ctx.arc(ball.x * scaleX, ball.y * scaleY, 5, 0, Math.PI * 2);
       ctx.fill();
@@ -140,7 +172,7 @@ export async function renderGame(root: HTMLElement) {
         const y = gameState.paddles[id] * scaleY;
         const x = index === 0 ? 0 : width - paddleWidth;
         const isMainPlayer = id === mainPlayerId;
-        ctx.fillStyle = isMainPlayer ? COLORS.squidGame.greenLight : COLORS.squidGame.pinkLight;
+        ctx.fillStyle = isMainPlayer ? COLORS.squidGame.greenDark : COLORS.squidGame.pinkDark;
         ctx.fillRect(x, y, paddleWidth, paddleHeight);
       });
 

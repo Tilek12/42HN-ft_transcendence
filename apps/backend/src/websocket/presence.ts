@@ -4,11 +4,11 @@ import { WebSocket as WS } from 'ws';
 
 import { userManager } from '../user/user-manager';
 import { getSafeTournamentData } from '../game/tournament/tournament-manager';
-import { findUserById, findUsernameById } from '../database/user'
+import { findUserById, getUsernameById } from '../database/user'
 import { PING_INTERVAL_MS } from '../constants'
 
 const sendPresenceUpdate = () => {
-	const users = userManager.getOnlineUsers().sort((a, b) => a.id.localeCompare(b.id));
+	const users = userManager.getOnlineUsers();
 	const msg = JSON.stringify({
 		type: 'presenceUpdate',
 		count: users.length,
@@ -21,7 +21,7 @@ const sendPresenceUpdate = () => {
 };
 
 const sendTournamentUpdate = () => {
-	const users = userManager.getOnlineUsers().sort((a, b) => a.id.localeCompare(b.id));
+	const users = userManager.getOnlineUsers();
 	const msg = JSON.stringify({
 		type: 'tournamentUpdate',
 		tournaments: getSafeTournamentData(),
@@ -59,7 +59,12 @@ const presencePlugin: FastifyPluginAsync = async (fastify) => {
 			return;
 		}
 
-		const userName = await findUsernameById(userId);
+		const userName = await getUsernameById(userId);
+		if (!userName) {
+			socket.close(4004, 'Username not found');
+			return;
+		}
+
 		userManager.createUser(userId, userName, socket);
 		console.log(`🟢 [Presence WS] Connected: ${userId}`);
 
@@ -79,8 +84,6 @@ const presencePlugin: FastifyPluginAsync = async (fastify) => {
 
 	setInterval(() => {
 		userManager.checkHeartbeats();
-		sendPresenceUpdate();
-		sendTournamentUpdate();
 	}, PING_INTERVAL_MS);
 };
 

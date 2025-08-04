@@ -1,4 +1,5 @@
 import { renderNav } from './nav'
+import { renderBackgroundTop } from '../utils/layout'
 import { validateLogin } from '../utils/auth'
 
 export async function renderFriends(root: HTMLElement) {
@@ -8,10 +9,10 @@ export async function renderFriends(root: HTMLElement) {
     return;
   }
 
-  root.innerHTML = renderNav() + `
-    <div class="text-center">
+  root.innerHTML = renderNav() + renderBackgroundTop(`
+    <div class="pt-24 max-w-xl mx-auto text-white text-center">
       <h1 class="text-3xl font-semibold">Friends</h1>
-      <p class="text-gray-500">Manage your friends and invitations.</p>
+      <p class="text-gray-400">Manage your friends and invitations.</p>
     </div>
-  `
+  `)
 }

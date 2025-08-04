@@ -1,39 +1,41 @@
 import { renderNav } from './nav';
+import { renderBackgroundFull } from '../utils/layout';
 
 export function renderRegister(root: HTMLElement) {
-  root.innerHTML = renderNav() + `
-    <div class="max-w-md mx-auto mt-10 bg-white p-8 rounded shadow">
-      <h1 class="text-3xl font-bold mb-6 text-center">Create Account</h1>
+  root.innerHTML = renderNav() + renderBackgroundFull(`
+    <div class="w-full max-w-md">
+      <div class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">
+        <h1 class="text-3xl font-bold text-white mb-6 text-center">Create Account</h1>
+        <form id="register-form" class="space-y-6">
+          <div>
+            <label for="username" class="block text-sm font-medium text-white">Username</label>
+            <input type="text" id="username" required class="mt-1 w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent backdrop-blur-sm" />
+          </div>
 
-      <form id="register-form" class="space-y-6">
-        <div>
-          <label for="username" class="block text-left text-sm font-medium text-gray-700">Username</label>
-          <input type="text" id="username" required class="mt-1 block w-full border px-3 py-2 rounded shadow-sm" />
+          <div>
+            <label for="email" class="block text-sm font-medium text-white">Email</label>
+            <input type="email" id="email" required class="mt-1 w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent backdrop-blur-sm" />
+          </div>
+
+          <div>
+            <label for="password" class="block text-sm font-medium text-white">Password</label>
+            <input type="password" id="password" required class="mt-1 w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent backdrop-blur-sm" />
+          </div>
+
+          <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-lg">
+            Register
+          </button>
+
+          <p id="register-error" class="text-red-400 text-sm mt-2 hidden"></p>
+        </form>
+
+        <div class="text-center mt-6">
+          <p class="text-sm text-gray-300">Already have an account?</p>
+          <a href="#/login" class="text-blue-400 hover:underline font-semibold">Sign In</a>
         </div>
-
-        <div>
-          <label for="email" class="block text-left text-sm font-medium text-gray-700">Email</label>
-          <input type="email" id="email" required class="mt-1 block w-full border px-3 py-2 rounded shadow-sm" />
-        </div>
-
-        <div>
-          <label for="password" class="block text-left text-sm font-medium text-gray-700">Password</label>
-          <input type="password" id="password" required class="mt-1 block w-full border px-3 py-2 rounded shadow-sm" />
-        </div>
-
-        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded">
-          Register
-        </button>
-
-        <p id="register-error" class="text-red-600 text-sm mt-2 hidden"></p>
-      </form>
-
-      <div class="text-center mt-6">
-        <p class="text-sm text-gray-600">Already have an account?</p>
-        <a href="#/login" class="text-blue-600 hover:underline font-semibold">Sign In</a>
       </div>
     </div>
-  `;
+  `);
 
   const form = document.getElementById('register-form') as HTMLFormElement;
   const error = document.getElementById('register-error')!;

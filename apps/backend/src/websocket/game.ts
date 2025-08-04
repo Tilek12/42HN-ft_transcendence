@@ -28,9 +28,10 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
 		if (!user) return socket.close(4003, 'Presence connection not found');
 
 		userManager.setGameSocket(userId, socket);
+		userManager.setInGame(userId, true);
 		console.log(`🏓 [Game WS] Connected: ${userId} (${mode})`);
 
-		const player: Player = { id: userId, socket };
+		const player: Player = { id: userId, name: user.name, socket };
 		if (mode === 'duel' || mode === 'solo') {
 			startGame(player, mode);
 		} else {
@@ -40,7 +41,7 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
 
 		socket.on('message', (msg) => {
 			if (msg.toString() === 'pong') {
-				userManager.setAlive(userId, true);
+				userManager.setInGame(userId, true);
 			} else if (msg.toString() === 'quit') {
 				cancelDuelSearch(userId);
 				socket.close();
@@ -60,12 +61,12 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
 			const socket = user?.gameSocket;
 			if (!socket || socket.readyState !== WS.OPEN) continue;
 
-			if (!user?.isAlive) {
+			if (!user?.isInGame) {
 				console.log(`💀 [Game WS] Terminating inactive game connection: ${id}`);
 				socket.close();
 				userManager.removeGameSocket(id);
 			} else {
-				user.isAlive = false;
+				user.isInGame = false;
 				socket.send('ping');
 			}
 		}
