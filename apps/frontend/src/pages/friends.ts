@@ -3,7 +3,6 @@ import { getToken, clearToken, validateLogin } from '../utils/auth'
 import { renderProfilesList } from './renderProfiles';
 import { renderFriendsList } from './renderFriends';
 import { renderFriendRequestsList } from './renderFriendRequestList';
-import { getEnvVariable } from './TypeSafe';
 
 export async function renderFriends(root: HTMLElement) {
   const isValid = await validateLogin()

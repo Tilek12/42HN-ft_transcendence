@@ -45,7 +45,7 @@ export async function renderProfile(root: HTMLElement) {
 	//----------------load pagination process--------------------------------------
 	let allProfiles: {profiles : any[]}[] | undefined= [];
 	let profile_offset = 0;
-	let profile_limit = 1;
+	let profile_limit = 25;
 	setTimeout(() => profile_ids(profile_details), 0);
 	(async () =>{
 		allProfiles = await  renderProfilesList('profiles-list', false, allProfiles, profile_offset, profile_limit);
