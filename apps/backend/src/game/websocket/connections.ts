@@ -29,8 +29,8 @@ function broadcastAll(msg: any) {
   });
 }
 
-const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
-  fastify.get('/ws', { websocket: true }, async (connection, req) => {
+const wsConnectionPlugin: FastifyPluginAsync = async (fastify :any) => {
+  fastify.get('/ws', { websocket: true }, async (connection :any, req :any) => {
     console.log('🌐 Incoming WS connection');
     const url = req.url || '';
     const params = new URLSearchParams(url?.split('?')[1] || '');
@@ -86,7 +86,7 @@ const wsConnectionPlugin: FastifyPluginAsync = async (fastify) => {
       const t = joinTournament(player, size);
       broadcastAll({ type: 'tournamentUpdate', tournaments: getSafeTournamentData() });
     } else {
-      startGame(player, mode === 'duel' ? 'duel' : 'solo');
+      await startGame(player, mode === 'duel' ? 'duel' : 'solo');
     }
 
     socket.on('message', (msg) => {
