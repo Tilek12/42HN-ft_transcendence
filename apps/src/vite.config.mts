@@ -44,7 +44,7 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false
         },
-        '/wss': {
+        '/ws': {
           target: `wss://localhost:3000`,
           ws: true,
           changeOrigin: true,
