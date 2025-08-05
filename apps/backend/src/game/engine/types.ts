@@ -1,6 +1,11 @@
 export interface Player {
+  profile_pic?: string;
+  logged_in?: boolean;
   id: string;
-  name: string;
+  name?: string;
+  wins?: number;
+  losses?: number;
+  trophies?: number;
   socket: WebSocket;
 }
 

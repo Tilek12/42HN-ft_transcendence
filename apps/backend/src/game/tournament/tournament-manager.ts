@@ -1,7 +1,9 @@
 import { Player } from '../engine/types';
 import { GameRoom } from '../engine/game-room';
-import { broadcastTournaments } from '../../websocket/presence';
-import { tournamentSockets } from '../../websocket/tournament'
+import { sendTournamentUpdate } from '../../websocket/presence';
+// import { tournamentSockets } from '../../websocket/tournament'
+import { findProfileById, incrementWinsOrLossesOrTrophies } from '../../database/user';
+import { createTournamentDB, joinTournamentDB } from '../../database/tournament';
 
 export type TournamentSize = 4 | 8;
 export type TournamentStatus = 'waiting' | 'active' | 'finished';
@@ -36,7 +38,7 @@ function getUserTournament(userId: string): Tournament | undefined {
   );
 }
 
-function createTournament(player: Player, size: TournamentSize): Tournament | null {
+async function createTournament(player: Player, size: TournamentSize): Promise<Tournament | null> {
   if (getUserTournament(player.id)) return null;
 
   const tournament: Tournament = {
@@ -50,11 +52,13 @@ function createTournament(player: Player, size: TournamentSize): Tournament | nu
 
   tournaments.push(tournament);
   console.log(`🏆 [Tournament: ${tournament.id}] Created`);
-  broadcastTournaments();
+  sendTournamentUpdate();
+  // 🔥 Add DB insert
+  await createTournamentDB(`Tournament ${tournament.id}`, parseInt(tournament.hostId));
   return tournament;
 }
 
-function joinTournament(player: Player, tournamentId: string): Tournament | null {
+async function joinTournament(player: Player, tournamentId: string): Promise<Tournament | null> {
   if (getUserTournament(player.id)) return null;
 
   const tournament = getTournamentById(tournamentId);
@@ -63,7 +67,10 @@ function joinTournament(player: Player, tournamentId: string): Tournament | null
   }
 
   tournament.players.push(player);
-  broadcastTournaments();
+  sendTournamentUpdate();
+
+  // 🔥 Save to DB
+  await joinTournamentDB(parseInt(tournament.id.split('-')[1]), parseInt(player.id));
 
   if (tournament.players.length === tournament.size) {
     startTournament(tournament);
@@ -93,7 +100,7 @@ function startTournament(t: Tournament) {
 
   t.rounds.push(round);
   console.log(`🏆 [Tournament: ${t.id}] Started`);
-  broadcastTournaments();
+  sendTournamentUpdate();
 }
 
 function advanceTournament(tournamentId: string, winner: Player) {
@@ -113,13 +120,17 @@ function advanceTournament(tournamentId: string, winner: Player) {
   // }
 
   if (winners.length === 1) {
+    (async() =>
+      {
+        await incrementWinsOrLossesOrTrophies(parseInt(winners[0].id), 'trophies');
+      })();
     t.status = 'finished';
 
     // 🔖 TODO: Save tournament result to DB: t.id, winner.id, etc.
     // Example: await saveTournamentResult(t.id, winners[0].id);
 
     console.log(`🏁 [Tournament: ${t.id}] Finished! Winner: ${winners[0].id}`);
-    broadcastTournaments();
+    sendTournamentUpdate();
     return;
   }
 
@@ -138,7 +149,7 @@ function advanceTournament(tournamentId: string, winner: Player) {
   }
 
   t.rounds.push(newRound);
-  broadcastTournaments();
+  sendTournamentUpdate();
 }
 
 function getSafeTournamentData() {
@@ -165,7 +176,7 @@ function quitTournament(userId: string) {
     console.log(`🗑 [Tournament: ${t.id}] Empty tournament deleted`);
   }
 
-  broadcastTournaments();
+  sendTournamentUpdate();
 }
 
 // Helper to notify players
@@ -178,12 +189,12 @@ function notifyMatchStart(tournamentId: string, player1Id: string, player2Id: st
     player2: player2Id
   };
 
-  for (const id of [player1Id, player2Id]) {
-    const ws = tournamentSockets.get(id);
-    if (ws && ws.readyState === ws.OPEN) {
-      ws.send(JSON.stringify(payload));
-    }
-  }
+  // for (const id of [player1Id, player2Id]) {
+  //   const ws = tournamentSockets.get(id);
+  //   if (ws && ws.readyState === ws.OPEN) {
+  //     ws.send(JSON.stringify(payload));
+  //   }
+  // }/
 }
 
 export {

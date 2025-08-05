@@ -6,9 +6,10 @@ import { startGame, cancelDuelSearch } from '../game/engine/matchmaking';
 import { Player } from '../game/engine/types';
 import { userManager } from '../user/user-manager';
 import { PING_INTERVAL_MS } from '../constants';
+// import { findProfileById } from '../database/user'
 
-const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
-	fastify.get('/game', { websocket: true }, async (connection, req) => {
+const wsGamePlugin: FastifyPluginAsync = async (fastify: any) => {
+	fastify.get('/game', { websocket: true }, async (connection: any, req: any) => {
 		const params = new URLSearchParams(req.url?.split('?')[1] || '');
 		const mode = params.get('mode') ?? 'solo';
 		const token = params.get('token');
@@ -17,9 +18,11 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
 		if (!token) return socket.close(4001, 'Missing token');
 
 		let userId: string;
+		// let profile: any;
 		try {
 			const payload = await fastify.jwt.verify(token);
 			userId = payload.id;
+			// profile = await findProfileById(payload.id);
 		} catch {
 			return socket.close(4002, 'Invalid or expired token');
 		}
@@ -33,13 +36,13 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
 
 		const player: Player = { id: userId, name: user.name, socket };
 		if (mode === 'duel' || mode === 'solo') {
-			startGame(player, mode);
+			await startGame(player, mode);
 		} else {
 			console.warn(`⛔️ [Game WS] Invalid mode: ${mode}`);
 			return socket.close(4004, 'Unsupported mode');
 		}
 
-		socket.on('message', (msg) => {
+		socket.on('message', (msg: any) => {
 			if (msg.toString() === 'pong') {
 				userManager.setInGame(userId, true);
 			} else if (msg.toString() === 'quit') {

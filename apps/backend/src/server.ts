@@ -2,6 +2,10 @@ import Fastify from 'fastify';
 import fs from 'fs';
 import websocket from '@fastify/websocket';
 import jwt from '@fastify/jwt';
+import fastifyStatic from '@fastify/static';
+import path from 'path';
+import multipart from '@fastify/multipart'
+import {fileURLToPath} from 'url';
 import dotenv from 'dotenv';
 
 import { connectToDB } from './database/client';
@@ -13,6 +17,8 @@ import tournamentsDataRoute from './game/tournament/routes';
 import wsPresencePlugin from './websocket/presence';
 import wsGamePlugin from './websocket/game';
 import wsTournamentPlugin from './websocket/tournament';
+import matchRoutes from './routes/matchRoutes';
+import tournamentRoutes from './routes/tournamentRoutes';
 
 dotenv.config();
 
@@ -37,23 +43,38 @@ const server = Fastify({
 
 // App setup
 async function main() {
-  await connectToDB();                                    // ✅ Init DB tables
-  await server.register(jwt, { secret: JWT_SECRET });     // ✅ Create JWT
-  await server.register(websocket);                       // ✅ Add WebSocket support
-
-  // Public auth routes                                   // 👈 Public routes: /api/login
-  await server.register(authRoutes, { prefix: '/api' });  // 👈 Public routes: /api/register
+  await connectToDB();                                 // ✅ Init DB tables
+  await server.register(jwt, { secret: JWT_SECRET });  // ✅ Create JWT
+  await server.register(websocket);
+  await server.register(multipart);                   // ✅ Add WebSocket support
+  await server.register(wsPresencePlugin);             // 🔁 Persistent socket
+  await server.register(wsGamePlugin);                 // 🕹️ Game-only socket
+  //upload pics path register
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  console.log(`here is the __dirname : ${__dirname}`);
+  server.register(fastifyStatic,
+	{
+		root: path.join(__dirname, 'assets/profile_pics'),
+		prefix: '/profile_pics/',
+	}
+  );
+  // Public routes
+  await server.register(authRoutes, { prefix: '/api' });  // 👈 Public routes (login/register)
 
   // Protected scope of routes
-  await server.register(async (protectedScope) => {
+  await server.register(async (protectedScope : any) => {
     await protectedScope.register(authPlugin);            // 👈 Middleware checking token
     await protectedScope.register(userRoutes);            // 👈 Protected routes: /api/private/me
     await protectedScope.register(onlineUsersRoute);      // 👈 Protected routes: /api/private/online-users
     await protectedScope.register(tournamentsDataRoute);  // 👈 Protected routes: /api/private/tournaments
+    await protectedScope.register(matchRoutes);
   }, { prefix: '/api/private' });
 
+  // Tournament handling
+  await server.register(tournamentRoutes, {prefix: '/api'});
+
   // WebSocket scope of routes
-  await server.register(async (websocketScope) => {
+  await server.register(async (websocketScope : any) => {
     await websocketScope.register(wsGamePlugin);          // 🕹️ Game-only socket:  /ws/game
     await websocketScope.register(wsPresencePlugin);      // 🔁 Persistent socket: /ws/presence
     await websocketScope.register(wsTournamentPlugin);    // 🏆 Tournament socket: /ws/tournament

@@ -7,7 +7,7 @@ import { getSafeTournamentData } from '../game/tournament/tournament-manager';
 import { findUserById, getUsernameById } from '../database/user'
 import { PING_INTERVAL_MS } from '../constants'
 
-const sendPresenceUpdate = () => {
+export const sendPresenceUpdate = () => {
 	const users = userManager.getOnlineUsers();
 	const msg = JSON.stringify({
 		type: 'presenceUpdate',
@@ -20,7 +20,7 @@ const sendPresenceUpdate = () => {
 	}
 };
 
-const sendTournamentUpdate = () => {
+export const sendTournamentUpdate = () => {
 	const users = userManager.getOnlineUsers();
 	const msg = JSON.stringify({
 		type: 'tournamentUpdate',
@@ -72,7 +72,10 @@ const presencePlugin: FastifyPluginAsync = async (fastify) => {
 		sendPresenceUpdate();
 
 		socket.on('message', (msg) => {
-			if (msg.toString() === 'pong') userManager.setAlive(userId, true);
+			if (msg.toString() === 'pong') {
+				userManager.setAlive(userId, true);
+				console.log('=== received PONG from frontend Presenc WS ===');
+			}
 		});
 
 		socket.on('close', () => {

@@ -12,8 +12,8 @@ import {
 	quitTournament
 } from '../game/tournament/tournament-manager';
 
-const tournamentPlugin: FastifyPluginAsync = async (fastify) => {
-	fastify.get('/tournament', { websocket: true }, async (connection, req) => {
+const tournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
+	fastify.get('/tournament', { websocket: true }, async (connection: any, req: any) => {
 		const params = new URLSearchParams(req.url?.split('?')[1] || '');
 		const token = params.get('token');
 		const action = params.get('action'); // "create" or "join"
@@ -42,9 +42,9 @@ const tournamentPlugin: FastifyPluginAsync = async (fastify) => {
 
 		let tournament: Tournament | null = null;
 		if (action === 'create') {
-			tournament = createTournament(player, size);
+			tournament = await createTournament(player, size);
 		} else if (action === 'join') {
-			tournament = joinTournament(player, tournamentId!);
+			tournament = await joinTournament(player, tournamentId!);
 		}
 
 		if (!tournament) {
@@ -57,7 +57,7 @@ const tournamentPlugin: FastifyPluginAsync = async (fastify) => {
 		console.log(`🎯 [Tournament WS] Connected: ${userId} (${action})`);
 		socket.send(JSON.stringify({ type: 'tournamentJoined', id: tournament.id }));
 
-		socket.on('message', (msg) => {
+		socket.on('message', (msg: any) => {
 			const text = msg.toString();
 
 			if (text === 'pong') {
@@ -83,7 +83,7 @@ const tournamentPlugin: FastifyPluginAsync = async (fastify) => {
 			userManager.removeTournamentSocket(userId);
 		});
 
-		socket.on('error', (err) => {
+		socket.on('error', (err: any) => {
 			console.error(`⚠️ [Tournament WS] Error from ${userId}:`, err);
 			socket.close();
 		});

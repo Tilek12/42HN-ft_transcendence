@@ -1,0 +1,63 @@
+
+export type Profile_details = {
+	data_async: any;
+	logged_in_id: string;
+	username_id: string;
+	email_id: string; 
+	wins_id: string; 
+	losses_id: string; 
+	trophies_id:string; 
+	created_at_id: string;};
+
+export const profile_ids = (
+	profile : Profile_details) =>
+	{
+		let logged_in = document.getElementById(profile.logged_in_id);
+		let username = document.getElementById(profile.username_id);
+		let email = document.getElementById(profile.email_id);
+		let wins = document.getElementById(profile.wins_id);
+		let losses = document.getElementById(profile.losses_id);
+		let trophies = document.getElementById(profile.trophies_id);
+		let created_at = document.getElementById(profile.created_at_id);
+		if(logged_in && username && email && wins && losses && trophies && created_at)
+		{
+			logged_in.innerHTML = `<strong>logged_in: </strong> ${profile.data_async.profile.logged_in === 1 ? 'yes' : 'no'}`;
+			username.innerHTML = `<strong>Username: </strong> ${profile.data_async.user.username}`;
+			email.innerHTML = `<strong>Email:</strong> ${profile.data_async.user.email}`;
+			wins.innerHTML = `<strong>wins:</strong> ${profile.data_async.profile.wins}`;
+			losses.innerHTML = `<strong>losses:</strong> ${profile.data_async.profile.losses}`;
+			trophies.innerHTML = `<strong>trophies:</strong> ${profile.data_async.profile.trophies}`;
+			created_at.innerHTML = `<strong>Joined:</strong> ${new Date(profile.data_async.user.created_at).toLocaleString()}`;
+		}
+	};
+
+export function renderUserProfile(backend_url: string, data: any)
+{
+	let res : string = `
+        <div class="max-w-xl mx-auto text-black p-6">
+		<form id=upload-form>
+			<h1 class="text-3xl font-bold mb-4">Your Profile</h1>
+			<img src= "${backend_url}/profile_pics/${data.profile.image_path}" alt = "First Image">
+		    <input type="file" id="profile-pic-input" accept="image/*"/>
+			<div class="mt-4 space-x-2">
+				<button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Update</button>
+	            <button type="button" id="delete-pic-btn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Delete</button>
+			</div>
+		  </form>
+		  </div>
+		  <p id="logged_in"></p>
+          <p id="username"></p>
+          <p id="email"></p>
+		  <p id="wins"></p>
+		  <p id="losses"></p>
+		  <p id="trophies"></p>
+          <p id="created_at"></p>
+		  <div id="match-history" class="text-2xl font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Match History</div> 
+		  <div id="profiles-list"></div>
+		  <button id="more-profiles-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
+          <button id="logout-btn" class="mt-6 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Logout</button>
+        </div>`
+
+	return res;
+}
+

@@ -98,8 +98,11 @@ class WebSocketManager {
     };
 
     socket.onmessage = (e) => {
-      if (e.data === 'ping') socket.send('pong');
-      else {
+      if (e.data === 'ping') {
+        socket.send('pong');
+        console.log('!!! [PRESENCE WEBSOCKET] SEND PONG TO BACKEND !!!');
+
+      } else {
         try {
           const msg = JSON.parse(e.data);
           console.log('👥 [Presence WS] Message:', msg);

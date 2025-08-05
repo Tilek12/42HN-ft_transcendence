@@ -12,6 +12,16 @@ interface User {
 	isAlive: boolean;
 	isInGame: boolean;
 	isInTournament: boolean;
+	// logged_in?: profile.logged_in;
+	// id: profile.id.toString(),
+	// wins?: profile.wins;
+	// losses?: profile.losses;
+	// trophies?: profile.trophies;
+	logged_in?: boolean;
+	profileId?: string,
+	wins?: number;
+	losses?: number;
+	trophies?: number;
 }
 
 class UserManager {
@@ -151,6 +161,7 @@ class UserManager {
 			} else {
 				user.isAlive = false;
 				user.presenceSocket?.send('ping');
+				console.log('=== send PING to the frontend ===');
 			}
 		}
 	}

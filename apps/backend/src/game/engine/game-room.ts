@@ -1,5 +1,8 @@
 import { Player, GameState } from './types';
 import { advanceTournament } from '../tournament/tournament-manager';
+import { findProfileById, incrementWinsOrLossesOrTrophies } from '../../database/user';
+import { createMatch } from '../../database/match';
+import { linkMatchToTournament } from '../../database/tournament';
 
 const FRAME_RATE = 1000 / 60;
 const PADDLE_HEIGHT = 20;
@@ -16,9 +19,10 @@ export class GameRoom {
   private state: GameState;
   private interval: NodeJS.Timeout;
   private winner: Player | null = null;
+  private losser: Player | null = null;
 
   constructor(player1: Player, player2: Player | null, tournamentId?: string) {
-    this.players = [player1, player2 || null];
+    this.players = [player1, player2 || undefined];
     this.mode = player2 ? 'duel' : 'solo';
     this.tournamentId = tournamentId;
     this.state = this.initState();
@@ -136,9 +140,39 @@ export class GameRoom {
     }
 
     if (score[p1.id] >= WIN_SCORE || score[p2?.id || '__ghost'] >= WIN_SCORE) {
+      console.log('before p1: ', p1);
+      console.log('before p2: ', p2);
       const winnerId = score[p1.id] > score[p2?.id || '__ghost'] ? p1.id : p2?.id;
       const winner = this.players.find(p => p?.id === winnerId) || null;
       this.winner = winner;
+
+	  //------Thomas code-------
+	  // (async () =>
+	  // {
+		//  let state : 'wins' | 'losses' = winnerId === p1.id ? 'wins' : 'losses';
+		//  if (p2 !== undefined)
+		// 	 state = state !== 'wins' ? 'wins' : 'losses';
+    // //------ Save to matches table -------
+    // if (p2 !== undefined) {
+    //   const isTournamentMatch = this.mode === 'duel' && !!this.tournamentId;
+    //   // Create Match
+    //   await createMatch(
+    //     parseInt(p1.id),
+    //     parseInt(p2.id),
+    //     score[p1.id],
+    //     score[p2.id],
+    //     isTournamentMatch
+    //   );
+    //    // Get last inserted match ID
+    // //    const { id: lastMatchId } = await db.get(`SELECT last_insert_rowid() as id`);
+    //    // Link match to tournament
+    //   if (isTournamentMatch && this.tournamentId) {
+    //     await linkMatchToTournament(parseInt(this.tournamentId.split('-')[1]), lastMatchId);
+    //   }
+    // }
+	  // })();
+	  //------Thomas code-------
+
       this.broadcast({ type: 'end', winner: winner?.id });
       setTimeout(() => this.end(), 1000); // give frontend time to show result
 
@@ -185,7 +219,7 @@ export class GameRoom {
 
     for (const p of this.players) {
       try {
-        if (p?.socket.readyState === p.socket.OPEN) {
+        if (p && p.socket.readyState === p.socket.OPEN) {
           p.socket.close(1000, 'Game Ended');
         }
       } catch {}
