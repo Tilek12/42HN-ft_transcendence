@@ -11,3 +11,8 @@ apps/backend/cert
 apps/frontend/cert
 database
 database/*.db
+*.js
+*.mjs
+*.d.ts
+*.d.mts
+*.map
