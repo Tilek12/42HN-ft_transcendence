@@ -52,6 +52,7 @@ export function renderUserProfile(backend_url: string, data: any)
 		  <p id="losses"></p>
 		  <p id="trophies"></p>
           <p id="created_at"></p>
+		  <div id="match-history" class="text-2xl font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Match History</div> 
 		  <div id="profiles-list"></div>
 		  <button id="more-profiles-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
           <button id="logout-btn" class="mt-6 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Logout</button>

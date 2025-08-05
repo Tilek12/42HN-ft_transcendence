@@ -44,7 +44,7 @@ const array_to_html = (profile : any, BACKEND_URL : string) : string =>
 							${block_action(profile.is_blocking, profile.id)}
 					</div>
 		
-				</div>`
+				</div>`;
 }
 export async function renderProfilesList (element_id : string, load: boolean = false,  allProfiles: {profiles: any[]}[] | undefined, offset:number, limit:number, actionBtn ?: boolean)  : Promise<any[] | undefined>
 {

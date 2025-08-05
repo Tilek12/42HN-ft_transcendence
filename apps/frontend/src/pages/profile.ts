@@ -17,7 +17,7 @@ export async function renderProfile(root: HTMLElement) {
 
   fetch('/api/profile', {
     method: 'POST',
-	headers: {'Authorization': `Bearer ${getToken()}`}
+    headers: { 'Authorization': `Bearer ${getToken()}` }
   })
     .then(res => res.json())
     .then(data => {
@@ -45,7 +45,7 @@ export async function renderProfile(root: HTMLElement) {
 	//----------------load pagination process--------------------------------------
 	let allProfiles: {profiles : any[]}[] | undefined= [];
 	let profile_offset = 0;
-	let profile_limit = 25;
+	let profile_limit = 1;
 	setTimeout(() => profile_ids(profile_details), 0);
 	(async () =>{
 		allProfiles = await  renderProfilesList('profiles-list', false, allProfiles, profile_offset, profile_limit);
@@ -70,9 +70,63 @@ export async function renderProfile(root: HTMLElement) {
 		('click', async (e) => listenerDeletePicture(e));
 	document.getElementById('logout-btn')?.addEventListener
 		('click', async (e) => listenerLogoutBtn(e));
+	//==================Linda's code==========================
+		  // Fetch match history
+		  fetch('/api/private/match/user', {
+			headers: {
+			  'Authorization': `Bearer ${getToken()}`
+			}
+		  })
+			.then(res => res.json())
+			.then(matches => {
+			  const matchContainer = document.getElementById('match-history') as HTMLElement;
+			  if (!matchContainer) return;
+	
+			  if (!Array.isArray(matches) || matches.length === 0) {
+				matchContainer.innerHTML += `<h2 class="text-xl font-bold mt-6">Match History</h2>
+				  <p>No matches found.</p>`;
+				return;
+			  }
+	
+			matchContainer.innerHTML += `
+			<div class="overflow-x-auto">
+				<table class="w-full text-left border-collapse shadow rounded-lg">
+				<thead class="bg-gray-100">
+					<tr>
+					<th class="py-2 px-4">Opponent</th>
+					<th class="py-2 px-4">Score</th>
+					<th class="py-2 px-4">Result</th>
+					<th class="py-2 px-4">Played At</th>
+					</tr>
+				</thead>
+				<tbody>
+					${matches.map((match, index) => `
+					<tr class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
+						<td class="py-2 px-4">${match.player1_id === data.user.id ? match.player2_username : match.player1_username}</td>
+						<td class="py-2 px-4">
+						${match.player1_id === data.user.id
+							? `${match.player1_score} - ${match.player2_score}`
+							: `${match.player2_score} - ${match.player1_score}`}
+						</td>
+						<td class="py-2 px-4">
+						${match.winner_id === null
+							? 'Tie'
+							: match.winner_id === data.user.id ? 'Win' : 'Loss'}
+						</td>
+						<td class="py-2 px-4">${new Date(match.played_at).toLocaleString()}</td>
+					</tr>
+					`).join('')}
+				</tbody>
+				</table>
+			</div>
+			`;
+	
+			})
+			.catch(err => {
+			  console.error('Failed to load matches:', err);
+			});
+	//==============Linda's code=================================
 	})
 	.catch(() => {
-	  root.innerHTML = `<p class="text-red-400">❌ Failed to fetch profile.</p>`;
-	});
+	  root.innerHTML = `<p class="text-red-400">❌ Failed to fetch profile.</p>`;})
 }
-

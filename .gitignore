@@ -10,5 +10,6 @@ cert
 cert/*.pem
 apps/backend/cert
 apps/frontend/cert
-database
+# database
 database/*.db
+apps/backend/src/database/dbTests.ts

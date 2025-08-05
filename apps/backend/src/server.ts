@@ -12,10 +12,11 @@ import { connectToDB } from './database/client';
 import onlineUsersRoute from './user/online-users';
 import wsPresencePlugin from './websocket/presence';
 import wsGamePlugin from './game/websocket/connections';
-import tournamentRoutes from './game/tournament/routes';
 import authRoutes from './auth/routes';
 import userRoutes from './user/routes';
 import authPlugin from './plugins/auth';
+import matchRoutes from './routes/matchRoutes';
+import tournamentRoutes from './routes/tournamentRoutes';
 
 dotenv.config();
 
@@ -63,10 +64,11 @@ async function main() {
     await protectedScope.register(authPlugin);            // 👈 Middleware checking token
     await protectedScope.register(userRoutes);            // 👈 Protected routes: api/me
     await protectedScope.register(onlineUsersRoute);      // 👈 Protected routes: online/-users
+    await protectedScope.register(matchRoutes);
   }, { prefix: '/api/private' });
 
   // Tournament handling
-  await server.register(tournamentRoutes, {prefix: '/api/private/tournaments'});
+  await server.register(tournamentRoutes, {prefix: '/api'});
 
   // Simple health check
   server.get('/ping', async () => {
