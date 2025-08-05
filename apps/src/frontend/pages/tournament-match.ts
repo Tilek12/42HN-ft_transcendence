@@ -1,5 +1,6 @@
 import { renderNav } from './nav';
-import { createGameSocket } from '../websocket/game';
+import { renderBackgroundTop } from '../utils/layout';
+import { wsManager } from '../websocket/ws-manager';
 
 export function renderTournamentMatch(root: HTMLElement) {
   const match = sessionStorage.getItem('currentTournamentMatch');
@@ -12,13 +13,13 @@ export function renderTournamentMatch(root: HTMLElement) {
   const { tournamentId, matchId, player1, player2 } = JSON.parse(match);
   console.log(`🎮 Starting tournament match: ${matchId}`);
 
-  root.innerHTML = renderNav() + `
+  root.innerHTML = renderNav() + renderBackgroundTop(`
     <h1 class="text-2xl font-bold mb-4">🏓 Tournament Match</h1>
     <p class="text-center text-gray-500 mb-2">Match: <strong>${matchId}</strong></p>
     <div id="countdown" class="text-6xl font-bold text-center text-gray-800 mb-2 hidden">5</div>
     <canvas id="pong" width="600" height="400" class="mx-auto border border-black bg-white hidden"></canvas>
     <p id="status" class="text-center text-gray-500 mt-4">Waiting for game to start...</p>
-  `;
+  `);
 
   const canvas = document.getElementById('pong') as HTMLCanvasElement;
   const ctx = canvas.getContext('2d')!;
@@ -30,7 +31,7 @@ export function renderTournamentMatch(root: HTMLElement) {
   const scaleX = width / 100;
   const scaleY = height / 100;
 
-  const socket = createGameSocket('tournament');
+  const socket = wsManager.createGameSocket('tournament');
 
   let gameState: any = null;
   let moveInterval: any;

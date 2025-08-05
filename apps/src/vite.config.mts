@@ -40,12 +40,12 @@ export default defineConfig(({ mode }) => {
       },
       proxy: {
         '/api': {
-          target: `https://localhost:3000`,
+          target: `https://${ip}:${backendPort}`,
           changeOrigin: true,
           secure: false
         },
         '/wss': {
-          target: `wss://localhost:3000`,
+          target: `wss://${ip}:${backendPort}`,
           ws: true,
           changeOrigin: true,
           secure: false

@@ -15,8 +15,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // SPA page changes
 window.addEventListener('hashchange', router);
-
-// Handle tab/browser close
-window.addEventListener('beforeunload', () => {
-  wsManager.disconnectAllSockets();
-});

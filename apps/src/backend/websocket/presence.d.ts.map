@@ -1,1 +1,1 @@
-{"version":3,"file":"presence.d.ts","sourceRoot":"","sources":["presence.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,kBAAkB,EAAE,MAAM,SAAS,CAAC;AAK7C,UAAU,YAAY;IACpB,EAAE,EAAE,MAAM,CAAC;IACX,MAAM,EAAE,SAAS,CAAC;IAClB,OAAO,EAAE,OAAO,CAAC;CAClB;AAcD,eAAO,MAAM,gBAAgB,sBAAsB,CAAC;AACpD,eAAO,MAAM,oBAAoB,YAGhC,CAAC;;AAqEF,wBAAkC"}
+{"version":3,"file":"presence.d.ts","sourceRoot":"","sources":["presence.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,kBAAkB,EAAE,MAAM,SAAS,CAAC;;AAyF7C,wBAAkC"}

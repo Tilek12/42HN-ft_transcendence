@@ -38,15 +38,16 @@ export function renderNav() {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
               </svg>
             </div>
-            <span class="text-white font-bold text-xl">Transcendence</span>
+            <a href="#/" class="text-white font-bold text-xl hover:underline focus:outline-none focus:ring-2 focus:ring-white/50 rounded">
+              Transcendence
+            </a>
           </div>
 
           <!-- Navigation Links -->
           <div class="flex items-center space-x-1">
             ${[
-              ['#/', 'Greeting'],
-              ['#/tournament', 'Tournament'],
               ['#/game', 'Game'],
+              ['#/tournament', 'Tournament'],
               ['#/leaderboard', 'Leaderboard'],
               ['#/friends', 'Friends'],
               ['#/profile', 'Profile'],

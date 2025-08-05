@@ -34,7 +34,10 @@ class WebSocketManager {
   ///////////////////////////////////
 
   createGameSocket(mode: GameMode, size?: 4 | 8, id?: string): WebSocket | null {
-    if (this.gameSocket) this.disconnectGameSocket();
+    if (this.gameSocket && this.gameSocket.readyState === WebSocket.OPEN) {
+      console.warn('🕹️ [Game WS] Already connected');
+      return this.gameSocket;
+    }
 
     const token = getToken();
     if (!token) return null;
@@ -114,19 +117,19 @@ class WebSocketManager {
       }
     };
 
-    socket.onclose = () => {
-      console.log('👥 [Presence WS] Disconnected');
+    socket.onclose = (e) => {
+      console.log('👥 [Presence WS] Disconnected', e.reason);
       this.presenceSocket = null;
       this.disconnectGameSocket();
 
-      if (getToken()) {
-        this.retryAttempts++;
-        if (this.retryAttempts <= this.MAX_RETRY) {
-          console.log(`👥 [Presence WS] Retry attempt ${this.retryAttempts}/${this.MAX_RETRY}`);
-          this.reconnectTimeout = setTimeout(() => this.connectPresenceSocket(onUpdate), 3000);
-        } else {
+      if (e.code === 4003 || !getToken()) return;
+
+      this.retryAttempts++;
+      if (this.retryAttempts <= this.MAX_RETRY) {
+        console.log(`👥 [Presence WS] Retry attempt ${this.retryAttempts}/${this.MAX_RETRY}`);
+        this.reconnectTimeout = setTimeout(() => this.connectPresenceSocket(onUpdate), 3000);
+      } else {
           console.warn(`👥 [Presence WS] Stopped trying to reconnect after ${this.MAX_RETRY} attempts.`);
-        }
       }
     };
 
@@ -267,6 +270,5 @@ class WebSocketManager {
     this.disconnectTournamentSocket();
   }
 }
-
 
 export const wsManager = new WebSocketManager();

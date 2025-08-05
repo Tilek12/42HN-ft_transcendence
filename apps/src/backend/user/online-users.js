@@ -5,10 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fastify_1 = require("fastify");
 const fastify_plugin_1 = __importDefault(require("fastify-plugin"));
-const presence_1 = require("../websocket/presence");
+const user_manager_1 = require("./user-manager");
 const onlineUsersRoute = async (fastify) => {
     fastify.get('/online-users', async (req, res) => {
-        const users = (0, presence_1.getPresenceUsers)().map(u => ({ id: u.id }));
+        const users = user_manager_1.userManager.getOnlineUsers().map(u => ({ id: u.id }));
         res.send(users);
     });
 };
