@@ -1,4 +1,5 @@
 import { renderNav } from './nav'
+import { renderBackgroundTop } from '../utils/layout';
 import { getToken, clearToken, validateLogin } from '../utils/auth'
 import { renderProfilesList } from './renderProfiles';
 import { renderFriendsList } from './renderFriends';
@@ -12,12 +13,12 @@ export async function renderFriends(root: HTMLElement) {
   }
 //   <button id="more-friends-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
 //   <button id="more-friend-requests-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
-	  root.innerHTML = renderNav() + `
-		<div class="max-w-xl mx-auto text-black p-6">
+	  root.innerHTML = renderNav() + renderBackgroundTop(`
+		<div class="pt-24 max-w-xl mx-auto text-black p-6">
 		  <div id="friends-list"></div>
 		  <div id="friend-requests-list"></div>
 		</div>
-	  `;
+	  `);
 	//----------------load for friends list----------------------------------------
 	let allFriends: {friends : any[]}[] | undefined= [];
 	let friends_offset = 0;

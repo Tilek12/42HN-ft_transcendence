@@ -23,7 +23,7 @@ const block_action = (is_blocking : number, other_profile_id: number) => {
 	return res
 }
 
-const remove_load_btn = async (offset_pr: number, limit_pr: number, token_async: any, res_async : any ) : Promise<boolean> => 
+const remove_load_btn = async (offset_pr: number, limit_pr: number, token_async: any, res_async : any ) : Promise<boolean> =>
 {
 	offset_pr+=limit_pr;
 	res_async = await fetch(`/api/parse-profiles?offset=${offset_pr}&limit=${limit_pr}`,{headers: {Authorization: `Bearer ${token_async}`}});
@@ -43,7 +43,7 @@ const array_to_html = (profile : any, BACKEND_URL : string) : string =>
 							${friend_request_action(profile.is_friend, profile.pending_direction, profile.id)}
 							${block_action(profile.is_blocking, profile.id)}
 					</div>
-		
+
 				</div>`;
 }
 export async function renderProfilesList (element_id : string, load: boolean = false,  allProfiles: {profiles: any[]}[] | undefined, offset:number, limit:number, actionBtn ?: boolean)  : Promise<any[] | undefined>
@@ -75,10 +75,10 @@ export async function renderProfilesList (element_id : string, load: boolean = f
 		let html = ``;
 		if (allProfiles)
 		{
-			allProfiles.map((pr : any) => html+= pr.profiles.filter((profile : any)=> !profile.is_blocked).map((profile: any) => 
+			allProfiles.map((pr : any) => html+= pr.profiles.filter((profile : any)=> !profile.is_blocked).map((profile: any) =>
 				array_to_html(profile, BACKEND_URL)).join(' '));
 		}
-		container.innerHTML = `<h1 class="text-2xl font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Users List</h1>` + html;
+		container.innerHTML = `<h1 class="text-2xl text-black font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Users List</h1>` + html;
 		console.log(container.innerHTML);
 		return allProfiles;
 	} catch (err){

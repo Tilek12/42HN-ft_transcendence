@@ -161,7 +161,6 @@ class UserManager {
 			} else {
 				user.isAlive = false;
 				user.presenceSocket?.send('ping');
-				console.log('=== send PING to the frontend ===');
 			}
 		}
 	}

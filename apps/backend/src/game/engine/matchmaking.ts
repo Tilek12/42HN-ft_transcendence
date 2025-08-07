@@ -4,8 +4,16 @@ import { userManager } from '../../user/user-manager';
 import { incrementWinsOrLossesOrTrophies } from 'src/database/user';
 
 export async function startGame(player: Player, mode: 'solo' | 'duel') {
+  let isGameFinished = false;
+
   if (mode === 'solo') {
-    new GameRoom(player, null);
+    new GameRoom(player, null, undefined, async (winner, loser) => {
+      if (!isGameFinished) {
+        isGameFinished = true;
+        console.log('WINNER: ', winner?.name);
+        console.log('LOSER: ', loser?.name);
+      }
+    });
     return;
   }
 
@@ -21,14 +29,17 @@ export async function startGame(player: Player, mode: 'solo' | 'duel') {
     const [p1, p2] = players;
     userManager.removeWaitingDuelPlayer(p1.id);
     userManager.removeWaitingDuelPlayer(p2.id);
-    const game = new GameRoom(p1, p2);
-
-    const winner : Player | null = game.getWinner();
-    const loser : Player | null = game.getLoser();
-    if (winner)
-      await incrementWinsOrLossesOrTrophies(parseInt(winner.id), "wins");
-    if (loser)
-      await incrementWinsOrLossesOrTrophies(parseInt(loser.id), "losses");
+    new GameRoom(p1, p2, undefined, async (winner, loser) => {
+      if (!isGameFinished) {
+        isGameFinished = true;
+        console.log('WINNER: ', winner?.name);
+        console.log('LOSER: ', loser?.name);
+        if (winner)
+          await incrementWinsOrLossesOrTrophies(parseInt(winner.id), "wins");
+        if (loser)
+          await incrementWinsOrLossesOrTrophies(parseInt(loser.id), "losses");
+      }
+    });
   }
 }
 

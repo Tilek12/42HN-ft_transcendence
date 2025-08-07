@@ -42,6 +42,7 @@ export async function renderGame(root: HTMLElement) {
   let socket: WebSocket | null = null;
   let gameState: any = null;
   let moveInterval: NodeJS.Timeout | null = null;
+  let playerNames: Record<string, string> = {};
 
   const heldKeys: Record<string, boolean> = {};
 
@@ -105,27 +106,51 @@ export async function renderGame(root: HTMLElement) {
         return;
       }
 
-      if (msg.type === 'countdown') {
-        countdown.classList.remove('hidden');
-        countdown.textContent = msg.value;
-        if (msg.value === 0) {
-          countdown.classList.add('hidden');
-          canvas.classList.remove('hidden');
+      switch (msg.type) {
+        case 'countdown':
+          countdown.classList.remove('hidden');
+          countdown.textContent = msg.value;
+          if (msg.value === 0) {
+            countdown.classList.add('hidden');
+            canvas.classList.remove('hidden');
+          }
+          break;
+
+        case 'update':
+          gameState = msg.state;
+          if (msg.state?.playerNames) {
+            playerNames = msg.state.playerNames;
+          }
+          break;
+
+        case 'end': {
+          const myId = Object.keys(gameState?.score || {})[0];
+          const winnerId = msg.winner;
+
+          const winnerName = playerNames[winnerId] || 'Unknown';
+          const myName = playerNames[myId] || 'You';
+
+          let resultMsg;
+          if (winnerId === myId) {
+            resultMsg = `🏆 ${myName} wins!`;
+          } else {
+            resultMsg = `❌ ${winnerName} wins!`;
+          }
+
+          alert(`🏁 Game over!\n${resultMsg}`);
+          wsManager.disconnectGameSocket();
+          cleanupListeners();
+          break;
         }
-      } else if (msg.type === 'update') {
-        gameState = msg.state;
-      } else if (msg.type === 'end') {
-        const myId = Object.keys(gameState?.score || {})[0];
-        const winnerId = msg.winner;
-        const resultMsg =
-          winnerId === myId ? '🏆 You win!' : winnerId ? '❌ You lose!' : 'Game ended.';
-        alert(`🏁 Game over!\n${resultMsg}`);
-        wsManager.disconnectGameSocket();
-        cleanupListeners();
-      } else if (msg.type === 'disconnect') {
-        alert(`❌ Opponent disconnected`);
-        wsManager.disconnectGameSocket();
-        cleanupListeners();
+
+        case 'disconnect':
+          alert(`❌ Opponent disconnected`);
+          wsManager.disconnectGameSocket();
+          cleanupListeners();
+          break;
+
+        default:
+          console.warn('⚠️ Unknown message type:', msg);
       }
     };
 
@@ -180,7 +205,8 @@ export async function renderGame(root: HTMLElement) {
       ctx.font = '16px sans-serif';
       let xOffset = 20;
       for (const id in gameState.score) {
-        ctx.fillText(`${id}: ${gameState.score[id]}`, xOffset, 20);
+        const name = playerNames[id] || id;
+        ctx.fillText(`${name}: ${gameState.score[id]}`, xOffset, 20);
         xOffset += 140;
       }
     }

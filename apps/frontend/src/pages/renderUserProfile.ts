@@ -1,12 +1,13 @@
+import { renderBackgroundTop } from "../utils/layout";
 
 export type Profile_details = {
 	data_async: any;
 	logged_in_id: string;
 	username_id: string;
-	email_id: string; 
-	wins_id: string; 
-	losses_id: string; 
-	trophies_id:string; 
+	email_id: string;
+	wins_id: string;
+	losses_id: string;
+	trophies_id:string;
 	created_at_id: string;};
 
 export const profile_ids = (
@@ -33,8 +34,8 @@ export const profile_ids = (
 
 export function renderUserProfile(backend_url: string, data: any)
 {
-	let res : string = `
-        <div class="max-w-xl mx-auto text-black p-6">
+	let res : string = renderBackgroundTop(`
+        <div class="pt-24 max-w-xl mx-auto text-white p-6">
 		<form id=upload-form>
 			<h1 class="text-3xl font-bold mb-4">Your Profile</h1>
 			<img src= "${backend_url}/profile_pics/${data.profile.image_path}" alt = "First Image">
@@ -52,11 +53,11 @@ export function renderUserProfile(backend_url: string, data: any)
 		  <p id="losses"></p>
 		  <p id="trophies"></p>
           <p id="created_at"></p>
-		  <div id="match-history" class="text-2xl font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Match History</div> 
+		  <div id="match-history" class="text-2xl text-black font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Match History</div>
 		  <div id="profiles-list"></div>
-		  <button id="more-profiles-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
+		  <button id="more-profiles-btn" class="bg-blue-600 text-black px-4 py-2 rounded">Load More</button>
           <button id="logout-btn" class="mt-6 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Logout</button>
-        </div>`
+        </div>`)
 
 	return res;
 }

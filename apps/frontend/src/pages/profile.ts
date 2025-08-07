@@ -3,7 +3,7 @@ import { renderBackgroundTop } from '../utils/layout'
 import { getToken, clearToken, validateLogin } from '../utils/auth'
 import { renderProfilesList } from './renderProfiles';
 import { renderUserProfile, profile_ids, Profile_details} from './renderUserProfile';
-import { listenerFriendAndBlock } from './listenerProfileList';
+import { listenerFriendAndBlock } from './ListenerProfileList';
 import { listenerDeletePicture, listenerLogoutBtn, listenerUploadPicture } from './listenerUploadAndDeletePicture';
 import { getEnvVariable } from './TypeSafe';
 
@@ -13,8 +13,6 @@ export async function renderProfile(root: HTMLElement) {
     location.hash = '#/login'
     return;
   }
-
-  root.innerHTML = renderNav() + `<div class="text-center">Loading profile...</div>`
 
   fetch('/api/profile', {
     method: 'POST',
@@ -51,7 +49,7 @@ export async function renderProfile(root: HTMLElement) {
 	(async () =>{
 		allProfiles = await  renderProfilesList('profiles-list', false, allProfiles, profile_offset, profile_limit);
 	})();
-	// console.log("allProfiles: ", allProfiles);
+
 	document.getElementById('more-profiles-btn')?.addEventListener
 		('click', async () =>
 		{
@@ -65,6 +63,7 @@ export async function renderProfile(root: HTMLElement) {
 	//----------------load pagination process--------------------------------------
 	document.getElementById('profiles-list')?.addEventListener
 		('click', async (e) => {allProfiles = await listenerFriendAndBlock(e, 'profiles-list', false, allProfiles, profile_offset, profile_limit)});
+	console.log("allProfiles: ", allProfiles);
 	document.getElementById('upload-form')?.addEventListener
 		('submit', async (e) => listenerUploadPicture(e));
 	document.getElementById('delete-pic-btn')?.addEventListener
@@ -84,8 +83,11 @@ export async function renderProfile(root: HTMLElement) {
 			  if (!matchContainer) return;
 
 			  if (!Array.isArray(matches) || matches.length === 0) {
-				matchContainer.innerHTML += `<h2 class="text-xl font-bold mt-6">Match History</h2>
-				  <p>No matches found.</p>`;
+				//thomas changes
+				// matchContainer.innerHTML += `<h2 class="text-xl font-bold mt-6">Match History</h2>
+				//   <p>No matches found.</p>`;
+				matchContainer.innerHTML += `
+				<p>No matches found.</p>`;
 				return;
 			  }
 

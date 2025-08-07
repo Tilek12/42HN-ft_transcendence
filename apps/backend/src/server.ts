@@ -13,7 +13,6 @@ import authRoutes from './auth/routes';
 import userRoutes from './user/routes';
 import authPlugin from './plugins/auth';
 import onlineUsersRoute from './user/online-users';
-import tournamentsDataRoute from './game/tournament/routes';
 import wsPresencePlugin from './websocket/presence';
 import wsGamePlugin from './websocket/game';
 import wsTournamentPlugin from './websocket/tournament';
@@ -45,10 +44,9 @@ const server = Fastify({
 async function main() {
   await connectToDB();                                 // ✅ Init DB tables
   await server.register(jwt, { secret: JWT_SECRET });  // ✅ Create JWT
-  await server.register(websocket);
-  await server.register(multipart);                   // ✅ Add WebSocket support
-  await server.register(wsPresencePlugin);             // 🔁 Persistent socket
-  await server.register(wsGamePlugin);                 // 🕹️ Game-only socket
+  await server.register(websocket);                    // ✅ Add WebSocket support
+  await server.register(multipart);
+
   //upload pics path register
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
   console.log(`here is the __dirname : ${__dirname}`);
@@ -58,6 +56,7 @@ async function main() {
 		prefix: '/profile_pics/',
 	}
   );
+
   // Public routes
   await server.register(authRoutes, { prefix: '/api' });  // 👈 Public routes (login/register)
 
@@ -66,12 +65,9 @@ async function main() {
     await protectedScope.register(authPlugin);            // 👈 Middleware checking token
     await protectedScope.register(userRoutes);            // 👈 Protected routes: /api/private/me
     await protectedScope.register(onlineUsersRoute);      // 👈 Protected routes: /api/private/online-users
-    await protectedScope.register(tournamentsDataRoute);  // 👈 Protected routes: /api/private/tournaments
+    await protectedScope.register(tournamentRoutes);      // 👈 Protected routes: /api/private/tournaments
     await protectedScope.register(matchRoutes);
   }, { prefix: '/api/private' });
-
-  // Tournament handling
-  await server.register(tournamentRoutes, {prefix: '/api'});
 
   // WebSocket scope of routes
   await server.register(async (websocketScope : any) => {

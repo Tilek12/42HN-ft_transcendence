@@ -74,7 +74,6 @@ const presencePlugin: FastifyPluginAsync = async (fastify) => {
 		socket.on('message', (msg) => {
 			if (msg.toString() === 'pong') {
 				userManager.setAlive(userId, true);
-				console.log('=== received PONG from frontend Presenc WS ===');
 			}
 		});
 
