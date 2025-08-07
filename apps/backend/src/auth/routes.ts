@@ -150,7 +150,7 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 			await updatePicturePath(jwt.id, 'default_pic.webp');
 			res.send({message: 'Profile picture deleted and reset to default'});
 		} catch(err) {
-			res.status(401).send({message: 'Unauthorized or error'});
+			res.status(401).send({message: 'Unauthorized or error delete_pic'});
 		}
 	});
 	fastify.get('/parse-friends', async (req : any, res : any) =>
@@ -163,7 +163,7 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 			res.send({friends: rows});
 		} catch (err)
 		{
-			res.status(401).send({message: 'Umauthorized'});
+			res.status(401).send({message: 'Unauthorized parse_friends'});
 			console.log(err);
 		}
 	} );
@@ -177,7 +177,7 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 				await bidirectionalDeleteAFriend(userId, profileId);
 			} catch (err)
 			{
-				res.status(401).send({message: 'Unauthorized'});
+				res.status(401).send({message: 'Unauthorized unlink_profile'});
 				console.log(err);
 			}
 		});
@@ -191,7 +191,7 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 					await bidirectionalDeleteAFriend(userId, profileId);
 				} catch (err)
 				{
-					res.status(401).send({message: 'Unauthorized'});
+					res.status(401).send({message: 'Unauthorized block_profile'});
 					console.log(err);
 				}
 			});
@@ -204,7 +204,7 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 					await DeleteFromBlockedList(userId, profileId);
 				} catch (err)
 				{
-					res.status(401).send({message: 'Unauthorized'});
+					res.status(401).send({message: 'Unauthorized unbock_profile'});
 					console.log(err);
 				}
 			});
@@ -222,7 +222,7 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 				await addFriendRequest(userId, profileId);
 			} catch (err)
 			{
-				res.status(401).send({message: 'Unauthorized'});
+				res.status(401).send({message: 'Unauthorized link_profile'});
 				console.log(err);
 			}
 		});
@@ -235,7 +235,7 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 			await deleteFriendRequest(userId, profileId);
 		} catch (err)
 		{
-			res.status(401).send({message: 'Unauthorized'});
+			res.status(401).send({message: 'Unauthorized pending_request'});
 			console.log(err);
 		}
 	})
@@ -255,7 +255,7 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 			await deleteFriendRequest(userId, profileAnswer);
 		} catch(err)
 		{
-			res.status(401).send({message: 'Unauthorized'});
+			res.status(401).send({message: 'Unauthorized answer_request'});
 			console.log(err);
 		}
 	})
@@ -294,7 +294,7 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 				// console.log(profilesWithFriendFlag);
 			} catch (err)
 			{
-				res.status(401).send({message: 'Unauthorized'});
+				res.status(401).send({message: 'Unauthorized parse_profiles'});
 				console.log(err);
 			}
 		} )
