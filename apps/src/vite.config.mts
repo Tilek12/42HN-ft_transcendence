@@ -22,7 +22,7 @@ function customNetworkLogger(): Plugin {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const frontendPort = parseInt(env.FRONTEND_PORT || '8080');
-  const backendPort = parseInt(env.BACKEND_PORT) || '3000'
+  const backendPort = parseInt(env.BACKEND_PORT || '3000' );
   const ip = env.LOCAL_IP || '127.0.0.1'
 
   return {

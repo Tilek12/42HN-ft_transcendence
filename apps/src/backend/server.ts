@@ -35,8 +35,8 @@ if (!JWT_SECRET) {
 const server = Fastify({
   logger: true,
   https: {
-    key: fs.readFileSync('./cert/key.pem'),
-    cert: fs.readFileSync('./cert/cert.pem')
+    key: fs.readFileSync('/run/secrets/ssl_key'),
+    cert: fs.readFileSync('/run/secrets/ssl_cert')
   }
 });
 

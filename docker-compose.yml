@@ -8,8 +8,7 @@ services:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     volumes:
-      - ./apps/src:/app/src
-      - /app/node_modules
+      - ./apps:/app
       - ./database:/app/database
       - ./dist:/app/dist
     env_file:
