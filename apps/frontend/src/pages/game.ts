@@ -179,20 +179,32 @@ export async function renderGame(root: HTMLElement) {
     <style>
       /* Ball Shape Animation */
       @keyframes ball-bounce {
-        0%, 20%, 50%, 80%, 100% {
+        0% {
           transform: translateY(0) scale(1);
         }
-        10% {
-          transform: translateY(-15px) scale(1.1);
+        12% {
+          transform: translateY(-25px) scale(1);
         }
-        30% {
-          transform: translateY(-8px) scale(1.05);
+        25% {
+          transform: translateY(0) scale(1);
         }
-        40% {
-          transform: translateY(-3px) scale(1.02);
+        37% {
+          transform: translateY(-18px) scale(1);
         }
-        60% {
-          transform: translateY(-5px) scale(1.03);
+        50% {
+          transform: translateY(0) scale(1);
+        }
+        62% {
+          transform: translateY(-12px) scale(1);
+        }
+        75% {
+          transform: translateY(0) scale(1);
+        }
+        87% {
+          transform: translateY(-6px) scale(1);
+        }
+        100% {
+          transform: translateY(0) scale(1);
         }
       }
       
@@ -204,6 +216,13 @@ export async function renderGame(root: HTMLElement) {
                       inset 0 0 20px rgba(255, 255, 255, 0.2),
                       inset 0 0 30px rgba(59, 130, 246, 0.3);
         }
+        25%, 75% {
+          box-shadow: 0 0 15px rgba(59, 130, 246, 0.6),
+                      0 0 30px rgba(29, 78, 216, 0.4),
+                      0 0 45px rgba(30, 64, 175, 0.3),
+                      inset 0 0 15px rgba(255, 255, 255, 0.15),
+                      inset 0 0 25px rgba(59, 130, 246, 0.25);
+        }
         50% {
           box-shadow: 0 0 30px rgba(59, 130, 246, 1),
                       0 0 60px rgba(29, 78, 216, 0.9),
@@ -211,6 +230,21 @@ export async function renderGame(root: HTMLElement) {
                       0 0 120px rgba(30, 58, 138, 0.5),
                       inset 0 0 25px rgba(255, 255, 255, 0.3),
                       inset 0 0 40px rgba(59, 130, 246, 0.4);
+        }
+      }
+      
+      @keyframes shine-highlight {
+        0%, 100% {
+          opacity: 0.6;
+          transform: scale(1);
+        }
+        25%, 75% {
+          opacity: 0.5;
+          transform: scale(0.95);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.1);
         }
       }
       
@@ -224,7 +258,7 @@ export async function renderGame(root: HTMLElement) {
         border-radius: 50%;
         display: inline-block;
         position: relative;
-        animation: ball-bounce 2s ease-in-out infinite,
+        animation: ball-bounce 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite,
                    ball-glow 2s ease-in-out infinite;
         margin: 0 0.25rem;
         border: 3px solid rgba(255, 255, 255, 0.4);
@@ -256,7 +290,7 @@ export async function renderGame(root: HTMLElement) {
         height: 6px;
         background: rgba(0, 0, 0, 0.2);
         border-radius: 50%;
-        animation: shadow-scale 2s ease-in-out infinite;
+        animation: shadow-scale 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
       }
       
       @keyframes shine-highlight {
@@ -271,25 +305,41 @@ export async function renderGame(root: HTMLElement) {
       }
       
       @keyframes shadow-scale {
-        0%, 20%, 50%, 80%, 100% {
+        0% {
           transform: translateX(-50%) scale(1);
           opacity: 0.3;
         }
-        10% {
-          transform: translateX(-50%) scale(0.7);
+        12% {
+          transform: translateX(-50%) scale(0.6);
           opacity: 0.1;
         }
-        30% {
-          transform: translateX(-50%) scale(0.85);
+        25% {
+          transform: translateX(-50%) scale(1);
+          opacity: 0.3;
+        }
+        37% {
+          transform: translateX(-50%) scale(0.7);
+          opacity: 0.15;
+        }
+        50% {
+          transform: translateX(-50%) scale(1);
+          opacity: 0.3;
+        }
+        62% {
+          transform: translateX(-50%) scale(0.8);
           opacity: 0.2;
         }
-        40% {
-          transform: translateX(-50%) scale(0.95);
+        75% {
+          transform: translateX(-50%) scale(1);
+          opacity: 0.3;
+        }
+        87% {
+          transform: translateX(-50%) scale(0.9);
           opacity: 0.25;
         }
-        60% {
-          transform: translateX(-50%) scale(0.9);
-          opacity: 0.2;
+        100% {
+          transform: translateX(-50%) scale(1);
+          opacity: 0.3;
         }
       }
       
