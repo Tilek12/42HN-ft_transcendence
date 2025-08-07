@@ -1,45 +1,34 @@
-version: "3.9"
 
 services:
   backend:
     build:
-      context: .
-      dockerfile: apps/backend/Dockerfile.backend
-    container_name: backend
+      dockerfile: apps/Dockerfile
+    container_name: app
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
-    volumes:
-      - ./apps/backend:/app
-      - ./cert:/app/cert    # ✅ Mount certs into backend
-      - /app/node_modules   # ✅ Prevent overwriting node_modules
-      - ./database:/app/database
-    env_file:
-      - ./.env
-    environment:
-      - NODE_ENV=development
-    networks:
-      - pong-network
-
-  frontend:
-    build:
-      context: .
-      dockerfile: apps/frontend/Dockerfile.frontend
-    container_name: frontend
-    ports:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     volumes:
-      - ./apps/frontend:/app
-      - ./cert:/app/cert    # ✅ Mount certs into frontend
-      - /app/node_modules   # ✅ Prevent overwriting node_modules
+      - ./apps/src:/app/src
+      - /app/node_modules
+      - ./database:/app/database
+      - ./dist:/app/dist
     env_file:
       - ./.env
     environment:
       - NODE_ENV=development
-    depends_on:
-      backend:
-        condition: service_started
+      - APP_MODE=${APP_MODE}
     networks:
       - pong-network
+    secrets:
+      - ssl_cert
+      - ssl_key
+
+
+secrets:
+      ssl_cert:
+        file: ./cert/cert.pem
+      ssl_key:
+        file: ./cert/key.pem
 
 networks:
   pong-network:

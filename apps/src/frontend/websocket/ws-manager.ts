@@ -26,7 +26,7 @@ class WebSocketManager {
   private presenceListeners: PresenceCallback[] = [];
 
   constructor() {
-    this.backendUrl = (import.meta.env.VITE_BACKEND_URL || 'https://localhost:3000').replace(/^http/, 'ws');
+    this.backendUrl = 'wss://localhost:3000';
   }
 
   ///////////////////////////////////
