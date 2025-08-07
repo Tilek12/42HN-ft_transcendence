@@ -8,7 +8,7 @@ import { loginSchema, registerSchema } from './schemas';
 import {
   findUserByUsername,
   findUserByEmail,
-  createUser, 
+  createUser,
   updateProfileLogInState,
   createProfile,
   findProfileById,
@@ -77,16 +77,16 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 			if (!user || !profile)
 				return res.status(404).send({message: 'User or profile not found'});
 			res.send(
-				{	
-					profile: 
+				{
+					profile:
 					{
 						image_path: profile.image_path,
 						logged_in: profile.logged_in,
 						wins: profile.wins,
 						losses: profile.losses,
 						trophies: profile.trophies,
-					}, 
-					user: 
+					},
+					user:
 					{
 						username: user.username,
 						email: user.email,
@@ -232,7 +232,7 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 			const jwt = await req.jwtVerify();
 			const userId = jwt.id;
 			const {profileId} = req.body as any;
-			await deleteFriendRequest(userId, profileId); 
+			await deleteFriendRequest(userId, profileId);
 		} catch (err)
 		{
 			res.status(401).send({message: 'Unauthorized'});
@@ -275,15 +275,15 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 				const receivedRequests = new Set (pendingRequests.filter((r: any) => r.receiver_id && r.sender_id !== jwt.id).map((r: any) => r.sender_id));
 
 				const blockingList = await parseBlockedList(jwt.id);
-				console.log("Blocked_list:");
-				console.log(blockingList);
+				// console.log("Blocked_list:");
+				// console.log(blockingList);
 				const blockingListIds = new Set (blockingList.map((row : any)=> row.blocked_id));
-				const profilesWithFriendFlag = await Promise.all(profiles.map(async (profile :any) => 
+				const profilesWithFriendFlag = await Promise.all(profiles.map(async (profile :any) =>
 					(
-						{...profile, 
+						{...profile,
 							is_friend : friendsIds.has(profile.id),
 							received_requests: Array.from(receivedRequests),
-							pending_direction: sentRequests.has(profile.id) ? "sent" : 
+							pending_direction: sentRequests.has(profile.id) ? "sent" :
 											   receivedRequests.has(profile.id) ? "recieved" :
 											   null,
 							is_blocking: blockingListIds.has(profile.id) ? 1 : 0,

@@ -49,7 +49,7 @@ async function main() {
 
   //upload pics path register
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  console.log(`here is the __dirname : ${__dirname}`);
+  // console.log(`here is the __dirname : ${__dirname}`);
   server.register(fastifyStatic,
 	{
 		root: path.join(__dirname, 'assets/profile_pics'),
