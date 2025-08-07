@@ -14,26 +14,26 @@ export async function renderTournament(root: HTMLElement) {
 
   root.innerHTML = renderNav() + `
     <!-- Main Container with Background -->
-    <div class="fixed inset-0 bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900 overflow-hidden">
-
+    <div class="min-h-screen bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900 relative">
+      
       <!-- Animated Background Elements -->
       <div class="absolute inset-0 pointer-events-none">
         <!-- PONG Ball Trail Animation -->
         <div class="pong-ball-trail"></div>
-
+        
         <!-- Floating Trophy Particles -->
         <div class="absolute top-20 left-20 w-24 h-24 bg-gradient-to-r from-yellow-400/20 to-orange-400/20 rounded-full mix-blend-multiply filter blur-xl animate-float"></div>
         <div class="absolute top-40 right-32 w-32 h-32 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full mix-blend-multiply filter blur-xl animate-float-delayed"></div>
         <div class="absolute bottom-32 left-1/3 w-28 h-28 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 rounded-full mix-blend-multiply filter blur-xl animate-float-slow"></div>
-
+        
         <!-- Championship Crown Effect -->
         <div class="championship-crown"></div>
       </div>
 
       <!-- Main Content -->
-      <div class="relative z-10 min-h-screen flex items-center justify-center p-4">
-        <div class="max-w-6xl w-full">
-
+      <div class="relative z-10 pt-24 pb-12 px-4">
+        <div class="max-w-6xl mx-auto">
+          
           <!-- Header Section -->
           <div class="text-center mb-12">
             <!-- Championship Icon -->
@@ -43,21 +43,19 @@ export async function renderTournament(root: HTMLElement) {
                 <div class="trophy-glow"></div>
               </div>
             </div>
-
+            
             <!-- Main Title -->
-            <h1 class="text-6xl md:text-7xl font-black mb-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent drop-shadow-2xl tournament-title">
+            <h1 class="text-5xl md:text-6xl font-black mb-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent drop-shadow-2xl tournament-title">
               CHAMPIONSHIP
             </h1>
-            <div class="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent flex items-center justify-center gap-2">
+            <div class="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent flex items-center justify-center gap-2">
               <span>P</span><div class="tournament-ball"></div><span>NG</span> <span>ARENA</span>
             </div>
-            <p class="text-xl md:text-2xl text-blue-100 font-light max-w-3xl mx-auto leading-relaxed">
+            <p class="text-lg md:text-xl text-blue-100 font-light max-w-3xl mx-auto leading-relaxed">
               Battle through epic tournaments and claim your throne as the ultimate PONG champion
             </p>
-          </div>
-
-          <!-- Tournament Dashboard -->
-          <div class="grid lg:grid-cols-2 gap-8 mb-12">
+          </div>          <!-- Tournament Dashboard -->
+          <div class="grid lg:grid-cols-2 gap-6 mb-8">
 
             <!-- Active Tournaments Section -->
             <div class="tournament-section">
@@ -342,7 +340,7 @@ export async function renderTournament(root: HTMLElement) {
         background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
         border: 2px solid rgba(255, 255, 255, 0.2);
         border-radius: 1.5rem;
-        padding: 2rem;
+        padding: 1.5rem;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
         position: relative;
         overflow: hidden;
@@ -368,7 +366,7 @@ export async function renderTournament(root: HTMLElement) {
         display: flex;
         align-items: center;
         gap: 1rem;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
       }
 
       .section-icon {
@@ -397,22 +395,43 @@ export async function renderTournament(root: HTMLElement) {
 
       /* Tournament List Styling */
       .tournament-list {
-        min-height: 300px;
+        min-height: 200px;
+        max-height: 400px;
+        overflow-y: auto;
         display: flex;
         flex-direction: column;
         gap: 1rem;
+      }
+
+      /* Custom scrollbar for tournament list */
+      .tournament-list::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .tournament-list::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+      }
+
+      .tournament-list::-webkit-scrollbar-thumb {
+        background: rgba(251, 191, 36, 0.5);
+        border-radius: 3px;
+      }
+
+      .tournament-list::-webkit-scrollbar-thumb:hover {
+        background: rgba(251, 191, 36, 0.8);
       }
 
       /* Tournament Creation Buttons */
       .tournament-creation-grid {
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 1rem;
       }
 
       .tournament-create-btn {
         position: relative;
-        padding: 2rem;
+        padding: 1.5rem;
         border-radius: 1.5rem;
         border: 2px solid rgba(255, 255, 255, 0.2);
         background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
@@ -422,7 +441,7 @@ export async function renderTournament(root: HTMLElement) {
         overflow: hidden;
         display: flex;
         align-items: center;
-        gap: 1.5rem;
+        gap: 1rem;
       }
 
       .tournament-create-btn:hover {
@@ -441,8 +460,8 @@ export async function renderTournament(root: HTMLElement) {
 
       .tournament-create-icon {
         position: relative;
-        width: 60px;
-        height: 60px;
+        width: 50px;
+        height: 50px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -517,20 +536,20 @@ export async function renderTournament(root: HTMLElement) {
         background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
         border: 2px solid rgba(255, 255, 255, 0.2);
         border-radius: 1.5rem;
-        padding: 2rem;
+        padding: 1.5rem;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
       }
 
       .bracket-header {
         text-align: center;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
       }
 
       .tournament-brackets {
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 200px;
+        min-height: 150px;
       }
 
       .brackets-placeholder {
@@ -615,7 +634,7 @@ export async function renderTournament(root: HTMLElement) {
         background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
         border: 2px solid rgba(255, 255, 255, 0.2);
         border-radius: 1.5rem;
-        padding: 2rem;
+        padding: 1.5rem;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
       }
 
@@ -624,7 +643,7 @@ export async function renderTournament(root: HTMLElement) {
         align-items: center;
         justify-content: center;
         gap: 1rem;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
       }
 
       .leaderboard-icon {
