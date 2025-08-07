@@ -3,7 +3,7 @@ import { renderBackgroundTop } from '../utils/layout'
 import { getToken, clearToken, validateLogin } from '../utils/auth'
 import { renderProfilesList } from './renderProfiles';
 import { renderUserProfile, profile_ids, Profile_details} from './renderUserProfile';
-import { listenerFriendAndBlock } from './listenerProfileList';
+import { listenerFriendAndBlock } from './ListenerProfileList';
 import { listenerDeletePicture, listenerLogoutBtn, listenerUploadPicture } from './listenerUploadAndDeletePicture';
 import { getEnvVariable } from './TypeSafe';
 

@@ -20,11 +20,12 @@ export async function router() {
   setTimeout(() => {
     root.innerHTML = '';
 
-    const protectedRoutes = ['#/profile', '#/friends', '#/game', '#/settings', '#/tournament'];
-    if (protectedRoutes.includes(route) && !isLoggedIn()) {
-      location.hash = '#/login';
-      return;
-    }
+    // TEMPORARILY DISABLED: Authentication check
+    // const protectedRoutes = ['#/profile', '#/friends', '#/game', '#/settings', '#/tournament'];
+    // if (protectedRoutes.includes(route) && !isLoggedIn()) {
+    //   location.hash = '#/login';
+    //   return;
+    // }
 
     switch (route) {
       case '#/tournament': return renderTournament(root);

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Standalone Pong Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-4000 { animation-delay: 4s; }
+        
+        /* Custom styles for game */
+        #pong {
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+        }
+        
+        .game-button {
+            transition: all 0.3s ease;
+            transform-origin: center;
+        }
+        
+        .game-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-indigo-900 text-white overflow-hidden">
+    <!-- Background -->
+    <div class="fixed inset-0 bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900">
+        <!-- Animated background elements -->
+        <div class="fixed inset-0 opacity-20 pointer-events-none">
+            <div class="absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
+            <div class="absolute top-60 right-10 w-72 h-72 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse animation-delay-2000"></div>
+            <div class="absolute bottom-32 left-1/2 w-72 h-72 bg-gradient-to-r from-indigo-400 to-blue-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse animation-delay-4000"></div>
+        </div>
+
+        <!-- Game Container -->
+        <div class="flex items-center justify-center h-full p-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-5xl font-bold mb-8 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    🏓 Pong Game
+                </h1>
+                
+                <!-- Game Controls -->
+                <div class="flex justify-center gap-6 mb-8">
+                    <button id="play-alone" class="game-button bg-gradient-to-r from-teal-500 to-teal-600 text-white px-6 py-3 rounded-lg shadow-lg hover:from-teal-600 hover:to-teal-700 font-semibold">
+                        🎮 Play Solo
+                    </button>
+                    <button id="reset-game" class="game-button bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-lg shadow-lg hover:from-gray-600 hover:to-gray-700 font-semibold">
+                        🔄 Reset
+                    </button>
+                </div>
+
+                <!-- Countdown -->
+                <div id="countdown" class="text-8xl font-bold text-white mb-8 hidden animate-pulse">3</div>
+
+                <!-- Game Canvas -->
+                <canvas id="pong" width="800" height="500" 
+                        class="mx-auto border-2 border-white/30 bg-black/20 backdrop-blur-md rounded-xl shadow-2xl hidden">
+                </canvas>
+
+                <!-- Game Info -->
+                <div id="info" class="mt-6 text-gray-300 text-lg">
+                    🎯 Click "Play Solo" to start the game!<br>
+                    <span class="text-sm">Use ↑/↓ Arrow Keys or W/S to control your paddle</span>
+                </div>
+
+                <!-- Score Display -->
+                <div id="score-display" class="mt-4 text-2xl font-bold hidden">
+                    <span class="text-blue-400">Player:</span> <span id="player-score">0</span> - 
+                    <span class="text-red-400">AI:</span> <span id="ai-score">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game Variables
+        const canvas = document.getElementById('pong');
+        const ctx = canvas.getContext('2d');
+        const info = document.getElementById('info');
+        const countdown = document.getElementById('countdown');
+        const scoreDisplay = document.getElementById('score-display');
+        const playerScoreEl = document.getElementById('player-score');
+        const aiScoreEl = document.getElementById('ai-score');
+
+        const width = canvas.width;
+        const height = canvas.height;
+
+        let gameRunning = false;
+        let animationId = null;
+
+        // Game Objects
+        const game = {
+            player: { x: 20, y: height/2 - 50, width: 10, height: 100, speed: 7 },
+            ai: { x: width - 30, y: height/2 - 50, width: 10, height: 100, speed: 5 },
+            ball: { x: width/2, y: height/2, dx: 5, dy: 3, radius: 8 },
+            score: { player: 0, ai: 0 }
+        };
+
+        // Input handling
+        const keys = {};
+        document.addEventListener('keydown', (e) => keys[e.key] = true);
+        document.addEventListener('keyup', (e) => keys[e.key] = false);
+
+        // Game functions
+        function resetGame() {
+            game.ball.x = width / 2;
+            game.ball.y = height / 2;
+            game.ball.dx = Math.random() > 0.5 ? 5 : -5;
+            game.ball.dy = Math.random() * 6 - 3;
+            game.player.y = height/2 - 50;
+            game.ai.y = height/2 - 50;
+        }
+
+        function updateGame() {
+            if (!gameRunning) return;
+
+            // Player movement
+            if ((keys['ArrowUp'] || keys['w'] || keys['W']) && game.player.y > 0) {
+                game.player.y -= game.player.speed;
+            }
+            if ((keys['ArrowDown'] || keys['s'] || keys['S']) && game.player.y < height - game.player.height) {
+                game.player.y += game.player.speed;
+            }
+
+            // AI movement (simple AI)
+            const aiCenter = game.ai.y + game.ai.height / 2;
+            if (aiCenter < game.ball.y - 35) {
+                game.ai.y += game.ai.speed;
+            } else if (aiCenter > game.ball.y + 35) {
+                game.ai.y -= game.ai.speed;
+            }
+
+            // Ball movement
+            game.ball.x += game.ball.dx;
+            game.ball.y += game.ball.dy;
+
+            // Ball collision with top/bottom
+            if (game.ball.y <= game.ball.radius || game.ball.y >= height - game.ball.radius) {
+                game.ball.dy = -game.ball.dy;
+            }
+
+            // Ball collision with paddles
+            if (game.ball.x - game.ball.radius <= game.player.x + game.player.width &&
+                game.ball.y >= game.player.y &&
+                game.ball.y <= game.player.y + game.player.height) {
+                game.ball.dx = Math.abs(game.ball.dx);
+                game.ball.dy += (Math.random() - 0.5) * 2;
+            }
+
+            if (game.ball.x + game.ball.radius >= game.ai.x &&
+                game.ball.y >= game.ai.y &&
+                game.ball.y <= game.ai.y + game.ai.height) {
+                game.ball.dx = -Math.abs(game.ball.dx);
+                game.ball.dy += (Math.random() - 0.5) * 2;
+            }
+
+            // Scoring
+            if (game.ball.x < 0) {
+                game.score.ai++;
+                aiScoreEl.textContent = game.score.ai;
+                resetGame();
+            } else if (game.ball.x > width) {
+                game.score.player++;
+                playerScoreEl.textContent = game.score.player;
+                resetGame();
+            }
+        }
+
+        function drawGame() {
+            // Clear canvas
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw center line
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([10, 10]);
+            ctx.beginPath();
+            ctx.moveTo(width / 2, 0);
+            ctx.lineTo(width / 2, height);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw paddles
+            ctx.fillStyle = '#3B82F6'; // Blue for player
+            ctx.fillRect(game.player.x, game.player.y, game.player.width, game.player.height);
+            
+            ctx.fillStyle = '#EF4444'; // Red for AI
+            ctx.fillRect(game.ai.x, game.ai.y, game.ai.width, game.ai.height);
+
+            // Draw ball
+            ctx.fillStyle = '#FBBF24'; // Yellow for ball
+            ctx.beginPath();
+            ctx.arc(game.ball.x, game.ball.y, game.ball.radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Add glow effect to ball
+            ctx.shadowColor = '#FBBF24';
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.arc(game.ball.x, game.ball.y, game.ball.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+
+        function gameLoop() {
+            updateGame();
+            drawGame();
+            if (gameRunning) {
+                animationId = requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function startCountdown() {
+            let count = 3;
+            countdown.classList.remove('hidden');
+            countdown.textContent = count;
+
+            const countInterval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdown.textContent = count;
+                } else {
+                    countdown.textContent = 'GO!';
+                    setTimeout(() => {
+                        countdown.classList.add('hidden');
+                        gameRunning = true;
+                        gameLoop();
+                    }, 500);
+                    clearInterval(countInterval);
+                }
+            }, 1000);
+        }
+
+        function startGame() {
+            canvas.classList.remove('hidden');
+            scoreDisplay.classList.remove('hidden');
+            info.innerHTML = '🎮 Game in progress!<br><span class="text-sm">Use ↑/↓ Arrow Keys or W/S to control your paddle</span>';
+            
+            resetGame();
+            game.score = { player: 0, ai: 0 };
+            playerScoreEl.textContent = '0';
+            aiScoreEl.textContent = '0';
+            
+            startCountdown();
+        }
+
+        function stopGame() {
+            gameRunning = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            canvas.classList.add('hidden');
+            scoreDisplay.classList.add('hidden');
+            countdown.classList.add('hidden');
+            info.innerHTML = '🎯 Click "Play Solo" to start the game!<br><span class="text-sm">Use ↑/↓ Arrow Keys or W/S to control your paddle</span>';
+        }
+
+        // Event listeners
+        document.getElementById('play-alone').addEventListener('click', startGame);
+        document.getElementById('reset-game').addEventListener('click', stopGame);
+
+        // Initialize canvas
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.fillRect(0, 0, width, height);
+    </script>
+</body>
+</html>

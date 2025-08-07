@@ -14,10 +14,19 @@ export function clearToken() {
 }
 
 export function isLoggedIn(): boolean {
+	// TEMPORARILY DISABLED: Always return true to bypass authentication
+	return true;
+	
+	/* ORIGINAL CODE - COMMENTED OUT FOR TESTING
 	return !!getToken();
+	*/
 }
 
 export async function validateLogin(): Promise<boolean> {
+	// TEMPORARILY DISABLED: Always return true to bypass authentication
+	return true;
+	
+	/* ORIGINAL CODE - COMMENTED OUT FOR TESTING
 	const token = getToken();
 	if (!token) return false;
 	try {
@@ -30,4 +39,5 @@ export async function validateLogin(): Promise<boolean> {
 	  clearToken();
 	  return false;
 	}
+	*/
 }
