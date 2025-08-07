@@ -67,8 +67,8 @@ export async function renderProfilesList (element_id : string, load: boolean = f
 		if (actionBtn == true)
 			allProfiles =[];
 		let newProfiles : {profiles : any[]} = await res.json();
-		console.log("newProfiles: ", newProfiles);
-		console.log("allProfiles: ", allProfiles);
+		// console.log("newProfiles: ", newProfiles);
+		// console.log("allProfiles: ", allProfiles);
 		allProfiles = allProfiles?.concat(newProfiles);
 		const remove_load_button = await remove_load_btn(offset, limit,token, res);
 		if (remove_load_button) document.getElementById('more-profiles-btn')?.remove();
@@ -79,7 +79,7 @@ export async function renderProfilesList (element_id : string, load: boolean = f
 				array_to_html(profile, BACKEND_URL)).join(' '));
 		}
 		container.innerHTML = `<h1 class="text-2xl text-black font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Users List</h1>` + html;
-		console.log(container.innerHTML);
+		// console.log(container.innerHTML);
 		return allProfiles;
 	} catch (err){
 		console.error('Failed to fetch profiles: ', err);

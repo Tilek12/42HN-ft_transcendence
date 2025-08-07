@@ -9,7 +9,7 @@ const FIELD_HEIGHT = 100;
 const WIN_SCORE = 5;
 const FREEZE = 5;
 
-type OnGameEnd = (winner: Player, loser: Player) => void;
+type OnGameEnd = (winner: Player, loser: Player, winnerScore: number, loserScore: number) => void;
 
 // Dedicated ghost player for solo mode
 const ghostPlayer: Player = {
@@ -30,6 +30,8 @@ export class GameRoom {
   private interval: NodeJS.Timeout;
   private winner: Player | null = null;
   private loser: Player | null = null;
+  private winnerScore = 0;
+  private loserScore = 0;
   private onEnd?: OnGameEnd;
 
   constructor(
@@ -165,10 +167,14 @@ export class GameRoom {
 
       if (p1Score > p2Score) {
         this.winner = p1;
+        this.winnerScore = p1Score;
         this.loser = p2;
+        this.loserScore = p2Score;
       } else {
         this.winner = p2;
+        this.winnerScore = p2Score;
         this.loser = p1;
+        this.loserScore = p1Score;
       }
 
       this.broadcast({
@@ -229,7 +235,7 @@ export class GameRoom {
     this.state.status = 'ended';
 
     if (this.winner && this.loser && this.onEnd) {
-      this.onEnd(this.winner, this.loser);
+      this.onEnd(this.winner, this.loser, this.winnerScore, this.loserScore);
     }
 
     for (const p of this.players) {

@@ -33,13 +33,13 @@ export async function renderFriends(root: HTMLElement) {
 			if (!(target instanceof HTMLElement)) return;
 			const profileId = target.getAttribute('data-profile-id');
 			const profileAnswer = target.getAttribute('data-profile-answer');
-			console.log("profileId and Profile answer")
-			console.log(profileId, profileAnswer);
+			// console.log("profileId and Profile answer")
+			// console.log(profileId, profileAnswer);
 			if (!profileId || !profileAnswer) return;
 			let res;
 			if (target.classList.contains('answer-request-btn'))
 			{
-				console.log('answer clicked');
+				// console.log('answer clicked');
 				res = await fetch(`/api/answer-request`,
 					{
 						method: 'POST',

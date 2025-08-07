@@ -157,7 +157,7 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 	{
 		try {
 			const jwt = await req.jwtVerify();
-			console.log('Verified JWT: ', jwt);
+			// console.log('Verified JWT: ', jwt);
 			const userId = jwt.id;
 			const rows = await parseFriends(userId);
 			res.send({friends: rows});
@@ -214,8 +214,8 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 				const jwt = await req.jwtVerify();
 				const userId = jwt.id;
 				const {profileId} = req.body as any;
-				console.log('userid====>',userId);
-				console.log(profileId);
+				// console.log('userid====>',userId);
+				// console.log(profileId);
 				const is_blocking = await userIsBlocked(profileId, userId);
 				if (is_blocking)
 					await DeleteFromBlockedList(userId, profileId);
@@ -243,12 +243,12 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 	fastify.post('/answer-request', async (req : any, res : any)=>
 	{
 		try{
-			console.log("here");
+			// console.log("here");
 			const jwt =await req.jwtVerify();
 			const userId = jwt.id;
 			const {profileId, profileAnswer} = req.body as any;
-			console.log("profileId and profileAnswer");
-			console.log(req.body);
+			// console.log("profileId and profileAnswer");
+			// console.log(req.body);
 			if (profileAnswer === 'accept')
 				await bidirectionalAddAFriend(userId, profileId);
 			await deleteFriendRequest(profileId, userId);
@@ -291,7 +291,7 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 						}
 					)));
 				res.send({profiles: profilesWithFriendFlag});
-				console.log(profilesWithFriendFlag);
+				// console.log(profilesWithFriendFlag);
 			} catch (err)
 			{
 				res.status(401).send({message: 'Unauthorized'});

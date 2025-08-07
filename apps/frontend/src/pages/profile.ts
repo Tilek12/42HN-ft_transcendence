@@ -55,7 +55,7 @@ export async function renderProfile(root: HTMLElement) {
 		{
 			if (allProfiles)
 			{
-				console.log("button clicked");
+				// console.log("button clicked");
 				allProfiles = await renderProfilesList('profiles-list', true, allProfiles, profile_offset, profile_limit);
 				profile_offset += profile_limit;
 			}
@@ -63,7 +63,7 @@ export async function renderProfile(root: HTMLElement) {
 	//----------------load pagination process--------------------------------------
 	document.getElementById('profiles-list')?.addEventListener
 		('click', async (e) => {allProfiles = await listenerFriendAndBlock(e, 'profiles-list', false, allProfiles, profile_offset, profile_limit)});
-	console.log("allProfiles: ", allProfiles);
+	// console.log("allProfiles: ", allProfiles);
 	document.getElementById('upload-form')?.addEventListener
 		('submit', async (e) => listenerUploadPicture(e));
 	document.getElementById('delete-pic-btn')?.addEventListener
