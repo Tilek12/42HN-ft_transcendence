@@ -31,7 +31,8 @@ ENV_FILE := .env
 ##  Project Lifecycle Targets  ##
 ## --------------------------- ##
 
-start: setup-local setup-ngrok up	## 🚀 Full start process (setup + run)
+start: setup-local up
+# setup-ngrok up	## 🚀 Full start process (setup + run)
 
 stop: clean		## 🛑 Stop all services (graceful shutdown)
 

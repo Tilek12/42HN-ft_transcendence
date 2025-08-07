@@ -1,4 +1,5 @@
 import { Player, GameState } from './types';
+import { advanceTournament } from '../tournament/tournament-manager';
 
 const FRAME_RATE = 1000 / 60;
 const PADDLE_HEIGHT = 20;
@@ -6,31 +7,57 @@ const BALL_SPEED = 0.6;
 const FIELD_WIDTH = 100;
 const FIELD_HEIGHT = 100;
 const WIN_SCORE = 5;
+const FREEZE = 5;
+
+type OnGameEnd = (winner: Player, loser: Player) => void;
+
+// Dedicated ghost player for solo mode
+const ghostPlayer: Player = {
+  id: 'ghost',
+  name: '__ghost',
+  socket: {
+    send() {},
+    close() {},
+    readyState: 0
+  } as unknown as WebSocket
+};
 
 export class GameRoom {
-  private players: [Player, Player?];
+  private players: [Player, Player];
   private mode: 'solo' | 'duel';
+  private tournamentId?: string;
   private state: GameState;
   private interval: NodeJS.Timeout;
+  private winner: Player | null = null;
+  private loser: Player | null = null;
+  private onEnd?: OnGameEnd;
 
-  constructor(player1: Player, player2: Player | null) {
-    this.players = [player1, player2 || null];
+  constructor(
+    player1: Player,
+    player2: Player | null,
+    tournamentId?: string,
+    onEnd?: OnGameEnd
+  ) {
+    this.players = [player1, player2 ?? ghostPlayer];
     this.mode = player2 ? 'duel' : 'solo';
+    this.tournamentId = tournamentId;
+    this.onEnd = onEnd;
     this.state = this.initState();
     this.setupListeners();
-    this.start();
+    this.startCountdown();
   }
 
   private initState(): GameState {
+    const [p1, p2] = this.players;
     return {
       ball: { x: 50, y: 50, vx: BALL_SPEED, vy: 0.5 },
       paddles: {
-        [this.players[0].id]: 50,
-        [this.players[1]?.id || '__ghost']: 50
+        [p1.id]: 50,
+        [p2.id]: 50
       },
       score: {
-        [this.players[0].id]: 0,
-        [this.players[1]?.id || '__ghost']: 0
+        [p1.id]: 0,
+        [p2.id]: 0
       },
       width: FIELD_WIDTH,
       height: FIELD_HEIGHT,
@@ -40,7 +67,7 @@ export class GameRoom {
 
   private setupListeners() {
     for (const player of this.players) {
-      if (!player) continue;
+      if (player === ghostPlayer) continue;
 
       player.socket.on('message', (msg) => {
         const text = msg.toString();
@@ -57,10 +84,12 @@ export class GameRoom {
         if (m.type === 'move') {
           let targetId = player.id;
           if (this.mode === 'solo' && m.side === 'right') {
-            targetId = '__ghost';
+            targetId = ghostPlayer.id;
           }
-
           this.move(targetId, m.direction);
+        } else if (m.type === 'quit') {
+          this.broadcast({ type: 'disconnect', who: player.id });
+          this.end();
         }
       });
 
@@ -79,37 +108,48 @@ export class GameRoom {
     this.state.paddles[playerId] = Math.max(0, Math.min(maxY, newY));
   }
 
-  private start() {
-    this.interval = setInterval(() => this.tick(), FRAME_RATE);
+  private startCountdown() {
+    let count = FREEZE;
+    const countdownInterval = setInterval(() => {
+      this.broadcast({ type: 'countdown', value: count });
+      if (count === 0) {
+        clearInterval(countdownInterval);
+        this.start();
+      }
+      count--;
+    }, 1000);
   }
 
-  private tick() {
+  private start() {
+    this.interval = setInterval(() => this.updateGame(), FRAME_RATE);
+    console.log(`🕹️ [GameRoom] Game started!`);
+    this.broadcast({ type: 'start' });
+  }
+
+  private updateGame() {
     const { ball, paddles, score, width, height } = this.state;
+    const [p1, p2] = this.players;
+
     ball.x += ball.vx;
     ball.y += ball.vy;
 
-    // Bounce off top and bottom
     if (ball.y <= 0 || ball.y >= height) {
       ball.vy *= -1;
       ball.y = Math.max(0, Math.min(height, ball.y));
     }
 
-    const [p1, p2] = this.players;
     const pad1 = paddles[p1.id];
-    const pad2 = paddles[p2?.id || '__ghost'];
-
+    const pad2 = paddles[p2.id];
     const hit = (py: number) => ball.y >= py && ball.y <= py + PADDLE_HEIGHT;
 
-    // Left paddle
     if (ball.x <= 2 && hit(pad1)) {
       ball.x = 2;
       ball.vx *= -1;
     } else if (ball.x <= 0) {
-      score[p2?.id || '__ghost']++;
+      score[p2.id]++;
       this.resetBall(1);
     }
 
-    // Right paddle
     if (ball.x >= width - 2 && hit(pad2)) {
       ball.x = width - 2;
       ball.vx *= -1;
@@ -118,19 +158,48 @@ export class GameRoom {
       this.resetBall(-1);
     }
 
-    if (score[p1.id] >= WIN_SCORE || score[p2?.id || '__ghost'] >= WIN_SCORE) {
-      const winner = score[p1.id] > score[p2?.id || '__ghost'] ? p1.id : p2?.id;
-      this.broadcast({ type: 'end', winner });
-      this.end();
+    // Win condition
+    if (score[p1.id] >= WIN_SCORE || score[p2.id] >= WIN_SCORE) {
+      const p1Score = score[p1.id];
+      const p2Score = score[p2.id];
+
+      if (p1Score > p2Score) {
+        this.winner = p1;
+        this.loser = p2;
+      } else {
+        this.winner = p2;
+        this.loser = p1;
+      }
+
+      this.broadcast({
+        type: 'end',
+        winner: { id: this.winner.id, name: this.winner.name },
+        loser: { id: this.loser.id, name: this.loser.name }
+      });
+
+      setTimeout(() => this.end(), 1000);
+
+      if (this.tournamentId && this.winner !== ghostPlayer) {
+        advanceTournament(this.tournamentId, this.winner);
+      }
       return;
     }
 
-    this.broadcast({ type: 'update', state: this.state });
+    this.broadcast({
+      type: 'update',
+      state: {
+        ...this.state,
+        playerNames: {
+          [p1.id]: p1.name,
+          [p2.id]: p2.name
+        }
+      }
+    });
   }
 
   private resetBall(direction: 1 | -1) {
     const vyDirection = Math.random() > 0.5 ? 1 : -1;
-    const vyVariation = 0.4 + Math.random() * 0.6; // 0.4 to 1.0
+    const vyVariation = 0.4 + Math.random() * 0.6;
     this.state.ball = {
       x: 50,
       y: 50,
@@ -141,14 +210,34 @@ export class GameRoom {
 
   private broadcast(msg: any) {
     for (const p of this.players) {
-      if (p && p.socket.readyState === p.socket.OPEN) {
+      if (p !== ghostPlayer && p.socket.readyState === p.socket.OPEN) {
         p.socket.send(JSON.stringify(msg));
       }
     }
   }
 
+  // public getWinner(): Player | null {
+  //   return this.winner;
+  // }
+
+  // public getLoser(): Player | null {
+  //   return this.loser;
+  // }
+
   private end() {
     clearInterval(this.interval);
     this.state.status = 'ended';
+
+    if (this.winner && this.loser && this.onEnd) {
+      this.onEnd(this.winner, this.loser);
+    }
+
+    for (const p of this.players) {
+      if (p !== ghostPlayer && p.socket.readyState === p.socket.OPEN) {
+        try {
+          p.socket.close(1000, 'Game Ended');
+        } catch {}
+      }
+    }
   }
 }

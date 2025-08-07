@@ -1,7 +1,6 @@
-export type PlayerID = string;
-
 export interface Player {
-  id: PlayerID;
+  id: string;
+  name: string;
   socket: WebSocket;
 }
 
@@ -20,4 +19,4 @@ export interface MoveMessage {
   side?: 'left' | 'right'; // ← optional, used in solo mode
 }
 
-export type GameMode = 'solo' | 'duel';
+export type GameMode = 'solo' | 'duel' | 'tournament';

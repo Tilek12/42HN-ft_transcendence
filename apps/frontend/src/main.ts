@@ -1,9 +1,17 @@
 import './styles.css'
 import { router } from './router'
+import { isLoggedIn } from './utils/auth'
+import { wsManager } from './websocket/ws-manager'
 
-// Initialize SPA router
+// Initialize SPA router and WebSocket connections
 document.addEventListener('DOMContentLoaded', () => {
-  router()
-})
+  // Only connect presence WS if logged in
+  if (isLoggedIn()) {
+    wsManager.connectPresenceSocket();
+  }
 
-window.addEventListener('hashchange', router)
+  router();
+});
+
+// SPA page changes
+window.addEventListener('hashchange', router);

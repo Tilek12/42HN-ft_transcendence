@@ -1,5 +1,6 @@
 .env
 node_module*
+apps/backend/src/assets/profile_pics/user*
 apps/backend/node_modules
 apps/frontend/node_modules
 secrets
@@ -11,3 +12,4 @@ apps/backend/cert
 apps/frontend/cert
 database
 database/*.db
+apps/backend/src/database/dbTests.ts

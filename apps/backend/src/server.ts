@@ -2,13 +2,22 @@ import Fastify from 'fastify';
 import fs from 'fs';
 import websocket from '@fastify/websocket';
 import jwt from '@fastify/jwt';
+import fastifyStatic from '@fastify/static';
+import path from 'path';
+import multipart from '@fastify/multipart'
+import {fileURLToPath} from 'url';
 import dotenv from 'dotenv';
 
 import { connectToDB } from './database/client';
-import wsConnectionPlugin from './game/websocket/connections';
 import authRoutes from './auth/routes';
 import userRoutes from './user/routes';
 import authPlugin from './plugins/auth';
+import onlineUsersRoute from './user/online-users';
+import wsPresencePlugin from './websocket/presence';
+import wsGamePlugin from './websocket/game';
+import wsTournamentPlugin from './websocket/tournament';
+import matchRoutes from './routes/matchRoutes';
+import tournamentRoutes from './routes/tournamentRoutes';
 
 dotenv.config();
 
@@ -36,18 +45,36 @@ async function main() {
   await connectToDB();                                 // ✅ Init DB tables
   await server.register(jwt, { secret: JWT_SECRET });  // ✅ Create JWT
   await server.register(websocket);                    // ✅ Add WebSocket support
+  await server.register(multipart);
+
+  //upload pics path register
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  console.log(`here is the __dirname : ${__dirname}`);
+  server.register(fastifyStatic,
+	{
+		root: path.join(__dirname, 'assets/profile_pics'),
+		prefix: '/profile_pics/',
+	}
+  );
 
   // Public routes
   await server.register(authRoutes, { prefix: '/api' });  // 👈 Public routes (login/register)
 
   // Protected scope of routes
-  await server.register(async (protectedScope) => {
+  await server.register(async (protectedScope : any) => {
     await protectedScope.register(authPlugin);            // 👈 Middleware checking token
-    await protectedScope.register(userRoutes);            // 👈 Protected routes: api/me
+    await protectedScope.register(userRoutes);            // 👈 Protected routes: /api/private/me
+    await protectedScope.register(onlineUsersRoute);      // 👈 Protected routes: /api/private/online-users
+    await protectedScope.register(tournamentRoutes);      // 👈 Protected routes: /api/private/tournaments
+    await protectedScope.register(matchRoutes);
   }, { prefix: '/api/private' });
 
-  // WebSocket handling
-  await server.register(wsConnectionPlugin);    // 👈 WebSocket
+  // WebSocket scope of routes
+  await server.register(async (websocketScope : any) => {
+    await websocketScope.register(wsGamePlugin);          // 🕹️ Game-only socket:  /ws/game
+    await websocketScope.register(wsPresencePlugin);      // 🔁 Persistent socket: /ws/presence
+    await websocketScope.register(wsTournamentPlugin);    // 🏆 Tournament socket: /ws/tournament
+  }, { prefix: '/ws' });
 
   // Simple health check
   server.get('/ping', async () => {
@@ -70,7 +97,7 @@ async function main() {
     console.log('\n🛑 Gracefully shutting down...');
     try {
       await server.close();
-      console.log('✅ Server closed');
+      console.log('❎ Server closed');
       process.exit(0);
     } catch (err) {
       console.error('❌ Error during shutdown:', err);

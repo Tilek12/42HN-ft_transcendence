@@ -8,6 +8,20 @@ export const loginSchema = {
 	  },
 	},
   };
+  export const profileSchema = {
+	body: {
+	  type: 'object',
+	  required: ['logged_in', 'username', 'password'],
+	  properties: {
+		logged_in: {type: 'boolean'},
+		username: { type: 'string' },
+		password: { type: 'string' },
+		wins: {type: 'integer', minimum: 0},
+		losses: {type: 'integer', minimum: 0},
+		trophies: {type: 'integer', minimum: 0}
+	  },
+	},
+  };
 
   export const registerSchema = {
 	body: {

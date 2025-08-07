@@ -1,24 +1,34 @@
 import { renderNav } from './nav';
-import { createGameSocket } from '../socket';
-import { getToken } from '../utils/auth';
+import { renderBackgroundTop } from '../utils/layout';
+import { wsManager } from '../websocket/ws-manager';
+import { getToken, validateLogin } from '../utils/auth';
 import { COLORS } from '../constants/colors';
 
-export function renderGame(root: HTMLElement) {
-  root.innerHTML =
-    renderNav() +
-    `
-    <h1 class="text-2xl font-bold mb-4">Pong Game</h1>
-    <div class="flex justify-center gap-4 mb-6">
-      <button id="play-alone" class="bg-[#037a76] text-white px-4 py-2 rounded">Play Alone</button>
-      <button id="play-online" class="bg-[#ed1b76] text-white px-4 py-2 rounded">Play Online</button>
+export async function renderGame(root: HTMLElement) {
+  const isValid = await validateLogin();
+  if (!isValid) {
+    location.hash = '#/login';
+    return;
+  }
+
+  root.innerHTML = renderNav() + renderBackgroundTop(`
+    <div class="pt-24 max-w-xl mx-auto text-white text-center">
+      <h1 class="text-3xl font-bold mb-6">Pong Game</h1>
+      <div class="flex justify-center gap-4 mb-8">
+        <button id="play-alone" class="bg-[#037a76] text-white px-4 py-2 rounded shadow hover:bg-[#249f9c] transition">Play Alone</button>
+        <button id="play-online" class="bg-[#ed1b76] text-white px-4 py-2 rounded shadow hover:bg-[#f44786] transition">Play Online (1v1)</button>
+        <button id="play-tournament" class="bg-[#facc15] text-black px-4 py-2 rounded shadow hover:bg-[#fbbf24] transition">Play Tournament</button>
+      </div>
+      <div id="countdown" class="text-6xl font-bold text-white mb-6 hidden">5</div>
+      <canvas id="pong" width="600" height="400" class="mx-auto border border-white/30 bg-white/10 backdrop-blur-md rounded shadow-lg hidden"></canvas>
+      <p id="info" class="mt-6 text-gray-200 text-sm">Choose a game mode to begin</p>
     </div>
-    <canvas id="pong" width="600" height="400" class="mx-auto border border-black bg-white hidden"></canvas>
-    <p class="mt-4 text-gray-600 text-center" id="info">Choose a game mode to begin</p>
-    `;
+  `);
 
   const canvas = document.getElementById('pong') as HTMLCanvasElement;
   const ctx = canvas.getContext('2d')!;
   const info = document.getElementById('info')!;
+  const countdown = document.getElementById('countdown')!;
   const width = canvas.width;
   const height = canvas.height;
 
@@ -31,12 +41,33 @@ export function renderGame(root: HTMLElement) {
 
   let socket: WebSocket | null = null;
   let gameState: any = null;
+  let moveInterval: NodeJS.Timeout | null = null;
+  let playerNames: Record<string, string> = {};
 
   const heldKeys: Record<string, boolean> = {};
-  let moveInterval: NodeJS.Timeout | null = null;
+
+  const cleanupListeners = () => {
+    document.removeEventListener('keydown', keyDownHandler);
+    document.removeEventListener('keyup', keyUpHandler);
+    if (moveInterval !== null) {
+      clearInterval(moveInterval);
+      moveInterval = null;
+    }
+  };
+
+  const keyDownHandler = (e: KeyboardEvent) => {
+    heldKeys[e.key] = true;
+  };
+
+  const keyUpHandler = (e: KeyboardEvent) => {
+    heldKeys[e.key] = false;
+  };
 
   document.getElementById('play-alone')!.addEventListener('click', () => startGame('solo'));
   document.getElementById('play-online')!.addEventListener('click', () => startGame('duel'));
+  document.getElementById('play-tournament')!.addEventListener('click', () => {
+    location.hash = '#/tournament';
+  });
 
   function startGame(mode: 'solo' | 'duel') {
     const token = getToken();
@@ -46,18 +77,20 @@ export function renderGame(root: HTMLElement) {
       return;
     }
 
-    if (socket) {
-      socket.close();
-      socket = null;
-    }
+    cleanupListeners();
+    wsManager.disconnectGameSocket();
+    gameState = null;
 
-    canvas.classList.remove('hidden');
     info.textContent =
       mode === 'solo'
         ? 'Solo mode: Use W/S for left paddle, ↑/↓ for right paddle'
         : 'Online mode: Use ↑/↓ arrows. Waiting for opponent...';
 
-    socket = createGameSocket(mode);
+    socket = wsManager.createGameSocket(mode);
+    if (!socket) {
+      alert('❌ Failed to create game socket');
+      return;
+    }
 
     socket.onmessage = (event) => {
       if (event.data === 'ping') {
@@ -65,43 +98,76 @@ export function renderGame(root: HTMLElement) {
         return;
       }
 
-      const msg = JSON.parse(event.data);
+      let msg: any;
+      try {
+        msg = JSON.parse(event.data);
+      } catch {
+        console.warn('⚠️ Invalid game message:', event.data);
+        return;
+      }
 
-      if (msg.type === 'update') {
-        gameState = msg.state;
-      } else if (msg.type === 'end') {
-        const myId = Object.keys(gameState?.score || {})[0];
-        const winnerId = msg.winner;
-        let resultMsg = 'Game ended';
-        if (winnerId) {
-          resultMsg = winnerId === myId ? '🏆 You win!' : '❌ You lose!';
+      switch (msg.type) {
+        case 'countdown':
+          countdown.classList.remove('hidden');
+          countdown.textContent = msg.value;
+          if (msg.value === 0) {
+            countdown.classList.add('hidden');
+            canvas.classList.remove('hidden');
+          }
+          break;
+
+        case 'update':
+          gameState = msg.state;
+          if (msg.state?.playerNames) {
+            playerNames = msg.state.playerNames;
+          }
+          break;
+
+        case 'end': {
+          const myId = Object.keys(gameState?.score || {})[0];
+          const winnerId = msg.winner;
+
+          const winnerName = playerNames[winnerId] || 'Unknown';
+          const myName = playerNames[myId] || 'You';
+
+          let resultMsg;
+          if (winnerId === myId) {
+            resultMsg = `🏆 ${myName} wins!`;
+          } else {
+            resultMsg = `❌ ${winnerName} wins!`;
+          }
+
+          alert(`🏁 Game over!\n${resultMsg}`);
+          wsManager.disconnectGameSocket();
+          cleanupListeners();
+          break;
         }
-        alert(`🏁 Game over!\n${resultMsg}`);
-        socket?.close();
-        socket = null;
-        clearInterval(moveInterval!);
-      } else if (msg.type === 'disconnect') {
-        alert(`❌ Opponent disconnected`);
-        socket?.close();
-        socket = null;
-        clearInterval(moveInterval!);
+
+        case 'disconnect':
+          alert(`❌ Opponent disconnected`);
+          wsManager.disconnectGameSocket();
+          cleanupListeners();
+          break;
+
+        default:
+          console.warn('⚠️ Unknown message type:', msg);
       }
     };
 
-    socket.onclose = (event) => {
-      console.log('❌ WebSocket disconnected');
-      console.log(`❗ Close code: ${event.code}, reason: ${event.reason}`);
+    socket.onerror = (err) => {
+      console.error('❌ Game socket error:', err);
+      alert('❌ Connection error. Try again.');
+      cleanupListeners();
+      wsManager.disconnectGameSocket();
     };
 
-    // Key tracking
-    document.addEventListener('keydown', (e) => {
-      heldKeys[e.key] = true;
-    });
-    document.addEventListener('keyup', (e) => {
-      heldKeys[e.key] = false;
-    });
+    socket.onclose = () => {
+      console.log('❌ Game WebSocket closed');
+    };
 
-    // Send movement continuously while keys held
+    document.addEventListener('keydown', keyDownHandler);
+    document.addEventListener('keyup', keyUpHandler);
+
     moveInterval = setInterval(() => {
       if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
@@ -116,14 +182,12 @@ export function renderGame(root: HTMLElement) {
     ctx.clearRect(0, 0, width, height);
 
     if (gameState) {
-      // Ball
       const ball = gameState.ball;
-      ctx.fillStyle = 'black';
+      ctx.fillStyle = 'white';
       ctx.beginPath();
       ctx.arc(ball.x * scaleX, ball.y * scaleY, 5, 0, Math.PI * 2);
       ctx.fill();
 
-      // Paddles
       const paddleHeight = PADDLE_HEIGHT * scaleY;
       const paddleWidth = 10;
       const ids = Object.keys(gameState.paddles);
@@ -132,20 +196,17 @@ export function renderGame(root: HTMLElement) {
       ids.forEach((id, index) => {
         const y = gameState.paddles[id] * scaleY;
         const x = index === 0 ? 0 : width - paddleWidth;
-
         const isMainPlayer = id === mainPlayerId;
-        ctx.fillStyle = isMainPlayer
-          ? COLORS.squidGame.greenLight
-          : COLORS.squidGame.pinkLight;
+        ctx.fillStyle = isMainPlayer ? COLORS.squidGame.greenDark : COLORS.squidGame.pinkDark;
         ctx.fillRect(x, y, paddleWidth, paddleHeight);
       });
 
-      // Scores
       ctx.fillStyle = 'gray';
       ctx.font = '16px sans-serif';
       let xOffset = 20;
       for (const id in gameState.score) {
-        ctx.fillText(`${id}: ${gameState.score[id]}`, xOffset, 20);
+        const name = playerNames[id] || id;
+        ctx.fillText(`${name}: ${gameState.score[id]}`, xOffset, 20);
         xOffset += 140;
       }
     }

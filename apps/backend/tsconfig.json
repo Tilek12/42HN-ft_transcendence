@@ -1,13 +1,19 @@
 {
 	"compilerOptions": {
-	  "target": "ES2020",
-	  "module": "ESNext",
-	  "moduleResolution": "Node",
-	  "rootDir": "src",
-	  "outDir": "dist",
-	  "strict": true,
-	  "esModuleInterop": true,
-	  "skipLibCheck": true
+		"target": "ES2020",
+		"module": "ESNext",
+		"moduleResolution": "Node",
+		"rootDir": "src",
+		"outDir": "dist",
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"baseUrl": ".",
+		"paths": {
+			"@ws/*": ["backend/src/websocket/*"],
+			"@game/*": ["backend/src/game/engine/*"],
+			"@tournament/*": ["backend/src/game/tournament/*"]
+		}
 	},
 	"include": ["src"]
-  }
+}
