@@ -16,13 +16,13 @@ const asyncFriendRequestHandler = async (attributes : friendRequestAttributes) =
 {
 	let res : any;
 	console.log(`clicked ${attributes.testing_attribute}`)
-	res = await fetch(`/api/${attributes.api_endpoint}`, {
+	res = await fetch(`/api/${attributes.api_endpoint}`, { // where, method, format, authenticating ,what(object)
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${attributes.token_jwt}`,
 			},
-			body: JSON.stringify({ profileId: attributes.profile_id }), // ✅ correct shape
+			body: JSON.stringify({ profileId: attributes.profile_id }), // ✅ correct shape req.profileId, req.wins, 
 	});
 	return res;
 }
