@@ -4,7 +4,7 @@ import { renderBackgroundTop } from '../utils/layout'
 export async function renderLeaderboard(root: HTMLElement) {
   try {
     const tournamentId = 1;
-    const res = await fetch(`/api/private/tournament/${tournamentId}/leaderboard`);
+    const res = await fetch(`/api/tournament/${tournamentId}/leaderboard`);
 
     if (!res.ok) {
       throw new Error(`Server error: ${res.status}`);
@@ -13,13 +13,13 @@ export async function renderLeaderboard(root: HTMLElement) {
     const leaderboard = await res.json();
 
     root.innerHTML = renderNav() + renderBackgroundTop(`
-      <div class="text-center mb-6">
+      <div class="pt-24 max-w-xl mx-auto text-white text-center mb-6">
         <h1 class="text-3xl font-semibold">Leaderboard</h1>
-        <p class="text-gray-500">Top players.</p>
+        <p class="text-gray-400">Top players.</p>
       </div>
 
       <div class="overflow-x-auto">
-        <table class="mx-auto w-full max-w-4xl border text-left shadow rounded-lg overflow-hidden">
+        <table class="mx-auto w-full max-w-4xl border text-left text-black shadow rounded-lg overflow-hidden">
           <thead class="bg-gray-100">
             <tr>
               <th class="py-2 px-4">#</th>

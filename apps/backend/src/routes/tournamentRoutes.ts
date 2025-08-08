@@ -10,9 +10,9 @@ import {
   getTournamentLeaderboard,
 } from '../database/tournament';
 
-const tournamentRoutes: FastifyPluginAsync = async (fastify) => {
+const tournamentRoutes: FastifyPluginAsync = async (fastify : any ) => {
   // Create a tournament
-  fastify.post('/tournament', async (req, res) => {
+  fastify.post('/tournament', async (req : any, res : any) => {
     try {
       const jwt = await req.jwtVerify();
       const { name } = req.body as any;
@@ -29,7 +29,7 @@ const tournamentRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // Join a tournament
-  fastify.post('/tournament/join', async (req, res) => {
+  fastify.post('/tournament/join', async (req : any, res : any) => {
     try {
       const jwt = await req.jwtVerify();
       const { tournamentId } = req.body as any;
@@ -46,7 +46,7 @@ const tournamentRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // Link a match to a tournament
-  fastify.post('/tournament/link-match', async (req, res) => {
+  fastify.post('/tournament/link-match', async (req : any, res : any) => {
     try {
       const jwt = await req.jwtVerify();
       const { tournamentId, matchId } = req.body as any;
@@ -66,7 +66,7 @@ const tournamentRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // Get all tournaments (public)
-  fastify.get('/tournament', async (_req, res) => {
+  fastify.get('/tournament', async (req : any, res : any) => {
     try {
       const tournaments = await getAllTournaments();
       res.send(tournaments);
@@ -76,7 +76,7 @@ const tournamentRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // Get tournament by ID (public)
-  fastify.get('/tournament/:id', async (req, res) => {
+  fastify.get('/tournament/:id', async (req : any, res : any) => {
     const { id } = req.params as any;
     const tid = parseInt(id);
 
@@ -93,7 +93,7 @@ const tournamentRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // Get participants of a tournament (public)
-  fastify.get('/tournament/:id/participants', async (req, res) => {
+  fastify.get('/tournament/:id/participants', async (req : any, res : any) => {
     const { id } = req.params as any;
     const tid = parseInt(id);
 
@@ -106,7 +106,7 @@ const tournamentRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // Get matches of a tournament (public)
-  fastify.get('/tournament/:id/matches', async (req, res) => {
+  fastify.get('/tournament/:id/matches', async (req : any, res : any) => {
     const { id } = req.params as any;
     const tid = parseInt(id);
 
@@ -119,16 +119,19 @@ const tournamentRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // Get tournament leaderboard (public)
-fastify.get('/tournament/:id/leaderboard', async (req, res) => {
+fastify.get('/tournament/:id/leaderboard', async (req : any, res : any) => {
   const { id } = req.params as any;
   const tid = parseInt(id);
 
+  console.log('!!! before getTournamentLeaderboard !!!');
   if (isNaN(tid)) {
     return res.status(400).send({ message: 'Invalid tournament ID' });
   }
 
   try {
     const leaderboard = await getTournamentLeaderboard(tid);
+	console.log(leaderboard);
+    console.log('!!! after getTournamentLeaderboard !!!');
     res.send(leaderboard);
   } catch (err) {
     res.status(500).send({ message: 'Error loading leaderboard' });

@@ -8,7 +8,7 @@ import { loginSchema, registerSchema } from './schemas';
 import {
   findUserByUsername,
   findUserByEmail,
-  createUser, 
+  createUser,
   updateProfileLogInState,
   createProfile,
   findProfileById,
@@ -77,16 +77,16 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 			if (!user || !profile)
 				return res.status(404).send({message: 'User or profile not found'});
 			res.send(
-				{	
-					profile: 
+				{
+					profile:
 					{
 						image_path: profile.image_path,
 						logged_in: profile.logged_in,
 						wins: profile.wins,
 						losses: profile.losses,
 						trophies: profile.trophies,
-					}, 
-					user: 
+					},
+					user:
 					{
 						username: user.username,
 						email: user.email,
@@ -150,20 +150,20 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 			await updatePicturePath(jwt.id, 'default_pic.webp');
 			res.send({message: 'Profile picture deleted and reset to default'});
 		} catch(err) {
-			res.status(401).send({message: 'Unauthorized or error'});
+			res.status(401).send({message: 'Unauthorized or error delete_pic'});
 		}
 	});
 	fastify.get('/parse-friends', async (req : any, res : any) =>
 	{
 		try {
 			const jwt = await req.jwtVerify();
-			console.log('Verified JWT: ', jwt);
+			// console.log('Verified JWT: ', jwt);
 			const userId = jwt.id;
 			const rows = await parseFriends(userId);
 			res.send({friends: rows});
 		} catch (err)
 		{
-			res.status(401).send({message: 'Umauthorized'});
+			res.status(401).send({message: 'Unauthorized parse_friends'});
 			console.log(err);
 		}
 	} );
@@ -177,7 +177,7 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 				await bidirectionalDeleteAFriend(userId, profileId);
 			} catch (err)
 			{
-				res.status(401).send({message: 'Unauthorized'});
+				res.status(401).send({message: 'Unauthorized unlink_profile'});
 				console.log(err);
 			}
 		});
@@ -191,7 +191,7 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 					await bidirectionalDeleteAFriend(userId, profileId);
 				} catch (err)
 				{
-					res.status(401).send({message: 'Unauthorized'});
+					res.status(401).send({message: 'Unauthorized block_profile'});
 					console.log(err);
 				}
 			});
@@ -204,7 +204,7 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 					await DeleteFromBlockedList(userId, profileId);
 				} catch (err)
 				{
-					res.status(401).send({message: 'Unauthorized'});
+					res.status(401).send({message: 'Unauthorized unbock_profile'});
 					console.log(err);
 				}
 			});
@@ -214,15 +214,15 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 				const jwt = await req.jwtVerify();
 				const userId = jwt.id;
 				const {profileId} = req.body as any;
-				console.log('userid====>',userId);
-				console.log(profileId);
+				// console.log('userid====>',userId);
+				// console.log(profileId);
 				const is_blocking = await userIsBlocked(profileId, userId);
 				if (is_blocking)
 					await DeleteFromBlockedList(userId, profileId);
 				await addFriendRequest(userId, profileId);
 			} catch (err)
 			{
-				res.status(401).send({message: 'Unauthorized'});
+				res.status(401).send({message: 'Unauthorized link_profile'});
 				console.log(err);
 			}
 		});
@@ -232,10 +232,10 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 			const jwt = await req.jwtVerify();
 			const userId = jwt.id;
 			const {profileId} = req.body as any;
-			await deleteFriendRequest(userId, profileId); 
+			await deleteFriendRequest(userId, profileId);
 		} catch (err)
 		{
-			res.status(401).send({message: 'Unauthorized'});
+			res.status(401).send({message: 'Unauthorized pending_request'});
 			console.log(err);
 		}
 	})
@@ -243,19 +243,19 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 	fastify.post('/answer-request', async (req : any, res : any)=>
 	{
 		try{
-			console.log("here");
+			// console.log("here");
 			const jwt =await req.jwtVerify();
 			const userId = jwt.id;
 			const {profileId, profileAnswer} = req.body as any;
-			console.log("profileId and profileAnswer");
-			console.log(req.body);
+			// console.log("profileId and profileAnswer");
+			// console.log(req.body);
 			if (profileAnswer === 'accept')
 				await bidirectionalAddAFriend(userId, profileId);
 			await deleteFriendRequest(profileId, userId);
 			await deleteFriendRequest(userId, profileAnswer);
 		} catch(err)
 		{
-			res.status(401).send({message: 'Unauthorized'});
+			res.status(401).send({message: 'Unauthorized answer_request'});
 			console.log(err);
 		}
 	})
@@ -275,15 +275,15 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 				const receivedRequests = new Set (pendingRequests.filter((r: any) => r.receiver_id && r.sender_id !== jwt.id).map((r: any) => r.sender_id));
 
 				const blockingList = await parseBlockedList(jwt.id);
-				console.log("Blocked_list:");
-				console.log(blockingList);
+				// console.log("Blocked_list:");
+				// console.log(blockingList);
 				const blockingListIds = new Set (blockingList.map((row : any)=> row.blocked_id));
-				const profilesWithFriendFlag = await Promise.all(profiles.map(async (profile :any) => 
+				const profilesWithFriendFlag = await Promise.all(profiles.map(async (profile :any) =>
 					(
-						{...profile, 
+						{...profile,
 							is_friend : friendsIds.has(profile.id),
 							received_requests: Array.from(receivedRequests),
-							pending_direction: sentRequests.has(profile.id) ? "sent" : 
+							pending_direction: sentRequests.has(profile.id) ? "sent" :
 											   receivedRequests.has(profile.id) ? "recieved" :
 											   null,
 							is_blocking: blockingListIds.has(profile.id) ? 1 : 0,
@@ -291,10 +291,10 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 						}
 					)));
 				res.send({profiles: profilesWithFriendFlag});
-				console.log(profilesWithFriendFlag);
+				// console.log(profilesWithFriendFlag);
 			} catch (err)
 			{
-				res.status(401).send({message: 'Unauthorized'});
+				res.status(401).send({message: 'Unauthorized parse_profiles'});
 				console.log(err);
 			}
 		} )

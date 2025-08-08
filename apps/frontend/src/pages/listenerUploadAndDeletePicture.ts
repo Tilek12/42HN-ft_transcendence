@@ -1,6 +1,7 @@
 import { getToken, clearToken} from '../utils/auth'
+import { wsManager } from '../websocket/ws-manager';
 
-export const listenerUploadPicture = async (e : any) => 
+export const listenerUploadPicture = async (e : any) =>
 {
 		e.preventDefault();
 		const fileInput : any = document.getElementById('profile-pic-input');
@@ -57,6 +58,8 @@ export const listenerLogoutBtn = async (e : any) =>
 					method: 'POST',
 					headers: {'Authorization': `Bearer ${token}`},
 				});
+			wsManager.disconnectAllSockets();
+			wsManager.clearPresenceData();
 			clearToken();
 			location.hash = '#/login';
 	}

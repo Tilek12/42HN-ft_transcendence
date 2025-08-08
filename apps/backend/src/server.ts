@@ -49,7 +49,7 @@ async function main() {
 
   //upload pics path register
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  console.log(`here is the __dirname : ${__dirname}`);
+  // console.log(`here is the __dirname : ${__dirname}`);
   server.register(fastifyStatic,
 	{
 		root: path.join(__dirname, 'assets/profile_pics'),
@@ -59,13 +59,14 @@ async function main() {
 
   // Public routes
   await server.register(authRoutes, { prefix: '/api' });  // 👈 Public routes (login/register)
+  await server.register(tournamentRoutes, { prefix: '/api' });
 
   // Protected scope of routes
   await server.register(async (protectedScope : any) => {
     await protectedScope.register(authPlugin);            // 👈 Middleware checking token
     await protectedScope.register(userRoutes);            // 👈 Protected routes: /api/private/me
     await protectedScope.register(onlineUsersRoute);      // 👈 Protected routes: /api/private/online-users
-    await protectedScope.register(tournamentRoutes);      // 👈 Protected routes: /api/private/tournaments
+    // await protectedScope.register(tournamentRoutes);      // 👈 Protected routes: /api/private/tournaments
     await protectedScope.register(matchRoutes);
   }, { prefix: '/api/private' });
 
