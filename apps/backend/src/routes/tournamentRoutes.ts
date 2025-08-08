@@ -123,14 +123,12 @@ fastify.get('/tournament/:id/leaderboard', async (req : any, res : any) => {
   const { id } = req.params as any;
   const tid = parseInt(id);
 
-  console.log('!!! before getTournamentLeaderboard !!!');
   if (isNaN(tid)) {
     return res.status(400).send({ message: 'Invalid tournament ID' });
   }
 
   try {
     const leaderboard = await getTournamentLeaderboard(tid);
-    console.log('!!! after getTournamentLeaderboard !!!');
     res.send(leaderboard);
   } catch (err) {
     res.status(500).send({ message: 'Error loading leaderboard' });

@@ -60,6 +60,14 @@ return db.all(
 );
 }
 
+export async function getStatsForProfile(playerId: number)
+{
+	return db.all(
+		`
+		SELE
+		`
+	)
+}
 export async function getTournamentLeaderboard(tournamentId: number) {
 	return db.all(
 	  `
