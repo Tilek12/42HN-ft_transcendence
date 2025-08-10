@@ -33,7 +33,10 @@ if (!JWT_SECRET) {
 
 // Create server instance
 const server = Fastify({
-  logger: true,
+	logger: {
+		transport: {
+		  target: 'pino-pretty'
+		}},
   https: {
     key: fs.readFileSync('/run/secrets/ssl_key'),
     cert: fs.readFileSync('/run/secrets/ssl_cert')

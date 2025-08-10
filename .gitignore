@@ -6,7 +6,6 @@ secrets
 dist
 cert
 cert/*.pem
-apps/backend/cert
-apps/frontend/cert
+apps/database
 database/*.db
 apps/backend/src/database/dbTests.ts

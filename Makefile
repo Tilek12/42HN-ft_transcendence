@@ -67,6 +67,8 @@ down:	## 🛑 Stop containers
 clean:	## 🧹 Clean everything (volumes, images, orphans)
 	@printf "$(VIOLET)🧹 Cleaning Docker artifacts...$(RESET)\n"
 	$(COMPOSE) down -v --rmi local --remove-orphans
+	@printf "$(VIOLET)🧹 Cleaning up environment ...$(RESET)\n"
+	@./scripts/cleanup_local.sh
 
 ## --------------------------- ##
 ##        Setup Targets        ##

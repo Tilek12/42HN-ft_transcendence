@@ -26,7 +26,7 @@ class WebSocketManager {
   private presenceListeners: PresenceCallback[] = [];
 
   constructor() {
-    this.backendUrl = ('https://localhost:3000').replace(/^http/, 'ws');
+    this.backendUrl = ('wss://localhost:3000');
   }
 
   ///////////////////////////////////
