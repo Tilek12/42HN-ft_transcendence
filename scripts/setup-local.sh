@@ -10,7 +10,7 @@ if [ ! -f "$ENV_FILE" ]; then
   echo "❌ .env file not found. Please create it with BACKEND_PORT or FRONTEND_PORT."
   exit 1
 fi
-
+mkdir -p database #create database folder for project in case freshly cloned repo doesnt have it yet
 source "$ENV_FILE"
 
 if [ -z "$BACKEND_PORT" ] || [ -z "$FRONTEND_PORT" ]; then
@@ -38,6 +38,7 @@ append_to_env() {
     fi
 
     if ! grep -q "^$key=" "$file"; then
+		echo "" >> "$file"
         echo "$key=$value" >> "$file"
         echo "✅ Added $key to $file"
     else
@@ -46,7 +47,7 @@ append_to_env() {
 }
 
 append_to_env "$ENV_FILE" "LOCAL_IP" "$LOCAL_IP"
-append_to_env "$ENV_FILE" "VITE_BACKEND_URL" "https://$LOCAL_IP:$BACKEND_PORT"
+append_to_env "$ENV_FILE" "VITE_BACKEND_URL" "https://localhost:$BACKEND_PORT"
 
 # 4. Check OpenSSL
 check_ssl_tool() {

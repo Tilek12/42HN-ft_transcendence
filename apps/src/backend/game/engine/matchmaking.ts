@@ -1,8 +1,8 @@
 import { Player } from './types';
 import { GameRoom } from './game-room';
 import { userManager } from '../../user/user-manager';
-import { incrementWinsOrLossesOrTrophies } from 'src/database/user';
-import { createMatch } from 'src/database/match';
+import { incrementWinsOrLossesOrTrophies } from '../../database/user';
+import { createMatch } from '../../database/match';
 
 export async function startGame(player: Player, mode: 'solo' | 'duel' | 'tournament', tournamentId?: string) {
   let isGameFinished = false;

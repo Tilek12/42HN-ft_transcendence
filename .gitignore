@@ -1,15 +1,11 @@
 .env
+profile_pics/user*
 node_modules
-apps/backend/src/assets/profile_pics/user*
-apps/backend/node_modules
-apps/frontend/node_modules
 secrets
 .fastify-blog
 dist
 cert
 cert/*.pem
-apps/backend/cert
-apps/frontend/cert
-database
+apps/database
 database/*.db
 apps/backend/src/database/dbTests.ts

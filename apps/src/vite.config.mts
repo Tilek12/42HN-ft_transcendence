@@ -22,34 +22,30 @@ function customNetworkLogger(): Plugin {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const frontendPort = parseInt(env.FRONTEND_PORT || '8080');
-  const backendPort = parseInt(env.BACKEND_PORT) || '3000'
+  const backendPort = parseInt(env.BACKEND_PORT || '3000' );
   const ip = env.LOCAL_IP || '127.0.0.1'
 
   return {
-    root: './src/',
+    root: '/app/src/frontend',
     plugins: [customNetworkLogger()],
     server: {
-      host: true,
+      host: "0.0.0.0",
       port: frontendPort,
       strictPort: true,
       open: false,
+      base: "/app/distbuilding",
       https: {
-        key: fs.readFileSync(path.resolve(__dirname, './cert/key.pem')),
-        cert: fs.readFileSync(path.resolve(__dirname, './cert/cert.pem')),
+        key: fs.readFileSync('/run/secrets/ssl_key'),
+        cert: fs.readFileSync('/run/secrets/ssl_cert'),
       },
       proxy: {
         '/api': {
-          target: `https://${ip}:${backendPort}`,
-          changeOrigin: true,
-          secure: false
-        },
-        '/tournament': {
-          target: `https://${ip}:${backendPort}`,
+          target: `https://localhost:3000`,
           changeOrigin: true,
           secure: false
         },
         '/ws': {
-          target: `wss://${ip}:${backendPort}`,
+          target: `wss://localhost:3000`,
           ws: true,
           changeOrigin: true,
           secure: false
