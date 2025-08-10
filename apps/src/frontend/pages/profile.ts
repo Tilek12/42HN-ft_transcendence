@@ -8,6 +8,22 @@ import { listenerFriendAndBlock } from './ListenerProfileList';
 import { listenerDeletePicture, listenerLogoutBtn, listenerUploadPicture } from './listenerUploadAndDeletePicture';
 import { getEnvVariable } from './TypeSafe';
 
+type Match =
+{
+	id: number,
+	player1_id: number,
+	player2_id: number,
+	player1_score: number,
+	player2_score: number,
+	winner_id: number,
+	is_tie: boolean,
+	is_tournament_match: boolean,
+	played_at: string,
+	player1_username: string,
+	player2_username: string,
+	total_matches?: number,
+	win_rate?: number,
+};
 export async function renderProfile(root: HTMLElement) {
   const isValid = await validateLogin()
   if (!isValid) {
@@ -79,8 +95,10 @@ export async function renderProfile(root: HTMLElement) {
 			}
 		  })
 			.then(res => res.json())
-			.then(matches => {
+			.then((data) => {
 			  const matchContainer = document.getElementById('match-history') as HTMLElement;
+			//   console.log("data: ", data);
+			  const matches = data.matches;
 			  if (!matchContainer) return;
 
 			  if (!Array.isArray(matches) || matches.length === 0) {
@@ -91,7 +109,11 @@ export async function renderProfile(root: HTMLElement) {
 				<p>No matches found.</p>`;
 				return;
 			  }
-
+			// console.log("Matches: ", matches);
+			// const wins = matches.filter(m => m.winner_id == m.id).length;
+			// const matches_count = matches.length;
+			// const success_rate = Math.floor((wins / matches_count) * 100) ;
+			// console.log(`rate: ${success_rate} %`);
 			matchContainer.innerHTML += `
 			<div class="overflow-x-auto">
 				<table class="w-full text-left border-collapse shadow rounded-lg">
@@ -101,23 +123,29 @@ export async function renderProfile(root: HTMLElement) {
 					<th class="py-2 px-4">Score</th>
 					<th class="py-2 px-4">Result</th>
 					<th class="py-2 px-4">Played At</th>
+					<th class="py-2 px-4">Wins</th>
+					<th class="py-2 px-4">Total Matches</th>
+					<th class="py-2 px-4">Win Rate</th>
 					</tr>
 				</thead>
 				<tbody>
-					${matches.map((match, index) => `
+					${matches.map((match : Match, index) => `
 					<tr class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
-						<td class="py-2 px-4">${match.player1_id === data.user.id ? match.player2_username : match.player1_username}</td>
+						<td class="py-2 px-4">${match.player1_id === data.profile_id ? match.player2_username : match.player1_username}</td>
 						<td class="py-2 px-4">
-						${match.player1_id === data.user.id
+						${match.player1_id === data.profile_id
 							? `${match.player1_score} - ${match.player2_score}`
 							: `${match.player2_score} - ${match.player1_score}`}
 						</td>
 						<td class="py-2 px-4">
 						${match.winner_id === null
 							? 'Tie'
-							: match.winner_id === data.user.id ? 'Win' : 'Loss'}
+							: match.winner_id === data.profile_id ? 'Win' : 'Loss'}
 						</td>
 						<td class="py-2 px-4">${new Date(match.played_at).toLocaleString()}</td>
+						<td class="py-2 px-4">${index == 0 ? data.win : ''}</td>
+						<td class="py-2 px-4">${index == 0 ? data.matches_count : ''}</td>
+						<th class="py-2 px-4">${index == 0 ? data.win_rate + "%" : ''}</th>
 					</tr>
 					`).join('')}
 				</tbody>
