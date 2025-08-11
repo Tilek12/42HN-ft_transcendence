@@ -1,68 +1,114 @@
-import { FastifyPluginAsync } from 'fastify';
-import { WebSocket as WS } from 'ws';
+// src/backend/websocket/game.ts
+import { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
+import { WebSocket } from 'ws';
 
 import { startGame, cancelDuelSearch } from '../game/engine/matchmaking';
 import { Player } from '../game/engine/types';
 import { userManager } from '../user/user-manager';
 import { PING_INTERVAL_MS } from '../constants';
-// import { findProfileById } from '../database/user'
 
-const wsGamePlugin: FastifyPluginAsync = async (fastify: any) => {
-	fastify.get('/game', { websocket: true }, async (connection: any, req: any) => {
-		const params = new URLSearchParams(req.url?.split('?')[1] || '');
-		const mode = params.get('mode') ?? 'solo';
-		const token = params.get('token');
-		const socket = connection.socket;
+const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
+	fastify.get('/game', { websocket: true }, (socket: WebSocket, req: FastifyRequest) => {
+		// parse query quickly
+		const { token } = (req.query as any) ?? {};
+		const mode = (req.query as any)?.mode ??
+					new URLSearchParams((req as any).url?.split('?')[1] || '').get('mode') ?? 'solo';
+		const tournamentId = (req.query as any)?.id ?? undefined;
 
-		if (!token) return socket.close(4001, 'Missing token');
-
-		let userId: string;
-		// let profile: any;
-		try {
-			const payload = await fastify.jwt.verify(token);
-			userId = payload.id;
-			// profile = await findProfileById(payload.id);
-		} catch {
-			return socket.close(4002, 'Invalid or expired token');
+		if (!token) {
+			try { socket.close(4001, 'Missing token'); } catch {}
+			return;
 		}
 
-		const user = userManager.getUser(userId);
-		if (!user) return socket.close(4003, 'Presence connection not found');
+		// buffer and attach synchronous handler to avoid dropped messages
+		const buffer: any[] = [];
+		let authenticated = false;
+		let closed = false;
+		let authUserId: string | null = null;
 
-		userManager.setGameSocket(userId, socket);
-		userManager.setInGame(userId, true);
-		console.log(`🏓 [Game WS] Connected: ${userId} (${mode})`);
-
-		const player: Player = { id: userId, name: user.name, socket };
-		if (mode === 'duel' || mode === 'solo') {
-			await startGame(player, mode);
-		} else {
-			console.warn(`⛔️ [Game WS] Invalid mode: ${mode}`);
-			return socket.close(4004, 'Unsupported mode');
-		}
-
-		socket.on('message', (msg: any) => {
-			if (msg.toString() === 'pong') {
-				userManager.setInGame(userId, true);
-			} else if (msg.toString() === 'quit') {
-				cancelDuelSearch(userId);
-				socket.close();
+		const onMessage = (raw: any) => {
+			if (!authenticated) {
+				buffer.push(raw);
+				return;
 			}
-		});
+			try {
+				const msg = raw.toString();
+				if (msg === 'pong') {
+					userManager.setInGame(authUserId!, true);
+				} else if (msg === 'quit') {
+					cancelDuelSearch(authUserId!);
+					try { socket.close(); } catch {}
+				} else {
+					// other messages are handled by GameRoom since player.socket is same socket
+				}
+			} catch {}
+		};
 
-		socket.on('close', () => {
-			console.log(`❌ [Game WS] Disconnected: ${userId}`);
-			cancelDuelSearch(userId);
-			userManager.removeGameSocket(userId);
-		});
+		socket.on('message', onMessage);
+		socket.on('close', () => { closed = true; });
+		socket.on('error', (err) => fastify.log.warn('[Game WS] socket error', err));
+
+		(async () => {
+			let userId: string;
+			try {
+				const payload: any = await fastify.jwt.verify(token);
+				userId = payload.id;
+			} catch (err) {
+				try { if (!closed) socket.close(4002, 'Invalid or expired token'); } catch {}
+				return;
+			}
+
+			// presence must exist
+			const presenceUser = userManager.getUser(userId);
+			if (!presenceUser) {
+				try { if (!closed) socket.close(4003, 'Presence connection not found'); } catch {}
+				return;
+			}
+
+			// set the game socket (this will close previous if exists)
+			userManager.setGameSocket(userId, socket);
+			userManager.setInGame(userId, true);
+			authUserId = userId;
+			authenticated = true;
+
+			fastify.log.info(`🏓 [Game WS] Connected: ${userId} (${mode})`);
+
+			// create Player with this socket and start matchmaking / game
+			const player: Player = { id: userId, name: presenceUser.name, socket };
+			try {
+				await startGame(player, mode as any, tournamentId);
+			} catch (err) {
+				fastify.log.warn('[Game WS] startGame error', err);
+			}
+
+			// process buffered messages (likely none)
+			while (buffer.length) {
+				const raw = buffer.shift();
+				try {
+					const msg = raw.toString();
+					if (msg === 'pong') userManager.setInGame(userId, true);
+					if (msg === 'quit') {
+						cancelDuelSearch(userId);
+						try { socket.close(); } catch {}
+					}
+				} catch {}
+			}
+
+			// attach final close handler to cleanup (will be appended but original close handler exists)
+			socket.on('close', () => {
+				fastify.log.info(`❌ [Game WS] Disconnected: ${userId}`);
+				cancelDuelSearch(userId);
+				userManager.removeGameSocket(userId);
+			});
+		})();
 	});
 
 	setInterval(() => {
 		for (const { id } of userManager.getOnlineUsers()) {
 			const user = userManager.getUser(id);
 			const socket = user?.gameSocket;
-			if (!socket || socket.readyState !== WS.OPEN) continue;
+			if (!socket || socket.readyState !== socket.OPEN) continue;
 
 			if (!user?.isInGame) {
 				console.log(`💀 [Game WS] Terminating inactive game connection: ${id}`);

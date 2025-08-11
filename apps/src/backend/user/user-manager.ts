@@ -12,11 +12,6 @@ interface User {
 	isAlive: boolean;
 	isInGame: boolean;
 	isInTournament: boolean;
-	// logged_in?: profile.logged_in;
-	// id: profile.id.toString(),
-	// wins?: profile.wins;
-	// losses?: profile.losses;
-	// trophies?: profile.trophies;
 	logged_in?: boolean;
 	profileId?: string,
 	wins?: number;
@@ -156,7 +151,7 @@ class UserManager {
 	checkHeartbeats() {
 		for (const [id, user] of this.users.entries()) {
 			if (!user.isAlive) {
-				console.log(`💀 Removing inactive user: ${id}`);
+				console.log(`💀 [Presence WS] Removing inactive user: ${id}`);
 				this.removeUser(id);
 			} else {
 				user.isAlive = false;
