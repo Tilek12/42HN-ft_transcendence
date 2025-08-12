@@ -1,4 +1,3 @@
-// src/backend/websocket/game.ts
 import { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import { WebSocket } from 'ws';

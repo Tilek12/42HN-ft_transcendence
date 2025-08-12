@@ -1,9 +1,9 @@
-import { Player } from '../engine/types';
-import { GameRoom } from '../engine/game-room';
-import { sendTournamentUpdate } from '../../websocket/presence';
+import { Player } from './engine/types';
+import { GameRoom } from './engine/game-room';
+import { sendTournamentUpdate } from '../websocket/presence';
 // import { tournamentSockets } from '../../websocket/tournament'
-import { findProfileById, incrementWinsOrLossesOrTrophies } from '../../database/user';
-import { createTournamentDB, joinTournamentDB } from '../../database/tournament';
+import { findProfileById, incrementWinsOrLossesOrTrophies } from '../database/user';
+import { createTournamentDB, joinTournamentDB } from '../database/tournament';
 
 export type TournamentSize = 4 | 8;
 export type TournamentStatus = 'waiting' | 'active' | 'finished';

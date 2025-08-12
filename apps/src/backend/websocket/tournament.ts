@@ -10,7 +10,7 @@ import {
 	createTournament,
 	joinTournament,
 	quitTournament
-} from '../game/tournament/tournament-manager';
+} from '../game/tournament-manager';
 
 const tournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 	fastify.get('/tournament', { websocket: true }, async (connection: any, req: any) => {

@@ -1,10 +1,9 @@
-// src/backend/websocket/presence.ts
 import { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import { WebSocket } from 'ws';
 
 import { userManager } from '../user/user-manager';
-import { getSafeTournamentData } from '../game/tournament/tournament-manager';
+import { getSafeTournamentData } from '../game/tournament-manager';
 import { findUserById, getUsernameById } from '../database/user';
 import { PING_INTERVAL_MS } from '../constants';
 

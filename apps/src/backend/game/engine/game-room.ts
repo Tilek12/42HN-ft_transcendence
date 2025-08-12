@@ -1,5 +1,5 @@
 import { Player, GameState } from './types';
-import { advanceTournament } from '../tournament/tournament-manager';
+import { advanceTournament } from '../tournament-manager';
 
 const FRAME_RATE = 1000 / 60;
 const PADDLE_HEIGHT = 20;
