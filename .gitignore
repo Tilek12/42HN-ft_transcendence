@@ -7,5 +7,5 @@ cert
 cert/*.pem
 apps/database
 database/*.db
-apps/bsrc/backend/database/dbTests.ts
+apps/src/backend/database/dbTests.ts
 apps/src/backend/assets/profile_pics/user*
