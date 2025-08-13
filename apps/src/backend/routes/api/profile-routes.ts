@@ -59,7 +59,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 			const allowed = ['.png', '.jpg', '.jpeg'];
 			if (!allowed.includes(ext.toLowerCase()))
 					return res.status(400).send({message:'Invalid file type'});
-			const __dirname = '/app/src';
+			const __dirname ="/app/src/backend";
 			const dir = path.join(__dirname, 'assets', 'profile_pics');
 			if (!fs.existsSync(dir))
 				fs.mkdirSync(dir, { recursive: true });
