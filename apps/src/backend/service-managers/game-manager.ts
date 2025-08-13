@@ -1,5 +1,5 @@
-import { GameRoom } from './game-room';
-import { Player } from './types';
+import { GameRoom } from '../game/game-room';
+import { Player } from '../game/types';
 
 class GameManager {
 	private rooms = new Map<string, GameRoom>();

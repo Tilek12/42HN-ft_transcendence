@@ -1,5 +1,5 @@
 import { WebSocket } from 'ws';
-import { Player } from '../game/engine/types';
+import { Player } from '../game/types';
 
 interface User {
 	id: string;

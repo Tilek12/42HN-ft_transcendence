@@ -2,10 +2,10 @@ import { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import { WebSocket } from 'ws';
 
-import { userManager } from '../user/user-manager';
-import { getSafeTournamentData } from '../game/tournament-manager';
-import { findUserById, getUsernameById } from '../database/user';
-import { PING_INTERVAL_MS } from '../constants';
+import { userManager } from '../../service-managers/user-manager';
+import { getSafeTournamentData } from '../../service-managers/tournament-manager';
+import { findUserById, getUsernameById } from '../../database/user';
+import { PING_INTERVAL_MS } from '../../constants';
 
 export const sendPresenceUpdate = () => {
 	const users = userManager.getOnlineUsers();

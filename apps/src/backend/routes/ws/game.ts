@@ -2,10 +2,10 @@ import { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import { WebSocket } from 'ws';
 
-import { startGame, cancelDuelSearch } from '../game/engine/matchmaking';
-import { Player } from '../game/engine/types';
-import { userManager } from '../user/user-manager';
-import { PING_INTERVAL_MS } from '../constants';
+import { startGame, cancelDuelSearch } from '../../game/matchmaking';
+import { Player } from '../../game/types';
+import { userManager } from '../../service-managers/user-manager';
+import { PING_INTERVAL_MS } from '../../constants';
 
 const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
 	fastify.get('/game', { websocket: true }, (socket: WebSocket, req: FastifyRequest) => {
