@@ -42,7 +42,8 @@ export async function parseProfiles(prof_id : number, offset_param?: string, lim
 		  p.losses,
 		  p.trophies,
 		  p.image_path,
-		  p.logged_in
+		  p.logged_in,
+		  p.image_blob
 		FROM users u
 		JOIN profiles p ON u.id = p.id
 		WHERE u.id != ?`;
@@ -66,10 +67,11 @@ export async function incrementWinsOrLossesOrTrophies(id: number, field: 'wins' 
 //-----Profile path or url-----------------------------
 }
 
-export async function updatePicturePath(id: number, path_or_url: string) {
+export async function updatePicturePath(id: number, path_or_url: string, image_blob?: any) {
 	await db.run(
-	  `UPDATE profiles SET image_path = ? WHERE id = ?`,
+	  `UPDATE profiles SET image_path = ?, image_blob = ? WHERE id = ?`,
 	  path_or_url,
+	  image_blob,
 	  id
 	);
 }
@@ -83,7 +85,7 @@ export async function parseFriends(id: number, offset_param?: string, limit_para
 			`
 				SELECT
 				u.id, u.username, u.created_at,
-				p.wins, p.losses, p.trophies, p.image_path, p.logged_in
+				p.wins, p.losses, p.trophies, p.image_path, p.image_blob, p.logged_in
 				FROM friends f
 				JOIN users u ON f.friend_id = u.id
 				JOIN profiles p ON u.id = p.id
@@ -96,13 +98,14 @@ export async function parseFriends(id: number, offset_param?: string, limit_para
 		`
 			SELECT
 			u.id, u.username, u.created_at,
-			p.wins, p.losses, p.trophies, p.image_path, p.logged_in
+			p.wins, p.losses, p.trophies, p.image_path, p.image_blob, p.logged_in
 			FROM friends f
 			JOIN users u ON f.friend_id = u.id
 			JOIN profiles p ON u.id = p.id
 			WHERE f.user_id = ?
 		`, id);
-	return rows;
+	const row_with_stringified_image_blob = rows.map((row : any) => {if (row.image_blob) row.image_blob = row.image_blob.toString("base64"); return row;})
+	return row_with_stringified_image_blob;
 }
 
 export async function bidirectionalAddAFriend(id_user: number, id_of_invited_user: number)

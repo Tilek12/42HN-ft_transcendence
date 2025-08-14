@@ -25,8 +25,12 @@ export async function renderFriendRequestsList ()
 	// console.log('received_profiles:');
 	// console.log(data.received_requests);
 	container.innerHTML = `<h1 class="text-2xl font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Requests List</h1>` + data.profiles.filter((r : any) => recievedRequests.includes(r.id)).map((profile: any) =>
-		`<div class = "flex items-center bg-white p-4 rounded-xl shadow mb-2">
-			<img src= "${BACKEND_URL}/profile_pics/${profile.image_path}" class="w-12 h-12 rounded-full mr-4" />
+	{
+		const src_img = profile.image_blob ? 
+				`data:image/webp;base64,${profile.image_blob}` : 
+				`${BACKEND_URL}/profile_pics/${profile.image_path}`;
+		return `<div class = "flex items-center bg-white p-4 rounded-xl shadow mb-2">
+			<img src= "${src_img}" class="w-12 h-12 rounded-full mr-4" />
 			<div>
 				<a href="" class="text-lg font-semibold text-blue-600 hover:underline">${profile.username}</a>
 				<p class="text-sm text-gray-600"> 🏆 ${profile.trophies} | ✅ ${profile.wins} | ❌ ${profile.losses} </p>
@@ -37,6 +41,7 @@ export async function renderFriendRequestsList ()
 			</div>
 
 		</div>`
+	}
 	).join('');
 	} catch (err){
 		console.error('Failed to fetch profiles: ', err);

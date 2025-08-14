@@ -32,8 +32,10 @@ const remove_load_btn = async (offset_pr: number, limit_pr: number, token_async:
 }
 const array_to_html = (profile : any, BACKEND_URL : string) : string =>
 {
+	console.log("FrontEnd--------->>>> Profile : ", profile);
+	const profile_pic_src = profile.image_blob ? `data:image/webp;base64,${profile.image_blob}` : `${BACKEND_URL}/profile_pics/${profile.image_path}`;
 	return `<div class = "flex items-center bg-white p-4 rounded-xl shadow mb-2">
-					<img src= "${BACKEND_URL}/profile_pics/${profile.image_path}" class="w-12 h-12 rounded-full mr-4" />
+					<img src= "${profile_pic_src}" class="w-12 h-12 rounded-full mr-4" />
 					<div>
 						<a href="" class="text-lg font-semibold text-blue-600 hover:underline">${profile.username}</a>
 						<p class="text-sm text-gray-600"> 🏆 ${profile.trophies} | ✅ ${profile.wins} | ❌ ${profile.losses} </p>

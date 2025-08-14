@@ -26,7 +26,7 @@ export const listenerUploadPicture = async (e : any) =>
 		if (res.ok)
 			location.reload();
 		else
-			alert(result.message || 'Failed to delete profile picture');
+			alert(result.message || 'Failed to upload profile picture');
 }
 
 export const listenerDeletePicture = async (e : any) =>

@@ -49,7 +49,9 @@ export async function renderProfile(root: HTMLElement) {
 
 	let profile_details : Profile_details =
 	{
+		backend_url: BACKEND_URL,
 		data_async: data,
+		profile_pic_id: `profile_pic`,
 		logged_in_id: `logged_in`,
 		username_id: `username`,
 		email_id: `email`,

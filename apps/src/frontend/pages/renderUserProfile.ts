@@ -1,7 +1,9 @@
 import { renderBackgroundTop } from "../utils/layout";
 
 export type Profile_details = {
+	backend_url?: string;
 	data_async: any;
+	profile_pic_id: string;
 	logged_in_id: string;
 	username_id: string;
 	email_id: string;
@@ -20,7 +22,8 @@ export const profile_ids = (
 		let losses = document.getElementById(profile.losses_id);
 		let trophies = document.getElementById(profile.trophies_id);
 		let created_at = document.getElementById(profile.created_at_id);
-		if(logged_in && username && email && wins && losses && trophies && created_at)
+		let profile_pic = document.getElementById(profile.profile_pic_id) as HTMLImageElement;
+		if(logged_in && username && email && wins && losses && trophies && created_at && profile_pic)
 		{
 			logged_in.innerHTML = `<strong>logged_in: </strong> ${profile.data_async.profile.logged_in === 1 ? 'yes' : 'no'}`;
 			username.innerHTML = `<strong>Username: </strong> ${profile.data_async.user.username}`;
@@ -29,16 +32,21 @@ export const profile_ids = (
 			losses.innerHTML = `<strong>losses:</strong> ${profile.data_async.profile.losses}`;
 			trophies.innerHTML = `<strong>trophies:</strong> ${profile.data_async.profile.trophies}`;
 			created_at.innerHTML = `<strong>Joined:</strong> ${new Date(profile.data_async.user.created_at).toLocaleString()}`;
+
+			profile_pic.src = profile.data_async.profile.image_blob ? `data:image/webp;base64,${profile.data_async.profile.image_blob}` : `${profile.backend_url}/profile_pics/${profile.data_async.profile.image_path}`;
+
 		}
 	};
 
 export function renderUserProfile(backend_url: string, data: any)
 {
+	console.log("====>> FronEnd", data.profile.image_path === '' ? 'yes' : 'no');
+	console.log("====>> blob", data.profile.image_blob);
 	let res : string = renderBackgroundTop(`
         <div class="pt-24 max-w-xl mx-auto text-white p-6">
 		<form id=upload-form>
 			<h1 class="text-3xl font-bold mb-4">Your Profile</h1>
-			<img src= "${backend_url}/profile_pics/${data.profile.image_path}" alt = "First Image">
+			<img id="profile_pic" src= "" alt = "First Image">
 		    <input type="file" id="profile-pic-input" accept="image/*"/>
 			<div class="mt-4 space-x-2">
 				<button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Update</button>

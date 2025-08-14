@@ -26,12 +26,15 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 			const jwt = await req.jwtVerify();
 			const user = await findUserById(jwt.id);
 			const profile = await findProfileById(jwt.id);
+			console.log("================>>>Profile :", profile);
 			if (!user || !profile)
 				return res.status(404).send({message: 'User or profile not found'});
 			res.send({
 				profile:
 				{
 					image_path: profile.image_path,
+					image_blob: profile.image_blob?.toString("base64"),
+					image_blob_setted: profile.image_blob ? true : false,
 					logged_in: profile.logged_in,
 					wins: profile.wins,
 					losses: profile.losses,
@@ -71,13 +74,14 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 				chunks.push(chunk);
 			const buffer = Buffer.concat(chunks);
 
-			await sharp(buffer)
+			const compressed = await sharp(buffer)
 				.resize(200, 200, {fit: 'cover', position: 'center',})
-				.webp({ quality: 80})
-				.toFile(uploadPath);
+				.webp({ quality: 60})
+				.toBuffer();
+			console.log("=====>>Compresed", compressed);
 			//----uploading-------------
 			const relativePath = `${fileName}`;
-			await updatePicturePath(jwt.id, relativePath);
+			await updatePicturePath(jwt.id, '', compressed);
 			res.send({message: 'Profile picture updated and resized', path: relativePath});
 		} catch (err) {
 			console.error(err);
@@ -206,7 +210,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 			const offset = await req.query.offset as string || "0";
 			const limit = await req.query.limit as string || "25";
 			const profiles = await parseProfiles(jwt.id, offset, limit);
-
+			// console.log ("backend-------------------<<<<>>>> :",profiles);
 			const friends = await parseFriends(jwt.id);
 			const friendsIds = new Set (friends.map((row : any )=> row.id));
 
@@ -218,8 +222,13 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 			// console.log("Blocked_list:");
 			// console.log(blockingList);
 			const blockingListIds = new Set (blockingList.map((row : any)=> row.blocked_id));
-			const profilesWithFriendFlag = await Promise.all(profiles.map(async (profile :any) => ({
+			const newProfiles = profiles
+			.map((profile: any)=> { if(profile.image_blob) {profile.image_blob = profile.image_blob.toString("base64");} return profile;});
+			// console.log("Here ----------->>>> New Profiles: ", newProfiles);
+			const profilesWithFriendFlag = await Promise.all(newProfiles
+				.map(async (profile :any) => ({
 				...profile,
+				image_blob_setted: profile.image_blob ? true : false,
 				is_friend : friendsIds.has(profile.id),
 				received_requests: Array.from(receivedRequests),
 				pending_direction: sentRequests.has(profile.id) ? "sent" :
@@ -229,6 +238,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 				is_blocked: await userIsBlocked(jwt.id, profile.id)
 			})
 			));
+			// console.log(' Here ----->> BackEnd : ', profilesWithFriendFlag);
 				res.send({profiles: profilesWithFriendFlag});
 				// console.log(profilesWithFriendFlag);
 		} catch (err) {
