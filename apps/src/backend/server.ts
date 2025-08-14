@@ -87,6 +87,15 @@ async function main() {
 		return { pong: true, time: new Date().toISOString() };
 	});
 
+	closeWithGrace(async function ({ signal, err, manual }) {
+	if (err) {
+		server.log.error({ err }, 'server closing with error')
+	} else {
+		server.log.info(`${signal} received, server closing`)
+	}
+	await server.close()
+	})
+
 	// Start listening
 	try {
 		await server.listen({ port: PORT, host: '0.0.0.0' });
@@ -98,21 +107,20 @@ async function main() {
 		process.exit(1);
 	}
 
-	// Graceful shutdown
-	const shutdown = async () => {
-		console.log('\n🛑 Gracefully shutting down...');
-		try {
-			await server.close();
-			console.log('❎ Server closed');
-			process.exit(0);
-		} catch (err) {
-			console.error('❌ Error during shutdown:', err);
-			process.exit(1);
-		}
-	}
+	// // Graceful shutdown
+	// const shutdown = async () => {
+	// 	console.log('\n🛑 Gracefully shutting down...');
+	// 	try {
+	// 		await server.close();
+	// 		console.log('❎ Server closed');
+	// 		process.exit(0);
+	// 	} catch (err) {
+	// 		console.error('❌ Error during shutdown:', err);
+	// 		process.exit(1);
+	// 	}
+	// }
 
-	process.on('SIGINT', shutdown);
-	process.on('SIGTERM', shutdown);
+
 }
 
 main();
