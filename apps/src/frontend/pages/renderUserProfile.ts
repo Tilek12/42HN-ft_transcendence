@@ -26,7 +26,7 @@ export const profile_ids = (
 		if(logged_in && username && email && wins && losses && trophies && created_at && profile_pic)
 		{
 			logged_in.innerHTML = `<strong>logged_in: </strong> ${profile.data_async.profile.logged_in === 1 ? 'yes' : 'no'}`;
-			username.innerHTML = `<strong>Username: </strong> ${profile.data_async.user.username}`;
+			username.innerHTML = ` ${profile.data_async.user.username}`;
 			email.innerHTML = `<strong>Email:</strong> ${profile.data_async.user.email}`;
 			wins.innerHTML = `<strong>wins:</strong> ${profile.data_async.profile.wins}`;
 			losses.innerHTML = `<strong>losses:</strong> ${profile.data_async.profile.losses}`;
@@ -53,7 +53,15 @@ export function renderUserProfile(backend_url: string, data: any)
 		  </form>
 		  </div>
 		  <p id="logged_in"></p>
-          <p id="username"></p>
+          <div class = "flex justify-center items-center mt-4 space-x-2">
+					<p><strong>Username:</strong><span id="username"></span></p>
+					<input
+					id="username-input"
+					type="text"
+					class="hidden text-black border border-gray-300 rounded px-2 py-1"
+					/>
+					<button id="username-update-btn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Update</button>
+			</div>
           <p id="email"></p>
 		  <p id="wins"></p>
 		  <p id="losses"></p>

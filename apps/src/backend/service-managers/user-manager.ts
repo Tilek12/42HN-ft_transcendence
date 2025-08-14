@@ -1,5 +1,6 @@
 import { WebSocket } from 'ws';
 import { Player } from '../game/types';
+import profile = require('../database/profile');
 
 interface User {
 	id: string;

@@ -185,6 +185,9 @@ export function renderLogin(root: HTMLElement) {
             <span>Success!</span>
           </div>
         `;
+		// const login_btn = document.getElementById('login-btn');
+		// console.log("Element : =======>>>", login_btn);
+		// login_btn?.classList.add("hidden");
         // connectPresenceSocket();
         wsManager.connectPresenceSocket();
         setTimeout(() => {

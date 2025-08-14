@@ -2,9 +2,11 @@ import { wsManager } from '../websocket/ws-manager';
 
 let presenceUnsub: (() => void) | null = null;
 
-function updateOnlineUsers() {
+async function updateOnlineUsers() {
   const count = wsManager.onlineUserCount;
   const users = wsManager.presenceUserList;
+  const active_users =
+  console.log("==============>> FrontEnd Users :", users);
 
   const badge = document.getElementById('active-users-count');
   const list = document.getElementById('active-users-list');
@@ -76,7 +78,7 @@ export function renderNav() {
           </div>
 
           <!-- Login Button -->
-          <a href="#/login" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg">
+          <a id="login-btn" href="#/login" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg">
             Login
           </a>
         </div>

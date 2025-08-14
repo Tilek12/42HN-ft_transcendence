@@ -79,6 +79,55 @@ export async function renderProfile(root: HTMLElement) {
 				profile_offset += profile_limit;
 			}
 		});
+		document.getElementById('username')?.addEventListener('click', ()=>
+		{
+			const username_par_el= document.getElementById('username') as HTMLParagraphElement;
+			const username_input_el = document.getElementById('username-input') as HTMLInputElement;
+			username_input_el.value = username_par_el.textContent || '';
+			username_par_el.classList.add('hidden');
+			username_input_el.classList.remove('hidden');
+			username_input_el.focus();
+		});
+		document.getElementById('username-update-btn')?.addEventListener
+			('click', async (e) =>
+			{
+				const username_par_el= document.getElementById('username') as HTMLParagraphElement;
+				const username_input_el = document.getElementById('username-input') as HTMLInputElement;
+				const username_btn_el = document.getElementById('username-update-btn') as HTMLButtonElement;
+				const new_username = username_input_el.value.trim();
+				console.log(`====> INPUT: $$${new_username}$$$`);
+				if (!/^(?=.*[a-z])[a-z0-9]+$/.test(new_username))
+				{
+					alert(`Username must have atleast one lowercase letter and numbers`)
+					return;
+				}
+				try
+				{
+					const res = await fetch('/api/update-username',
+						{
+							method: 'POST',
+							headers: {
+										'Authorization': `Bearer ${getToken()}`,
+										'Content-Type': 'application/json',
+									},
+							body: JSON.stringify({username: new_username}),
+						},
+					)
+					const data = await res.json();
+					if(!res.ok)
+					{
+						alert(data.error || 'Failed to update username');
+						return
+					}
+					username_par_el.textContent = data.new_username;
+					username_par_el.classList.remove('hidden');
+					username_input_el.classList.add('hidden');
+				}catch (e)
+				{
+					console.error(e);
+					alert('Error updating username');
+				}
+			})
 	//----------------load pagination process--------------------------------------
 	document.getElementById('profiles-list')?.addEventListener
 		('click', async (e) => {allProfiles = await listenerFriendAndBlock(e, 'profiles-list', false, allProfiles, profile_offset, profile_limit)});

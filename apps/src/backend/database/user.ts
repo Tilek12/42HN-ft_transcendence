@@ -1,18 +1,18 @@
 import { db } from './client';
 
-export async function findUserByUsername(username: string) {
+async function findUserByUsername(username: string) {
 	return await db.get('SELECT * FROM users WHERE username = ?', username);
 }
 
-export async function findUserByEmail(email: string) {
+async function findUserByEmail(email: string) {
 	return await db.get('SELECT * FROM users WHERE email = ?', email);
 }
 
-export async function findUserById(id: string) {
+async function findUserById(id: string) {
 	return await db.get('SELECT * FROM users WHERE id = ?', id);
 }
 
-export async function createUser(username: string, email: string, hashedPassword: string) {
+async function createUser(username: string, email: string, hashedPassword: string) {
 	await db.run(
 		'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
 		username,
@@ -20,8 +20,20 @@ export async function createUser(username: string, email: string, hashedPassword
 		hashedPassword
 	);
 }
-
-export async function getUsernameById(id: string): Promise<string | null> {
+async function isUsername(new_username : string)
+{
+	const result = await db.get('SELECT id FROM users WHERE username = ? ', new_username);
+	console.log(`result ------->>> ${result}`)
+	return result !== undefined ? true : false;
+}
+async function updateUsername (id: number, new_username: string)
+{
+	console.log(`INSIDE UPDATE username : ${new_username} id : ${id}`);
+	return await db.run('UPDATE users SET username = ? WHERE id = ?', [new_username, id]);
+}
+async function getUsernameById(id: string): Promise<string | null> {
 	const row = await db.get<{ username: string }>('SELECT username FROM users WHERE id = ?', id);
 	return row?.username || null;
 }
+
+export {findUserByUsername, findUserById, findUserByEmail, createUser, isUsername, updateUsername, getUsernameById};

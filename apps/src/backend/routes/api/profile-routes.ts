@@ -3,7 +3,8 @@ import sharp from 'sharp';
 import path from 'path';
 
 import { FastifyPluginAsync } from 'fastify';
-import { findUserById } from '../../database/user';
+import { findUserById, 	isUsername,
+	updateUsername } from '../../database/user';
 import {
 	findProfileById,
 	updatePicturePath,
@@ -206,7 +207,23 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 			console.log(err);
 		}
 	});
+	fastify.post('/update-username', async (req: any, res: any) => 
+	{
+		console.log("HERE +++++++++");
+		const jwt = await req.jwtVerify();
+		const userId = jwt.id;
+		const new_username = req.body.username;
+		console.log(`REQUEST==========>> ${new_username} and USERID ${userId}`);
+		console.log("HERE +++++++++");
+		const exists = await isUsername(new_username);
+		console.log(`EXISTS =====> ${exists}`);
+		if (exists)
+			return res.status(400).json({error: 'Username already taken. '});
+		await updateUsername(userId, new_username);
+		console.log("HERE +++++++++ after UPDATE  ======?????");
+		res.send({success: true, new_username: new_username});
 
+	})
 	fastify.get('/parse-profiles', async (req : any, res : any) => {
 		try {
 			const jwt = await req.jwtVerify();
