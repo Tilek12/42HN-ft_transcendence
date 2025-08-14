@@ -56,6 +56,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 		try {
 			const jwt = await req.jwtVerify();
 			const data = await req.file();
+			// console.log("Sended Data==========>>>>>",data);
 			if (!data)
 				return res.status(400).send({message: 'No file uploaded'});
 			const ext = path.extname(data.filename);
@@ -78,11 +79,13 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 				.resize(200, 200, {fit: 'cover', position: 'center',})
 				.webp({ quality: 60})
 				.toBuffer();
-			console.log("=====>>Compresed", compressed);
+			// console.log("=====>>Compresed", compressed);
 			//----uploading-------------
 			const relativePath = `${fileName}`;
 			await updatePicturePath(jwt.id, '', compressed);
-			res.send({message: 'Profile picture updated and resized', path: relativePath});
+			const profile = await findProfileById(jwt.id);
+			// console.log(profile);
+			res.send({message: 'Profile picture updated and resized', path: relativePath, blob: profile.image_blob.toString("base64")});
 		} catch (err) {
 			console.error(err);
 			res.status(500).send({message: 'Upload failed'});
@@ -100,7 +103,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 				if (fs.existsSync(filePath))
 					fs.unlinkSync(filePath);
 			}
-			await updatePicturePath(jwt.id, 'default_pic.webp');
+			await updatePicturePath(jwt.id, 'default_pic.webp', null);
 			res.send({message: 'Profile picture deleted and reset to default'});
 		} catch(err) {
 			res.status(401).send({message: 'Unauthorized or error delete_pic'});

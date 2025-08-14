@@ -40,8 +40,6 @@ export const profile_ids = (
 
 export function renderUserProfile(backend_url: string, data: any)
 {
-	console.log("====>> FronEnd", data.profile.image_path === '' ? 'yes' : 'no');
-	console.log("====>> blob", data.profile.image_blob);
 	let res : string = renderBackgroundTop(`
         <div class="pt-24 max-w-xl mx-auto text-white p-6">
 		<form id=upload-form>
