@@ -60,7 +60,9 @@ export function renderUserProfile(backend_url: string, data: any)
 					type="text"
 					class="hidden text-black border border-gray-300 rounded px-2 py-1"
 					/>
-					<button id="username-update-btn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Update</button>
+					<button id="username-edit-btn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded">Edit</button>
+					<button id="username-update-btn" class="hidden px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Update</button>
+					<button id="username-cancel-btn" class="hidden px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Cancel</button>
 			</div>
           <p id="email"></p>
 		  <p id="wins"></p>

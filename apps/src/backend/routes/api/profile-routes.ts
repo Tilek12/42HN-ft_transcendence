@@ -209,18 +209,18 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 	});
 	fastify.post('/update-username', async (req: any, res: any) => 
 	{
-		console.log("HERE +++++++++");
+		// console.log("HERE +++++++++");
 		const jwt = await req.jwtVerify();
 		const userId = jwt.id;
 		const new_username = req.body.username;
-		console.log(`REQUEST==========>> ${new_username} and USERID ${userId}`);
-		console.log("HERE +++++++++");
+		// console.log(`REQUEST==========>> ${new_username} and USERID ${userId}`);
+		// console.log("HERE +++++++++");
 		const exists = await isUsername(new_username);
-		console.log(`EXISTS =====> ${exists}`);
+		// console.log(`EXISTS =====> ${exists}`);
 		if (exists)
 			return res.status(400).json({error: 'Username already taken. '});
 		await updateUsername(userId, new_username);
-		console.log("HERE +++++++++ after UPDATE  ======?????");
+		// console.log("HERE +++++++++ after UPDATE  ======?????");
 		res.send({success: true, new_username: new_username});
 
 	})
