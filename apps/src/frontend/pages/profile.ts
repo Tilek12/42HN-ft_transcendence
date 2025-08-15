@@ -7,7 +7,8 @@ import { listenerFriendAndBlock } from './ListenerProfileList';
 import { listenerDeletePicture, listenerLogoutBtn, listenerUploadPicture } from './listenerUploadAndDeletePicture';
 import { getEnvVariable } from './TypeSafe';
 import {listenerPasswordCancel, listenerPasswordEdit, listenerPasswordUpdate} from './listenerUpdatePasswordAndUsername';
-import {listenerUsernameUpdate, listenerUsernameCancel} from './listenerUpdatePasswordAndUsername' ;
+import {listenerUsernameUpdate, listenerUsernameCancel, listenerUsernameEdit} from './listenerUpdatePasswordAndUsername' ;
+import type {AllProfileWithLimitAndOffset} from './renderProfiles';
 
 type Match =
 {
@@ -65,7 +66,7 @@ export async function renderProfile(root: HTMLElement) {
 	let allProfiles: {profiles : any[]}[] | undefined= [];
 	let profile_offset = 0;
 	let profile_limit = 1;
-
+	let new_all_profiles : AllProfileWithLimitAndOffset | undefined;
 	//---------------Password Related Variables------------------------------------
 	const password_old_check = document.getElementById('password-old-check') as HTMLInputElement;
 	const password_new = document.getElementById('password-new') as HTMLInputElement;
@@ -84,6 +85,11 @@ export async function renderProfile(root: HTMLElement) {
 	(async () =>{
 		allProfiles = await  renderProfilesList('profiles-list', false, allProfiles, profile_offset, profile_limit);
 	})();
+	document.getElementById('more-profiles-btn')?.addEventListener('click', async ()=>
+	{
+		profile_offset++;
+		allProfiles = await  renderProfilesList('profiles-list', true, allProfiles, profile_offset, profile_limit);
+	})
 	document.getElementById('password-edit-btn')?.addEventListener('click', ()=> 
 		listenerPasswordEdit(
 			password_old_check,
@@ -126,19 +132,25 @@ export async function renderProfile(root: HTMLElement) {
 		username_edit_btn,
 		username_input_el,
 		username_par_el
-	))
+	));
+	document.getElementById('username-edit-btn')?.addEventListener('click', ()=> listenerUsernameEdit(
+		username_cancel_btn,
+		username_update_btn,
+		username_edit_btn,
+		username_input_el,
+		username_par_el
+	));
 	//----------------load pagination process--------------------------------------
 	document.getElementById('profiles-list')?.addEventListener
 		('click', async (e) => {allProfiles = await listenerFriendAndBlock(e, 'profiles-list', false, allProfiles, profile_offset, profile_limit)});
-	// console.log("allProfiles: ", allProfiles);
 	document.getElementById('upload-form')?.addEventListener
 		('submit', async (e) => listenerUploadPicture(e));
 	document.getElementById('delete-pic-btn')?.addEventListener
 		('click', async (e) => listenerDeletePicture(e));
 	document.getElementById('logout-btn')?.addEventListener
 		('click', async (e) => listenerLogoutBtn(e));
+	
 	//==================Linda's code==========================
-		  // Fetch match history
 		  fetch('/api/private/match/user', {
 			headers: {
 			  'Authorization': `Bearer ${getToken()}`
@@ -152,18 +164,10 @@ export async function renderProfile(root: HTMLElement) {
 			  if (!matchContainer) return;
 
 			  if (!Array.isArray(matches) || matches.length === 0) {
-				//thomas changes
-				// matchContainer.innerHTML += `<h2 class="text-xl font-bold mt-6">Match History</h2>
-				//   <p>No matches found.</p>`;
 				matchContainer.innerHTML += `
 				<p>No matches found.</p>`;
 				return;
 			  }
-			// console.log("Matches: ", matches);
-			// const wins = matches.filter(m => m.winner_id == m.id).length;
-			// const matches_count = matches.length;
-			// const success_rate = Math.floor((wins / matches_count) * 100) ;
-			// console.log(`rate: ${success_rate} %`);
 			matchContainer.innerHTML += `
 			<div class="overflow-x-auto">
 				<table class="w-full text-left border-collapse shadow rounded-lg">

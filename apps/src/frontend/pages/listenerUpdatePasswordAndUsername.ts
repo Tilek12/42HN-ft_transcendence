@@ -125,6 +125,21 @@ const listenerUsernameCancel = (
 	username_par_el.classList.remove('hidden');
 	username_edit_btn?.classList.remove('hidden');
 }
+const listenerUsernameEdit = (
+	username_cancel_btn: HTMLButtonElement, 
+	username_update_btn :HTMLButtonElement, 
+	username_edit_btn: HTMLButtonElement, 
+	username_input_el: HTMLInputElement, 
+	username_par_el: HTMLParagraphElement
+
+) =>
+{
+	username_cancel_btn?.classList.remove('hidden');
+	username_update_btn?.classList.remove('hidden');
+	username_input_el.classList.remove('hidden');
+	username_par_el.classList.add('hidden');
+	username_edit_btn?.classList.add('hidden');
+}
 const listenerUsernameUpdate = async (
 	username_cancel_btn: HTMLButtonElement, 
 	username_update_btn :HTMLButtonElement, 
@@ -172,4 +187,4 @@ const listenerUsernameUpdate = async (
 		alert('Error updating username');
 	}
 }
-export {listenerPasswordEdit, listenerPasswordCancel, listenerPasswordUpdate, listenerUsernameCancel, listenerUsernameUpdate};
+export {listenerPasswordEdit, listenerPasswordCancel, listenerPasswordUpdate, listenerUsernameCancel, listenerUsernameUpdate, listenerUsernameEdit};

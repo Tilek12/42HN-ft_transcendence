@@ -1,6 +1,9 @@
 import { FastifyPluginAsync } from 'fastify';
 import { hashPassword, verifyPassword } from '../../auth/utils';
 import { loginSchema, registerSchema } from '../../auth/schemas';
+import fs from 'fs';
+import sharp from 'sharp';
+import path from 'path';
 import {
 	findUserByUsername,
 	findUserByEmail,
@@ -23,6 +26,11 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 		await createUser(username, email, hashed);
 		//-----Thomas--------
 		await createProfile(username);
+		//---------------Ican create here a default blob--------------
+		//------------I want to find the file-------------------------
+		//------------make it a blob----------------------------------
+		
+
 		//-----Thomas--------
 		res.send({ message: 'User registered successfully' });
 	});

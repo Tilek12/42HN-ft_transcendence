@@ -1,5 +1,6 @@
 import { getToken} from '../utils/auth'
 import { getEnvVariable } from './TypeSafe';
+import { wsManager } from '../websocket/ws-manager';
 
 export async function renderFriendsList(container_id : string, load?: boolean, allFriends ?: {friends: any[]}, friend_offeset ?: number, friend_limit ?: number )
 {
@@ -15,6 +16,7 @@ export async function renderFriendsList(container_id : string, load?: boolean, a
 	// I can have a filter that is (minimum requests) + (clicks of loads)*limit
 	container.innerHTML = `<h1 class="text-2xl font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Friends List</h1>` + data.friends.map((friend: any) =>
 	{
+		const is_connected = wsManager.presenceUserList.map(u=>u.name).includes(friend.username);
 		const img_src = friend.image_blob ? 
 				`data:image/webp;base64,${friend.image_blob}` : 
 				`${BACKEND_URL}/profile_pics/${friend.image_path}`;
@@ -23,8 +25,8 @@ export async function renderFriendsList(container_id : string, load?: boolean, a
 		<div>
 			<a href="" class="text-lg font-semibold text-blue-600 hover:underline">${friend.username}</a>
 			<p class="text-sm text-gray-600"> 🏆 ${friend.trophies} | ✅ ${friend.wins} | ❌ ${friend.losses} </p>
-			<span class="${friend.logged_in ? 'text-green-600' :'text-gray-500'}">
-				${friend.logged_in ? 'online' : 'offline'}
+			<span class="${is_connected ? 'text-green-600' :'text-gray-500'}">
+				${is_connected ? 'online' : 'offline'}
 			</span>
 		</div>
 		</div>`

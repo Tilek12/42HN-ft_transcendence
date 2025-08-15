@@ -1,4 +1,5 @@
 import { renderBackgroundTop } from "../utils/layout";
+import { wsManager } from '../websocket/ws-manager';
 
 export type Profile_details = {
 	backend_url?: string;
@@ -25,7 +26,9 @@ export const profile_ids = (
 		let profile_pic = document.getElementById(profile.profile_pic_id) as HTMLImageElement;
 		if(logged_in && username && email && wins && losses && trophies && created_at && profile_pic)
 		{
-			logged_in.innerHTML = `<strong>logged_in: </strong> ${profile.data_async.profile.logged_in === 1 ? 'yes' : 'no'}`;
+			const listUsers = wsManager.presenceUserList.map((u)=> u.name);
+			// console.log("========>>>> wsManager",listUsers.includes(profile.data_async.user.username));
+			logged_in.innerHTML = `<strong>logged_in: </strong> ${listUsers.includes(profile.data_async.user.username) ? 'yes' : 'no'}`;
 			username.innerHTML = ` ${profile.data_async.user.username}`;
 			email.innerHTML = `<strong>Email:</strong> ${profile.data_async.user.email}`;
 			wins.innerHTML = `<strong>wins:</strong> ${profile.data_async.profile.wins}`;

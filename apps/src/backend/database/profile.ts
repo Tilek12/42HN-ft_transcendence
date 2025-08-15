@@ -1,5 +1,8 @@
 import { db } from './client';
 import { findUserByUsername } from './user';
+import fs from 'fs';
+import sharp from 'sharp';
+import path from 'path';
 
 //----------functions for profiles data base-----------
 export async function findProfileByUsername(username:string)
@@ -24,6 +27,10 @@ export async function createProfile(username: string)
 		'INSERT INTO profiles (id, logged_in, wins, losses, trophies) VALUES (?,?,?,?,?)',
 		user.id, false, 0, 0, 0
 	);
+	//-----------
+	const __dirname = 'app/src/backend/'
+	console.log("=============>>>>>dirname: ", __dirname);
+
 }
 export async function updateProfileLogInState(id: number, status: boolean)
 {
