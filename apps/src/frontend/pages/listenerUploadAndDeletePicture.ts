@@ -46,7 +46,7 @@ export const listenerUploadPicture = async (e : any) =>
 		const formData = new FormData();
 		formData.append('profile_pic', file);
 		
-		const res = await fetch('/api/upload_pic',
+		const res = await fetch('/api/private/upload_pic',
 			{
 				method: 'POST',
 				headers: {
@@ -72,7 +72,7 @@ export const listenerUploadPicture = async (e : any) =>
 export const listenerDeletePicture = async (e : any) =>
 {
 	e.preventDefault();
-	const res = await fetch(`/api/delete_pic`,
+	const res = await fetch(`/api/private/delete_pic`,
 		{
 			method: 'POST',
 			headers:
@@ -98,7 +98,7 @@ export const listenerLogoutBtn = async (e : any) =>
 	e.preventDefault();
 	{
 		const token = getToken();
-			await fetch('/api/logout',
+			await fetch('/api/private/logout',
 				{
 					method: 'POST',
 					headers: {'Authorization': `Bearer ${token}`},

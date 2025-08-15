@@ -9,7 +9,7 @@ export async function renderFriendsList(container_id : string, load?: boolean, a
 	if (!container) return;
 	try
 	{
-		const res = await fetch('/api/parse-friends', 
+		const res = await fetch('/api/private/parse-friends', 
 			{headers: {Authorization: `Bearer ${getToken()}`}
 		});
 	const data = await res.json();

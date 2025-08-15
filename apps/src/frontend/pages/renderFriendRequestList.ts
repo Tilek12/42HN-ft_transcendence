@@ -14,7 +14,7 @@ export async function renderFriendRequestsList ()
 	const token = getToken();
 	try
 	{
-		const res = await fetch('/api/parse-profiles',
+		const res = await fetch('/api/private/parse-profiles',
 			{headers: {Authorization: `Bearer ${token}`}
 		});
 	// I need a logic only if they are friends or not if they are friends I need to show a button send friend request or an friend icon

@@ -16,7 +16,7 @@ const asyncFriendRequestHandler = async (attributes : friendRequestAttributes) =
 {
 	let res : any;
 	// console.log(`clicked ${attributes.testing_attribute}`)
-	res = await fetch(`/api/${attributes.api_endpoint}`, {
+	res = await fetch(`/api/private/${attributes.api_endpoint}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',

@@ -45,7 +45,7 @@ const listenerPasswordCancel = (
 	let new_value = password_new.value;
 	let confirm_value = password_confirm.value;
 
-	let res = await fetch('/api/check-given-old-password',
+	let res = await fetch('/api/private/check-given-old-password',
 		{
 			method: 'POST',
 			headers:
@@ -79,7 +79,7 @@ const listenerPasswordCancel = (
 		alert('The given new password must be different than the older one');
 		return ;
 	}
-		res = await fetch('/api/update-password',
+		res = await fetch('/api/private/update-password',
 		{
 			method: 'POST',
 			headers:
@@ -159,7 +159,7 @@ const listenerUsernameUpdate = async (
 	}
 	try
 	{
-		const res = await fetch('/api/update-username',
+		const res = await fetch('/api/private/update-username',
 			{
 				method: 'POST',
 				headers: {

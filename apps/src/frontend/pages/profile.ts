@@ -33,7 +33,7 @@ export async function renderProfile(root: HTMLElement) {
     return;
   }
 
-  fetch('/api/profile', {
+  fetch('/api/private/profile', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${getToken()}` }
   })

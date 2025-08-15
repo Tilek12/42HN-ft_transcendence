@@ -62,14 +62,14 @@ async function main() {
 
 	// Public routes
 	await server.register(authRoutes, { prefix: '/api' });			// 👈 Public routes (login/register)
-	await server.register(profileRoutes, { prefix: '/api' });		// !!! REPLACE TO PRIVATE !!!
+	// await server.register(profileRoutes, { prefix: '/api' });		// !!! REPLACE TO PRIVATE !!!
 	await server.register(tournamentRoutes, { prefix: '/api' });	// !!! REPLACE TO PRIVATE !!!
 
 	// Protected scope of routes
 	await server.register(async (protectedScope : any) => {
 		await protectedScope.register(authPlugin);			// 👈 Middleware checking token
 		await protectedScope.register(userRoutes);			// 👈 Protected routes: /api/private/me
-		// await protectedScope.register(profileRoutes);		// 👈 Protected routes: /api/private/profile
+		await protectedScope.register(profileRoutes);		// 👈 Protected routes: /api/private/profile
 		// await protectedScope.register(tournamentRoutes);	// 👈 Protected routes: /api/private/tournaments
 		await protectedScope.register(matchRoutes);			// 👈 Protected routes: /api/private/match
 	}, { prefix: '/api/private' });

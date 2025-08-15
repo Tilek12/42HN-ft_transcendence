@@ -36,7 +36,7 @@ const remove_load_btn = async (offset_pr: number, limit_pr: number, token_async:
 	console.log("im Hereeeeeeeeeee: ");
 	console.log("offset: ", offset_pr);
 	console.log("limit_pr: ", limit_pr);
-	res_async = await fetch(`/api/parse-profiles?offset=${offset_pr}&limit=${limit_pr}`,{headers: {Authorization: `Bearer ${token_async}`}});
+	res_async = await fetch(`/api/private/parse-profiles?offset=${offset_pr}&limit=${limit_pr}`,{headers: {Authorization: `Bearer ${token_async}`}});
 	let newProfiles : {profiles : any[]} = await res_async.json();
 	return newProfiles.profiles.length === 0
 }
@@ -92,7 +92,7 @@ export async function renderProfilesList (
 		}
 		// limit = 4;
 		// offset = 0;
-		res = await fetch(`/api/parse-profiles?offset=${offset}&limit=${limit}`,{headers: {Authorization: `Bearer ${token}`}});
+		res = await fetch(`/api/private/parse-profiles?offset=${offset}&limit=${limit}`,{headers: {Authorization: `Bearer ${token}`}});
 		if (actionBtn == true)
 			allProfiles =[];
 		let newProfiles : {profiles : any[]} = await res.json();
