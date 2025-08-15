@@ -4,7 +4,7 @@ import path from 'path';
 
 import { FastifyPluginAsync } from 'fastify';
 import { findUserById, 	isUsername,
-	updateUsername } from '../../database/user';
+	updateUsername, updatePasswordById } from '../../database/user';
 import {
 	findProfileById,
 	updatePicturePath,
@@ -20,6 +20,7 @@ import {
 	DeleteFromBlockedList,
 	userIsBlocked,
 } from '../../database/profile';
+import {verifyPassword, hashPassword} from '../../auth/utils';
 
 const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 	fastify.post ('/profile', async (req : any, res : any) => {
@@ -265,6 +266,30 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 				res.status(401).send({message: 'Unauthorized parse_profiles'});
 				console.log(err);
 		}
+	})
+	fastify.post('/check-given-old-password', async(req : any, res : any) =>{
+		const jwt = await req.jwtVerify();
+		const id = await jwt.id;
+		const user = await findUserById(id);
+		const password = await req.body.password;
+		const is_password_verified = await verifyPassword(password, user.password);
+		res.send({answer: is_password_verified});
+	})
+	fastify.post('/update-password', async(req :any, res : any) =>{
+		try{
+			const jwt = await req.jwtVerify();
+			const id = await jwt.id;
+			const password = await req.body.password;
+			const hashed = await hashPassword(password);
+			await updatePasswordById(id, hashed);
+			res.send({message: 'User successfully updated his password!'});
+
+		} catch(e)
+		{
+			res.send({message : e});
+			console.log(e);
+		}
+
 	})
 };
 

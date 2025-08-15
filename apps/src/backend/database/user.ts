@@ -28,12 +28,16 @@ async function isUsername(new_username : string)
 }
 async function updateUsername (id: number, new_username: string)
 {
-	console.log(`INSIDE UPDATE username : ${new_username} id : ${id}`);
 	return await db.run('UPDATE users SET username = ? WHERE id = ?', [new_username, id]);
 }
+async function updatePasswordById(id : number, new_password: string)
+{
+	return await db.run('UPDATE users SET password = ? WHERE id = ?', [new_password, id]);
+}
+
 async function getUsernameById(id: string): Promise<string | null> {
 	const row = await db.get<{ username: string }>('SELECT username FROM users WHERE id = ?', id);
 	return row?.username || null;
 }
 
-export {findUserByUsername, findUserById, findUserByEmail, createUser, isUsername, updateUsername, getUsernameById};
+export {findUserByUsername, findUserById, findUserByEmail, createUser, isUsername, updateUsername, updatePasswordById, getUsernameById};

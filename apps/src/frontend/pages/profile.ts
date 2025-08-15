@@ -68,7 +68,117 @@ export async function renderProfile(root: HTMLElement) {
 	(async () =>{
 		allProfiles = await  renderProfilesList('profiles-list', false, allProfiles, profile_offset, profile_limit);
 	})();
+	document.getElementById('password-edit-btn')?.addEventListener('click', ()=>{
+		const password_old_check = document.getElementById('password-old-check') as HTMLInputElement;
+		const password_new = document.getElementById('password-new') as HTMLInputElement;
+		const password_confirm = document.getElementById('password-confirm') as HTMLInputElement;
+		const password_edit_btn = document.getElementById('password-edit-btn') as HTMLButtonElement;
+		const password_update_btn = document.getElementById('password-update-btn') as HTMLButtonElement;
+		const password_cancel_btn = document.getElementById('password-cancel-btn') as HTMLButtonElement;
 
+		password_old_check?.classList.remove('hidden');
+		password_new?.classList.remove('hidden');
+		password_confirm?.classList.remove('hidden');
+		password_update_btn?.classList.remove('hidden');
+		password_cancel_btn?.classList.remove('hidden');
+		password_edit_btn?.classList.add('hidden');
+	})
+	document.getElementById('password-cancel-btn')?.addEventListener('click', ()=>{
+		const password_old_check = document.getElementById('password-old-check') as HTMLInputElement;
+		const password_new = document.getElementById('password-new') as HTMLInputElement;
+		const password_confirm = document.getElementById('password-confirm') as HTMLInputElement;
+		const password_edit_btn = document.getElementById('password-edit-btn') as HTMLButtonElement;
+		const password_update_btn = document.getElementById('password-update-btn') as HTMLButtonElement;
+		const password_cancel_btn = document.getElementById('password-cancel-btn') as HTMLButtonElement;
+
+		password_old_check?.classList.add('hidden');
+		password_new?.classList.add('hidden');
+		password_confirm?.classList.add('hidden');
+		password_update_btn?.classList.add('hidden');
+		password_cancel_btn?.classList.add('hidden');
+		password_edit_btn?.classList.remove('hidden');
+	})
+	document.getElementById('password-update-btn')?.addEventListener('click', async ()=>{
+		// I want to check if the typed password in the first part is the same with the old password
+		//if the new and confirm are not empty and the same and not the same with the old password
+		const password_old_check = document.getElementById('password-old-check') as HTMLInputElement;
+		const password_new = document.getElementById('password-new') as HTMLInputElement;
+		const password_confirm = document.getElementById('password-confirm') as HTMLInputElement;
+		const password_edit_btn = document.getElementById('password-edit-btn') as HTMLButtonElement;
+		const password_update_btn = document.getElementById('password-update-btn') as HTMLButtonElement;
+		const password_cancel_btn = document.getElementById('password-cancel-btn') as HTMLButtonElement;
+
+
+		let old_value = password_old_check.value;
+		let new_value = password_new.value;
+		let confirm_value = password_confirm.value;
+
+		// check the old value
+		let res = await fetch('/api/check-given-old-password',
+			{
+				method: 'POST',
+				headers:
+				{
+					'Authorization': `Bearer ${getToken()}`,
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({password: old_value}),
+			},
+		);
+		let data = await res.json();
+		const is_verified = data.answer;
+		console.log("OLD VALUE LENGTH: ", old_value.length);
+		if (!is_verified)
+		{
+			alert('try again to write your old password!')
+			return ;
+		}
+		if (new_value !== confirm_value)
+		{
+			alert('The new and confirm password are not the same');
+			return ;
+		}
+		if (new_value.length < 6)
+		{
+			alert ('Try a password with more than 6 characters!');
+			return ;
+		}
+		if (new_value === old_value)
+		{
+			alert('The given new password must be different than the older one');
+			return ;
+		}
+			res = await fetch('/api/update-password',
+			{
+				method: 'POST',
+				headers:
+				{
+					'Authorization': `Bearer ${getToken()}`,
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({password: new_value}),
+			},
+			);
+			data = await res.json();
+			if (res.ok)
+			{
+				alert (data.message);
+				password_old_check.value ='';
+				password_confirm.value ='';
+				password_new.value ='';
+			}
+			else 
+				alert ('Something went wrong');
+		// check if the new_value and confirm are the same with atleast 6 chars
+
+		//------------------If everything is ok------------------
+		password_old_check?.classList.add('hidden');
+		password_new?.classList.add('hidden');
+		password_confirm?.classList.add('hidden');
+		password_update_btn?.classList.add('hidden');
+		password_cancel_btn?.classList.add('hidden');
+		password_edit_btn?.classList.remove('hidden');
+	})
 	document.getElementById('more-profiles-btn')?.addEventListener
 	('click', async () =>
 	{
