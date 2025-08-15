@@ -1,5 +1,4 @@
 import { renderNav } from './nav'
-import { renderBackgroundTop } from '../utils/layout'
 import { getToken, clearToken, validateLogin } from '../utils/auth'
 import { renderProfilesList } from './renderProfiles';
 import { renderUserProfile, profile_ids } from './renderUserProfile';
@@ -7,6 +6,8 @@ import type { Profile_details } from './renderUserProfile';
 import { listenerFriendAndBlock } from './ListenerProfileList';
 import { listenerDeletePicture, listenerLogoutBtn, listenerUploadPicture } from './listenerUploadAndDeletePicture';
 import { getEnvVariable } from './TypeSafe';
+import {listenerPasswordCancel, listenerPasswordEdit, listenerPasswordUpdate} from './listenerUpdatePasswordAndUsername';
+import {listenerUsernameUpdate, listenerUsernameCancel} from './listenerUpdatePasswordAndUsername' ;
 
 type Match =
 {
@@ -64,209 +65,68 @@ export async function renderProfile(root: HTMLElement) {
 	let allProfiles: {profiles : any[]}[] | undefined= [];
 	let profile_offset = 0;
 	let profile_limit = 1;
+
+	//---------------Password Related Variables------------------------------------
+	const password_old_check = document.getElementById('password-old-check') as HTMLInputElement;
+	const password_new = document.getElementById('password-new') as HTMLInputElement;
+	const password_confirm = document.getElementById('password-confirm') as HTMLInputElement;
+	const password_edit_btn = document.getElementById('password-edit-btn') as HTMLButtonElement;
+	const password_update_btn = document.getElementById('password-update-btn') as HTMLButtonElement;
+	const password_cancel_btn = document.getElementById('password-cancel-btn') as HTMLButtonElement;
+	//--------------Username Related Variables-------------------------------------
+	const username_update_btn = document.getElementById('username-update-btn') as HTMLButtonElement;
+	const username_cancel_btn = document.getElementById('username-cancel-btn') as HTMLButtonElement;
+	const username_edit_btn = document.getElementById('username-edit-btn') as HTMLButtonElement;
+
+	const username_par_el= document.getElementById('username') as HTMLParagraphElement;
+	const username_input_el = document.getElementById('username-input') as HTMLInputElement;
 	setTimeout(() => profile_ids(profile_details), 0);
 	(async () =>{
 		allProfiles = await  renderProfilesList('profiles-list', false, allProfiles, profile_offset, profile_limit);
 	})();
-	document.getElementById('password-edit-btn')?.addEventListener('click', ()=>{
-		const password_old_check = document.getElementById('password-old-check') as HTMLInputElement;
-		const password_new = document.getElementById('password-new') as HTMLInputElement;
-		const password_confirm = document.getElementById('password-confirm') as HTMLInputElement;
-		const password_edit_btn = document.getElementById('password-edit-btn') as HTMLButtonElement;
-		const password_update_btn = document.getElementById('password-update-btn') as HTMLButtonElement;
-		const password_cancel_btn = document.getElementById('password-cancel-btn') as HTMLButtonElement;
-
-		password_old_check?.classList.remove('hidden');
-		password_new?.classList.remove('hidden');
-		password_confirm?.classList.remove('hidden');
-		password_update_btn?.classList.remove('hidden');
-		password_cancel_btn?.classList.remove('hidden');
-		password_edit_btn?.classList.add('hidden');
-	})
-	document.getElementById('password-cancel-btn')?.addEventListener('click', ()=>{
-		const password_old_check = document.getElementById('password-old-check') as HTMLInputElement;
-		const password_new = document.getElementById('password-new') as HTMLInputElement;
-		const password_confirm = document.getElementById('password-confirm') as HTMLInputElement;
-		const password_edit_btn = document.getElementById('password-edit-btn') as HTMLButtonElement;
-		const password_update_btn = document.getElementById('password-update-btn') as HTMLButtonElement;
-		const password_cancel_btn = document.getElementById('password-cancel-btn') as HTMLButtonElement;
-
-		password_old_check?.classList.add('hidden');
-		password_new?.classList.add('hidden');
-		password_confirm?.classList.add('hidden');
-		password_update_btn?.classList.add('hidden');
-		password_cancel_btn?.classList.add('hidden');
-		password_edit_btn?.classList.remove('hidden');
-	})
-	document.getElementById('password-update-btn')?.addEventListener('click', async ()=>{
-		// I want to check if the typed password in the first part is the same with the old password
-		//if the new and confirm are not empty and the same and not the same with the old password
-		const password_old_check = document.getElementById('password-old-check') as HTMLInputElement;
-		const password_new = document.getElementById('password-new') as HTMLInputElement;
-		const password_confirm = document.getElementById('password-confirm') as HTMLInputElement;
-		const password_edit_btn = document.getElementById('password-edit-btn') as HTMLButtonElement;
-		const password_update_btn = document.getElementById('password-update-btn') as HTMLButtonElement;
-		const password_cancel_btn = document.getElementById('password-cancel-btn') as HTMLButtonElement;
-
-
-		let old_value = password_old_check.value;
-		let new_value = password_new.value;
-		let confirm_value = password_confirm.value;
-
-		// check the old value
-		let res = await fetch('/api/check-given-old-password',
-			{
-				method: 'POST',
-				headers:
-				{
-					'Authorization': `Bearer ${getToken()}`,
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({password: old_value}),
-			},
-		);
-		let data = await res.json();
-		const is_verified = data.answer;
-		console.log("OLD VALUE LENGTH: ", old_value.length);
-		if (!is_verified)
-		{
-			alert('try again to write your old password!')
-			return ;
-		}
-		if (new_value !== confirm_value)
-		{
-			alert('The new and confirm password are not the same');
-			return ;
-		}
-		if (new_value.length < 6)
-		{
-			alert ('Try a password with more than 6 characters!');
-			return ;
-		}
-		if (new_value === old_value)
-		{
-			alert('The given new password must be different than the older one');
-			return ;
-		}
-			res = await fetch('/api/update-password',
-			{
-				method: 'POST',
-				headers:
-				{
-					'Authorization': `Bearer ${getToken()}`,
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({password: new_value}),
-			},
-			);
-			data = await res.json();
-			if (res.ok)
-			{
-				alert (data.message);
-				password_old_check.value ='';
-				password_confirm.value ='';
-				password_new.value ='';
-			}
-			else 
-				alert ('Something went wrong');
-		// check if the new_value and confirm are the same with atleast 6 chars
-
-		//------------------If everything is ok------------------
-		password_old_check?.classList.add('hidden');
-		password_new?.classList.add('hidden');
-		password_confirm?.classList.add('hidden');
-		password_update_btn?.classList.add('hidden');
-		password_cancel_btn?.classList.add('hidden');
-		password_edit_btn?.classList.remove('hidden');
-	})
-	document.getElementById('more-profiles-btn')?.addEventListener
-	('click', async () =>
-	{
-		if (allProfiles)
-		{
-			// console.log("button clicked");
-			allProfiles = await renderProfilesList('profiles-list', true, allProfiles, profile_offset, profile_limit);
-			profile_offset += profile_limit;
-		}
-	});
-	document.getElementById('username-edit-btn')?.addEventListener('click', ()=>
-	{
-		const username_par_el= document.getElementById('username') as HTMLParagraphElement;
-		const username_input_el = document.getElementById('username-input') as HTMLInputElement;
-		const username_edit_btn = document.getElementById('username-edit-btn') as HTMLButtonElement;
-		const username_update_btn = document.getElementById('username-update-btn') as HTMLButtonElement;
-		const username_cancel_btn = document.getElementById('username-cancel-btn') as HTMLButtonElement;
-		
-		username_input_el.value = username_par_el.textContent || '';
-		username_par_el.classList.add('hidden');
-		username_input_el.classList.remove('hidden');
-		username_update_btn.classList.remove('hidden');
-		username_cancel_btn.classList.remove('hidden');
-		username_edit_btn.classList.add('hidden');
-		username_input_el.focus();
-	});
+	document.getElementById('password-edit-btn')?.addEventListener('click', ()=> 
+		listenerPasswordEdit(
+			password_old_check,
+			password_new, 
+			password_confirm, 
+			password_update_btn, 
+			password_cancel_btn, 
+			password_edit_btn
+		))
+	document.getElementById('password-cancel-btn')?.addEventListener('click', ()=>
+		listenerPasswordCancel(
+			password_old_check,
+			password_new, 
+			password_confirm, 
+			password_update_btn, 
+			password_cancel_btn, 
+			password_edit_btn
+		))
+	document.getElementById('password-update-btn')?.addEventListener('click', async ()=>
+		listenerPasswordUpdate(
+			password_old_check,
+			password_new, 
+			password_confirm, 
+			password_update_btn, 
+			password_cancel_btn, 
+			password_edit_btn
+		));
 	document.getElementById('username-update-btn')?.addEventListener
-		('click', async (e) =>
-	{
-		const username_update_btn = document.getElementById('username-update-btn') as HTMLButtonElement;
-		const username_cancel_btn = document.getElementById('username-cancel-btn') as HTMLButtonElement;
-		const username_edit_btn = document.getElementById('username-edit-btn') as HTMLButtonElement;
-
-		const username_par_el= document.getElementById('username') as HTMLParagraphElement;
-		const username_input_el = document.getElementById('username-input') as HTMLInputElement;
-		const new_username = username_input_el.value.trim();
-		console.log(`====> INPUT: $$${new_username}$$$`);
-		console.log(`====> username_par_el: $$${username_par_el.innerText}$$$`);
-		if (!/^(?=.*[a-z])[a-z0-9]+$/.test(new_username))
-		{
-			alert(`Username must have atleast one lowercase letter and numbers`)
-			return;
-		}
-		try
-		{
-			const res = await fetch('/api/update-username',
-				{
-					method: 'POST',
-					headers: {
-								'Authorization': `Bearer ${getToken()}`,
-								'Content-Type': 'application/json',
-							},
-					body: JSON.stringify({username: new_username}),
-				},
-			)
-			const data = await res.json();
-			if(!res.ok)
-			{
-				alert(data.error || 'Failed to update username');
-				return
-			}
-			username_par_el.textContent = data.new_username;
-			username_par_el.classList.remove('hidden');
-			username_edit_btn.classList.remove('hidden');
-			username_cancel_btn.classList.add('hidden');
-			username_update_btn.classList.add('hidden');
-			username_input_el.classList.add('hidden');
-		}catch (e)
-		{
-			console.error(e);
-			alert('Error updating username');
-		}
-	})
-	document.getElementById('username-cancel-btn')?.addEventListener('click', ()=> {
-
-		const username_edit_btn = document.getElementById('username-edit-btn');
-		const username_update_btn = document.getElementById('username-update-btn');
-		const username_cancel_btn = document.getElementById('username-cancel-btn');
-
-		const username_par_el = document.getElementById('username') as HTMLParagraphElement;
-		const username_input_el = document.getElementById('username-input') as HTMLInputElement;
-
-		username_cancel_btn?.classList.add('hidden');
-		username_update_btn?.classList.add('hidden');
-		username_input_el.classList.add('hidden');
-		username_par_el.classList.remove('hidden');
-		username_edit_btn?.classList.remove('hidden');
-	})
+		('click', async () =>
+	listenerUsernameUpdate(
+		username_cancel_btn, 
+		username_update_btn, 
+		username_edit_btn, 
+		username_input_el, 
+		username_par_el
+	))
+	document.getElementById('username-cancel-btn')?.addEventListener('click', ()=> listenerUsernameCancel(
+		username_cancel_btn,
+		username_update_btn,
+		username_edit_btn,
+		username_input_el,
+		username_par_el
+	))
 	//----------------load pagination process--------------------------------------
 	document.getElementById('profiles-list')?.addEventListener
 		('click', async (e) => {allProfiles = await listenerFriendAndBlock(e, 'profiles-list', false, allProfiles, profile_offset, profile_limit)});
