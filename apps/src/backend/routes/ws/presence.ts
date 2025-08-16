@@ -71,7 +71,7 @@ const presencePlugin: FastifyPluginAsync = async (fastify) => {
 		socket.on('message', onMessage);
 		socket.on('close', () => { closed = true; });
 		socket.on('error', (err) => {
-			fastify.log.warn('[Presence WS] socket error', err);
+			fastify.log.warn({err},'[Presence WS] socket error');
 		});
 
 		// Begin async verification AFTER handlers attached
@@ -139,7 +139,7 @@ const presencePlugin: FastifyPluginAsync = async (fastify) => {
 		try {
 			userManager.checkHeartbeats(); // implementation updated to ping all socket-types
 		} catch (err) {
-			fastify.log.warn('[Presence WS] heartbeat check error', err);
+			fastify.log.warn({err}, '[Presence WS] heartbeat check error');
 		}
 	}, PING_INTERVAL_MS);
 };

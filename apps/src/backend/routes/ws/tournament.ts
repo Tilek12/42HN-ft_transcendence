@@ -26,9 +26,11 @@ const tournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 		}
 
 		let userId: string;
+		let username: string;
 		try {
 			const payload = await fastify.jwt.verify(token);
 			userId = payload.id;
+			username = payload.name;
 		} catch {
 			return socket.close(4002, 'Invalid token');
 		}
@@ -38,7 +40,7 @@ const tournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 
 		userManager.setTournamentSocket(userId, socket);
 
-		const player: Player = { id: userId, socket };
+		const player: Player = { id: userId, name: username, socket };
 
 		let tournament: Tournament | null = null;
 		if (action === 'create') {

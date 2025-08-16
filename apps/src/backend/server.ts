@@ -22,15 +22,15 @@ import wsTournamentPlugin from './routes/ws/tournament.js';
 dotenv.config();
 
 // Environment
-const LOCAL_IP = process.env.LOCAL_IP || '127.0.0.1';
-const PORT = parseInt(process.env.BACKEND_PORT || '3000');
-const JWT_SECRET = process.env.JWT_SECRET;
+const LOCAL_IP = process.env['LOCAL_IP'] || '127.0.0.1';
+const PORT = parseInt(process.env['BACKEND_PORT'] || '3000');
+const JWT_SECRET = process.env['JWT_SECRET'];
 
 if (!JWT_SECRET) {
 	console.error('❌ Missing JWT_SECRET in .env');
 	process.exit(1);
 }
-
+const secret:string = JWT_SECRET;
 // Create server instance
 const server = Fastify({
 	logger: {
@@ -46,7 +46,8 @@ const server = Fastify({
 // App setup
 async function main() {
 	await connectToDB();								// ✅ Init DB tables
-	await server.register(jwt, { secret: JWT_SECRET });	// ✅ Create JWT
+
+	await server.register(jwt, { secret });	// ✅ Create JWT
 	await server.register(websocket);					// ✅ Add WebSocket support
 	await server.register(multipart);
 

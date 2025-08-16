@@ -48,7 +48,7 @@ const tournamentRoutes: FastifyPluginAsync = async (fastify : any ) => {
 	// Link a match to a tournament
 	fastify.post('/tournament/link-match', async (req : any, res : any) => {
 		try {
-			const jwt = await req.jwtVerify();
+			await req.jwtVerify();
 			const { tournamentId, matchId } = req.body as any;
 
 			if (
@@ -66,7 +66,7 @@ const tournamentRoutes: FastifyPluginAsync = async (fastify : any ) => {
 	});
 
 	// Get all tournaments (public)
-	fastify.get('/tournament', async (req : any, res : any) => {
+	fastify.get('/tournament', async (res : any) => {
 		try {
 			const tournaments = await getAllTournaments();
 			res.send(tournaments);

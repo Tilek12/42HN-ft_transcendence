@@ -12,7 +12,7 @@ const matchRoutes: FastifyPluginAsync = async (fastify : any) => {
 		try {
 
 	//-----Thomas comment-------------------
-			const jwt = await req.jwtVerify(); // validate JWT
+			await req.jwtVerify(); // validate JWT
 	//-----Thomas comment-------------------
 			const {
 				player1Id,
@@ -39,7 +39,7 @@ const matchRoutes: FastifyPluginAsync = async (fastify : any) => {
 	});
 
 	// Get all matches (public)
-	fastify.get('/match', async (req : any, res : any) => {
+	fastify.get('/match', async (res : any) => {
 		try {
 			const matches = await getAllMatches();
 			res.send(matches);

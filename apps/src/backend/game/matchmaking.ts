@@ -20,6 +20,8 @@ export async function startGame(player: Player, mode: 'solo' | 'duel' | 'tournam
 
 	if (players.length >= 2) {
 		const [p1, p2] = players;
+		if (!p1 || !p2)
+			throw new Error("Values undefined matchmakint.ts");
 		gameManager.removeWaitingDuelPlayer(p1.id);
 		gameManager.removeWaitingDuelPlayer(p2.id);
 

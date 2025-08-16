@@ -27,10 +27,10 @@
     // Style Options
     "noImplicitReturns": false,
     "noImplicitOverride": false,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
-    "noPropertyAccessFromIndexSignature": true,
+    "noPropertyAccessFromIndexSignature": false,
 
     // Recommended Options
     "strict": true,

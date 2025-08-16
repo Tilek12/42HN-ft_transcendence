@@ -46,7 +46,7 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
 
 		socket.on('message', onMessage);
 		socket.on('close', () => { closed = true; });
-		socket.on('error', (err) => fastify.log.warn('[Game WS] socket error', err));
+		socket.on('error', (err) => {fastify.log.warn({err}, '[Game WS] socket error')});
 
 		(async () => {
 			let userId: string;
@@ -78,7 +78,7 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
 			try {
 				await startGame(player, mode as any, tournamentId);
 			} catch (err) {
-				fastify.log.warn('[Game WS] startGame error', err);
+				fastify.log.warn({err},'[Game WS] startGame error');
 			}
 
 			// process buffered messages (likely none)

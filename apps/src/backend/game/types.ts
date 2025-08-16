@@ -1,17 +1,19 @@
+import { WebSocket as WS } from 'ws';
+
 export interface Player {
 	id: string;
 	name: string;
-	socket: WebSocket;
+	socket: WS;
 }
 
 export const GhostPlayer: Player = {
 	id: 'ghost',
 	name: '__ghost',
 	socket: {
-	  send() {},
-	  close() {},
+	  send: () => {},
+	  close: () => {},
 	  readyState: 0
-	} as unknown as WebSocket
+	}  as Partial<WS> as WS
 };
 
 export interface GameState {
