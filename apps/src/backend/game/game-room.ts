@@ -1,4 +1,4 @@
-import { Player, GameState } from './types';
+import { Player, GhostPlayer, GameState, GameMessage, OnGameEnd } from './types';
 import { advanceTournament } from '../service-managers/tournament-manager';
 
 const FRAME_RATE = 1000 / 60;
@@ -9,20 +9,8 @@ const FIELD_HEIGHT = 100;
 const WIN_SCORE = 5;
 const FREEZE = 5;
 
-type OnGameEnd = (winner: Player, loser: Player, winnerScore: number, loserScore: number) => void;
-
-// Dedicated ghost player for solo mode
-const ghostPlayer: Player = {
-  id: 'ghost',
-  name: '__ghost',
-  socket: {
-    send() {},
-    close() {},
-    readyState: 0
-  } as unknown as WebSocket
-};
-
 export class GameRoom {
+  public readonly id: string;
   private players: [Player, Player];
   private mode: 'solo' | 'duel';
   private tournamentId?: string;
@@ -30,20 +18,20 @@ export class GameRoom {
   private interval: NodeJS.Timeout;
   private winner: Player | null = null;
   private loser: Player | null = null;
-  private winnerScore = 0;
-  private loserScore = 0;
-  private onEnd?: OnGameEnd;
+  private winnerScore: number = 0;
+  private loserScore: number = 0;
+  private onEnd: OnGameEnd | null = null;
 
   constructor(
+    id: string,
     player1: Player,
     player2: Player | null,
-    tournamentId?: string,
-    onEnd?: OnGameEnd
+    tournamentId?: string
   ) {
-    this.players = [player1, player2 ?? ghostPlayer];
+    this.id = id;
+    this.players = [player1, player2 ?? GhostPlayer];
     this.mode = player2 ? 'duel' : 'solo';
-    this.tournamentId = tournamentId;
-    this.onEnd = onEnd;
+    if (tournamentId) this.tournamentId = tournamentId;
     this.state = this.initState();
     this.setupListeners();
     this.startCountdown();
@@ -67,9 +55,33 @@ export class GameRoom {
     };
   }
 
+  // private handleMessage(player: Player, raw: string) {
+  //   if (raw === 'pong') return;
+
+  //   let message: GameMessage;
+  //   try {
+  //     message = JSON.parse(raw);
+  //   } catch {
+  //     console.warn(`⚠️ Invalid message from ${player.id}:`, raw);
+  //     return;
+  //   }
+
+  //   switch (message.type) {
+  //     case 'move':
+  //       this.move(player.id, message.direction);
+  //       break;
+  //     case 'quit':
+  //       this.broadcast({ type: 'disconnect', who: player.id });
+  //       this.end();
+  //       break;
+  //     default:
+  //       console.warn(`⚠️ Unknown message type from ${player.id}:`, message);
+  //   }
+  // }
+
   private setupListeners() {
     for (const player of this.players) {
-      if (player === ghostPlayer) continue;
+      if (player === GhostPlayer) continue;
 
       player.socket.on('message', (msg) => {
         const text = msg.toString();
@@ -86,7 +98,7 @@ export class GameRoom {
         if (m.type === 'move') {
           let targetId = player.id;
           if (this.mode === 'solo' && m.side === 'right') {
-            targetId = ghostPlayer.id;
+            targetId = GhostPlayer.id;
           }
           this.move(targetId, m.direction);
         } else if (m.type === 'quit') {
@@ -185,7 +197,7 @@ export class GameRoom {
 
       setTimeout(() => this.end(), 1000);
 
-      if (this.tournamentId && this.winner !== ghostPlayer) {
+      if (this.tournamentId && this.winner !== GhostPlayer) {
         advanceTournament(this.tournamentId, this.winner);
       }
       return;
@@ -216,34 +228,40 @@ export class GameRoom {
 
   private broadcast(msg: any) {
     for (const p of this.players) {
-      if (p !== ghostPlayer && p.socket.readyState === p.socket.OPEN) {
+      if (p !== GhostPlayer && p.socket.readyState === p.socket.OPEN) {
         p.socket.send(JSON.stringify(msg));
       }
     }
   }
 
-  // public getWinner(): Player | null {
-  //   return this.winner;
-  // }
-
-  // public getLoser(): Player | null {
-  //   return this.loser;
-  // }
-
   private end() {
+    if (this.isEnded()) return;
+
     clearInterval(this.interval);
     this.state.status = 'ended';
 
-    if (this.winner && this.loser && this.onEnd) {
+    if (this.onEnd && this.winner && this.loser) {
       this.onEnd(this.winner, this.loser, this.winnerScore, this.loserScore);
     }
 
     for (const p of this.players) {
-      if (p !== ghostPlayer && p.socket.readyState === p.socket.OPEN) {
+      if (p !== GhostPlayer && p.socket.readyState === p.socket.OPEN) {
         try {
           p.socket.close(1000, 'Game Ended');
         } catch {}
       }
     }
+  }
+
+  public onEndCallback(onEnd: OnGameEnd): void {
+    this.onEnd = onEnd;
+  }
+
+  public getPlayers(): Player[] {
+    return this.players;
+  }
+
+  public isEnded(): boolean {
+    return this.state.status === 'ended';
   }
 }
