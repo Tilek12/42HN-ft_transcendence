@@ -99,6 +99,7 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
 				fastify.log.info(`❌ [Game WS] Disconnected: ${userId}`);
 				cancelDuelSearch(userId);
 				userManager.removeGameSocket(userId);
+				userManager.setInGame(userId, false);
 			});
 		})();
 	});
