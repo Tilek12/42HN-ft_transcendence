@@ -1,6 +1,6 @@
-import { renderNav } from './nav';
-import { renderBackgroundTop } from '../utils/layout';
-import { wsManager } from '../websocket/ws-manager';
+import { renderNav } from './nav.js';
+import { renderBackgroundTop } from '../utils/layout.js';
+import { wsManager } from '../websocket/ws-manager.js';
 
 export function renderTournamentMatch(root: HTMLElement) {
   const match = sessionStorage.getItem('currentTournamentMatch');

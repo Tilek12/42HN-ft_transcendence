@@ -1,4 +1,4 @@
-import { getToken } from '../utils/auth';
+import { getToken } from '../utils/auth.js';
 
 export type GameMode = 'solo' | 'duel' | 'tournament';
 

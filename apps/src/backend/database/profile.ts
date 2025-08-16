@@ -1,5 +1,5 @@
-import { db } from './client';
-import { findUserByUsername } from './user';
+import { db } from './client.js';
+import { findUserByUsername } from './user.js';
 
 //----------functions for profiles data base-----------
 export async function findProfileByUsername(username:string)

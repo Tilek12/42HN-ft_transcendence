@@ -1,5 +1,5 @@
-import { GameRoom } from '../game/game-room';
-import { Player } from '../game/types';
+import { GameRoom } from '../game/game-room.js';
+import type { Player } from '../game/types.js';
 
 class GameManager {
 	private rooms = new Map<string, GameRoom>();

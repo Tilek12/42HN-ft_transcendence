@@ -1,12 +1,12 @@
-import { FastifyPluginAsync } from 'fastify';
-import { hashPassword, verifyPassword } from '../../auth/utils';
-import { loginSchema, registerSchema } from '../../auth/schemas';
+import type { FastifyPluginAsync } from 'fastify';
+import { hashPassword, verifyPassword } from '../../auth/utils.js';
+import { loginSchema, registerSchema } from '../../auth/schemas.js';
 import {
 	findUserByUsername,
 	findUserByEmail,
 	createUser
-} from '../../database/user';
-import { updateProfileLogInState, createProfile } from '../../database/profile';
+} from '../../database/user.js';
+import { updateProfileLogInState, createProfile } from '../../database/profile.js';
 
 const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 	// Register

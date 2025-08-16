@@ -1,6 +1,6 @@
 
-import { getToken} from '../utils/auth'
-import { renderProfilesList } from './renderProfiles';
+import { getToken} from '../utils/auth.js'
+import { renderProfilesList } from './renderProfiles.js';
 
 
 

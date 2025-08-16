@@ -2,8 +2,8 @@ import fs from 'fs';
 import sharp from 'sharp';
 import path from 'path';
 
-import { FastifyPluginAsync } from 'fastify';
-import { findUserById } from '../../database/user';
+import type { FastifyPluginAsync } from 'fastify';
+import { findUserById } from '../../database/user.js';
 import {
 	findProfileById,
 	updatePicturePath,
@@ -18,7 +18,7 @@ import {
 	AddToBlockedList,
 	DeleteFromBlockedList,
 	userIsBlocked,
-} from '../../database/profile';
+} from '../../database/profile.js';
 
 const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 	fastify.post ('/profile', async (req : any, res : any) => {

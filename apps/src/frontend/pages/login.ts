@@ -1,7 +1,7 @@
-import { renderNav } from './nav'
-import { renderBackgroundFull } from '../utils/layout';
-import { saveToken } from '../utils/auth';
-import { wsManager } from '../websocket/ws-manager';
+import { renderNav } from './nav.js'
+import { renderBackgroundFull } from '../utils/layout.js';
+import { saveToken } from '../utils/auth.js';
+import { wsManager } from '../websocket/ws-manager.js';
 
 export function renderLogin(root: HTMLElement) {
   root.innerHTML = renderNav() + renderBackgroundFull(`

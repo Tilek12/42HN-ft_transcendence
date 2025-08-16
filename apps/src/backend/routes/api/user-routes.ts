@@ -1,6 +1,6 @@
-import { FastifyPluginAsync } from 'fastify';
-import { findUserById } from '../../database/user';
-import { userManager } from '../../service-managers/user-manager';
+import type { FastifyPluginAsync } from 'fastify';
+import { findUserById } from '../../database/user.js';
+import { userManager } from '../../service-managers/user-manager.js';
 
 const userRoutes: FastifyPluginAsync = async (fastify) => {
 	fastify.get('/me', async (req, res) => {

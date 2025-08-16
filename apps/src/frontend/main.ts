@@ -1,7 +1,7 @@
-import './styles.css'
-import { router } from './router'
-import { isLoggedIn } from './utils/auth'
-import { wsManager } from './websocket/ws-manager'
+
+import { router } from './router.js'
+import { isLoggedIn } from './utils/auth.js'
+import { wsManager } from './websocket/ws-manager.js'
 
 // Initialize SPA router and WebSocket connections
 document.addEventListener('DOMContentLoaded', () => {

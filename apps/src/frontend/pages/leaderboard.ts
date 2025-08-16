@@ -1,5 +1,5 @@
-import { renderNav } from './nav'
-import { renderBackgroundTop } from '../utils/layout'
+import { renderNav } from './nav.js'
+import { renderBackgroundTop } from '../utils/layout.js'
 
 export async function renderLeaderboard(root: HTMLElement) {
   try {

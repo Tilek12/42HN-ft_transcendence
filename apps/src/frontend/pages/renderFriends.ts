@@ -1,5 +1,5 @@
-import { getToken} from '../utils/auth'
-import { getEnvVariable } from './TypeSafe';
+import { getToken} from '../utils/auth.js'
+import { getEnvVariable } from './TypeSafe.js';
 
 export async function renderFriendsList(container_id : string, load?: boolean, allFriends ?: {friends: any[]}, friend_offeset ?: number, friend_limit ?: number )
 {

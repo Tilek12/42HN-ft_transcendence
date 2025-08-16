@@ -1,4 +1,4 @@
-import { FastifyPluginAsync } from 'fastify';
+import type { FastifyPluginAsync } from 'fastify';
 import {
 	createTournamentDB,
 	joinTournamentDB,
@@ -8,7 +8,7 @@ import {
 	linkMatchToTournament,
 	getMatchesByTournamentId,
 	getTournamentLeaderboard,
-} from '../../database/tournament';
+} from '../../database/tournament.js';
 
 const tournamentRoutes: FastifyPluginAsync = async (fastify : any ) => {
 	// Create a tournament

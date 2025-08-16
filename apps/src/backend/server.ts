@@ -8,16 +8,16 @@ import multipart from '@fastify/multipart'
 import {fileURLToPath} from 'url';
 import dotenv from 'dotenv';
 
-import { connectToDB } from './database/client';
-import authPlugin from './plugins/auth';
-import authRoutes from './routes/api/auth-routes';
-import userRoutes from './routes/api/user-routes';
-import profileRoutes from './routes/api/profile-routes';
-import matchRoutes from './routes/api/match-routes';
-import tournamentRoutes from './routes/api/tournament-routes';
-import wsGamePlugin from './routes/ws/game';
-import wsPresencePlugin from './routes/ws/presence';
-import wsTournamentPlugin from './routes/ws/tournament';
+import { connectToDB } from './database/client.js';
+import authPlugin from './plugins/auth.js';
+import authRoutes from './routes/api/auth-routes.js';
+import userRoutes from './routes/api/user-routes.js';
+import profileRoutes from './routes/api/profile-routes.js';
+import matchRoutes from './routes/api/match-routes.js';
+import tournamentRoutes from './routes/api/tournament-routes.js';
+import wsGamePlugin from './routes/ws/game.js';
+import wsPresencePlugin from './routes/ws/presence.js';
+import wsTournamentPlugin from './routes/ws/tournament.js';
 
 dotenv.config();
 

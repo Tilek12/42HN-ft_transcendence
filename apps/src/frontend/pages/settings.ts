@@ -1,6 +1,6 @@
-import { renderNav } from './nav'
-import { renderBackgroundTop } from '../utils/layout'
-import { validateLogin } from '../utils/auth'
+import { renderNav } from './nav.js'
+import { renderBackgroundTop } from '../utils/layout.js'
+import { validateLogin } from '../utils/auth.js'
 
 export async function renderSettings(root: HTMLElement) {
   const isValid = await validateLogin()

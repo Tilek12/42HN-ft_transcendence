@@ -1,11 +1,11 @@
-import { FastifyPluginAsync, FastifyRequest } from 'fastify';
+import type { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import { WebSocket } from 'ws';
 
-import { startGame, cancelDuelSearch } from '../../game/matchmaking';
-import { Player } from '../../game/types';
-import { userManager } from '../../service-managers/user-manager';
-import { PING_INTERVAL_MS } from '../../constants';
+import { startGame, cancelDuelSearch } from '../../game/matchmaking.js';
+import type { Player } from '../../game/types.js';
+import { userManager } from '../../service-managers/user-manager.js';
+import { PING_INTERVAL_MS } from '../../constants.js';
 
 const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
 	fastify.get('/game', { websocket: true }, (socket: WebSocket, req: FastifyRequest) => {

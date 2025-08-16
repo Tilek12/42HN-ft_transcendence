@@ -1,4 +1,4 @@
-import { wsManager } from '../websocket/ws-manager';
+import { wsManager } from '../websocket/ws-manager.js';
 
 let presenceUnsub: (() => void) | null = null;
 

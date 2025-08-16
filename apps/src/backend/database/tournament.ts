@@ -1,4 +1,4 @@
-import { db } from './client';
+import { db } from './client.js';
 //----------functions for tournament data base-----------
 export async function createTournamentDB(name: string, createdByUserId: number) {
 	await db.run(

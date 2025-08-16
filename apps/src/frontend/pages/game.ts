@@ -1,8 +1,8 @@
-import { renderNav } from './nav';
-import { renderBackgroundTop } from '../utils/layout';
-import { wsManager } from '../websocket/ws-manager';
-import { getToken, validateLogin } from '../utils/auth';
-import { COLORS } from '../constants/colors';
+import { renderNav } from './nav.js';
+import { renderBackgroundTop } from '../utils/layout.js';
+import { wsManager } from '../websocket/ws-manager.js';
+import { getToken, validateLogin } from '../utils/auth.js';
+import { COLORS } from '../constants/colors.js';
 
 export async function renderGame(root: HTMLElement) {
   const isValid = await validateLogin();

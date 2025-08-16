@@ -1,10 +1,10 @@
-import { FastifyPluginAsync } from 'fastify';
+import type { FastifyPluginAsync } from 'fastify';
 import {
 	createMatch,
 	getAllMatches,
 	getMatchesByUserId,
 	getMatchById,
-} from '../../database/match';
+} from '../../database/match.js';
 
 const matchRoutes: FastifyPluginAsync = async (fastify : any) => {
 	// Create a match (requires authentication)

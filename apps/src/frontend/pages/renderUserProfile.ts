@@ -1,4 +1,4 @@
-import { renderBackgroundTop } from "../utils/layout";
+import { renderBackgroundTop } from "../utils/layout.js";
 
 export type Profile_details = {
 	data_async: any;

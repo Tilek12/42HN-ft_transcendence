@@ -1,5 +1,5 @@
-import { getToken} from '../utils/auth'
-import { getEnvVariable } from './TypeSafe';
+import { getToken} from '../utils/auth.js'
+import { getEnvVariable } from './TypeSafe.js';
 
 const friend_request_action = (is_friend: number, peding_direction : string, other_profile_id: number) => {
 	let res : string = '';

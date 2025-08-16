@@ -1,4 +1,4 @@
-import { renderProfilesList } from './renderProfiles';
+import { renderProfilesList } from './renderProfiles.js';
 
 
 export const listenerLoadBtn = async (allProfiles : {profiles: any[]}[] | undefined , profile_offset :number, profile_limit :number) =>

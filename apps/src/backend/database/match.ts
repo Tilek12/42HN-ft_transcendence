@@ -1,4 +1,4 @@
-import { db } from './client';
+import { db } from './client.js';
 //----------functions for matches data base-----------
 export async function createMatch(
 	player1Id: number,

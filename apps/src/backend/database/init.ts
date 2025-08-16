@@ -1,5 +1,5 @@
-import { connectToDB } from './client';
+import { connectToDB } from './client.js';
 
 export async function initDatabase() {
-  const db = await connectToDB();
+	await connectToDB();
 }

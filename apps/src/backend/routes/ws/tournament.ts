@@ -1,16 +1,16 @@
 import fp from 'fastify-plugin';
-import { FastifyPluginAsync } from 'fastify';
+import type { FastifyPluginAsync } from 'fastify';
 import { WebSocket as WS } from 'ws';
 
-import { Player } from '../../game/types';
-import { userManager } from '../../service-managers/user-manager';
-import { PING_INTERVAL_MS } from '../../constants';
+import type { Player } from '../../game/types.js';
+import { userManager } from '../../service-managers/user-manager.js';
+import { PING_INTERVAL_MS } from '../../constants.js';
 import {
-	Tournament,
 	createTournament,
 	joinTournament,
 	quitTournament
-} from '../../service-managers/tournament-manager';
+} from '../../service-managers/tournament-manager.js';
+import type { Tournament } from '../../service-managers/tournament-manager.js';
 
 const tournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 	fastify.get('/tournament', { websocket: true }, async (connection: any, req: any) => {

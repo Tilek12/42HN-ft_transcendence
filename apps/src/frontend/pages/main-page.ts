@@ -1,5 +1,5 @@
-import { renderNav } from "./nav"
-import { renderBackgroundFull } from "../utils/layout"
+import { renderNav } from "./nav.js"
+import { renderBackgroundFull } from "../utils/layout.js"
 
 export function renderMainPage(root: HTMLElement) {
 	root.innerHTML = renderNav() + renderBackgroundFull(`

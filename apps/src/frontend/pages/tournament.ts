@@ -1,7 +1,7 @@
-import { renderNav } from './nav';
-import { renderBackgroundTop } from '../utils/layout';
-import { getToken, validateLogin } from '../utils/auth';
-import { wsManager } from '../websocket/ws-manager';
+import { renderNav } from './nav.js';
+import { renderBackgroundTop } from '../utils/layout.js';
+import { getToken, validateLogin } from '../utils/auth.js';
+import { wsManager } from '../websocket/ws-manager.js';
 
 let currentTournamentId: string | null = null;
 

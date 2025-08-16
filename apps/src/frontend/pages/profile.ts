@@ -1,12 +1,12 @@
-import { renderNav } from './nav'
-import { renderBackgroundTop } from '../utils/layout'
-import { getToken, clearToken, validateLogin } from '../utils/auth'
-import { renderProfilesList } from './renderProfiles';
-import { renderUserProfile, profile_ids } from './renderUserProfile';
-import type { Profile_details } from './renderUserProfile';
-import { listenerFriendAndBlock } from './ListenerProfileList';
-import { listenerDeletePicture, listenerLogoutBtn, listenerUploadPicture } from './listenerUploadAndDeletePicture';
-import { getEnvVariable } from './TypeSafe';
+import { renderNav } from './nav.js';
+// import { renderBackgroundTop } from '../utils/layout.js';
+import { getToken, clearToken, validateLogin } from '../utils/auth.js';
+import { renderProfilesList } from './renderProfiles.js';
+import { renderUserProfile, profile_ids } from './renderUserProfile.js';
+import type { Profile_details } from './renderUserProfile.js';
+import { listenerFriendAndBlock } from './ListenerProfileList.js';
+import { listenerDeletePicture, listenerLogoutBtn, listenerUploadPicture } from './listenerUploadAndDeletePicture.js';
+import { getEnvVariable } from './TypeSafe.js';
 
 type Match =
 {

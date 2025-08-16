@@ -1,10 +1,10 @@
-import { Player } from '../game/types';
-import { GameRoom } from '../game/game-room';
-import { sendTournamentUpdate } from '../routes/ws/presence';
+import type { Player } from '../game/types.js';
+import { GameRoom } from '../game/game-room.js';
+import { sendTournamentUpdate } from '../routes/ws/presence.js';
 // import { tournamentSockets } from '../../websocket/tournament'
-import { incrementWinsOrLossesOrTrophies } from '../database/user';
+import { incrementWinsOrLossesOrTrophies } from '../database/profile.js';
 // import { findProfileById } from '../database/profile';
-import { createTournamentDB, joinTournamentDB } from '../database/tournament';
+import { createTournamentDB, joinTournamentDB } from '../database/tournament.js';
 
 export type TournamentSize = 4 | 8;
 export type TournamentStatus = 'waiting' | 'active' | 'finished';

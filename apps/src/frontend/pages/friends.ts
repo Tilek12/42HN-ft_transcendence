@@ -1,9 +1,10 @@
-import { renderNav } from './nav'
-import { renderBackgroundTop } from '../utils/layout';
-import { getToken, clearToken, validateLogin } from '../utils/auth'
-import { renderProfilesList } from './renderProfiles';
-import { renderFriendsList } from './renderFriends';
-import { renderFriendRequestsList } from './renderFriendRequestList';
+import { renderNav } from './nav.js';
+import { renderBackgroundTop } from '../utils/layout.js';
+import { getToken, validateLogin } from '../utils/auth.js';
+// import { getToken, clearToken, validateLogin } from '../utils/auth.js';
+// import { renderProfilesList } from './renderProfiles';
+import { renderFriendsList } from './renderFriends.js';
+import { renderFriendRequestsList } from './renderFriendRequestList.js';
 
 export async function renderFriends(root: HTMLElement) {
   const isValid = await validateLogin()

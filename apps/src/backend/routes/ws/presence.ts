@@ -1,11 +1,11 @@
-import { FastifyPluginAsync, FastifyRequest } from 'fastify';
+import type { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import { WebSocket } from 'ws';
 
-import { userManager } from '../../service-managers/user-manager';
-import { getSafeTournamentData } from '../../service-managers/tournament-manager';
-import { findUserById, getUsernameById } from '../../database/user';
-import { PING_INTERVAL_MS } from '../../constants';
+import { userManager } from '../../service-managers/user-manager.js';
+import { getSafeTournamentData } from '../../service-managers/tournament-manager.js';
+import { findUserById, getUsernameById } from '../../database/user.js';
+import { PING_INTERVAL_MS } from '../../constants.js';
 
 export const sendPresenceUpdate = () => {
 	const users = userManager.getOnlineUsers();

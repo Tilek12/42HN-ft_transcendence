@@ -1,5 +1,6 @@
 {
 	"name": "transcendence",
+	"type": "module",
 	"scripts": {
 		"dev": "concurrently \"vite --config /app/src/vite.config.mts\" \"tsx watch /app/src/backend/server.ts\"",
 		"build": " tsc -p src/tsconfig.json",

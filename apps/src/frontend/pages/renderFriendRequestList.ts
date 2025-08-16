@@ -1,4 +1,4 @@
-import { getToken} from '../utils/auth'
+import { getToken} from '../utils/auth.js'
 
 
 const button_action = (is_friend: number, pending_direction : string, other_profile_id: number) => {
