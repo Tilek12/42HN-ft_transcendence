@@ -37,6 +37,7 @@ export class GameRoom {
 		this.setupListeners();
 		this.startCountdown();
 		this.interval = setInterval(() => { 0 });
+		this.state.score
 	}
 
 	private initState(): GameState {
@@ -85,7 +86,7 @@ export class GameRoom {
 		for (const player of this.players) {
 			if (player === GhostPlayer) continue;
 
-			player.socket.onmessage = (msg) => {
+			player.socket.on("message", (msg) => {
 				const text = msg.toString();
 				if (text === 'pong') return;
 
@@ -107,12 +108,12 @@ export class GameRoom {
 					this.broadcast({ type: 'disconnect', who: player.id });
 					this.end();
 				}
-			};
+			});
 
-			player.socket.onclose = () => {
+			player.socket.on('close', () => {
 				this.broadcast({ type: 'disconnect', who: player.id });
 				this.end();
-			};
+			});
 		}
 	}
 
@@ -159,8 +160,14 @@ export class GameRoom {
 		let score1 = score[p1.id];
 		let score2 = score[p2.id];
 		const hit = (py: number) => ball.y >= py && ball.y <= py + PADDLE_HEIGHT;
-		if (!pad1 || !pad2 || !score1 || !score2)
-			throw new Error("Value undefined, should not even happen");
+		if (!pad1)
+			throw new Error("Value pad1 undefined, should not even happen");
+		if (!pad2 )
+			throw new Error("Value pad2 undefined, should not even happen");
+		if (!score1)
+			score1 = 0;
+		if (!score2)
+			score2 = 0;
 		if (ball.x <= 2 && hit(pad1)) {
 			ball.x = 2;
 			ball.vx *= -1;
