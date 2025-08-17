@@ -11,11 +11,6 @@ interface User {
 	isAlive: boolean;
 	isInGame: boolean;
 	isInTournament: boolean;
-	logged_in?: boolean;
-	profileId?: string,
-	wins?: number;
-	losses?: number;
-	trophies?: number;
 }
 
 class UserManager {

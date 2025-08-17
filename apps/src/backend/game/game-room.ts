@@ -1,5 +1,4 @@
-import { Player, GhostPlayer, GameState, GameMessage, OnGameEnd } from './types';
-import { advanceTournament } from '../service-managers/tournament-manager';
+import { Player, GhostPlayer, GameState, GameMessage, OnGameEnd, GameMode } from './game-types';
 
 const FRAME_RATE = 1000 / 60;
 const PADDLE_HEIGHT = 20;
@@ -12,7 +11,7 @@ const FREEZE = 5;
 export class GameRoom {
   public readonly id: string;
   private players: [Player, Player];
-  private mode: 'solo' | 'duel';
+  private mode: GameMode;
   private tournamentId?: string;
   private state: GameState;
   private interval: NodeJS.Timeout;
@@ -24,13 +23,14 @@ export class GameRoom {
 
   constructor(
     id: string,
+    mode: GameMode,
     player1: Player,
     player2: Player | null,
     tournamentId?: string
   ) {
     this.id = id;
     this.players = [player1, player2 ?? GhostPlayer];
-    this.mode = player2 ? 'duel' : 'solo';
+    this.mode = mode;
     if (tournamentId) this.tournamentId = tournamentId;
     this.state = this.initState();
     this.setupListeners();
@@ -55,60 +55,79 @@ export class GameRoom {
     };
   }
 
-  // private handleMessage(player: Player, raw: string) {
-  //   if (raw === 'pong') return;
+  // private setupListeners() {
+  //   for (const player of this.players) {
+  //     if (player === GhostPlayer) continue;
 
-  //   let message: GameMessage;
-  //   try {
-  //     message = JSON.parse(raw);
-  //   } catch {
-  //     console.warn(`⚠️ Invalid message from ${player.id}:`, raw);
-  //     return;
-  //   }
+  //     player.socket.on('message', (msg) => {
+  //       const text = msg.toString();
+  //       if (text === 'pong') return;
 
-  //   switch (message.type) {
-  //     case 'move':
-  //       this.move(player.id, message.direction);
-  //       break;
-  //     case 'quit':
+  //       let m: any;
+  //       try {
+  //         m = JSON.parse(text);
+  //       } catch (e) {
+  //         console.warn(`⚠️ Invalid message from ${player.id}:`, text);
+  //         return;
+  //       }
+
+  //       if (m.type === 'move') {
+  //         let targetId = player.id;
+  //         if (this.mode === 'solo' && m.side === 'right') {
+  //           targetId = GhostPlayer.id;
+  //         }
+  //         this.move(targetId, m.direction);
+  //       } else if (m.type === 'quit') {
+  //         this.broadcast({ type: 'disconnect', who: player.id });
+  //         this.end();
+  //       }
+  //     });
+
+  //     player.socket.on('close', () => {
   //       this.broadcast({ type: 'disconnect', who: player.id });
   //       this.end();
-  //       break;
-  //     default:
-  //       console.warn(`⚠️ Unknown message type from ${player.id}:`, message);
+  //     });
   //   }
   // }
 
   private setupListeners() {
-    for (const player of this.players) {
-      if (player === GhostPlayer) continue;
+    // Collect unique sockets → the set avoids double listeners when p1.socket === p2.socket
+    const unique = new Map<any, string[]>(); // socket -> [playerIds it controls]
+    for (const p of this.players) {
+      if (p === GhostPlayer) continue;
+      const arr = unique.get(p.socket) ?? [];
+      arr.push(p.id);
+      unique.set(p.socket, arr);
+    }
 
-      player.socket.on('message', (msg) => {
+    for (const [socket, playerIds] of unique.entries()) {
+      socket.on('message', (msg: any) => {
         const text = msg.toString();
         if (text === 'pong') return;
 
         let m: any;
-        try {
-          m = JSON.parse(text);
-        } catch (e) {
-          console.warn(`⚠️ Invalid message from ${player.id}:`, text);
-          return;
-        }
+        try { m = JSON.parse(text); } catch { return; }
 
         if (m.type === 'move') {
-          let targetId = player.id;
-          if (this.mode === 'solo' && m.side === 'right') {
-            targetId = GhostPlayer.id;
+          if (this.mode === 'local') {
+            // client must send {type:'move', direction, side:'left'|'right'}
+            const target = m.side === 'right' ? this.players[1].id : this.players[0].id;
+            this.move(target, m.direction);
+          } else {
+            // online/duel: derive by which socket this handler belongs to.
+            // If both players share the same socket (shouldn't in online), fallback to m.side if present.
+            const target = (playerIds.length === 1) ? playerIds[0]
+                         : (m.side === 'right' ? this.players[1].id : this.players[0].id);
+            this.move(target, m.direction);
           }
-          this.move(targetId, m.direction);
         } else if (m.type === 'quit') {
-          this.broadcast({ type: 'disconnect', who: player.id });
+          this.broadcast({ type: 'disconnect' });
           this.end();
         }
       });
 
-      player.socket.on('close', () => {
-        this.broadcast({ type: 'disconnect', who: player.id });
+      socket.on('close', () => {
+        this.broadcast({ type: 'disconnect' });
         this.end();
       });
     }
@@ -197,9 +216,6 @@ export class GameRoom {
 
       setTimeout(() => this.end(), 1000);
 
-      if (this.tournamentId && this.winner !== GhostPlayer) {
-        advanceTournament(this.tournamentId, this.winner);
-      }
       return;
     }
 

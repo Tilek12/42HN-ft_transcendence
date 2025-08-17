@@ -1,25 +1,21 @@
 import fp from 'fastify-plugin';
-import { FastifyPluginAsync } from 'fastify';
-import { WebSocket as WS } from 'ws';
+import { FastifyPluginAsync, FastifyRequest } from 'fastify';
+import { WebSocket } from 'ws';
 
-import { Player } from '../../game/types';
+import { Player } from '../../game/game-types';
 import { userManager } from '../../service-managers/user-manager';
 import { PING_INTERVAL_MS } from '../../constants';
-import {
-	Tournament,
-	createTournament,
-	joinTournament,
-	quitTournament
-} from '../../service-managers/tournament-manager';
+import { tournamentManager } from '../../service-managers/tournament-manager';
+import { TournamentState } from '../../tournament/tournament-types';
 
-const tournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
-	fastify.get('/tournament', { websocket: true }, async (connection: any, req: any) => {
+const wsTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
+	fastify.get('/tournament', { websocket: true }, (socket: WebSocket, req: FastifyRequest) => {
 		const params = new URLSearchParams(req.url?.split('?')[1] || '');
 		const token = params.get('token');
 		const action = params.get('action'); // "create" or "join"
 		const tournamentId = params.get('id');
 		const size = parseInt(params.get('size') || '4') as 4 | 8;
-		const socket = connection.socket;
+		const mode = (params.get('mode') as 'local' | 'online') || 'online';
 
 		if (!token || !action || (action === 'join' && !tournamentId)) {
 			return socket.close(4001, 'Missing or invalid parameters');
@@ -27,7 +23,7 @@ const tournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 
 		let userId: string;
 		try {
-			const payload = await fastify.jwt.verify(token);
+			const payload = fastify.jwt.verify(token);
 			userId = payload.id;
 		} catch {
 			return socket.close(4002, 'Invalid token');
@@ -38,13 +34,18 @@ const tournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 
 		userManager.setTournamentSocket(userId, socket);
 
-		const player: Player = { id: userId, socket };
+		let tournament: TournamentState | null = null;
+		const player: Player = { id: userId, name: user.name, socket };
 
-		let tournament: Tournament | null = null;
 		if (action === 'create') {
-			tournament = await createTournament(player, size);
+			tournament = tournamentManager.createTournament(
+				mode,
+				{ id:userId, name: user.name },
+				size,
+				mode === 'local' ? socket : undefined
+			);
 		} else if (action === 'join') {
-			tournament = await joinTournament(player, tournamentId!);
+			tournament = tournamentManager.joinTournament(tournamentId!, { id: userId, name: user.name });
 		}
 
 		if (!tournament) {
@@ -102,11 +103,11 @@ const tournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 			}
 
 			user.isInTournament = false;
-			if (user.tournamentSocket.readyState === WS.OPEN) {
+			if (user.tournamentSocket.readyState === WebSocket.OPEN) {
 				user.tournamentSocket.send('ping');
 			}
 		});
 	}, PING_INTERVAL_MS);
 };
 
-export default fp(tournamentPlugin);
+export default fp(wsTournamentPlugin);

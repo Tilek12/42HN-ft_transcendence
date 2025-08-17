@@ -1,209 +1,262 @@
-import { Player } from '../game/types';
+import { WebSocket } from 'ws';
+import { Player } from '../game/game-types';
 import { GameRoom } from '../game/game-room';
+import { userManager } from './user-manager';
+import { gameManager } from './game-manager';
+import {
+  TournamentState,
+  TournamentMode,
+  TournamentSize,
+  TournamentStatus,
+  Participant,
+  Match
+} from '../tournament/tournament-types';
 import { sendTournamentUpdate } from '../routes/ws/presence';
-// import { tournamentSockets } from '../../websocket/tournament'
 import { incrementWinsOrLossesOrTrophies } from '../database/user';
-// import { findProfileById } from '../database/profile';
 import { createTournamentDB, joinTournamentDB } from '../database/tournament';
 
-export type TournamentSize = 4 | 8;
-export type TournamentStatus = 'waiting' | 'active' | 'finished';
+class TournamentManager {
+  private tournaments = new Map<string, TournamentState>();
+  private nextTid = 1;
+  private nextMid = 1;
 
-interface Tournament {
-  id: string;
-  size: TournamentSize;
-  players: Player[];
-  hostId: string;
-  status: TournamentStatus;
-  rounds: GameRoom[][];
-}
+  // For LOCAL tournaments we need to know the controlling socket for matches
+  // (the creator’s computer). Keyed by tournamentId.
+  private localControlSocket = new Map<string, WebSocket>();
 
-interface MatchStartNotification {
-  type: 'matchStart';
-  tournamentId: string;
-  matchId: string;
-  player1: string;
-  player2: string;
-}
+  createTournament(mode: TournamentMode, host: Participant, size: TournamentSize, localCtrlSocket?: WebSocket) {
+    const id = `t-${this.nextTid++}`;
+    const tournament: TournamentState = {
+      id, mode, size,
+      hostId: host.id,
+      status: 'waiting',
+      participants: [host],
+      rounds: [],
+      createdAt: Date.now()
+    };
+    this.tournaments.set(id, tournament);
 
-let tournaments: Tournament[] = [];
-let nextId = 1;
+    if (mode === 'local' && localCtrlSocket) {
+      this.localControlSocket.set(id, localCtrlSocket);
+    }
 
-function getTournamentById(id: string) {
-  return tournaments.find(t => t.id === id);
-}
-
-function getUserTournament(userId: string): Tournament | undefined {
-  return tournaments.find(t =>
-    t.status === 'waiting' && t.players.some(p => p.id === userId)
-  );
-}
-
-async function createTournament(player: Player, size: TournamentSize): Promise<Tournament | null> {
-  if (getUserTournament(player.id)) return null;
-
-  const tournament: Tournament = {
-    id: `t-${nextId++}`,
-    size,
-    players: [player],
-    hostId: player.id,
-    status: 'waiting',
-    rounds: []
-  };
-
-  tournaments.push(tournament);
-  console.log(`🏆 [Tournament: ${tournament.id}] Created`);
-  sendTournamentUpdate();
-  // 🔥 Add DB insert
-  await createTournamentDB(`Tournament ${tournament.id}`, parseInt(tournament.hostId));
-  return tournament;
-}
-
-async function joinTournament(player: Player, tournamentId: string): Promise<Tournament | null> {
-  if (getUserTournament(player.id)) return null;
-
-  const tournament = getTournamentById(tournamentId);
-  if (!tournament || tournament.status !== 'waiting' || tournament.players.length >= tournament.size) {
-    return null;
-  }
-
-  tournament.players.push(player);
-  sendTournamentUpdate();
-
-  // 🔥 Save to DB
-  await joinTournamentDB(parseInt(tournament.id.split('-')[1]), parseInt(player.id));
-
-  if (tournament.players.length === tournament.size) {
-    startTournament(tournament);
-  }
-
-  console.log(`🏆 [Tournament: ${tournamentId}] Player joined: ${player.id}`);
-  return tournament;
-}
-
-function startTournament(t: Tournament) {
-  t.status = 'active';
-  const round: GameRoom[] = [];
-
-  for (let i = 0; i < t.players.length; i += 2) {
-    const p1 = t.players[i];
-    const p2 = t.players[i + 1];
-    const game = new GameRoom(p1, p2, t.id);
-    round.push(game);
-
-    // 🔔 Notify both players to redirect to match view
-    notifyMatchStart(t.id, p1.id, p2.id);
-
-    // DB //
-    // TODO: Save match start to DB (with p1.id, p2.id, t.id, timestamp)
-    ////////
-  }
-
-  t.rounds.push(round);
-  console.log(`🏆 [Tournament: ${t.id}] Started`);
-  sendTournamentUpdate();
-}
-
-function advanceTournament(tournamentId: string, winner: Player) {
-  const t = getTournamentById(tournamentId);
-  if (!t || t.status !== 'active') return;
-
-  const lastRound = t.rounds[t.rounds.length - 1];
-  const winners = lastRound.map(g => g.getWinner()).filter(Boolean) as Player[];
-
-  // 🔖 TODO: Save each game's result to DB
-  // for (const game of lastRound) {
-  //   const w = game.getWinner();
-  //   const l = game.getLoser?.();
-  //   if (w && l) {
-  //     // Example: await saveMatchResultToDB(w.id, l.id, t.id, game.getId());
-  //   }
-  // }
-
-  if (winners.length === 1) {
-    (async() =>
-      {
-        await incrementWinsOrLossesOrTrophies(parseInt(winners[0].id), 'trophies');
-      })();
-    t.status = 'finished';
-
-    // 🔖 TODO: Save tournament result to DB: t.id, winner.id, etc.
-    // Example: await saveTournamentResult(t.id, winners[0].id);
-
-    console.log(`🏁 [Tournament: ${t.id}] Finished! Winner: ${winners[0].id}`);
+    void createTournamentDB(`Tournament ${id}`, parseInt(host.id));
+    console.log(`🏆 [Tournament: ${tournament.id}] Created`);
     sendTournamentUpdate();
-    return;
+    return tournament;
   }
 
-  const newRound: GameRoom[] = [];
-  for (let i = 0; i < winners.length; i += 2) {
-    const p1 = winners[i];
-    const p2 = winners[i + 1] || null;
-    const game = new GameRoom(p1, p2, tournamentId);
-    newRound.push(game);
+  joinTournament(tournamentId: string, p: Participant) {
+    const tournament = this.tournaments.get(tournamentId);
+    if (!tournament || tournament.status !== 'waiting') return null;
+    if (tournament.participants.find(x => x.id === p.id)) return tournament; // already joined
+    if (tournament.participants.length >= tournament.size) return null;
 
-    if (p2) notifyMatchStart(t.id, p1.id, p2.id);
+    tournament.participants.push(p);
+    if (tournament.mode === 'online') {
+      void joinTournamentDB(parseInt(tournament.id.split('-')[1]), parseInt(p.id));
+    }
 
-    // DB //
-    // TODO: Save new match start to DB
-    ////////
+    sendTournamentUpdate();
+    console.log(`🏆 [Tournament: ${tournamentId}] Player joined: ${p.id}`);
+
+    if (tournament.participants.length === tournament.size) this.startTournament(tournament.id);
+
+    return tournament;
   }
 
-  t.rounds.push(newRound);
-  sendTournamentUpdate();
-}
+  /** Create the bracket and schedule round 1 */
+  private startTournament(tournamentId: string) {
+    const t = this.tournaments.get(tournamentId);
+    if (!t) return;
 
-function getSafeTournamentData() {
-  return tournaments.map(t => ({
+    t.status = 'active';
+
+    // Seed + pair
+    const seeded = this.shuffle([...t.participants]); // or deterministic seeding
+    const round0 = [];
+    for (let i = 0; i < seeded.length; i += 2) {
+      round0.push(this.makeMatch(t, 0, seeded[i], seeded[i+1]));
+    }
+    t.rounds.push(round0);
+
+    // Start matches based on kind
+    if (t.mode === 'online') this.startRoundSimultaneously(t, 0);
+    else this.startRoundSequentially(t, 0);
+
+    console.log(`🏆 [Tournament: ${t.id}] Started`);
+    sendTournamentUpdate();
+  }
+
+  /** Called by GameManager when one game ends */
+  onMatchEnd(tournamentId: string, matchId: string, winner: Participant, loser: Participant, ws: number, ls: number) {
+    const t = this.tournaments.get(tournamentId);
+    if (!t) return;
+    const match = this.findMatch(t, matchId);
+    if (!match) return;
+
+    match.status = 'finished';
+    match.winnerId = winner.id;
+    match.loserId = loser.id;
+    match.winnerScore = ws;
+    match.loserScore = ls;
+
+    // Trophy on tournament end will be handled when we detect final winner
+
+    // If all matches in this round finished, build next round or finish
+    const round = t.rounds[match.roundIndex];
+    if (round.every(m => m.status === 'finished')) {
+      const winners = round.map(m => t.participants.find(p => p.id === m.winnerId)!).filter(Boolean);
+
+      if (winners.length === 1) {
+        // tournament finished
+        t.status = 'finished';
+        void incrementWinsOrLossesOrTrophies(parseInt(winners[0].id), 'trophies');
+        this.broadcastTournamentUpdate(t.id);
+        return;
+      }
+
+      // Next round
+      const nextIdx = match.roundIndex + 1;
+      const nextRound: Match[] = [];
+      for (let i = 0; i < winners.length; i += 2) {
+        nextRound.push(this.makeMatch(t, nextIdx, winners[i], winners[i+1]));
+      }
+      t.rounds.push(nextRound);
+
+      if (t.mode === 'online') this.startRoundSimultaneously(t, nextIdx);
+      else this.startRoundSequentially(t, nextIdx);
+    }
+
+    this.broadcastTournamentUpdate(t.id);
+  }
+
+  /** Local tournaments: start matches one-by-one on the same computer */
+  private async startRoundSequentially(t: TournamentState, roundIdx: number) {
+    const ctrlSocket = this.localControlSocket.get(t.id);
+    for (const m of t.rounds[roundIdx]) {
+      await this.startOneMatch(t, m, ctrlSocket); // await: resolves when game ends
+    }
+  }
+
+  /** Online tournaments: start whole round in parallel */
+  private startRoundSimultaneously(t: TournamentState, roundIdx: number) {
+    for (const m of t.rounds[roundIdx]) this.startOneMatch(t, m);
+  }
+
+  /** Start one match, wire onEnd → TournamentManager.onMatchEnded */
+  private startOneMatch(t: TournamentState, match: Match, localSocket?: WebSocket) {
+    match.status = 'running';
+
+    const toPlayer = (p: Participant) => {
+      // Online: use each user's game socket from userManager
+      // Local: both players share the same localSocket
+      if (t.mode === 'local' && localSocket) {
+        return { id: p.id, name: p.name, socket: localSocket } as Player;
+      }
+      const u = userManager.getUser(p.id);
+      if (!u?.gameSocket) {
+        // you may want to notify missing connection; here we fall back to a ghost socket to avoid crash
+        return { id: p.id, name: p.name, socket: (u?.gameSocket as any) } as Player;
+      }
+      return { id: p.id, name: p.name, socket: u.gameSocket } as Player;
+    };
+
+    const p1 = toPlayer(match.p1);
+    const p2 = toPlayer(match.p2);
+
+    const game = gameManager.createGame(
+      p1,
+      p2,
+      t.id,
+      match.id,
+      { mode: t.mode === 'local' ? 'local' : 'duel' }
+    );
+
+    match.gameId = game.id;
+
+    // Return a promise for local sequential flow
+    if (t.mode === 'local') {
+      return new Promise<void>((resolve) => {
+        game.onEndCallback((winner, loser, ws, ls) => {
+          this.onMatchEnd(t.id, match.id, { id: winner.id, name: winner.name }, { id: loser.id, name: loser.name }, ws, ls);
+          resolve();
+        });
+      });
+    }
+  }
+
+  private makeMatch(t: TournamentState, roundIdx: number, p1: Participant, p2: Participant): Match {
+    return {
+      id: `m-${this.nextMid++}`,
+      roundIndex: roundIdx,
+      p1, p2,
+      status: 'scheduled'
+    };
+    // (Persist: create match row linked to tournamentId)
+  }
+
+  private findMatch(t: TournamentState, matchId: string) {
+    for (const r of t.rounds) {
+      const m = r.find(x => x.id === matchId);
+      if (m) return m;
+    }
+    return undefined;
+  }
+
+  private shuffle<T>(arr: T[]) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = (Math.random() * (i + 1)) | 0;
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  /** push updates to UIs (tournament lobby + participants) */
+  private broadcastTournamentUpdate(tournamentId: string) {
+    // Use presence/tournament sockets to fan this out
+    // e.g., send {type:'tournamentUpdate', state: safeState } to all players in this tournament
+  }
+
+  getSafeState(id: string) {
+    const t = this.tournaments.get(id);
+    if (!t) return null;
+    return {
+      id: t.id, kind: t.mode, size: t.size,
+      status: t.status, hostId: t.hostId,
+      participants: t.participants.map(p => ({ id: p.id, name: p.name })),
+      rounds: t.rounds.map(r => r.map(m => ({
+        id: m.id, status: m.status, p1: m.p1.id, p2: m.p2.id, winnerId: m.winnerId
+      })))
+    };
+  }
+
+  getSafeTournamentData() {
+    return Array.from(this.tournaments.values()).map(t => ({
       id: t.id,
       size: t.size,
-      joined: t.players.length,
+      joined: t.participants.length,
       hostId: t.hostId,
       status: t.status,
-      playerIds: t.players.map(p => p.id)
+      playerIds: t.participants.map(p => p.id)
     }));
-}
-
-function quitTournament(userId: string) {
-  const t = getUserTournament(userId);
-  if (!t) return;
-
-  t.players = t.players.filter(p => p.id !== userId);
-  console.log(`❌ [Tournament: ${t.id}] Player quit: ${userId}`);
-
-  // Remove if empty
-  if (t.players.length === 0) {
-    tournaments = tournaments.filter(x => x.id !== t.id);
-    console.log(`🗑 [Tournament: ${t.id}] Empty tournament deleted`);
   }
 
-  sendTournamentUpdate();
+  quitTournament(userId: string) {
+    const t = getUserTournament(userId);
+    if (!t) return;
+
+    t.players = t.players.filter(p => p.id !== userId);
+    console.log(`❌ [Tournament: ${t.id}] Player quit: ${userId}`);
+
+    // Remove if empty
+    if (t.players.length === 0) {
+      tournaments = tournaments.filter(x => x.id !== t.id);
+      console.log(`🗑 [Tournament: ${t.id}] Empty tournament deleted`);
+    }
+
+    sendTournamentUpdate();
+  }
 }
 
-// Helper to notify players
-function notifyMatchStart(tournamentId: string, player1Id: string, player2Id: string) {
-  const payload: MatchStartNotification = {
-    type: 'matchStart',
-    tournamentId,
-    matchId: `m-${Date.now()}`, // optionally match IDs could be tracked in state
-    player1: player1Id,
-    player2: player2Id
-  };
-
-  // for (const id of [player1Id, player2Id]) {
-  //   const ws = tournamentSockets.get(id);
-  //   if (ws && ws.readyState === ws.OPEN) {
-  //     ws.send(JSON.stringify(payload));
-  //   }
-  // }/
-}
-
-export {
-  Tournament,
-  createTournament,
-  joinTournament,
-  getSafeTournamentData,
-  getUserTournament,
-  advanceTournament,
-  quitTournament
-};
+export const tournamentManager = new TournamentManager();
