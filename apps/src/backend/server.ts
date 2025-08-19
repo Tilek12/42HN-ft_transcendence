@@ -15,9 +15,9 @@ import userRoutes from './routes/api/user-routes';
 import profileRoutes from './routes/api/profile-routes';
 import matchRoutes from './routes/api/match-routes';
 import tournamentRoutes from './routes/api/tournament-routes';
-import wsGamePlugin from './routes/ws/game';
-import wsPresencePlugin from './routes/ws/presence';
-import wsTournamentPlugin from './routes/ws/tournament';
+import wsGamePlugin from './routes/ws/game-ws';
+import wsPresencePlugin from './routes/ws/presence-ws';
+import wsTournamentPlugin from './routes/ws/tournament-ws';
 
 dotenv.config();
 

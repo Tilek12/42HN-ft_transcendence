@@ -91,17 +91,10 @@ export class GameRoom {
   // }
 
   private setupListeners() {
-    // Collect unique sockets → the set avoids double listeners when p1.socket === p2.socket
-    const unique = new Map<any, string[]>(); // socket -> [playerIds it controls]
-    for (const p of this.players) {
-      if (p === GhostPlayer) continue;
-      const arr = unique.get(p.socket) ?? [];
-      arr.push(p.id);
-      unique.set(p.socket, arr);
-    }
+    for (const player of this.players) {
+      if (player === GhostPlayer) continue;
 
-    for (const [socket, playerIds] of unique.entries()) {
-      socket.on('message', (msg: any) => {
+      player.socket.on('message', (msg) => {
         const text = msg.toString();
         if (text === 'pong') return;
 
@@ -109,25 +102,26 @@ export class GameRoom {
         try { m = JSON.parse(text); } catch { return; }
 
         if (m.type === 'move') {
-          if (this.mode === 'local') {
-            // client must send {type:'move', direction, side:'left'|'right'}
+          if (this.mode === 'solo') {
+            // one socket controls both paddles
+            const target = m.side === 'right' ? this.players[1].id : this.players[0].id;
+            this.move(target, m.direction);
+          } else if (this.mode === 'local') {
+            // same socket, but use side field to choose
             const target = m.side === 'right' ? this.players[1].id : this.players[0].id;
             this.move(target, m.direction);
           } else {
-            // online/duel: derive by which socket this handler belongs to.
-            // If both players share the same socket (shouldn't in online), fallback to m.side if present.
-            const target = (playerIds.length === 1) ? playerIds[0]
-                         : (m.side === 'right' ? this.players[1].id : this.players[0].id);
-            this.move(target, m.direction);
+            // duel/match: player only controls their own paddle
+            this.move(player.id, m.direction);
           }
         } else if (m.type === 'quit') {
-          this.broadcast({ type: 'disconnect' });
+          this.broadcast({ type: 'disconnect', who: player.id });
           this.end();
         }
       });
 
-      socket.on('close', () => {
-        this.broadcast({ type: 'disconnect' });
+      player.socket.on('close', () => {
+        this.broadcast({ type: 'disconnect', who: player.id });
         this.end();
       });
     }
@@ -244,8 +238,10 @@ export class GameRoom {
 
   private broadcast(msg: any) {
     for (const p of this.players) {
-      if (p !== GhostPlayer && p.socket.readyState === p.socket.OPEN) {
-        p.socket.send(JSON.stringify(msg));
+      if (p !== GhostPlayer && p.socket.readyState === 1) {
+        try {
+          p.socket.send(JSON.stringify(msg));
+        } catch {}
       }
     }
   }

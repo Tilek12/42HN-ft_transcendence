@@ -1,5 +1,5 @@
 import { GameRoom } from '../game/game-room';
-import { Player } from '../game/game-types';
+import { Player, GameMode } from '../game/game-types';
 import { tournamentManager } from './tournament-manager';
 
 class GameManager {
@@ -7,14 +7,14 @@ class GameManager {
 	private waitingDuel = new Map<string, Player>();
 	private nextId = 1;
 
-	createGame(mode: string, p1: Player, p2?: Player, tournamentId?: string, matchId?: string): GameRoom {
+	createGame(mode: GameMode, p1: Player, p2?: Player, tournamentId?: string, matchId?: string): GameRoom {
 		let isTournament: boolean = tournamentId && matchId ? true : false;
 		let roomId: string;
 		if (isTournament)
 			roomId = `[${tournamentId}]:[${matchId}]:[g-${this.nextId++}]`;
 		else
 			roomId = `g-${this.nextId++}`;
-		const room = new GameRoom(roomId, p1, p2 ?? null, tournamentId);
+		const room = new GameRoom(roomId, mode, p1, p2 ?? null, tournamentId);
 		this.rooms.set(room.id, room);
 
 		// Auto-remove room when the game ends

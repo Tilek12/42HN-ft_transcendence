@@ -1,6 +1,5 @@
 import { WebSocket } from 'ws';
 import { Player } from '../game/game-types';
-import { GameRoom } from '../game/game-room';
 import { userManager } from './user-manager';
 import { gameManager } from './game-manager';
 import {
@@ -11,8 +10,8 @@ import {
   Participant,
   Match
 } from '../tournament/tournament-types';
-import { sendTournamentUpdate } from '../routes/ws/presence';
-import { incrementWinsOrLossesOrTrophies } from '../database/user';
+import { sendTournamentUpdate } from '../routes/ws/presence-ws';
+import { incrementWinsOrLossesOrTrophies } from '../database/profile';
 import { createTournamentDB, joinTournamentDB } from '../database/tournament';
 
 class TournamentManager {
@@ -166,11 +165,11 @@ class TournamentManager {
     const p2 = toPlayer(match.p2);
 
     const game = gameManager.createGame(
+      t.mode === 'local' ? 'local' : 'duel', // local tournaments use local mode
       p1,
       p2,
       t.id,
-      match.id,
-      { mode: t.mode === 'local' ? 'local' : 'duel' }
+      match.id
     );
 
     match.gameId = game.id;
@@ -242,16 +241,23 @@ class TournamentManager {
     }));
   }
 
+  getUserTournament(userId: string): TournamentState | null {
+    for (const t of this.tournaments.values()) {
+      if (t.participants.some(p => p.id === userId)) return t;
+    }
+    return null;
+  }
+
   quitTournament(userId: string) {
-    const t = getUserTournament(userId);
+    const t = this.getUserTournament(userId);
     if (!t) return;
 
-    t.players = t.players.filter(p => p.id !== userId);
+    t.participants = t.participants.filter(p => p.id !== userId);
     console.log(`❌ [Tournament: ${t.id}] Player quit: ${userId}`);
 
     // Remove if empty
-    if (t.players.length === 0) {
-      tournaments = tournaments.filter(x => x.id !== t.id);
+    if (t.participants.length === 0) {
+      this.tournaments = this.tournaments.filter(x => x.id !== t.id);
       console.log(`🗑 [Tournament: ${t.id}] Empty tournament deleted`);
     }
 

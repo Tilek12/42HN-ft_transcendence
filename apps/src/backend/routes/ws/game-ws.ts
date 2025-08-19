@@ -71,12 +71,10 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify: any) => {
 			authUserId = userId;
 			authenticated = true;
 
-			fastify.log.info(`🏓 [Game WS] Connected: ${userId} (${mode})`);
-
 			// create Player with this socket and start matchmaking / game
 			const player: Player = { id: userId, name: presenceUser.name, socket };
 			try {
-				await startGame(player, mode as any, tournamentId);
+				await startGame(player, mode, tournamentId);
 			} catch (err) {
 				fastify.log.warn('[Game WS] startGame error', err);
 			}
