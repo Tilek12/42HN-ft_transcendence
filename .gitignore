@@ -1,6 +1,6 @@
 *test*
 database/*
-database
+database   
 .env*
 profile_pics/user*
 node_modules

@@ -24,7 +24,8 @@ export async function renderFriendRequestsList ()
 	const recievedRequests : number[]= data.profiles[0].received_requests;
 	// console.log('received_profiles:');
 	// console.log(data.received_requests);
-	container.innerHTML = `<h1 class="text-2xl font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Requests List</h1>` + data.profiles.filter((r : any) => recievedRequests.includes(r.id)).map((profile: any) =>
+	container.innerHTML = `<h1 class="text-2xl font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Requests List</h1>` + 
+	data.profiles.filter((r : any) => recievedRequests.includes(r.id)).map((profile: any) =>
 	{
 		const is_connected = wsManager.presenceUserList.map(u=>u.name).includes(profile.username);
 		const src_img = profile.image_blob ? 

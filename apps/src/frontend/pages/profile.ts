@@ -8,7 +8,8 @@ import { listenerDeletePicture, listenerLogoutBtn, listenerUploadPicture } from 
 import { getEnvVariable } from './TypeSafe';
 import {listenerPasswordCancel, listenerPasswordEdit, listenerPasswordUpdate} from './listenerUpdatePasswordAndUsername';
 import {listenerUsernameUpdate, listenerUsernameCancel, listenerUsernameEdit} from './listenerUpdatePasswordAndUsername' ;
-import type {AllProfileWithLimitAndOffset} from './renderProfiles';
+import type {AllProfileWithLimitAndOffset, return_on_render} from './renderProfiles';
+import {wsManager} from '../websocket/ws-manager';
 
 type Match =
 {
@@ -26,6 +27,48 @@ type Match =
 	total_matches?: number,
 	win_rate?: number,
 };
+let allProfiles: {profiles : any[]}[] | undefined= [];
+let profile_offset = 0;
+let profile_limit = 2;
+// let new_all_profiles : AllProfileWithLimitAndOffset | undefined;
+let nav_profile_clicked = false;
+let already_parsed : boolean | undefined = false;
+let first_profile_render = 1;
+let presenceList : any[] | undefined = [];
+
+const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) =>
+	{
+
+		console.log("ALL PROFILES ON RENDER", allProfiles)
+		let listUsers = wsManager.presenceUserList.map((u)=>u.name);
+		console.log(`Is ${JSON.stringify(listUsers) !== JSON.stringify(presenceList) ? ' ' : ' not '}changing`)
+		if (load) first_profile_render--;
+		if (JSON.stringify(listUsers) !== JSON.stringify(presenceList) || (first_profile_render == 1) || nav_profile_clicked)
+		{
+			if(load === false)
+				{
+					console.log("I'm In no load")
+					first_profile_render++
+				};
+			presenceList = [...listUsers];
+			console.log("ALLLPROFILES===========>>>", allProfiles);
+			// allProfiles?.forEach((pr)=> console.log("DEFAULT BEFORE MAPPING", pr.profiles[0].logged_in));
+			allProfiles?.map((all) => all.profiles?.map((pr)=> {pr.logged_in = wsManager.presenceUserList.map((u)=> u.name).includes(pr.username); return pr;}));
+			allProfiles?.map((all) => all.profiles?.forEach((pr) =>
+			{
+				console.log('changing on rendering', pr.logged_in);
+				const profile_loggin_state = document.getElementById(`profiles-loggin-state-${pr.username}`) as HTMLSpanElement;
+				profile_loggin_state?.classList.add(`${pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
+				profile_loggin_state?.classList.remove(`${!pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
+				profile_loggin_state.innerHTML = pr.logged_in ? 'online' : 'offline';
+			}))
+			return allProfiles;
+			// allProfiles?.forEach((pr)=> console.log("DEFAULT AFTER MAPPING", pr.profiles[0].logged_in));
+		}
+		if(!load)
+			setTimeout(renderCheckerForProfiles, 500);
+		return allProfiles
+	}
 export async function renderProfile(root: HTMLElement) {
   const isValid = await validateLogin()
   if (!isValid) {
@@ -62,11 +105,6 @@ export async function renderProfile(root: HTMLElement) {
 		trophies_id: `trophies`,
 		created_at_id: `created_at`
 	}
-	//----------------load pagination process--------------------------------------
-	let allProfiles: {profiles : any[]}[] | undefined= [];
-	let profile_offset = 0;
-	let profile_limit = 1;
-	let new_all_profiles : AllProfileWithLimitAndOffset | undefined;
 	//---------------Password Related Variables------------------------------------
 	const password_old_check = document.getElementById('password-old-check') as HTMLInputElement;
 	const password_new = document.getElementById('password-new') as HTMLInputElement;
@@ -81,14 +119,29 @@ export async function renderProfile(root: HTMLElement) {
 
 	const username_par_el= document.getElementById('username') as HTMLParagraphElement;
 	const username_input_el = document.getElementById('username-input') as HTMLInputElement;
+
 	setTimeout(() => profile_ids(profile_details), 0);
+	document.getElementById('nav_profile')?.addEventListener('click', ()=> {nav_profile_clicked = true;});
 	(async () =>{
-		allProfiles = await  renderProfilesList('profiles-list', false, allProfiles, profile_offset, profile_limit);
+		console.log(`profile_length: ${allProfiles?.length} before. limit : ${profile_limit} offset :  ${profile_offset}`)
+		// if (already_parsed === false)
+		// {
+			const r_on_r = await  renderProfilesList('profiles-list', false, allProfiles, profile_offset, profile_limit, already_parsed); 
+			allProfiles = r_on_r?.allProfiles;
+			already_parsed = r_on_r?.already_parsed;
+			console.log("All Profiles after the first parse: ",allProfiles);
+		// }
+		console.log(`profile_length: ${allProfiles?.length} after. limit : ${profile_limit} offset :  ${profile_offset}`)
+		allProfiles = renderCheckerForProfiles(false, nav_profile_clicked);
 	})();
 	document.getElementById('more-profiles-btn')?.addEventListener('click', async ()=>
 	{
-		profile_offset++;
-		allProfiles = await  renderProfilesList('profiles-list', true, allProfiles, profile_offset, profile_limit);
+		profile_offset+=profile_limit;
+		const r_on_r = await  renderProfilesList('profiles-list', true, allProfiles, profile_offset, profile_limit)
+		allProfiles = r_on_r?.allProfiles;
+		already_parsed =r_on_r?.already_parsed;
+		console.log("THE PROFILES ON LOAD+++++",allProfiles);
+		allProfiles = renderCheckerForProfiles(true);
 	})
 	document.getElementById('password-edit-btn')?.addEventListener('click', ()=> 
 		listenerPasswordEdit(

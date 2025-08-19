@@ -2,6 +2,9 @@ import { getToken} from '../utils/auth'
 import { getEnvVariable } from './TypeSafe';
 import { wsManager } from '../websocket/ws-manager';
 
+// let lastPresence : any[] | undefined = [];
+// let all_friends_len : number |undefined = 0;
+// let firstTime = 1
 export async function renderFriendsList(container_id : string, load?: boolean, allFriends ?: {friends: any[]}, friend_offeset ?: number, friend_limit ?: number )
 {
 	const container = document.getElementById(container_id);
@@ -9,14 +12,21 @@ export async function renderFriendsList(container_id : string, load?: boolean, a
 	if (!container) return;
 	try
 	{
-		const res = await fetch('/api/private/parse-friends', 
-			{headers: {Authorization: `Bearer ${getToken()}`}
-		});
+		const res = await fetch(
+			'/api/private/parse-friends', 
+			{
+				headers: {Authorization: `Bearer ${getToken()}`},
+			});
 	const data = await res.json();
-	// I can have a filter that is (minimum requests) + (clicks of loads)*limit
+	// let data_friends_len = data.friends.length;
+	
 	container.innerHTML = `<h1 class="text-2xl font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Friends List</h1>` + data.friends.map((friend: any) =>
 	{
-		const is_connected = wsManager.presenceUserList.map(u=>u.name).includes(friend.username);
+		let is_connected;
+		let listUsers : any[] | undefined = wsManager.presenceUserList.map((u)=> u.name);
+		// console.log(`${friend.username}`);
+		console.log(`${friend.username} is ${is_connected ? " " : "not " }connected`);
+		is_connected = listUsers.includes(friend.username);
 		const img_src = friend.image_blob ? 
 				`data:image/webp;base64,${friend.image_blob}` : 
 				`${BACKEND_URL}/profile_pics/${friend.image_path}`;
