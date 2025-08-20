@@ -1,6 +1,7 @@
 import { GameRoom } from '../game/game-room';
 import { Player, GameMode } from '../game/game-types';
 import { tournamentManager } from './tournament-manager';
+import { userManager } from './user-manager';
 
 class GameManager {
 	private rooms = new Map<string, GameRoom>();
@@ -15,13 +16,15 @@ class GameManager {
 		else
 			roomId = `g-${this.nextId++}`;
 		const room = new GameRoom(roomId, mode, p1, p2 ?? null, tournamentId);
-		this.rooms.set(room.id, room);
+		this.rooms.set(roomId, room);
 
 		// Auto-remove room when the game ends
 		room.onEndCallback((winner, loser, winnerScore, loserScore) => {
 			console.log(`🏁 [GameManager] Game ended in room ${room.id}: ${winner.name} (${winnerScore} - ${loserScore}) ${loser.name}`);
-			this.rooms.delete(room.id);
-			console.log(`🗑️ [GameManager] Removed room ${room.id}`);
+
+			// Clean up sockets
+			userManager.removeGameSocket(winner.id);
+			userManager.removeGameSocket(loser.id);
 
 			if (isTournament) {
 				tournamentManager.onMatchEnd(
@@ -33,6 +36,9 @@ class GameManager {
 					loserScore
 				);
 			}
+
+			this.rooms.delete(room.id);
+			console.log(`🗑️ [GameManager] Removed room ${room.id}`);
 		});
 
 		return room;

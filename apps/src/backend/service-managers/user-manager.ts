@@ -62,7 +62,7 @@ class UserManager {
 		if (user) user.isInGame = value;
 	}
 
-	setInTornament(id: string, value: boolean) {
+	setInTournament(id: string, value: boolean) {
 		const user = this.getUser(id);
 		if (user) user.isInTournament = value;
 	}
@@ -143,3 +143,42 @@ class UserManager {
 }
 
 export const userManager = new UserManager();
+
+// enum SocketRole { Presence, Game, Tournament }
+
+// checkHeartbeats(role: SocketRole) {
+//   for (const [id, user] of this.users) {
+//     let socket: WebSocket | null = null;
+//     let flag: keyof User;
+
+//     switch (role) {
+//       case SocketRole.Presence:
+//         socket = user.presenceSocket;
+//         flag = "isAlive";
+//         break;
+//       case SocketRole.Game:
+//         socket = user.gameSocket;
+//         flag = "isInGame";
+//         break;
+//       case SocketRole.Tournament:
+//         socket = user.tournamentSocket;
+//         flag = "isInTournament";
+//         break;
+//     }
+
+//     if (!socket) continue;
+
+//     if (!(user as any)[flag]) {
+//       console.log(`💀 [${SocketRole[role]} WS] Closing inactive: ${id}`);
+//       try { socket.close(); } catch {}
+//       (user as any)[flag] = false;
+//     } else {
+//       (user as any)[flag] = false;
+//       try { socket.send("ping"); } catch {}
+//     }
+//   }
+// }
+
+// setInterval(() => userManager.checkHeartbeats(SocketRole.Presence), PING_INTERVAL_MS);
+// setInterval(() => userManager.checkHeartbeats(SocketRole.Game), PING_INTERVAL_MS);
+// setInterval(() => userManager.checkHeartbeats(SocketRole.Tournament), PING_INTERVAL_MS);

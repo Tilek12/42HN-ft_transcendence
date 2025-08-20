@@ -256,13 +256,13 @@ export class GameRoom {
       this.onEnd(this.winner, this.loser, this.winnerScore, this.loserScore);
     }
 
-    for (const p of this.players) {
-      if (p !== GhostPlayer && p.socket.readyState === p.socket.OPEN) {
-        try {
-          p.socket.close(1000, 'Game Ended');
-        } catch {}
-      }
-    }
+    // for (const p of this.players) {
+    //   if (p !== GhostPlayer && p.socket.readyState === p.socket.OPEN) {
+    //     try {
+    //       p.socket.close(1000, 'Game Ended');
+    //     } catch {}
+    //   }
+    // }
   }
 
   public onEndCallback(onEnd: OnGameEnd): void {

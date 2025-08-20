@@ -2,11 +2,10 @@ import fp from 'fastify-plugin';
 import { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import { WebSocket } from 'ws';
 
-import { Player } from '../../game/game-types';
+import { Participant, TournamentState } from '../../tournament/tournament-types';
 import { userManager } from '../../service-managers/user-manager';
-import { PING_INTERVAL_MS } from '../../constants';
 import { tournamentManager } from '../../service-managers/tournament-manager';
-import { TournamentState } from '../../tournament/tournament-types';
+import { PING_INTERVAL_MS } from '../../constants';
 
 const wsTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 	fastify.get('/tournament', { websocket: true }, (socket: WebSocket, req: FastifyRequest) => {
@@ -16,78 +15,102 @@ const wsTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 		const tournamentId = params.get('id');
 		const size = parseInt(params.get('size') || '4') as 4 | 8;
 		const mode = (params.get('mode') as 'local' | 'online') || 'online';
+		const namesRaw = params.get('names') || '';
+		const extraNames = namesRaw ? JSON.parse(namesRaw) : [];
 
 		if (!token || !action || (action === 'join' && !tournamentId)) {
-			return socket.close(4001, 'Missing or invalid parameters');
-		}
-
-		let userId: string;
-		try {
-			const payload = fastify.jwt.verify(token);
-			userId = payload.id;
-		} catch {
-			return socket.close(4002, 'Invalid token');
-		}
-
-		const user = userManager.getUser(userId);
-		if (!user) return socket.close(4003, 'Presence connection not found');
-
-		userManager.setTournamentSocket(userId, socket);
-
-		let tournament: TournamentState | null = null;
-		const player: Player = { id: userId, name: user.name, socket };
-
-		if (action === 'create') {
-			tournament = tournamentManager.createTournament(
-				mode,
-				{ id:userId, name: user.name },
-				size,
-				mode === 'local' ? socket : undefined
-			);
-		} else if (action === 'join') {
-			tournament = tournamentManager.joinTournament(tournamentId!, { id: userId, name: user.name });
-		}
-
-		if (!tournament) {
-			socket.send(JSON.stringify({ type: 'error', message: 'Could not join or create tournament' }));
-			socket.close();
+			socket.close(4001, 'Missing or invalid parameters');
 			return;
 		}
 
-		userManager.setInTornament(userId, true);
-		console.log(`🎯 [Tournament WS] Connected: ${userId} (${action})`);
-		socket.send(JSON.stringify({ type: 'tournamentJoined', id: tournament.id }));
+		const buffer: any[] = [];
+		let authenticated = false;
+		let userId: string;
 
-		socket.on('message', (msg: any) => {
+		const onMessage = (msg: any) => {
+			if (!authenticated) {
+				buffer.push(msg);
+				return;
+			}
+
 			const text = msg.toString();
-
 			if (text === 'pong') {
-				userManager.setInTornament(userId, true);
+				userManager.setInTournament(userId, true);
 				return;
 			}
 
 			try {
 				const data = JSON.parse(text);
 				if (data.type === 'quitTournament') {
-					quitTournament(userId);
+					tournamentManager.quitTournament(userId);
 					userManager.removeTournamentSocket(userId);
 					socket.send(JSON.stringify({ type: 'tournamentLeft' }));
 				}
 			} catch (err) {
 				console.warn('📛 [Tournament WS] Invalid message:', text);
 			}
-		});
+		};
 
+		socket.on('message', onMessage);
 		socket.on('close', () => {
 			console.log(`❌ [Tournament WS] Disconnected: ${userId}`);
-			quitTournament(userId);
+			tournamentManager.quitTournament(userId);
 			userManager.removeTournamentSocket(userId);
 		});
-
 		socket.on('error', (err: any) => {
 			console.error(`⚠️ [Tournament WS] Error from ${userId}:`, err);
 			socket.close();
 		});
+
+		(async () => {
+			try {
+				const payload = await fastify.jwt.verify(token);
+				userId = payload.id;
+
+				const user = userManager.getUser(userId);
+				if (!user) {
+					socket.close(4003, 'Presence connection not found');
+					return;
+				}
+
+				userManager.setTournamentSocket(userId, socket);
+
+				let tournament: TournamentState | null = null;
+				const participant: Participant = { id: userId, name: user.name };
+
+				if (action === 'create') {
+					tournament = await tournamentManager.createTournament(
+						mode,
+						participant,
+						size,
+						mode === 'local' ? socket : undefined,
+						extraNames
+					);
+				} else if (action === 'join') {
+					tournament = await tournamentManager.joinTournament(tournamentId!, participant);
+				}
+
+				if (!tournament) {
+					socket.send(JSON.stringify({ type: 'error', message: 'Could not join or create tournament' }));
+					socket.close();
+					return;
+				}
+
+				userManager.setInTournament(userId, true);
+				console.log(`🎯 [Tournament WS] Connected: ${userId} (${action})`);
+				socket.send(JSON.stringify({ type: 'tournamentJoined', id: tournament.id }));
+
+				authenticated = true;
+
+				while (buffer.length) {
+					const raw = buffer.shift();
+					onMessage(raw);
+				}
+			} catch (err) {
+				console.error(`⚠️ [Tournament WS] Error during setup:`, err);
+				socket.close(4004, 'Tournament setup failed');
+			}
+		})();
 	});
 
 	setInterval(() => {
@@ -104,7 +127,11 @@ const wsTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 
 			user.isInTournament = false;
 			if (user.tournamentSocket.readyState === WebSocket.OPEN) {
-				user.tournamentSocket.send('ping');
+				try {
+					user.tournamentSocket.send('ping');
+				} catch (err) {
+					console.warn(`⚠️ [Tournament WS] Ping failed for ${id}:`, err);
+				}
 			}
 		});
 	}, PING_INTERVAL_MS);
