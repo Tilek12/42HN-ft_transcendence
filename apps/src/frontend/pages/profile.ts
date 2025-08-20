@@ -27,9 +27,10 @@ type Match =
 	total_matches?: number,
 	win_rate?: number,
 };
-let allProfiles: {profiles : any[]}[] | undefined= [];
+const ref_obj_allProfiles : {allProfiles : {profiles: any[]}[]  | undefined} = {allProfiles : []};
+// let allProfiles: {profiles : any[]}[] | undefined= [];
 let profile_offset = 0;
-let profile_limit = 2;
+let profile_limit = 3;
 // let new_all_profiles : AllProfileWithLimitAndOffset | undefined;
 let nav_profile_clicked = false;
 let already_parsed : boolean | undefined = false;
@@ -39,7 +40,7 @@ let presenceList : any[] | undefined = [];
 const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) =>
 	{
 
-		console.log("ALL PROFILES ON RENDER", allProfiles)
+		console.log("ALL PROFILES ON RENDER", ref_obj_allProfiles.allProfiles)
 		let listUsers = wsManager.presenceUserList.map((u)=>u.name);
 		console.log(`Is ${JSON.stringify(listUsers) !== JSON.stringify(presenceList) ? ' ' : ' not '}changing`)
 		if (load) first_profile_render--;
@@ -51,23 +52,21 @@ const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) =>
 					first_profile_render++
 				};
 			presenceList = [...listUsers];
-			console.log("ALLLPROFILES===========>>>", allProfiles);
-			// allProfiles?.forEach((pr)=> console.log("DEFAULT BEFORE MAPPING", pr.profiles[0].logged_in));
-			allProfiles?.map((all) => all.profiles?.map((pr)=> {pr.logged_in = wsManager.presenceUserList.map((u)=> u.name).includes(pr.username); return pr;}));
-			allProfiles?.map((all) => all.profiles?.forEach((pr) =>
+			console.log("ALLLPROFILES INSIDE AUTORENDER===========>>>", ref_obj_allProfiles.allProfiles);
+			// ref_obj_allProfiles.allProfiles?.forEach((pr)=> console.log("DEFAULT BEFORE MAPPING", pr.profiles[0].logged_in));
+			ref_obj_allProfiles.allProfiles?.map((all) => all.profiles?.map((pr)=> {pr.logged_in = wsManager.presenceUserList.map((u)=> u.name).includes(pr.username); return pr;}));
+			ref_obj_allProfiles.allProfiles?.map((all) => all.profiles?.forEach((pr) =>
 			{
-				console.log('changing on rendering', pr.logged_in);
+				console.log(`changing on rendering of user ${pr.username}, ${pr.logged_in}`);
 				const profile_loggin_state = document.getElementById(`profiles-loggin-state-${pr.username}`) as HTMLSpanElement;
 				profile_loggin_state?.classList.add(`${pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
 				profile_loggin_state?.classList.remove(`${!pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
 				profile_loggin_state.innerHTML = pr.logged_in ? 'online' : 'offline';
 			}))
-			return allProfiles;
-			// allProfiles?.forEach((pr)=> console.log("DEFAULT AFTER MAPPING", pr.profiles[0].logged_in));
 		}
 		if(!load)
 			setTimeout(renderCheckerForProfiles, 500);
-		return allProfiles
+		// return allProfiles
 	}
 export async function renderProfile(root: HTMLElement) {
   const isValid = await validateLogin()
@@ -123,25 +122,26 @@ export async function renderProfile(root: HTMLElement) {
 	setTimeout(() => profile_ids(profile_details), 0);
 	document.getElementById('nav_profile')?.addEventListener('click', ()=> {nav_profile_clicked = true;});
 	(async () =>{
-		console.log(`profile_length: ${allProfiles?.length} before. limit : ${profile_limit} offset :  ${profile_offset}`)
+		console.log(`profile_length: ${ref_obj_allProfiles.allProfiles?.length} before. limit : ${profile_limit} offset :  ${profile_offset}`)
 		// if (already_parsed === false)
 		// {
-			const r_on_r = await  renderProfilesList('profiles-list', false, allProfiles, profile_offset, profile_limit, already_parsed); 
-			allProfiles = r_on_r?.allProfiles;
+			const r_on_r = await  renderProfilesList('profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit, already_parsed); 
+			ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
 			already_parsed = r_on_r?.already_parsed;
-			console.log("All Profiles after the first parse: ",allProfiles);
+			console.log("All Profiles after the first parse: ",ref_obj_allProfiles.allProfiles);
 		// }
-		console.log(`profile_length: ${allProfiles?.length} after. limit : ${profile_limit} offset :  ${profile_offset}`)
-		allProfiles = renderCheckerForProfiles(false, nav_profile_clicked);
+		console.log(`profile_length: ${ref_obj_allProfiles.allProfiles?.length} after. limit : ${profile_limit} offset :  ${profile_offset}`)
+		console.log("check render what is returning: +++++", renderCheckerForProfiles(false, nav_profile_clicked));
 	})();
 	document.getElementById('more-profiles-btn')?.addEventListener('click', async ()=>
 	{
 		profile_offset+=profile_limit;
-		const r_on_r = await  renderProfilesList('profiles-list', true, allProfiles, profile_offset, profile_limit)
-		allProfiles = r_on_r?.allProfiles;
+		const r_on_r = await  renderProfilesList('profiles-list', true, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit)
+		ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
 		already_parsed =r_on_r?.already_parsed;
-		console.log("THE PROFILES ON LOAD+++++",allProfiles);
-		allProfiles = renderCheckerForProfiles(true);
+		console.log("THE PROFILES ON LOAD+++++",ref_obj_allProfiles.allProfiles);
+		renderCheckerForProfiles(true) !== undefined
+		console.log("check render what is returning: ++++ ONLOAD", renderCheckerForProfiles(true));
 	})
 	document.getElementById('password-edit-btn')?.addEventListener('click', ()=> 
 		listenerPasswordEdit(
@@ -195,7 +195,7 @@ export async function renderProfile(root: HTMLElement) {
 	));
 	//----------------load pagination process--------------------------------------
 	document.getElementById('profiles-list')?.addEventListener
-		('click', async (e) => {allProfiles = await listenerFriendAndBlock(e, 'profiles-list', false, allProfiles, profile_offset, profile_limit)});
+		('click', async (e) => {ref_obj_allProfiles.allProfiles = await listenerFriendAndBlock(e, 'profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit)});
 	document.getElementById('upload-form')?.addEventListener
 		('submit', async (e) => listenerUploadPicture(e));
 	document.getElementById('delete-pic-btn')?.addEventListener
