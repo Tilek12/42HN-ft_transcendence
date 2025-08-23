@@ -9,3 +9,4 @@ cert/*.pem
 apps/database
 database/*.db
 apps/backend/src/database/dbTests.ts
+NOTES.md

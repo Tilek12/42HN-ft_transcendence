@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
-import { WebSocket } from 'ws';
+import type { WebSocket } from "@fastify/websocket"; 
+
 
 import { userManager } from '../../service-managers/user-manager.js';
 import { getSafeTournamentData } from '../../service-managers/tournament-manager.js';
@@ -68,11 +69,11 @@ const presencePlugin: FastifyPluginAsync = async (fastify) => {
 		};
 
 		// attach handlers synchronously
-		socket.on('message', onMessage);
-		socket.on('close', () => { closed = true; });
-		socket.on('error', (err) => {
+		socket.onmessage = onMessage;
+		socket.onclose = () => { closed = true; };
+		socket.onerror = (err:Error) => {
 			fastify.log.warn({err},'[Presence WS] socket error');
-		});
+		};
 
 		// Begin async verification AFTER handlers attached
 		(async () => {
@@ -126,12 +127,12 @@ const presencePlugin: FastifyPluginAsync = async (fastify) => {
 
 			// update handlers to use userId (already our onMessage uses req.__authenticatedUserId)
 			// final close handler will remove user
-			socket.on('close', () => {
+			socket.onclose = () => {
 				userManager.removeUser(userId);
 				fastify.log.info(`🔴 [Presence WS] Disconnected: ${userId}`);
 				sendPresenceUpdate();
-			});
-		})();
+			};
+		});
 	});
 
 	// single heartbeat/ping system (pings presence, game and tournament sockets through userManager)

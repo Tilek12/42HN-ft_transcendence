@@ -38,7 +38,8 @@ export function renderTournamentMatch(root: HTMLElement) {
   let gameStarted = false;
 
   const heldKeys: Record<string, boolean> = {};
-
+  if (!socket)
+		throw new Error("socket alloc failed tounament-match.ts line 42");
   socket.onmessage = (event) => {
     if (event.data === 'ping') {
       socket.send('pong');

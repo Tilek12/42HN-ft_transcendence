@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
-import { WebSocket } from 'ws';
+import type { WebSocket } from "@fastify/websocket"; 
+
 
 import { startGame, cancelDuelSearch } from '../../game/matchmaking.js';
 import type { Player } from '../../game/types.js';
@@ -44,9 +45,9 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
 			} catch {}
 		};
 
-		socket.on('message', onMessage);
-		socket.on('close', () => { closed = true; });
-		socket.on('error', (err) => {fastify.log.warn({err}, '[Game WS] socket error')});
+		socket.onmessage = onMessage;
+		socket.onclose = () => { closed = true; };
+		socket.onerror = (err:Error) => {fastify.log.warn({err}, '[Game WS] socket error')};
 
 		(async () => {
 			let userId: string;
@@ -95,13 +96,13 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
 			}
 
 			// attach final close handler to cleanup (will be appended but original close handler exists)
-			socket.on('close', () => {
+			socket.onclose = () => {
 				fastify.log.info(`❌ [Game WS] Disconnected: ${userId}`);
 				cancelDuelSearch(userId);
 				userManager.removeGameSocket(userId);
 				userManager.setInGame(userId, false);
-			});
-		})();
+			};
+		});
 	});
 
 	setInterval(() => {

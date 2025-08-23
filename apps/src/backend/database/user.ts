@@ -8,7 +8,7 @@ export async function findUserByEmail(email: string) {
 	return await db.get('SELECT * FROM users WHERE email = ?', email);
 }
 
-export async function findUserById(id: string) {
+export async function findUserById(id: string) { // TODO SQL INJECTION?? 
 	return await db.get('SELECT * FROM users WHERE id = ?', id);
 }
 

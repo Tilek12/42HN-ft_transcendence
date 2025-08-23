@@ -9,7 +9,7 @@ export async function renderFriendRequestsList ()
 {
 
 	const container = document.getElementById('friend-requests-list');
-	const BACKEND_URL : string = import.meta.env.VITE_BACKEND_URL;
+	const BACKEND_URL : string = "https://localhost:3000"; //TODO understand how to use this correctly
 	if (!container) return;
 	const token = getToken();
 	try

@@ -4,7 +4,7 @@ import { userManager } from '../../service-managers/user-manager.js';
 
 const userRoutes: FastifyPluginAsync = async (fastify) => {
 	fastify.get('/me', async (req, res) => {
-		const user = await findUserById(req.user);
+		const user = await findUserById(req.user as string);
 		if (!user) return res.status(404).send({ message: 'User not found' });
 
 		const { password, ...safeUser } = user;

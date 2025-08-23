@@ -6,11 +6,17 @@ import {
 	findUserByEmail,
 	createUser
 } from '../../database/user.js';
-import { updateProfileLogInState, createProfile } from '../../database/profile.js';
 
-const authRoutes: FastifyPluginAsync = async (fastify : any) => {
+import { updateProfileLogInState, createProfile } from '../../database/profile.js';
+import type { JwtPayload } from '../../../shared/types/JwtPayload.js';
+
+
+const authRoutes: FastifyPluginAsync = async (fastify: any) => {
+	fastify.get('/', async (req: any, res: any) => {
+		res.sendFile('index.html');
+	});
 	// Register
-	fastify.post('/register', { schema: registerSchema }, async (req : any, res : any) => {
+	fastify.post('/register', { schema: registerSchema }, async (req: any, res: any) => {
 		const { username, email, password } = req.body as any;
 		if (await findUserByUsername(username)) {
 			return res.status(400).send({ message: 'Username already taken' });
@@ -28,24 +34,26 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 	});
 
 	// Login
-	fastify.post('/login', { schema: loginSchema }, async (req : any, res : any) => {
+	fastify.post('/login', { schema: loginSchema }, async (req: any, res: any) => {
 		const { username, password } = req.body as any;
-		const user = await findUserByUsername(username);
+		const user = await findUserByUsername(username); //TODO usertype?? atm is any
 		if (!user || !(await verifyPassword(password, user.password))) {
 			return res.status(401).send({ message: 'Invalid credentials' });
 		}
 		await updateProfileLogInState(user.id, true);
-		const token = fastify.jwt.sign({ id: user.id }, { expiresIn: '2h' });
+		const Payload: JwtPayload = { userid: user.id }
+		const token = fastify.jwt.sign(Payload, { expiresIn: '2h' });
 		res.send({ token });
 	});
 
 	// Logout
-	fastify.post('/logout', async (req : any, res : any) =>
-	{
+	fastify.post('/logout', async (req: any, res: any) => {
 		const user = await req.jwtVerify();
 		await updateProfileLogInState(user.id, false);
 		res.send({ message: 'Logged out successfully' });
 	});
-};
+
+
+}
 
 export default authRoutes;

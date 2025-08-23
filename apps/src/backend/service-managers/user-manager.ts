@@ -1,4 +1,5 @@
-import { WebSocket } from 'ws';
+import type { WebSocket } from "@fastify/websocket"; //TODO there was here import {WebSocket as WS} from "ws" before which broke everything
+
 
 interface User {
 	id: string;
@@ -49,7 +50,7 @@ class UserManager {
 
 		// Only forcibly close sockets if this is a *true* logout or lost connection
 		if (user.presenceSocket?.readyState === WebSocket.OPEN)
-			user.presenceSocket.close();
+			user.presenceSocket?.close();
 
 		user.gameSocket?.close();
 		user.tournamentSocket?.close();

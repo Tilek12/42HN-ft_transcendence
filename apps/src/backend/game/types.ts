@@ -1,9 +1,10 @@
-import { WebSocket as WS } from 'ws';
+import type { WebSocket } from "@fastify/websocket";  //TODO there was here import {WebSocket as WS} from "ws" before which broke everything
+
 
 export interface Player {
 	id: string;
 	name: string;
-	socket: WS;
+	socket: WebSocket;
 }
 
 export const GhostPlayer: Player = {
@@ -13,7 +14,7 @@ export const GhostPlayer: Player = {
 	  send: () => {},
 	  close: () => {},
 	  readyState: 0
-	}  as Partial<WS> as WS
+	}  as Partial<WebSocket> as WebSocket
 };
 
 export interface GameState {

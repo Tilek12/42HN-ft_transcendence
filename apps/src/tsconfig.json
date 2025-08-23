@@ -1,44 +1,81 @@
+// {
+//   // Visit https://aka.ms/tsconfig to read more about this file
+//   "compilerOptions": {
+//     // File Layout
+//     "rootDir": "../src",
+//     "outDir": "../dist",
+
+//     // Environment Settings
+//     // See also https://aka.ms/tsconfig/module
+// 	"target": "ES2020",
+//     "module": "nodenext",
+//     // "types": [],
+//     // For nodejs:
+//     // "lib": ["esnext"],
+//     "types": ["node"],
+//     // and npm install -D @types/node
+
+//     // Other Outputs
+//     "sourceMap": true,
+//     "declaration": true,
+//     "declarationMap": true,
+
+//     // Stricter Typechecking Options
+//     "noUncheckedIndexedAccess": true,
+//     "exactOptionalPropertyTypes": true,
+
+//     // Style Options
+//     "noImplicitReturns": false,
+//     "noImplicitOverride": false,
+//     "noUnusedLocals": false,
+//     "noUnusedParameters": false,
+//     "noFallthroughCasesInSwitch": true,
+//     "noPropertyAccessFromIndexSignature": false,
+
+//     // Recommended Options
+//     "strict": true,
+//     // "jsx": "react-jsx",
+// 	"esModuleInterop": true,
+//     "verbatimModuleSyntax": true,
+//     "isolatedModules": true,
+//     "noUncheckedSideEffectImports": true,
+//     "moduleResolution": "nodenext",
+//     "skipLibCheck": true,
+//   }
+// }
+
 {
-  // Visit https://aka.ms/tsconfig to read more about this file
-  "compilerOptions": {
-    // File Layout
-    "rootDir": "../src",
-    "outDir": "../dist",
-
-    // Environment Settings
-    // See also https://aka.ms/tsconfig/module
-    "module": "nodenext",
-    "target": "esnext",
-    "types": [],
-    // For nodejs:
-    // "lib": ["esnext"],
-    // "types": ["node"],
-    // and npm install -D @types/node
-
-    // Other Outputs
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
-
-    // Stricter Typechecking Options
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-
-    // Style Options
-    "noImplicitReturns": false,
-    "noImplicitOverride": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": true,
-    "noPropertyAccessFromIndexSignature": false,
-
-    // Recommended Options
-    "strict": true,
-    // "jsx": "react-jsx",
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-    "noUncheckedSideEffectImports": true,
-    "moduleDetection": "force",
-    "skipLibCheck": true,
-  }
+	"compilerOptions": {
+		"target": "ES2023",
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"outDir": "../dist",
+		"rootDir": "../src",
+		"esModuleInterop": true,
+		"strict": true,
+		"resolveJsonModule": true,
+		"removeComments": true,
+		"newLine": "lf",
+		"noUnusedLocals": false, //TODO fix this bullshit ther should not be unused variables
+		"noFallthroughCasesInSwitch": true,
+		"isolatedModules": true,
+		"forceConsistentCasingInFileNames": true,
+		"skipLibCheck": true,
+		// "lib": [
+		// "ESNext"
+		// ]
+		"sourceMap": false,
+		"declaration": false,
+		"declarationMap": false
+	},
+	// "include": ["**/*.ts"],
+	 "exclude": ["vite.config.mts"]
 }
+// {
+// 	"extends": "fastify-tsconfig",
+// 	"compilerOptions": {
+
+// 	},
+
+//   }
+  

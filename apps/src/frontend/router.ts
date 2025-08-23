@@ -21,10 +21,10 @@ export async function router() {
     root.innerHTML = '';
 
     const protectedRoutes = ['#/profile', '#/friends', '#/game', '#/settings', '#/tournament'];
-    if (protectedRoutes.includes(route) && !isLoggedIn()) {
-      location.hash = '#/login';
-      return;
-    }
+    // if (protectedRoutes.includes(route) && !isLoggedIn()) {
+    //   location.hash = '#/login';
+    //   return;
+    // }
 
     switch (route) {
       case '#/tournament': return renderTournament(root);

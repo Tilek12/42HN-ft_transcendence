@@ -1,6 +1,6 @@
 import type { Player, GameState, OnGameEnd } from './types.js';
 import { GhostPlayer } from './types.js';
-import { advanceTournament } from '../service-managers/tournament-manager.js';
+// import { advanceTournament } from '../service-managers/tournament-manager.js';
 
 const FRAME_RATE = 1000 / 60;
 const PADDLE_HEIGHT = 20;
@@ -86,7 +86,7 @@ export class GameRoom {
 		for (const player of this.players) {
 			if (player === GhostPlayer) continue;
 
-			player.socket.on("message", (msg) => {
+			player.socket.onmessage = (msg:MessageEvent) => {
 				const text = msg.toString();
 				if (text === 'pong') return;
 
@@ -108,12 +108,12 @@ export class GameRoom {
 					this.broadcast({ type: 'disconnect', who: player.id });
 					this.end();
 				}
-			});
+			};
 
-			player.socket.on('close', () => {
+			player.socket.onclose = () => {
 				this.broadcast({ type: 'disconnect', who: player.id });
 				this.end();
-			});
+			};
 		}
 	}
 
@@ -208,10 +208,6 @@ export class GameRoom {
 			});
 
 			setTimeout(() => this.end(), 1000);
-
-			if (this.tournamentId && this.winner !== GhostPlayer) {
-				advanceTournament(this.tournamentId, this.winner);
-			}
 			return;
 		}
 

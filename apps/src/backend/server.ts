@@ -18,7 +18,8 @@ import tournamentRoutes from './routes/api/tournament-routes.js';
 import wsGamePlugin from './routes/ws/game.js';
 import wsPresencePlugin from './routes/ws/presence.js';
 import wsTournamentPlugin from './routes/ws/tournament.js';
-
+import closeWithGrace from 'close-with-grace';
+import { asyncWrapProviders } from 'async_hooks';
 dotenv.config();
 
 // Environment
@@ -58,8 +59,14 @@ async function main() {
 	{
 		root: path.join(__dirname, 'assets/profile_pics'),
 		prefix: '/profile_pics/',
-	}
-	);
+
+	});
+	server.register(fastifyStatic, {
+		root: '/app/dist/frontend',
+		prefix: '/',
+		decorateReply: false
+	});
+
 
 	// Public routes
 	await server.register(authRoutes, { prefix: '/api' });			// 👈 Public routes (login/register)

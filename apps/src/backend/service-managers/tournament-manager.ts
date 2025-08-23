@@ -106,55 +106,55 @@ function startTournament(t: Tournament) {
 	sendTournamentUpdate();
 }
 
-function advanceTournament(tournamentId: string, winner: Player) {
-	const t = getTournamentById(tournamentId);
-	if (!t || t.status !== 'active') return;
+// function advanceTournament(tournamentId: string, winner: Player) {
+// 	const t = getTournamentById(tournamentId);
+// 	if (!t || t.status !== 'active') return;
 
-	const lastRound = t.rounds[t.rounds.length - 1];
-	if (!lastRound)
-			throw ("lastronud must be defined");
-	const winners = lastRound.map(g => g.getWinner()).filter(Boolean) as Player[];
+// 	const lastRound = t.rounds[t.rounds.length - 1];
+// 	if (!lastRound)
+// 			throw ("lastronud must be defined");
+// 	const winners = lastRound.map(g => g.getWinner()).filter(Boolean) as Player[];
 
-	// 🔖 TODO: Save each game's result to DB
-	// for (const game of lastRound) {
-	//   const w = game.getWinner();
-	//   const l = game.getLoser?.();
-	//   if (w && l) {
-	//     // Example: await saveMatchResultToDB(w.id, l.id, t.id, game.getId());
-	//   }
-	// }
+// 	// 🔖 TODO: Save each game's result to DB
+// 	// for (const game of lastRound) {
+// 	//   const w = game.getWinner();
+// 	//   const l = game.getLoser?.();
+// 	//   if (w && l) {
+// 	//     // Example: await saveMatchResultToDB(w.id, l.id, t.id, game.getId());
+// 	//   }
+// 	// }
 
-	if (winners.length === 1) {
-		(async () => {
-			await incrementWinsOrLossesOrTrophies(parseInt(winners[0].id), 'trophies');
-		})();
-		t.status = 'finished';
+// 	if (winners.length === 1) {
+// 		(async () => {
+// 			await incrementWinsOrLossesOrTrophies(parseInt(winners[0].id), 'trophies');
+// 		})();
+// 		t.status = 'finished';
 
-		// 🔖 TODO: Save tournament result to DB: t.id, winner.id, etc.
-		// Example: await saveTournamentResult(t.id, winners[0].id);
+// 		// 🔖 TODO: Save tournament result to DB: t.id, winner.id, etc.
+// 		// Example: await saveTournamentResult(t.id, winners[0].id);
 
-		console.log(`🏁 [Tournament: ${t.id}] Finished! Winner: ${winners[0].id}`);
-		sendTournamentUpdate();
-		return;
-	}
+// 		console.log(`🏁 [Tournament: ${t.id}] Finished! Winner: ${winners[0].id}`);
+// 		sendTournamentUpdate();
+// 		return;
+// 	}
 
-	const newRound: GameRoom[] = [];
-	for (let i = 0; i < winners.length; i += 2) {
-		const p1 = winners[i];
-		const p2 = winners[i + 1] || null;
-		const game = new GameRoom(p1, p2, tournamentId);
-		newRound.push(game);
+// 	const newRound: GameRoom[] = [];
+// 	for (let i = 0; i < winners.length; i += 2) {
+// 		const p1 = winners[i];
+// 		const p2 = winners[i + 1] || null;
+// 		const game = new GameRoom(p1, p2, tournamentId);
+// 		newRound.push(game);
 
-		if (p2) notifyMatchStart(t.id, p1.id, p2.id);
+// 		if (p2) notifyMatchStart(t.id, p1.id, p2.id);
 
-		// DB //
-		// TODO: Save new match start to DB
-		////////
-	}
+// 		// DB //
+// 		// TODO: Save new match start to DB
+// 		////////
+// 	}
 
-	t.rounds.push(newRound);
-	sendTournamentUpdate();
-}
+// 	t.rounds.push(newRound);
+// 	sendTournamentUpdate();
+// }
 
 function getSafeTournamentData() {
 	return tournaments.map(t => ({
@@ -201,12 +201,13 @@ function notifyMatchStart(tournamentId: string, player1Id: string, player2Id: st
 	// }/
 }
 
+
+export type {Tournament}
 export {
-	Tournament,
 	createTournament,
 	joinTournament,
 	getSafeTournamentData,
 	getUserTournament,
-	advanceTournament,
+	// advanceTournament,
 	quitTournament
 };

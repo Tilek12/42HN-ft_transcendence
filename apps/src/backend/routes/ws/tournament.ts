@@ -1,6 +1,7 @@
 import fp from 'fastify-plugin';
 import type { FastifyPluginAsync } from 'fastify';
-import { WebSocket as WS } from 'ws';
+import type { WebSocket } from "@fastify/websocket"; 
+
 
 import type { Player } from '../../game/types.js';
 import { userManager } from '../../service-managers/user-manager.js';
@@ -104,7 +105,7 @@ const tournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 			}
 
 			user.isInTournament = false;
-			if (user.tournamentSocket.readyState === WS.OPEN) {
+			if (user.tournamentSocket.readyState === WebSocket.OPEN) {
 				user.tournamentSocket.send('ping');
 			}
 		});
