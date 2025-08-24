@@ -24,8 +24,8 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 	fastify.post ('/profile', async (req : any, res : any) => {
 		try {
 			const jwt = await req.jwtVerify();
-			const user = await findUserById(jwt.userid);
-			const profile = await findProfileById(jwt.userid);
+			const user = await findUserById(jwt.id);
+			const profile = await findProfileById(jwt.id);
 			if (!user || !profile)
 				return res.status(404).send({message: 'User or profile not found'});
 			res.send({
@@ -63,7 +63,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 			const dir = path.join(__dirname, 'assets', 'profile_pics');
 			if (!fs.existsSync(dir))
 				fs.mkdirSync(dir, { recursive: true });
-			const fileName = `user_${jwt.userid}_${Date.now()}.webp`;
+			const fileName = `user_${jwt.id}_${Date.now()}.webp`;
 			const uploadPath = path.join(__dirname, 'assets', 'profile_pics', fileName);
 			//-----resizing-----------
 			const chunks: Buffer[] = [];
@@ -77,7 +77,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 				.toFile(uploadPath);
 			//----uploading-------------
 			const relativePath = `${fileName}`;
-			await updatePicturePath(jwt.userid, relativePath);
+			await updatePicturePath(jwt.id, relativePath);
 			res.send({message: 'Profile picture updated and resized', path: relativePath});
 		} catch (err) {
 			console.error(err);
@@ -88,7 +88,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 	fastify.post('/delete_pic', async (req : any, res : any) => {
 		try {
 			const jwt = await req.jwtVerify();
-			const profile = await findProfileById(jwt.userid);
+			const profile = await findProfileById(jwt.id);
 			if (profile.image_path && profile.image_path !== 'default_pic.webp')
 			{
 				const __dirname = '/app/src';
@@ -96,7 +96,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 				if (fs.existsSync(filePath))
 					fs.unlinkSync(filePath);
 			}
-			await updatePicturePath(jwt.userid, 'default_pic.webp');
+			await updatePicturePath(jwt.id, 'default_pic.webp');
 			res.send({message: 'Profile picture deleted and reset to default'});
 		} catch(err) {
 			res.status(401).send({message: 'Unauthorized or error delete_pic'});
@@ -107,7 +107,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 		try {
 			const jwt = await req.jwtVerify();
 			// console.log('Verified JWT: ', jwt);
-			const userId = jwt.userid;
+			const userId = jwt.id;
 			const rows = await parseFriends(userId);
 			res.send({friends: rows});
 		} catch (err) {
@@ -119,7 +119,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 	fastify.post('/unlink-profile', async (req : any, res : any) => {
 		try {
 			const jwt = await req.jwtVerify();
-			const userId = jwt.userid;
+			const userId = jwt.id;
 			const {profileId} = req.body as any;
 			await bidirectionalDeleteAFriend(userId, profileId);
 		} catch (err) {
@@ -131,7 +131,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 	fastify.post('/block-profile', async (req : any, res : any) => {
 		try {
 			const jwt = await req.jwtVerify();
-			const userId = jwt.userid;
+			const userId = jwt.id;
 			const {profileId} = req.body as any;
 			await AddToBlockedList(userId, profileId);
 			await bidirectionalDeleteAFriend(userId, profileId);
@@ -144,7 +144,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 	fastify.post('/unblock-profile', async (req : any, res : any) => {
 		try {
 			const jwt = await req.jwtVerify();
-			const userId = jwt.userid;
+			const userId = jwt.id;
 			const {profileId} = req.body as any;
 			await DeleteFromBlockedList(userId, profileId);
 		} catch (err) {
@@ -156,7 +156,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 	fastify.post('/link-profile', async (req : any, res : any) => {
 		try {
 			const jwt = await req.jwtVerify();
-			const userId = jwt.userid;
+			const userId = jwt.id;
 			const {profileId} = req.body as any;
 			// console.log('userid====>',userId);
 			// console.log(profileId);
@@ -173,7 +173,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 	fastify.post('/pending-request', async (req : any, res : any) => {
 		try {
 			const jwt = await req.jwtVerify();
-			const userId = jwt.userid;
+			const userId = jwt.id;
 			const {profileId} = req.body as any;
 			await deleteFriendRequest(userId, profileId);
 		} catch (err) {
@@ -186,7 +186,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 		try {
 			// console.log("here");
 			const jwt =await req.jwtVerify();
-			const userId = jwt.userid;
+			const userId = jwt.id;
 			const {profileId, profileAnswer} = req.body as any;
 			// console.log("profileId and profileAnswer");
 			// console.log(req.body);
@@ -205,16 +205,16 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 			const jwt = await req.jwtVerify();
 			const offset = await req.query.offset as string || "0";
 			const limit = await req.query.limit as string || "25";
-			const profiles = await parseProfiles(jwt.userid, offset, limit);
+			const profiles = await parseProfiles(jwt.id, offset, limit);
 
-			const friends = await parseFriends(jwt.userid);
+			const friends = await parseFriends(jwt.id);
 			const friendsIds = new Set (friends.map((row : any )=> row.id));
 
-			const pendingRequests = await parseBidirectionalPendingRequests(jwt.userid, jwt.userid);
-			const sentRequests = new Set ( pendingRequests.filter((r: any)=> r.sender_id === jwt.userid && r.receiver_id !== jwt.userid).map((r : any)=>  r.receiver_id));
-			const receivedRequests = new Set (pendingRequests.filter((r: any) => r.receiver_id && r.sender_id !== jwt.userid).map((r: any) => r.sender_id));
+			const pendingRequests = await parseBidirectionalPendingRequests(jwt.id, jwt.id);
+			const sentRequests = new Set ( pendingRequests.filter((r: any)=> r.sender_id === jwt.id && r.receiver_id !== jwt.id).map((r : any)=>  r.receiver_id));
+			const receivedRequests = new Set (pendingRequests.filter((r: any) => r.receiver_id && r.sender_id !== jwt.id).map((r: any) => r.sender_id));
 
-			const blockingList = await parseBlockedList(jwt.userid);
+			const blockingList = await parseBlockedList(jwt.id);
 			// console.log("Blocked_list:");
 			// console.log(blockingList);
 			const blockingListIds = new Set (blockingList.map((row : any)=> row.blocked_id));
@@ -226,7 +226,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 									receivedRequests.has(profile.id) ? "recieved" :
 									null,
 				is_blocking: blockingListIds.has(profile.id) ? 1 : 0,
-				is_blocked: await userIsBlocked(jwt.userid, profile.id)
+				is_blocked: await userIsBlocked(jwt.id, profile.id)
 			})
 			));
 				res.send({profiles: profilesWithFriendFlag});

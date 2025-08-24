@@ -41,7 +41,7 @@ const authRoutes: FastifyPluginAsync = async (fastify: any) => {
 			return res.status(401).send({ message: 'Invalid credentials' });
 		}
 		await updateProfileLogInState(user.id, true);
-		const Payload: JwtPayload = { userid: user.id }
+		const Payload: JwtPayload = { id: user.id }
 		const token = fastify.jwt.sign(Payload, { expiresIn: '2h' });
 		res.send({ token });
 	});

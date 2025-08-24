@@ -17,7 +17,8 @@ const authPlugin: FastifyPluginAsync = async (fastify) => {
 
 		try {
 			const decoded = await req.jwtVerify<JwtPayload>();
-			req.user = decoded.userid;
+			console.log(decoded);
+			req.user = decoded.id;
 		} catch {
 			return res.status(401).send({ message: 'Invalid or expired token' });
 		}

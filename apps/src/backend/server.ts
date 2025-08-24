@@ -19,7 +19,9 @@ import wsGamePlugin from './routes/ws/game.js';
 import wsPresencePlugin from './routes/ws/presence.js';
 import wsTournamentPlugin from './routes/ws/tournament.js';
 import closeWithGrace from 'close-with-grace';
-import { asyncWrapProviders } from 'async_hooks';
+import swagger from '@fastify/swagger';
+import swagger_ui from '@fastify/swagger-ui';
+// import { asyncWrapProviders } from 'async_hooks';
 dotenv.config();
 
 // Environment
@@ -51,7 +53,18 @@ async function main() {
 	await server.register(jwt, { secret });	// ✅ Create JWT
 	await server.register(websocket);					// ✅ Add WebSocket support
 	await server.register(multipart);
-
+	await server.register(swagger, {
+		hideUntagged: true,
+		openapi: {
+		  info: {
+			title: 'Transcendence',
+			description: 'The official Transcendence crap API',
+			version: '0.0.0'
+		}}
+	  });
+	await server.register(swagger_ui, {
+		routePrefix: '/docs'
+	  });
 	//upload pics path register
 	const __dirname = path.dirname(fileURLToPath(import.meta.url));
 	// console.log(`here is the __dirname : ${__dirname}`);

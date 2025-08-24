@@ -28,7 +28,7 @@ export async function renderTournament(root: HTMLElement) {
 			const Payload = getTokenPayload();
 			if (!Payload)
 				throw new Error("no token found how did you login??");
-			const userId = Payload.userid;
+			const userId = Payload.id;
 
 			if (msg.player1 === userId || msg.player2 === userId) {
 				// 🎯 Player is part of this match – redirect to tournament-match
@@ -49,7 +49,7 @@ export async function renderTournament(root: HTMLElement) {
 		const Payload = getTokenPayload();
 		if (!Payload)
 			throw new Error("no token found how did you login??");
-		const userId = Payload.userid;
+		const userId = Payload.id;
 
 		const userTournament = tournaments.find(t => t.playerIds.includes(userId));
 		currentTournamentId = userTournament ? userTournament.id : null;

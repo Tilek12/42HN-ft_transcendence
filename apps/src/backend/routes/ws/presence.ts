@@ -47,7 +47,7 @@ const presencePlugin: FastifyPluginAsync = async (fastify) => {
 		if (!qsToken) {
 			try { socket.close(4001, 'Missing token'); } catch {}
 			return;
-		}
+		} //TODO what in the tokenisation is going on here?
 
 		// buffer incoming messages while we verify token
 		const messageBuffer: any[] = [];
