@@ -4,7 +4,7 @@ import { saveToken } from '../utils/auth';
 import { wsManager } from '../websocket/ws-manager';
 
 export function renderLogin(root: HTMLElement) {
-  root.innerHTML = renderNav() + renderBackgroundFull(`
+  root.innerHTML = renderBackgroundFull(`
     <div class="w-full max-w-md">
       <!-- Glassmorphism card -->
       <div class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">

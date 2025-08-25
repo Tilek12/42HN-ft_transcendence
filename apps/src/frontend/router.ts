@@ -17,6 +17,8 @@ export async function router() {
 
   root.style.opacity = '0';
 
+  // I want to be albe to change the 
+
   setTimeout(() => {
     root.innerHTML = '';
 

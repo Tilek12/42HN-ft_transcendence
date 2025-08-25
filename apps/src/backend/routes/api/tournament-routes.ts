@@ -77,6 +77,7 @@ const tournamentRoutes: FastifyPluginAsync = async (fastify : any ) => {
 
 	// Get tournament by ID (public)
 	fastify.get('/tournament/:id', async (req : any, res : any) => {
+		//const jwt = await req.jwtVerify();
 		const { id } = req.params as any;
 		const tid = parseInt(id);
 
@@ -94,6 +95,7 @@ const tournamentRoutes: FastifyPluginAsync = async (fastify : any ) => {
 
 	// Get participants of a tournament (public)
 	fastify.get('/tournament/:id/participants', async (req : any, res : any) => {
+		// const jwt = await req.jwtVerify();
 		const { id } = req.params as any;
 		const tid = parseInt(id);
 
@@ -107,6 +109,7 @@ const tournamentRoutes: FastifyPluginAsync = async (fastify : any ) => {
 
 	// Get matches of a tournament (public)
 	fastify.get('/tournament/:id/matches', async (req : any, res : any) => {
+		// const jwt = await req.jwtVerify();
 		const { id } = req.params as any;
 		const tid = parseInt(id);
 
@@ -120,6 +123,7 @@ const tournamentRoutes: FastifyPluginAsync = async (fastify : any ) => {
 
 	// Get tournament leaderboard (public)
 fastify.get('/tournament/:id/leaderboard', async (req : any, res : any) => {
+	// const jwt = await req.jwtVerify();
 	const { id } = req.params as any;
 	const tid = parseInt(id);
 

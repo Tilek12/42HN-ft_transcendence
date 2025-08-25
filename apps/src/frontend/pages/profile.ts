@@ -10,6 +10,8 @@ import {listenerPasswordCancel, listenerPasswordEdit, listenerPasswordUpdate} fr
 import {listenerUsernameUpdate, listenerUsernameCancel, listenerUsernameEdit} from './listenerUpdatePasswordAndUsername' ;
 import type {AllProfileWithLimitAndOffset, return_on_render} from './renderProfiles';
 import {wsManager} from '../websocket/ws-manager';
+// import {languageStore} from './languages';
+import { initLang } from './nav';
 
 type Match =
 {
@@ -40,9 +42,9 @@ let presenceList : any[] | undefined = [];
 const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) =>
 	{
 
-		console.log("ALL PROFILES ON RENDER", ref_obj_allProfiles.allProfiles)
+		// console.log("ALL PROFILES ON RENDER", ref_obj_allProfiles.allProfiles)
 		let listUsers = wsManager.presenceUserList.map((u)=>u.name);
-		console.log(`Is ${JSON.stringify(listUsers) !== JSON.stringify(presenceList) ? ' ' : ' not '}changing`)
+		// console.log(`Is ${JSON.stringify(listUsers) !== JSON.stringify(presenceList) ? ' ' : ' not '}changing`)
 		if (load) first_profile_render--;
 		if (JSON.stringify(listUsers) !== JSON.stringify(presenceList) || (first_profile_render == 1) || nav_profile_clicked)
 		{
@@ -52,12 +54,12 @@ const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) =>
 					first_profile_render++
 				};
 			presenceList = [...listUsers];
-			console.log("ALLLPROFILES INSIDE AUTORENDER===========>>>", ref_obj_allProfiles.allProfiles);
+			// console.log("ALLLPROFILES INSIDE AUTORENDER===========>>>", ref_obj_allProfiles.allProfiles);
 			// ref_obj_allProfiles.allProfiles?.forEach((pr)=> console.log("DEFAULT BEFORE MAPPING", pr.profiles[0].logged_in));
 			ref_obj_allProfiles.allProfiles?.map((all) => all.profiles?.map((pr)=> {pr.logged_in = wsManager.presenceUserList.map((u)=> u.name).includes(pr.username); return pr;}));
 			ref_obj_allProfiles.allProfiles?.map((all) => all.profiles?.forEach((pr) =>
 			{
-				console.log(`changing on rendering of user ${pr.username}, ${pr.logged_in}`);
+				// console.log(`changing on rendering of user ${pr.username}, ${pr.logged_in}`);
 				const profile_loggin_state = document.getElementById(`profiles-loggin-state-${pr.username}`) as HTMLSpanElement;
 				profile_loggin_state?.classList.add(`${pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
 				profile_loggin_state?.classList.remove(`${!pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
@@ -89,8 +91,8 @@ export async function renderProfile(root: HTMLElement) {
       };
 
 	const BACKEND_URL = getEnvVariable('VITE_BACKEND_URL');
-    root.innerHTML = renderNav() + renderUserProfile(BACKEND_URL, data);
-
+    root.innerHTML = renderUserProfile(BACKEND_URL, data);
+	initLang();
 	let profile_details : Profile_details =
 	{
 		backend_url: BACKEND_URL,
@@ -119,19 +121,21 @@ export async function renderProfile(root: HTMLElement) {
 	const username_par_el= document.getElementById('username') as HTMLParagraphElement;
 	const username_input_el = document.getElementById('username-input') as HTMLInputElement;
 
+
+	// if (document.getElementById('language-change')) console.log("FOUND");
 	setTimeout(() => profile_ids(profile_details), 0);
 	document.getElementById('nav_profile')?.addEventListener('click', ()=> {nav_profile_clicked = true;});
 	(async () =>{
-		console.log(`profile_length: ${ref_obj_allProfiles.allProfiles?.length} before. limit : ${profile_limit} offset :  ${profile_offset}`)
+		// console.log(`profile_length: ${ref_obj_allProfiles.allProfiles?.length} before. limit : ${profile_limit} offset :  ${profile_offset}`)
 		// if (already_parsed === false)
 		// {
 			const r_on_r = await  renderProfilesList('profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit, already_parsed); 
 			ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
 			already_parsed = r_on_r?.already_parsed;
-			console.log("All Profiles after the first parse: ",ref_obj_allProfiles.allProfiles);
+			// console.log("All Profiles after the first parse: ",ref_obj_allProfiles.allProfiles);
 		// }
-		console.log(`profile_length: ${ref_obj_allProfiles.allProfiles?.length} after. limit : ${profile_limit} offset :  ${profile_offset}`)
-		console.log("check render what is returning: +++++", renderCheckerForProfiles(false, nav_profile_clicked));
+		// console.log(`profile_length: ${ref_obj_allProfiles.allProfiles?.length} after. limit : ${profile_limit} offset :  ${profile_offset}`)
+		// console.log("check render what is returning: +++++", renderCheckerForProfiles(false, nav_profile_clicked));
 	})();
 	document.getElementById('more-profiles-btn')?.addEventListener('click', async ()=>
 	{
@@ -139,9 +143,9 @@ export async function renderProfile(root: HTMLElement) {
 		const r_on_r = await  renderProfilesList('profiles-list', true, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit)
 		ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
 		already_parsed =r_on_r?.already_parsed;
-		console.log("THE PROFILES ON LOAD+++++",ref_obj_allProfiles.allProfiles);
+		// console.log("THE PROFILES ON LOAD+++++",ref_obj_allProfiles.allProfiles);
 		renderCheckerForProfiles(true) !== undefined
-		console.log("check render what is returning: ++++ ONLOAD", renderCheckerForProfiles(true));
+		// console.log("check render what is returning: ++++ ONLOAD", renderCheckerForProfiles(true));
 	})
 	document.getElementById('password-edit-btn')?.addEventListener('click', ()=> 
 		listenerPasswordEdit(

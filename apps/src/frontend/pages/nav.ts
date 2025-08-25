@@ -1,6 +1,24 @@
 import { wsManager } from '../websocket/ws-manager';
+import {languageStore} from './languages';
 
 let presenceUnsub: (() => void) | null = null;
+
+export function initLang()
+{
+	const langSelect = document.getElementById('language-select') as HTMLSelectElement;
+	
+	if(!langSelect) console.log('The langSelect is not Existing');
+	langSelect?.addEventListener('change', () => {
+		console.log('clicked');
+		const selected = langSelect.value as 'EN' |'DE' | 'GR';
+		languageStore.language = selected;
+	})
+	languageStore.subscribe(lang => {
+		langSelect.value = lang;
+		console.log('the value changed', langSelect.value);
+	})
+	
+}
 
 async function updateOnlineUsers() {
   const count = wsManager.onlineUserCount;
@@ -78,6 +96,12 @@ export function renderNav() {
           <a id="login-btn" href="#/login" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg">
             Login
           </a>
+		  <label for="language-select"></label>
+		  <select id="language-select">
+			  <option value="EN">EN</option>
+			  <option value="DE">DE</option>
+			  <option value="GR">ΕΛ</option>
+		  </select>
         </div>
       </div>
     </nav>

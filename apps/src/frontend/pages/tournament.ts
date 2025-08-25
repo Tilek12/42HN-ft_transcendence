@@ -12,7 +12,7 @@ export async function renderTournament(root: HTMLElement) {
     return;
   }
 
-  root.innerHTML = renderNav() + renderBackgroundTop(`
+  root.innerHTML = renderBackgroundTop(`
     <div class="max-w-3xl mx-auto mt-20 p-6 bg-white/10 rounded-xl shadow-lg backdrop-blur-md">
       <h1 class="text-3xl font-bold mb-4 text-center text-white">🏆 Tournament Lobby</h1>
       <p class="text-center text-gray-400 mb-6">Join a tournament and compete for glory!</p>

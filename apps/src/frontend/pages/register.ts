@@ -1,8 +1,8 @@
 import { renderNav } from './nav';
 import { renderBackgroundFull } from '../utils/layout';
-
+import { initLang } from './nav';
 export function renderRegister(root: HTMLElement) {
-  root.innerHTML = renderNav() + renderBackgroundFull(`
+  root.innerHTML = renderBackgroundFull(`
     <div class="w-full max-w-md">
       <div class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">
         <h1 class="text-3xl font-bold text-white mb-6 text-center">Create Account</h1>
@@ -36,7 +36,7 @@ export function renderRegister(root: HTMLElement) {
       </div>
     </div>
   `);
-
+	initLang();
   const form = document.getElementById('register-form') as HTMLFormElement;
   const error = document.getElementById('register-error')!;
 

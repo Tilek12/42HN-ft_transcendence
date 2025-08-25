@@ -6,14 +6,15 @@ import { renderFriendsList } from './renderFriends';
 import { renderFriendRequestsList } from './renderFriendRequestList';
 
 export async function renderFriends(root: HTMLElement) {
-  const isValid = await validateLogin()
+  const isValid = await validateLogin();
+  
   if (!isValid) {
 	location.hash = '#/login'
 	return;
   }
 //   <button id="more-friends-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
 //   <button id="more-friend-requests-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
-	  root.innerHTML = renderNav() + renderBackgroundTop(`
+	  root.innerHTML = renderBackgroundTop(`
 		<div class="pt-24 max-w-xl mx-auto text-black p-6">
 		  <div id="friends-list"></div>
 		  <div id="friend-requests-list"></div>

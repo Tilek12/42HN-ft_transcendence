@@ -11,7 +11,7 @@ export async function renderGame(root: HTMLElement) {
     return;
   }
 
-  root.innerHTML = renderNav() + renderBackgroundTop(`
+  root.innerHTML =renderBackgroundTop(`
     <div class="pt-24 max-w-xl mx-auto text-white text-center">
       <h1 class="text-3xl font-bold mb-6">Pong Game</h1>
       <div class="flex justify-center gap-4 mb-8">

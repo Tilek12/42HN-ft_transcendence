@@ -1,8 +1,10 @@
 import { renderNav } from './nav'
 import { renderBackgroundTop } from '../utils/layout'
+import { initLang } from './nav';
 
 export async function renderLeaderboard(root: HTMLElement) {
   try {
+	// 
     const tournamentId = 1;
     const res = await fetch(`/api/tournament/${tournamentId}/leaderboard`);
 
@@ -12,7 +14,7 @@ export async function renderLeaderboard(root: HTMLElement) {
 
     const leaderboard = await res.json();
 
-    root.innerHTML = renderNav() + renderBackgroundTop(`
+    root.innerHTML =renderBackgroundTop(`
       <div class="pt-24 max-w-xl mx-auto text-white text-center mb-6">
         <h1 class="text-3xl font-semibold">Leaderboard</h1>
         <p class="text-gray-400">Top players.</p>
@@ -48,7 +50,7 @@ export async function renderLeaderboard(root: HTMLElement) {
       </div>
     `);
   } catch (err: any) {
-    root.innerHTML = renderNav() + renderBackgroundTop(`
+    root.innerHTML = renderBackgroundTop(`
       <div class="pt-24 text-center text-red-500">
         <p>Failed to load leaderboard: ${err.message}</p>
       </div>

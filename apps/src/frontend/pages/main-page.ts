@@ -2,7 +2,7 @@ import { renderNav } from "./nav"
 import { renderBackgroundFull } from "../utils/layout"
 
 export function renderMainPage(root: HTMLElement) {
-	root.innerHTML = renderNav() + renderBackgroundFull(`
+	root.innerHTML = renderBackgroundFull(`
 	  <div class="h-screen flex flex-col justify-center items-center text-center text-white">
 		<h1 class="text-4xl font-bold mb-4">Welcome to Pong Game!</h1>
 		<p class="text-gray-400 mb-6">Start the game and prove your skills.</p>
