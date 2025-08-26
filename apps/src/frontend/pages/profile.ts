@@ -121,21 +121,12 @@ export async function renderProfile(root: HTMLElement) {
 	const username_par_el= document.getElementById('username') as HTMLParagraphElement;
 	const username_input_el = document.getElementById('username-input') as HTMLInputElement;
 
-
-	// if (document.getElementById('language-change')) console.log("FOUND");
 	setTimeout(() => profile_ids(profile_details), 0);
 	document.getElementById('nav_profile')?.addEventListener('click', ()=> {nav_profile_clicked = true;});
 	(async () =>{
-		// console.log(`profile_length: ${ref_obj_allProfiles.allProfiles?.length} before. limit : ${profile_limit} offset :  ${profile_offset}`)
-		// if (already_parsed === false)
-		// {
 			const r_on_r = await  renderProfilesList('profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit, already_parsed); 
 			ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
 			already_parsed = r_on_r?.already_parsed;
-			// console.log("All Profiles after the first parse: ",ref_obj_allProfiles.allProfiles);
-		// }
-		// console.log(`profile_length: ${ref_obj_allProfiles.allProfiles?.length} after. limit : ${profile_limit} offset :  ${profile_offset}`)
-		// console.log("check render what is returning: +++++", renderCheckerForProfiles(false, nav_profile_clicked));
 	})();
 	document.getElementById('more-profiles-btn')?.addEventListener('click', async ()=>
 	{
