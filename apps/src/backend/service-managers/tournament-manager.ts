@@ -123,14 +123,14 @@ function advanceTournament(tournamentId: string, winner: Player) {
   if (winners.length === 1) {
     (async() =>
       {
-        await incrementWinsOrLossesOrTrophies(parseInt(winners[0].id), 'trophies');
+        await incrementWinsOrLossesOrTrophies(parseInt(winners[0]!.id), 'trophies');
       })();
     t.status = 'finished';
 
     // 🔖 TODO: Save tournament result to DB: t.id, winner.id, etc.
     // Example: await saveTournamentResult(t.id, winners[0].id);
 
-    console.log(`🏁 [Tournament: ${t.id}] Finished! Winner: ${winners[0].id}`);
+    console.log(`🏁 [Tournament: ${t.id}] Finished! Winner: ${winners[0]!.id}`);
     sendTournamentUpdate();
     return;
   }

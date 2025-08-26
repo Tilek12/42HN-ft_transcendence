@@ -1,6 +1,6 @@
 import { Player } from './types';
 import { gameManager } from '../service-managers/game-manager';
-import { incrementWinsOrLossesOrTrophies } from '../database/user';
+import { incrementWinsOrLossesOrTrophies } from '../database/profile';
 import { createMatch } from '../database/match';
 
 export async function startGame(player: Player, mode: 'solo' | 'duel' | 'tournament', tournamentId?: string) {
