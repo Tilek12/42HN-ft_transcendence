@@ -1,4 +1,5 @@
 import { WebSocket } from 'ws';
+import profile = require('../database/profile');
 
 interface User {
 	id: string;

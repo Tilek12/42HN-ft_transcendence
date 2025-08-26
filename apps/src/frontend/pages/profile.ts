@@ -1,5 +1,4 @@
 import { renderNav } from './nav'
-import { renderBackgroundTop } from '../utils/layout'
 import { getToken, clearToken, validateLogin } from '../utils/auth'
 import { renderProfilesList } from './renderProfiles';
 import { renderUserProfile, profile_ids } from './renderUserProfile';
@@ -7,6 +6,10 @@ import type { Profile_details } from './renderUserProfile';
 import { listenerFriendAndBlock } from './ListenerProfileList';
 import { listenerDeletePicture, listenerLogoutBtn, listenerUploadPicture } from './listenerUploadAndDeletePicture';
 import { getEnvVariable } from './TypeSafe';
+import {listenerPasswordCancel, listenerPasswordEdit, listenerPasswordUpdate} from './listenerUpdatePasswordAndUsername';
+import {listenerUsernameUpdate, listenerUsernameCancel, listenerUsernameEdit} from './listenerUpdatePasswordAndUsername' ;
+import type {AllProfileWithLimitAndOffset, return_on_render} from './renderProfiles';
+import {wsManager} from '../websocket/ws-manager';
 
 type Match =
 {
@@ -24,6 +27,47 @@ type Match =
 	total_matches?: number,
 	win_rate?: number,
 };
+const ref_obj_allProfiles : {allProfiles : {profiles: any[]}[]  | undefined} = {allProfiles : []};
+// let allProfiles: {profiles : any[]}[] | undefined= [];
+let profile_offset = 0;
+let profile_limit = 3;
+// let new_all_profiles : AllProfileWithLimitAndOffset | undefined;
+let nav_profile_clicked = false;
+let already_parsed : boolean | undefined = false;
+let first_profile_render = 1;
+let presenceList : any[] | undefined = [];
+
+const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) =>
+	{
+
+		console.log("ALL PROFILES ON RENDER", ref_obj_allProfiles.allProfiles)
+		let listUsers = wsManager.presenceUserList.map((u)=>u.name);
+		console.log(`Is ${JSON.stringify(listUsers) !== JSON.stringify(presenceList) ? ' ' : ' not '}changing`)
+		if (load) first_profile_render--;
+		if (JSON.stringify(listUsers) !== JSON.stringify(presenceList) || (first_profile_render == 1) || nav_profile_clicked)
+		{
+			if(load === false)
+				{
+					console.log("I'm In no load")
+					first_profile_render++
+				};
+			presenceList = [...listUsers];
+			console.log("ALLLPROFILES INSIDE AUTORENDER===========>>>", ref_obj_allProfiles.allProfiles);
+			// ref_obj_allProfiles.allProfiles?.forEach((pr)=> console.log("DEFAULT BEFORE MAPPING", pr.profiles[0].logged_in));
+			ref_obj_allProfiles.allProfiles?.map((all) => all.profiles?.map((pr)=> {pr.logged_in = wsManager.presenceUserList.map((u)=> u.name).includes(pr.username); return pr;}));
+			ref_obj_allProfiles.allProfiles?.map((all) => all.profiles?.forEach((pr) =>
+			{
+				console.log(`changing on rendering of user ${pr.username}, ${pr.logged_in}`);
+				const profile_loggin_state = document.getElementById(`profiles-loggin-state-${pr.username}`) as HTMLSpanElement;
+				profile_loggin_state?.classList.add(`${pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
+				profile_loggin_state?.classList.remove(`${!pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
+				profile_loggin_state.innerHTML = pr.logged_in ? 'online' : 'offline';
+			}))
+		}
+		if(!load)
+			setTimeout(renderCheckerForProfiles, 500);
+		// return allProfiles
+	}
 export async function renderProfile(root: HTMLElement) {
   const isValid = await validateLogin()
   if (!isValid) {
@@ -31,7 +75,7 @@ export async function renderProfile(root: HTMLElement) {
     return;
   }
 
-  fetch('/api/profile', {
+  fetch('/api/private/profile', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${getToken()}` }
   })
@@ -49,7 +93,9 @@ export async function renderProfile(root: HTMLElement) {
 
 	let profile_details : Profile_details =
 	{
+		backend_url: BACKEND_URL,
 		data_async: data,
+		profile_pic_id: `profile_pic`,
 		logged_in_id: `logged_in`,
 		username_id: `username`,
 		email_id: `email`,
@@ -58,37 +104,106 @@ export async function renderProfile(root: HTMLElement) {
 		trophies_id: `trophies`,
 		created_at_id: `created_at`
 	}
-	//----------------load pagination process--------------------------------------
-	let allProfiles: {profiles : any[]}[] | undefined= [];
-	let profile_offset = 0;
-	let profile_limit = 1;
-	setTimeout(() => profile_ids(profile_details), 0);
-	(async () =>{
-		allProfiles = await  renderProfilesList('profiles-list', false, allProfiles, profile_offset, profile_limit);
-	})();
+	//---------------Password Related Variables------------------------------------
+	const password_old_check = document.getElementById('password-old-check') as HTMLInputElement;
+	const password_new = document.getElementById('password-new') as HTMLInputElement;
+	const password_confirm = document.getElementById('password-confirm') as HTMLInputElement;
+	const password_edit_btn = document.getElementById('password-edit-btn') as HTMLButtonElement;
+	const password_update_btn = document.getElementById('password-update-btn') as HTMLButtonElement;
+	const password_cancel_btn = document.getElementById('password-cancel-btn') as HTMLButtonElement;
+	//--------------Username Related Variables-------------------------------------
+	const username_update_btn = document.getElementById('username-update-btn') as HTMLButtonElement;
+	const username_cancel_btn = document.getElementById('username-cancel-btn') as HTMLButtonElement;
+	const username_edit_btn = document.getElementById('username-edit-btn') as HTMLButtonElement;
 
-	document.getElementById('more-profiles-btn')?.addEventListener
+	const username_par_el= document.getElementById('username') as HTMLParagraphElement;
+	const username_input_el = document.getElementById('username-input') as HTMLInputElement;
+
+	setTimeout(() => profile_ids(profile_details), 0);
+	document.getElementById('nav_profile')?.addEventListener('click', ()=> {nav_profile_clicked = true;});
+	(async () =>{
+		console.log(`profile_length: ${ref_obj_allProfiles.allProfiles?.length} before. limit : ${profile_limit} offset :  ${profile_offset}`)
+		// if (already_parsed === false)
+		// {
+			const r_on_r = await  renderProfilesList('profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit, already_parsed); 
+			ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
+			already_parsed = r_on_r?.already_parsed;
+			console.log("All Profiles after the first parse: ",ref_obj_allProfiles.allProfiles);
+		// }
+		console.log(`profile_length: ${ref_obj_allProfiles.allProfiles?.length} after. limit : ${profile_limit} offset :  ${profile_offset}`)
+		console.log("check render what is returning: +++++", renderCheckerForProfiles(false, nav_profile_clicked));
+	})();
+	document.getElementById('more-profiles-btn')?.addEventListener('click', async ()=>
+	{
+		profile_offset+=profile_limit;
+		const r_on_r = await  renderProfilesList('profiles-list', true, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit)
+		ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
+		already_parsed =r_on_r?.already_parsed;
+		console.log("THE PROFILES ON LOAD+++++",ref_obj_allProfiles.allProfiles);
+		renderCheckerForProfiles(true) !== undefined
+		console.log("check render what is returning: ++++ ONLOAD", renderCheckerForProfiles(true));
+	})
+	document.getElementById('password-edit-btn')?.addEventListener('click', ()=> 
+		listenerPasswordEdit(
+			password_old_check,
+			password_new, 
+			password_confirm, 
+			password_update_btn, 
+			password_cancel_btn, 
+			password_edit_btn
+		))
+	document.getElementById('password-cancel-btn')?.addEventListener('click', ()=>
+		listenerPasswordCancel(
+			password_old_check,
+			password_new, 
+			password_confirm, 
+			password_update_btn, 
+			password_cancel_btn, 
+			password_edit_btn
+		))
+	document.getElementById('password-update-btn')?.addEventListener('click', async ()=>
+		listenerPasswordUpdate(
+			password_old_check,
+			password_new, 
+			password_confirm, 
+			password_update_btn, 
+			password_cancel_btn, 
+			password_edit_btn
+		));
+	document.getElementById('username-update-btn')?.addEventListener
 		('click', async () =>
-		{
-			if (allProfiles)
-			{
-				// console.log("button clicked");
-				allProfiles = await renderProfilesList('profiles-list', true, allProfiles, profile_offset, profile_limit);
-				profile_offset += profile_limit;
-			}
-		});
+	listenerUsernameUpdate(
+		username_cancel_btn, 
+		username_update_btn, 
+		username_edit_btn, 
+		username_input_el, 
+		username_par_el
+	))
+	document.getElementById('username-cancel-btn')?.addEventListener('click', ()=> listenerUsernameCancel(
+		username_cancel_btn,
+		username_update_btn,
+		username_edit_btn,
+		username_input_el,
+		username_par_el
+	));
+	document.getElementById('username-edit-btn')?.addEventListener('click', ()=> listenerUsernameEdit(
+		username_cancel_btn,
+		username_update_btn,
+		username_edit_btn,
+		username_input_el,
+		username_par_el
+	));
 	//----------------load pagination process--------------------------------------
 	document.getElementById('profiles-list')?.addEventListener
-		('click', async (e) => {allProfiles = await listenerFriendAndBlock(e, 'profiles-list', false, allProfiles, profile_offset, profile_limit)});
-	// console.log("allProfiles: ", allProfiles);
+		('click', async (e) => {ref_obj_allProfiles.allProfiles = await listenerFriendAndBlock(e, 'profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit)});
 	document.getElementById('upload-form')?.addEventListener
 		('submit', async (e) => listenerUploadPicture(e));
 	document.getElementById('delete-pic-btn')?.addEventListener
 		('click', async (e) => listenerDeletePicture(e));
 	document.getElementById('logout-btn')?.addEventListener
 		('click', async (e) => listenerLogoutBtn(e));
+	
 	//==================Linda's code==========================
-		  // Fetch match history
 		  fetch('/api/private/match/user', {
 			headers: {
 			  'Authorization': `Bearer ${getToken()}`
@@ -102,18 +217,10 @@ export async function renderProfile(root: HTMLElement) {
 			  if (!matchContainer) return;
 
 			  if (!Array.isArray(matches) || matches.length === 0) {
-				//thomas changes
-				// matchContainer.innerHTML += `<h2 class="text-xl font-bold mt-6">Match History</h2>
-				//   <p>No matches found.</p>`;
 				matchContainer.innerHTML += `
 				<p>No matches found.</p>`;
 				return;
 			  }
-			// console.log("Matches: ", matches);
-			// const wins = matches.filter(m => m.winner_id == m.id).length;
-			// const matches_count = matches.length;
-			// const success_rate = Math.floor((wins / matches_count) * 100) ;
-			// console.log(`rate: ${success_rate} %`);
 			matchContainer.innerHTML += `
 			<div class="overflow-x-auto">
 				<table class="w-full text-left border-collapse shadow rounded-lg">

@@ -1,4 +1,7 @@
-.env
+*test*
+database/*
+database   
+.env*
 profile_pics/user*
 node_modules
 secrets

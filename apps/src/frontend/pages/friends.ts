@@ -40,7 +40,7 @@ export async function renderFriends(root: HTMLElement) {
 			if (target.classList.contains('answer-request-btn'))
 			{
 				// console.log('answer clicked');
-				res = await fetch(`/api/answer-request`,
+				res = await fetch(`/api/private/answer-request`,
 					{
 						method: 'POST',
 						headers:
