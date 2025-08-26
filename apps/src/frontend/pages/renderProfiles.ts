@@ -109,43 +109,46 @@ export async function renderProfilesList (
 		if (actionBtn == true)
 			allProfiles =[];
 		let newProfiles : {profiles : any[]} = await res.json();
-		// console.log("newProfiles: ", newProfiles);
-		// console.log("allProfiles: ", allProfiles);
+		console.log("newProfiles: ", newProfiles);
+		console.log("allProfiles: ", allProfiles);
 		// if (limit != old_limit)
 			if(already_parsed && !load)
 				allProfiles = [];
 			allProfiles = allProfiles?.concat(newProfiles);
 			if (!load)
 				already_parsed = true;
-		// console.log("allProfiles: ",allProfiles);
+		console.log("allProfiles after concat: ",allProfiles);
 		remove_load_button = await remove_load_btn(offset, limit,token, res);
 		if (remove_load_button) document.getElementById('more-profiles-btn')?.remove();
 		let html = ``;
-		
+		// console.log("All Profiles are existing : " allProfiles ? )
 		if (allProfiles)
 		{
-			// console.log("NOW I'M HEREEEEEE");
-			allProfiles.map((pr : any) => html+= pr.profiles.filter((profile : any)=> !profile.is_blocked).map((profile: any) =>
+			console.log("NOW I'M HEREEEEEE inside", allProfiles);
+			const print = allProfiles.map((pr : any) => html+= pr.profiles.filter((profile : any)=> !profile.is_blocked).map((profile: any) =>
 				array_to_html(profile, BACKEND_URL, allProfiles?.length)).join(' '));
+			console.log("NOW I'M HEREEEEEE is printing?", print);
 		}
 		container.innerHTML = `<h1 class="text-2xl text-black font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Users List</h1>` + html;
-		// console.log(`before the set on RENDER PROFILES LIST +++`, allProfiles)
+		console.log(`before the set on RENDER PROFILES LIST +++`, allProfiles)
 		allProfiles?.map((all) => all.profiles?.map((pr)=> {pr.logged_in = wsManager.presenceUserList.map((u)=> u.name).includes(pr.username); return pr;}));
+		console.log("HERE CHECK AFTER THE SECOND MAP");
 		allProfiles?.map((all) => all.profiles?.forEach((pr) =>
 			{
-				// console.log(`changing on profile lists ${pr.username} to ${pr.logged_in}`);
+				console.log(`changing on profile lists ${pr.username} to ${pr.logged_in}`);
 				// console.log("===>>", document.getElementById(`profiles-loggin-state-${pr.username}`));
 				const profile_loggin_state = document.getElementById(`profiles-loggin-state-${pr.username}`) as HTMLSpanElement;
 				profile_loggin_state?.classList.add(`${pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
 				profile_loggin_state?.classList.remove(`${!pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
-				profile_loggin_state.innerHTML = pr.logged_in ? 'online' : 'offline';
-		}))
-		return_res = {AllProfiles : allProfiles, limit : limit, offset : offset, already_parsed :already_parsed}
-		const r_on_r : return_on_render = {allProfiles : return_res.AllProfiles, already_parsed : return_res.already_parsed }
-		// console.log("r_on_r for check: ", r_on_r);
+				if(profile_loggin_state)
+					profile_loggin_state.innerHTML = pr.logged_in ? 'online' : 'offline';
+		}));
+		console.log("===================HERE CHECK AFTER THE LAST MAP=========================");
+		return_res = {AllProfiles : allProfiles, limit : limit, offset : offset, already_parsed :already_parsed};
+		const r_on_r : return_on_render = {allProfiles : return_res.AllProfiles, already_parsed : return_res.already_parsed };
+		console.log("===========r_on_r for check:=========== ", r_on_r);
 		return r_on_r;
 	} catch (err){
-		// console.error('Failed to fetch profiles: ', err);
-		container.innerHTML = `<p class="text-red-500>Could not load profiles list.</p>`
+		console.error('Failed to fetch profiles: ', err);
 	}
 }

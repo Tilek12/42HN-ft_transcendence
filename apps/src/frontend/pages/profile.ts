@@ -63,7 +63,8 @@ const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) =>
 				const profile_loggin_state = document.getElementById(`profiles-loggin-state-${pr.username}`) as HTMLSpanElement;
 				profile_loggin_state?.classList.add(`${pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
 				profile_loggin_state?.classList.remove(`${!pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
-				profile_loggin_state.innerHTML = pr.logged_in ? 'online' : 'offline';
+				if (profile_loggin_state)
+					profile_loggin_state.innerHTML = pr.logged_in ? 'online' : 'offline';
 			}))
 		}
 		if(!load)
@@ -126,12 +127,13 @@ export async function renderProfile(root: HTMLElement) {
 	(async () =>{
 			const r_on_r = await  renderProfilesList('profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit, already_parsed); 
 			ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
+			// console.log("THE PROFILES ON LOAD+++++",ref_obj_allProfiles.allProfiles);
 			already_parsed = r_on_r?.already_parsed;
 	})();
 	document.getElementById('more-profiles-btn')?.addEventListener('click', async ()=>
 	{
 		profile_offset+=profile_limit;
-		const r_on_r = await  renderProfilesList('profiles-list', true, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit)
+		const r_on_r = await  renderProfilesList('profiles-list', true, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit);
 		ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
 		already_parsed =r_on_r?.already_parsed;
 		// console.log("THE PROFILES ON LOAD+++++",ref_obj_allProfiles.allProfiles);

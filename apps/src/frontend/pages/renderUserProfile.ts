@@ -204,7 +204,7 @@ export function renderUserProfile(backend_url: string, data: any)
 
 		<div class="flex justify-center items-center mt-4 space-x-2">
 		<button id="password-edit-btn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded">${translations[lang]!.new_password_btn}</button>
-		<button id="password-update-btn" class="hidden px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">${translations[lang]!.udpate}</button>
+		<button id="password-update-btn" class="hidden px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">${translations[lang]!.update}</button>
 		<button id="password-cancel-btn" class="hidden px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">${translations[lang]!.cancel}</button>
 		</div>
 		  <div id="match-history" class="text-2xl text-black font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">${translations[lang]!.match_history}</div>
@@ -215,4 +215,3 @@ export function renderUserProfile(backend_url: string, data: any)
 		// requestAnimationFrame(()=>renderUserProfile(backend_url,data));
 	return res;
 }
-

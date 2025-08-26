@@ -13,3 +13,5 @@ apps/database
 database/*.db
 apps/backend/src/database/dbTests.ts
 wb_kaa
+merge_test
+pic_branch_test
