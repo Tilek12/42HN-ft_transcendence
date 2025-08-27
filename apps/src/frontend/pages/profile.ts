@@ -44,7 +44,7 @@ const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) =>
 
 		// console.log("ALL PROFILES ON RENDER", ref_obj_allProfiles.allProfiles)
 		let listUsers = wsManager.presenceUserList.map((u)=>u.name);
-		// console.log(`Is ${JSON.stringify(listUsers) !== JSON.stringify(presenceList) ? ' ' : ' not '}changing`)
+		console.log(`Is ${JSON.stringify(listUsers) !== JSON.stringify(presenceList) ? ' ' : ' not '}changing`)
 		if (load) first_profile_render--;
 		if (JSON.stringify(listUsers) !== JSON.stringify(presenceList) || (first_profile_render == 1) || nav_profile_clicked)
 		{
@@ -59,7 +59,7 @@ const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) =>
 			ref_obj_allProfiles.allProfiles?.map((all) => all.profiles?.map((pr)=> {pr.logged_in = wsManager.presenceUserList.map((u)=> u.name).includes(pr.username); return pr;}));
 			ref_obj_allProfiles.allProfiles?.map((all) => all.profiles?.forEach((pr) =>
 			{
-				// console.log(`changing on rendering of user ${pr.username}, ${pr.logged_in}`);
+				console.log(`changing on rendering of user ${pr.username}, ${pr.logged_in}`);
 				const profile_loggin_state = document.getElementById(`profiles-loggin-state-${pr.username}`) as HTMLSpanElement;
 				profile_loggin_state?.classList.add(`${pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
 				profile_loggin_state?.classList.remove(`${!pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
@@ -127,7 +127,8 @@ export async function renderProfile(root: HTMLElement) {
 	(async () =>{
 			const r_on_r = await  renderProfilesList('profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit, already_parsed); 
 			ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
-			// console.log("THE PROFILES ON LOAD+++++",ref_obj_allProfiles.allProfiles);
+			console.log("THE PROFILES ON LOAD+++++",ref_obj_allProfiles.allProfiles);
+			console.log("check render what is returning: ++++ ONLOAD", renderCheckerForProfiles());
 			already_parsed = r_on_r?.already_parsed;
 	})();
 	document.getElementById('more-profiles-btn')?.addEventListener('click', async ()=>
@@ -138,7 +139,7 @@ export async function renderProfile(root: HTMLElement) {
 		already_parsed =r_on_r?.already_parsed;
 		// console.log("THE PROFILES ON LOAD+++++",ref_obj_allProfiles.allProfiles);
 		renderCheckerForProfiles(true) !== undefined
-		// console.log("check render what is returning: ++++ ONLOAD", renderCheckerForProfiles(true));
+		console.log("check render what is returning: ++++ ONLOAD", renderCheckerForProfiles(true));
 	})
 	document.getElementById('password-edit-btn')?.addEventListener('click', ()=> 
 		listenerPasswordEdit(

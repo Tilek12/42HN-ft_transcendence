@@ -96,12 +96,15 @@ export function renderNav() {
           <a id="login-btn" href="#/login" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg">
             Login
           </a>
-		  <label for="language-select"></label>
-		  <select id="language-select">
-			  <option value="EN">EN</option>
-			  <option value="DE">DE</option>
-			  <option value="GR">ΕΛ</option>
-		  </select>
+		  <div class="flex items-center space-x-2">
+			<label for="language-select" class="text-white font-semibold">Language:</label>
+			<select id="language-select" 
+					class="bg-gray-800 text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+				<option value="EN">EN</option>
+				<option value="DE">DE</option>
+				<option value="GR">ΕΛ</option>
+			</select>
+		  </div>
         </div>
       </div>
     </nav>

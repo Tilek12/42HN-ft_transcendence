@@ -14,32 +14,6 @@ export type Profile_details = {
 	trophies_id:string;
 	created_at_id: string;};
 
-// export const updateDom = (profile : Profile_details ) =>
-// {
-// 	let logged_in = document.getElementById(profile.logged_in_id);
-// 	let username = document.getElementById(profile.username_id);
-// 	let email = document.getElementById(profile.email_id);
-// 	let wins = document.getElementById(profile.wins_id);
-// 	let losses = document.getElementById(profile.losses_id);
-// 	let trophies = document.getElementById(profile.trophies_id);
-// 	let created_at = document.getElementById(profile.created_at_id);
-// 	let profile_pic = document.getElementById(profile.profile_pic_id) as HTMLImageElement;
-// 	if(logged_in && username && email && wins && losses && trophies && created_at && profile_pic)
-// 	{
-// 		const listUsers = wsManager.presenceUserList.map((u)=> u.name);
-// 		logged_in.innerHTML = `<strong>logged_in: </strong> ${listUsers.includes(profile.data_async.user.username) ? 'yes' : 'no'}`;
-// 		username.innerHTML = ` ${profile.data_async.user.username}`;
-// 		email.innerHTML = `<strong>Email:</strong> ${profile.data_async.user.email}`;
-// 		wins.innerHTML = `<strong>wins:</strong> ${profile.data_async.profile.wins}`;
-// 		losses.innerHTML = `<strong>losses:</strong> ${profile.data_async.profile.losses}`;
-// 		trophies.innerHTML = `<strong>trophies:</strong> ${profile.data_async.profile.trophies}`;
-// 		created_at.innerHTML = `<strong>Joined:</strong> ${new Date(profile.data_async.user.created_at).toLocaleString()}`;
-
-// 		profile_pic.src = profile.data_async.profile.image_blob ? `data:image/webp;base64,${profile.data_async.profile.image_blob}` : `${profile.backend_url}/profile_pics/${profile.data_async.profile.image_path}`;
-
-// 	}
-// 	requestAnimationFrame(()=>updateDom(profile));
-// }
 let lastPresence: string[] | undefined =[];
 
 export const profile_ids = (
@@ -63,7 +37,7 @@ export const profile_ids = (
 					if(JSON.stringify(listUsers) !== JSON.stringify(lastPresence))
 					{
 						lastPresence = [...listUsers];
-						logged_in.innerHTML += ` ${listUsers.includes(profile.data_async.user.username) ? 'yes' : 'no'}`;
+						logged_in.innerHTML = ` ${listUsers.includes(profile.data_async.user.username) ? 'yes' : 'no'}`;
 					}
 				}
 				setTimeout(render, 500);
@@ -154,6 +128,11 @@ export function renderUserProfile(backend_url: string, data: any)
 			logout: 'Αποσύνδεση'
 		  }
 	}
+	let new_value = document.getElementById('language-select').value;
+	let old_value_of_language = 'DE';
+	console.log(new_value);
+	if(new_value !== old_value_of_language)
+		console.log('!!!!!!!!!!!!!!!!!!!!yes');
 	let res : string = renderBackgroundTop(`
         <div class="pt-24 max-w-xl mx-auto text-white p-6">
 		<form id=upload-form>
@@ -166,7 +145,7 @@ export function renderUserProfile(backend_url: string, data: any)
 			</div>
 		  </form>
 		  </div>
-		  <p id="logged_in"><strong>${translations[lang]!.logged_in}: </strong> </p>
+		  <div class = "flex justify-center items-center mt-4 space-x-2"><strong>${translations[lang]!.logged_in}: </strong><p id="logged_in"></p></div>
           <div class = "flex justify-center items-center mt-4 space-x-2">
 					<p><strong>${translations[lang]!.username}:</strong><span id="username"></span></p>
 					<input
