@@ -1,8 +1,39 @@
 import { getToken} from '../utils/auth'
 import { getEnvVariable } from './TypeSafe';
 import { wsManager } from '../websocket/ws-manager';
+import {languageStore} from './languages';
+import type {Language} from './languages';
 
 
+export const translations_friends: Record<Language, { [key: string]: string }> = {
+    EN: {
+        unlink: 'Unlink',
+        link: 'Link',
+        pending: 'Pending...',
+        block: 'Block',
+        unblock: 'Unblock',
+        online: 'online',
+        offline: 'offline'
+    },
+    DE: {
+        unlink: 'Entfernen',
+        link: 'Verbinden',
+        pending: 'Ausstehend...',
+        block: 'Blockieren',
+        unblock: 'Entsperren',
+        online: 'online',
+        offline: 'offline'
+    },
+    GR: {
+        unlink: 'Αποσύνδεση',
+        link: 'Σύνδεση',
+        pending: 'Εκκρεμεί...',
+        block: 'Μπλοκάρισμα',
+        unblock: 'Ξεμπλοκάρισμα',
+        online: 'ενεργός',
+        offline: 'ανενεργός'
+    }
+};
 let lastPresence : any[] | undefined = [];
 let all_profiles_length : number |undefined = 0;
 
@@ -20,22 +51,28 @@ export type return_on_render = {
 const friend_request_action = (is_friend: number, peding_direction : string, other_profile_id: number) => {
 	let res : string = '';
 	if (is_friend)
-		res =` <button data-profile-id = "${other_profile_id}" class="unlink-btn px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded">Unlink</button>`;
+		res =` 
+        <button 
+            data-profile-id="${other_profile_id}" 
+            class="unlink-btn px-16 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded"
+            title="Remove Friend">
+            ✖
+        </button>`;
 	else
 	{
 		if (peding_direction == null)
-			res = `<button data-profile-id = "${other_profile_id}" class=" link-btn px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Link</button>`;
+			res = `<button data-profile-id = "${other_profile_id}" class=" link-btn px-16 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">➕</button>`;
 		else
-			res =`<button data-profile-id = "${other_profile_id}" class=" pending-btn px-4 py-2 bg-gray-600 text-white opacity-50 rounded">Pending...</button>`;
+			res =`<button data-profile-id = "${other_profile_id}" class=" pending-btn px-16 py-2 bg-gray-600 text-white opacity-50 rounded">⏳</button>`;
 	}
 	return res
 }
 const block_action = (is_blocking : number, other_profile_id: number) => {
 	let res : string = '';
 	if(!is_blocking)
-		res = `<button data-profile-id = "${other_profile_id}" class=" block-btn px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Block</button>`;
+		res = `<button data-profile-id = "${other_profile_id}" class=" block-btn px-16 py-2 bg-red-600 hover:bg-red-700 text-white rounded">⛔</button>`;
 	else
-		res =`<button data-profile-id = "${other_profile_id}" class=" unblock-btn px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded">Unblock</button>`;
+		res =`<button data-profile-id = "${other_profile_id}" class=" unblock-btn px-16 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded">🔓</button>`;
 	return res
 }
 
@@ -59,16 +96,21 @@ const array_to_html = (profile : any, BACKEND_URL : string, profiles_len?: numbe
 	const profile_pic_src = profile.image_blob ? `data:image/webp;base64,${profile.image_blob}` : `${BACKEND_URL}/profile_pics/${profile.image_path}`;
 	return `<div class = "flex items-center bg-white p-4 rounded-xl shadow mb-2">
 				<img src= "${profile_pic_src}" class="w-12 h-12 rounded-full mr-4" />
-				<div>
-					<a href="" class="text-lg font-semibold text-blue-600 hover:underline">${profile.username}</a>
-					<p class="text-sm text-gray-600"> 🏆 ${profile.trophies} | ✅ ${profile.wins} | ❌ ${profile.losses} </p>
-					<span id="profiles-loggin-state-${profile.username}" class=" profiles-loggin-state">
-					</span>
-						${friend_request_action(profile.is_friend, profile.pending_direction, profile.id)}
-						${block_action(profile.is_blocking, profile.id)}
+				<div class = "flex items-center flex-col">
+				   <div>
+						<a href="" class="text-lg font-semibold text-blue-600 ">
+							<span id="profiles-loggin-state-${profile.username}" class=" px-2 profiles-loggin-state">
+							</span>${profile.username}
+							<p class="text-sm text-gray-600"> 🏆 ${profile.trophies} | ✅ ${profile.wins} | ❌ ${profile.losses} </p>
+						</a>
+				   </div>
+					<div>
+					${friend_request_action(profile.is_friend, profile.pending_direction, profile.id)}
+					${block_action(profile.is_blocking, profile.id)}
+					</div>
 				</div>
-
-			</div>`;
+				</div>
+			`;
 }
 
 export async function renderProfilesList (
@@ -88,6 +130,11 @@ export async function renderProfilesList (
 	let old_limit = limit;
 	let old_offset = offset;
 	let res : any;
+	// languageStore.subscribe( async ()=>
+	// {
+	// 	res = await renderProfilesList(element_id, load, allProfiles, offset, limit);
+	// 	allProfiles = res.AllProfiles;
+	// })
 	if (!container) return;
 		const token = getToken();
 	try
@@ -109,44 +156,44 @@ export async function renderProfilesList (
 		if (actionBtn == true)
 			allProfiles =[];
 		let newProfiles : {profiles : any[]} = await res.json();
-		console.log("newProfiles: ", newProfiles);
-		console.log("allProfiles: ", allProfiles);
+		// console.log("newProfiles: ", newProfiles);
+		// console.log("allProfiles: ", allProfiles);
 		// if (limit != old_limit)
 			if(already_parsed && !load)
 				allProfiles = [];
 			allProfiles = allProfiles?.concat(newProfiles);
 			if (!load)
 				already_parsed = true;
-		console.log("allProfiles after concat: ",allProfiles);
+		// console.log("allProfiles after concat: ",allProfiles);
 		remove_load_button = await remove_load_btn(offset, limit,token, res);
 		if (remove_load_button) document.getElementById('more-profiles-btn')?.remove();
 		let html = ``;
 		// console.log("All Profiles are existing : " allProfiles ? )
 		if (allProfiles)
 		{
-			console.log("NOW I'M HEREEEEEE inside", allProfiles);
+			// console.log("NOW I'M HEREEEEEE inside", allProfiles);
 			const print = allProfiles.map((pr : any) => html+= pr.profiles.filter((profile : any)=> !profile.is_blocked).map((profile: any) =>
 				array_to_html(profile, BACKEND_URL, allProfiles?.length)).join(' '));
-			console.log("NOW I'M HEREEEEEE is printing?", print);
+			// console.log("NOW I'M HEREEEEEE is printing?", print);
 		}
 		container.innerHTML = `<h1 class="text-2xl text-black font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Users List</h1>` + html;
-		console.log(`before the set on RENDER PROFILES LIST +++`, allProfiles)
+		// console.log(`before the set on RENDER PROFILES LIST +++`, allProfiles)
 		allProfiles?.map((all) => all.profiles?.map((pr)=> {pr.logged_in = wsManager.presenceUserList.map((u)=> u.name).includes(pr.username); return pr;}));
-		console.log("HERE CHECK AFTER THE SECOND MAP");
+		// console.log("HERE CHECK AFTER THE SECOND MAP");
 		allProfiles?.map((all) => all.profiles?.forEach((pr) =>
 			{
-				console.log(`changing on profile lists ${pr.username} to ${pr.logged_in}`);
+				// console.log(`changing on profile lists ${pr.username} to ${pr.logged_in}`);
 				// console.log("===>>", document.getElementById(`profiles-loggin-state-${pr.username}`));
 				const profile_loggin_state = document.getElementById(`profiles-loggin-state-${pr.username}`) as HTMLSpanElement;
 				profile_loggin_state?.classList.add(`${pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
 				profile_loggin_state?.classList.remove(`${!pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
 				if(profile_loggin_state)
-					profile_loggin_state.innerHTML = pr.logged_in ? 'online' : 'offline';
+					profile_loggin_state.innerHTML ='●';
 		}));
-		console.log("===================HERE CHECK AFTER THE LAST MAP=========================");
+		// console.log("===================HERE CHECK AFTER THE LAST MAP=========================");
 		return_res = {AllProfiles : allProfiles, limit : limit, offset : offset, already_parsed :already_parsed};
 		const r_on_r : return_on_render = {allProfiles : return_res.AllProfiles, already_parsed : return_res.already_parsed };
-		console.log("===========r_on_r for check:=========== ", r_on_r);
+		// console.log("===========r_on_r for check:=========== ", r_on_r);
 		return r_on_r;
 	} catch (err){
 		console.error('Failed to fetch profiles: ', err);

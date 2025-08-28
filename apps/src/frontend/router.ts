@@ -37,7 +37,7 @@ export async function router() {
       case '#/register': return renderRegister(root);
       case '#/friends': return renderFriends(root);
       case '#/leaderboard': return renderLeaderboard(root);
-      case '#/settings': return renderSettings(root);
+    //   case '#/settings': return renderSettings(root);
       case '#/':
       case '': return renderMainPage(root);
       default: return renderNotFound(root);

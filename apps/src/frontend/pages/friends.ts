@@ -4,6 +4,25 @@ import { getToken, clearToken, validateLogin } from '../utils/auth'
 import { renderProfilesList } from './renderProfiles';
 import { renderFriendsList } from './renderFriends';
 import { renderFriendRequestsList } from './renderFriendRequestList';
+import {languageStore} from './languages';
+import type {Language} from './languages';
+
+
+const translations_friends_render: Record<Language, { [key: string]: string }> = {
+    EN: {
+        friends_list_header: 'Friends List',
+        request_list_header: 'Requests List'
+    },
+    DE: {
+        friends_list_header: 'Freundesliste',
+        request_list_header: 'Anfragenliste'
+    },
+    GR: {
+        friends_list_header: 'Λίστα Φίλων',
+        request_list_header: 'Λίστα Αιτημάτων'
+    }
+};
+
 
 export async function renderFriends(root: HTMLElement) {
   const isValid = await validateLogin();
@@ -24,8 +43,19 @@ export async function renderFriends(root: HTMLElement) {
 	let allFriends: {friends : any[]}[] | undefined= [];
 	let friends_offset = 0;
 	let friends_limit = 1;
+
 	renderFriendsList('friends-list');
+
 	renderFriendRequestsList();
+	languageStore.subscribe(()=>{
+		const friendsListHeaderEl = document.getElementById('friends_list_header');
+		if (friendsListHeaderEl) friendsListHeaderEl.innerHTML = translations_friends_render[languageStore.language]!.friends_list_header;
+		
+		const requestListHeaderEl = document.getElementById('request_list_header');
+		if (requestListHeaderEl) requestListHeaderEl.innerHTML = translations_friends_render[languageStore.language]!.request_list_header;
+		
+	}
+		)
 	document.getElementById('friend-requests-list')?.addEventListener(
 
 		'click', async (e) =>

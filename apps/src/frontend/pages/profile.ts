@@ -1,7 +1,7 @@
 import { renderNav } from './nav'
 import { getToken, clearToken, validateLogin } from '../utils/auth'
 import { renderProfilesList } from './renderProfiles';
-import { renderUserProfile, profile_ids } from './renderUserProfile';
+import { renderUserProfile, profile_ids, update_langauge_headers_user_profile } from './renderUserProfile';
 import type { Profile_details } from './renderUserProfile';
 import { listenerFriendAndBlock } from './ListenerProfileList';
 import { listenerDeletePicture, listenerLogoutBtn, listenerUploadPicture } from './listenerUploadAndDeletePicture';
@@ -12,7 +12,9 @@ import type {AllProfileWithLimitAndOffset, return_on_render} from './renderProfi
 import {wsManager} from '../websocket/ws-manager';
 // import {languageStore} from './languages';
 import { initLang } from './nav';
+import {languageStore} from  './languages';
 
+let i = 0;
 type Match =
 {
 	id: number,
@@ -39,6 +41,16 @@ let already_parsed : boolean | undefined = false;
 let first_profile_render = 1;
 let presenceList : any[] | undefined = [];
 
+export const resetEventListeners = (elemnt_ids : string[]) : void =>
+{
+	elemnt_ids.forEach(id => 
+	{
+		const el = document.getElementById(id)
+		if(el)
+			el.replaceWith(el.cloneNode(true));
+		// document.getElementById(id)!.innerHTML = ''
+	});
+}
 const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) =>
 	{
 
@@ -59,12 +71,12 @@ const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) =>
 			ref_obj_allProfiles.allProfiles?.map((all) => all.profiles?.map((pr)=> {pr.logged_in = wsManager.presenceUserList.map((u)=> u.name).includes(pr.username); return pr;}));
 			ref_obj_allProfiles.allProfiles?.map((all) => all.profiles?.forEach((pr) =>
 			{
-				console.log(`changing on rendering of user ${pr.username}, ${pr.logged_in}`);
+				// console.log(`changing on rendering of user ${pr.username}, ${pr.logged_in}`);
 				const profile_loggin_state = document.getElementById(`profiles-loggin-state-${pr.username}`) as HTMLSpanElement;
 				profile_loggin_state?.classList.add(`${pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
 				profile_loggin_state?.classList.remove(`${!pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
 				if (profile_loggin_state)
-					profile_loggin_state.innerHTML = pr.logged_in ? 'online' : 'offline';
+					profile_loggin_state.innerHTML = '●';
 			}))
 		}
 		if(!load)
@@ -92,8 +104,10 @@ export async function renderProfile(root: HTMLElement) {
       };
 
 	const BACKEND_URL = getEnvVariable('VITE_BACKEND_URL');
-    root.innerHTML = renderUserProfile(BACKEND_URL, data);
-	initLang();
+    root.innerHTML = renderUserProfile(BACKEND_URL, data, languageStore.language);
+	// initLang();
+
+	
 	let profile_details : Profile_details =
 	{
 		backend_url: BACKEND_URL,
@@ -107,6 +121,23 @@ export async function renderProfile(root: HTMLElement) {
 		trophies_id: `trophies`,
 		created_at_id: `created_at`
 	}
+	languageStore.subscribe((lang) =>
+		{
+			i++;
+			// console.log("i is:", i);
+			// console.log("languageStore is:", languageStore.clicked);
+			// if (languageStore.clicked == i)
+			// {
+				console.log("#######================the languge change==========================");
+				console.log("SubsCRIBE the render is being called");
+				setTimeout(() => update_langauge_headers_user_profile(languageStore.language), 0);             
+				// renderProfile(root);
+			// }
+				
+			// console.log("Dataa: ", data);
+			// initLang();
+		}
+	);
 	//---------------Password Related Variables------------------------------------
 	const password_old_check = document.getElementById('password-old-check') as HTMLInputElement;
 	const password_new = document.getElementById('password-new') as HTMLInputElement;
@@ -123,14 +154,16 @@ export async function renderProfile(root: HTMLElement) {
 	const username_input_el = document.getElementById('username-input') as HTMLInputElement;
 
 	setTimeout(() => profile_ids(profile_details), 0);
+	setTimeout(() => update_langauge_headers_user_profile(languageStore.language), 0);
 	document.getElementById('nav_profile')?.addEventListener('click', ()=> {nav_profile_clicked = true;});
 	(async () =>{
-			const r_on_r = await  renderProfilesList('profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit, already_parsed); 
-			ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
-			console.log("THE PROFILES ON LOAD+++++",ref_obj_allProfiles.allProfiles);
-			console.log("check render what is returning: ++++ ONLOAD", renderCheckerForProfiles());
-			already_parsed = r_on_r?.already_parsed;
+				const r_on_r = await  renderProfilesList('profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit, already_parsed); 
+				ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
+				// console.log("THE PROFILES ON LOAD+++++",ref_obj_allProfiles.allProfiles);
+				console.log("check render what is returning: ++++ ONLOAD", renderCheckerForProfiles());
+				already_parsed = r_on_r?.already_parsed;
 	})();
+
 	document.getElementById('more-profiles-btn')?.addEventListener('click', async ()=>
 	{
 		profile_offset+=profile_limit;
@@ -138,7 +171,7 @@ export async function renderProfile(root: HTMLElement) {
 		ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
 		already_parsed =r_on_r?.already_parsed;
 		// console.log("THE PROFILES ON LOAD+++++",ref_obj_allProfiles.allProfiles);
-		renderCheckerForProfiles(true) !== undefined
+		(true) !== undefined
 		console.log("check render what is returning: ++++ ONLOAD", renderCheckerForProfiles(true));
 	})
 	document.getElementById('password-edit-btn')?.addEventListener('click', ()=> 
@@ -215,8 +248,8 @@ export async function renderProfile(root: HTMLElement) {
 			  if (!matchContainer) return;
 
 			  if (!Array.isArray(matches) || matches.length === 0) {
-				matchContainer.innerHTML += `
-				<p>No matches found.</p>`;
+				// matchContainer.innerHTML += `
+				// <p>No matches found.</p>`;
 				return;
 			  }
 			matchContainer.innerHTML += `

@@ -2,8 +2,35 @@ import { renderNav } from './nav';
 import { renderBackgroundTop } from '../utils/layout';
 import { getToken, validateLogin } from '../utils/auth';
 import { wsManager } from '../websocket/ws-manager';
+import {languageStore} from './languages';
+import type {Language} from './languages';
+
+export const translations_tournament_render: Record<Language, { [key: string]: string }> = {
+    EN: {
+        tournament_lobby_header: '🏆 Tournament Lobby',
+        glory_header: 'Join a tournament and compete for glory!',
+        create_four_header: 'Create 4-Player Tournament',
+        create_eight_header: 'Create 8-Player Tournament',
+        empty_p_msg: 'No active tournaments yet.'
+    },
+    DE: {
+        tournament_lobby_header: '🏆 Turnierlobby',
+        glory_header: 'Tritt einem Turnier bei und kämpfe um Ruhm!',
+        create_four_header: '4-Spieler-Turnier erstellen',
+        create_eight_header: '8-Spieler-Turnier erstellen',
+        empty_p_msg: 'Noch keine aktiven Turniere.'
+    },
+    GR: {
+        tournament_lobby_header: '🏆 Λόμπι Τουρνουά',
+        glory_header: 'Μπες σε ένα τουρνουά και αγωνίσου για τη δόξα!',
+        create_four_header: 'Δημ. Τουρνουά 4 Παικτών',
+        create_eight_header: 'Δημ. Τουρνουά 8 Παικτών',
+        empty_p_msg: 'Δεν υπάρχουν ενεργά τουρνουά ακόμα.'
+    }
+};
 
 let currentTournamentId: string | null = null;
+
 
 export async function renderTournament(root: HTMLElement) {
   const isValid = await validateLogin();
@@ -14,12 +41,29 @@ export async function renderTournament(root: HTMLElement) {
 
   root.innerHTML = renderBackgroundTop(`
     <div class="max-w-3xl mx-auto mt-20 p-6 bg-white/10 rounded-xl shadow-lg backdrop-blur-md">
-      <h1 class="text-3xl font-bold mb-4 text-center text-white">🏆 Tournament Lobby</h1>
-      <p class="text-center text-gray-400 mb-6">Join a tournament and compete for glory!</p>
+      <h1 id="tournament_lobby_header"class="text-3xl font-bold mb-4 text-center text-white">${translations_tournament_render[languageStore.language]!.tournament_lobby_header}</h1>
+      <p id="glory_header"class="text-center text-gray-400 mb-6">${translations_tournament_render[languageStore.language]!.glory_header}</p>
       <div id="tournament-list" class="space-y-4 text-white"></div>
     </div>
   `);
-
+ languageStore.subscribe ((lang)=>
+{
+	const tournamentLobbyHeaderEl = document.getElementById('tournament_lobby_header');
+	if (tournamentLobbyHeaderEl) tournamentLobbyHeaderEl.innerHTML = translations_tournament_render[lang].tournament_lobby_header;
+	
+	const gloryHeaderEl = document.getElementById('glory_header');
+	if (gloryHeaderEl) gloryHeaderEl.innerHTML = translations_tournament_render[lang].glory_header;
+	
+	const emptyPMsgEl = document.getElementById('empty-p-msg');
+	if (emptyPMsgEl) emptyPMsgEl.innerHTML = translations_tournament_render[lang].empty_p_msg;
+	
+	const createTournament4El = document.getElementById('create-tournament-4');
+	if (createTournament4El) createTournament4El.innerHTML = translations_tournament_render[lang].create_four_header;
+	
+	const createTournament8El = document.getElementById('create-tournament-8');
+	if (createTournament8El) createTournament8El.innerHTML = translations_tournament_render[lang].create_eight_header;
+	
+})
   renderTournamentList();
   wsManager.subscribeToPresence(renderTournamentList);
 
@@ -75,8 +119,9 @@ export async function renderTournament(root: HTMLElement) {
 
     if (tournaments.length === 0) {
       const emptyMsg = document.createElement('p');
+	  emptyMsg.id = "empty-p-msg";
       emptyMsg.className = 'text-center text-gray-400';
-      emptyMsg.textContent = 'No active tournaments yet.';
+      emptyMsg.textContent = translations_tournament_render[languageStore.language]!.empty_p_msg;
       list.appendChild(emptyMsg);
     }
 
@@ -120,11 +165,11 @@ export async function renderTournament(root: HTMLElement) {
     createDiv.innerHTML = `
       <button class="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold"
         id="create-tournament-4" ${userTournament ? 'disabled' : ''}>
-        Create 4-Player Tournament
+        ${translations_tournament_render[languageStore.language]!.create_four_header}
       </button>
       <button class="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold ml-4"
         id="create-tournament-8" ${userTournament ? 'disabled' : ''}>
-        Create 8-Player Tournament
+        ${translations_tournament_render[languageStore.language]!.create_eight_header}
       </button>
     `;
 

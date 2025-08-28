@@ -3,6 +3,34 @@ import { renderBackgroundTop } from '../utils/layout';
 import { wsManager } from '../websocket/ws-manager';
 import { getToken, validateLogin } from '../utils/auth';
 import { COLORS } from '../constants/colors';
+import { initLang } from './nav';
+import {languageStore} from './languages';
+import type {Language} from './languages';
+
+
+export const translations_game_render: Record<Language, { [key: string]: string }> = {
+    EN: {
+        pong_game_header: 'Pong Game',
+        play_alone_btn: 'Play Alone',
+        play_online_btn: 'Play Online (1v1)',
+        play_tournament_btn: 'Play Tournament',
+        info_text: 'Choose a game mode to begin'
+    },
+    DE: {
+        pong_game_header: 'Pong-Spiel',
+        play_alone_btn: 'Alleine spielen',
+        play_online_btn: 'Online spielen (1v1)',
+        play_tournament_btn: 'Turnier spielen',
+        info_text: 'Wähle einen Spielmodus, um zu beginnen'
+    },
+    GR: {
+        pong_game_header: 'Παιχνίδι Pong',
+        play_alone_btn: 'Παίξε Μόνος',
+        play_online_btn: 'Παίξε Online (1v1)',
+        play_tournament_btn: 'Παίξε Τουρνουά',
+        info_text: 'Επίλεξε λειτουργία παιχνιδιού για να ξεκινήσεις'
+    }
+};
 
 export async function renderGame(root: HTMLElement) {
   const isValid = await validateLogin();
@@ -10,21 +38,39 @@ export async function renderGame(root: HTMLElement) {
     location.hash = '#/login';
     return;
   }
+  const tr = translations_game_render[languageStore.language];
 
   root.innerHTML =renderBackgroundTop(`
     <div class="pt-24 max-w-xl mx-auto text-white text-center">
-      <h1 class="text-3xl font-bold mb-6">Pong Game</h1>
+      <h1 id="pong_game_header" class="text-3xl font-bold mb-6">${tr!.pong_game_header}</h1>
       <div class="flex justify-center gap-4 mb-8">
-        <button id="play-alone" class="bg-[#037a76] text-white px-4 py-2 rounded shadow hover:bg-[#249f9c] transition">Play Alone</button>
-        <button id="play-online" class="bg-[#ed1b76] text-white px-4 py-2 rounded shadow hover:bg-[#f44786] transition">Play Online (1v1)</button>
-        <button id="play-tournament" class="bg-[#facc15] text-black px-4 py-2 rounded shadow hover:bg-[#fbbf24] transition">Play Tournament</button>
+        <button id="play-alone" class="bg-[#037a76] text-white px-4 py-2 rounded shadow hover:bg-[#249f9c] transition">${tr!.play_alone_btn}</button>
+        <button id="play-online" class="bg-[#ed1b76] text-white px-4 py-2 rounded shadow hover:bg-[#f44786] transition">${tr!.play_online_btn}</button>
+        <button id="play-tournament" class="bg-[#facc15] text-black px-4 py-2 rounded shadow hover:bg-[#fbbf24] transition">${tr!.play_tournament_btn}</button>
       </div>
       <div id="countdown" class="text-6xl font-bold text-white mb-6 hidden">5</div>
       <canvas id="pong" width="600" height="400" class="mx-auto border border-white/30 bg-white/10 backdrop-blur-md rounded shadow-lg hidden"></canvas>
-      <p id="info" class="mt-6 text-gray-200 text-sm">Choose a game mode to begin</p>
+      <p id="info" class="mt-6 text-gray-200 text-sm">${tr!.info_text}</p>
     </div>
   `);
-
+	languageStore.subscribe((lang)=>{
+		const tr = translations_game_render[lang];
+		const pongGameHeaderEl = document.getElementById("pong_game_header");
+		if (pongGameHeaderEl) pongGameHeaderEl.innerHTML = tr.pong_game_header;
+		
+		const playAloneBtnEl = document.getElementById("play-alone");
+		if (playAloneBtnEl) playAloneBtnEl.innerHTML = tr.play_alone_btn;
+		
+		const playOnlineBtnEl = document.getElementById("play-online");
+		if (playOnlineBtnEl) playOnlineBtnEl.innerHTML = tr.play_online_btn;
+		
+		const playTournamentBtnEl = document.getElementById("play-tournament");
+		if (playTournamentBtnEl) playTournamentBtnEl.innerHTML = tr.play_tournament_btn;
+		
+		const infoEl = document.getElementById("info");
+		if (infoEl) infoEl.innerHTML = tr!.info_text;
+		
+	})
   const canvas = document.getElementById('pong') as HTMLCanvasElement;
   const ctx = canvas.getContext('2d')!;
   const info = document.getElementById('info')!;

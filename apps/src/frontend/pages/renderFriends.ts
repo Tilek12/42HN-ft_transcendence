@@ -1,7 +1,23 @@
 import { getToken} from '../utils/auth'
 import { getEnvVariable } from './TypeSafe';
 import { wsManager } from '../websocket/ws-manager';
+import {languageStore} from './languages';
+import type {Language} from './languages';
 
+export const translations_friends_render: Record<Language, { [key: string]: string }> = {
+    EN: {
+        friends_list_header: 'Friends List',
+        request_list_header: 'Requests List'
+    },
+    DE: {
+        friends_list_header: 'Freundesliste',
+        request_list_header: 'Anfragenliste'
+    },
+    GR: {
+        friends_list_header: 'Λίστα Φίλων',
+        request_list_header: 'Λίστα Αιτημάτων'
+    }
+};
 // let lastPresence : any[] | undefined = [];
 // let all_friends_len : number |undefined = 0;
 // let firstTime = 1
@@ -20,7 +36,7 @@ export async function renderFriendsList(container_id : string, load?: boolean, a
 	const data = await res.json();
 	// let data_friends_len = data.friends.length;
 	
-	container.innerHTML = `<h1 class="text-2xl font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Friends List</h1>` + data.friends.map((friend: any) =>
+	container.innerHTML = `<h1 class="text-2xl font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2"><span id="friends_list_header">${translations_friends_render[languageStore.language]!.friends_list_header}</span></h1>` + data.friends.map((friend: any) =>
 	{
 		let is_connected;
 		let listUsers : any[] | undefined = wsManager.presenceUserList.map((u)=> u.name);
@@ -33,11 +49,11 @@ export async function renderFriendsList(container_id : string, load?: boolean, a
 		return `<div class = "flex items-center bg-white p-4 rounded-xl shadow mb-2">
 			<img src= "${img_src}" class="w-12 h-12 rounded-full mr-4" />
 		<div>
-			<a href="" class="text-lg font-semibold text-blue-600 hover:underline">${friend.username}</a>
+			<a href="" class="text-lg font-semibold text-blue-600 hover:underline"><span class="${is_connected ? 'text-green-600' :'text-gray-500'}">
+				●
+			</span>${friend.username}</a>
 			<p class="text-sm text-gray-600"> 🏆 ${friend.trophies} | ✅ ${friend.wins} | ❌ ${friend.losses} </p>
-			<span class="${is_connected ? 'text-green-600' :'text-gray-500'}">
-				${is_connected ? 'online' : 'offline'}
-			</span>
+
 		</div>
 		</div>`
 	}

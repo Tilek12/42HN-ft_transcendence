@@ -1,15 +1,48 @@
 import { wsManager } from '../websocket/ws-manager';
 import {languageStore} from './languages';
-
+import type {Language} from './languages'
 let presenceUnsub: (() => void) | null = null;
+export const translations_nav: Record<Language, { [key: string]: string }> = {
+    EN: {
+        game: 'Game',
+        tournament: 'Tournament',
+        leaderboard: 'Leaderboard',
+        friends: 'Friends',
+        profile: 'Profile',
+        settings: 'Settings',
+		online_users: 'Online Users',
+		loggin: 'Loggin'
+    },
+    DE: {
+        game: 'Spiel',
+        tournament: 'Turnier',
+        leaderboard: 'Bestenliste',
+        friends: 'Freunde',
+        profile: 'Profil',
+        settings: 'Einstellungen',
+		online_users: 'Online Benutzer',
+		loggin: 'Anmelden'
+    },
+    GR: {
+        game: 'Παιχνίδι',
+        tournament: 'Τουρνουά',
+        leaderboard: 'Κατάταξη',
+        friends: 'Φίλοι',
+        profile: 'Προφίλ',
+        settings: 'Ρυθμίσεις',
+		online_users: 'Ενεργοί',
+		loggin: 'Σύνδεση'
+    }
+};
 
 export function initLang()
 {
 	const langSelect = document.getElementById('language-select') as HTMLSelectElement;
 	
-	if(!langSelect) console.log('The langSelect is not Existing');
+	// if(!langSelect) console.log('The langSelect is not Existing');
 	langSelect?.addEventListener('change', () => {
 		console.log('clicked');
+		languageStore.clicked++;
 		const selected = langSelect.value as 'EN' |'DE' | 'GR';
 		languageStore.language = selected;
 	})
@@ -44,6 +77,8 @@ export function renderNav() {
   // Detect when DOM has been updated and patch content into it
   requestAnimationFrame(() => updateOnlineUsers());
 
+
+
   return `
     <nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/10 border-b border-white/20 shadow-2xl">
       <div class="max-w-7xl mx-auto px-8">
@@ -63,12 +98,12 @@ export function renderNav() {
           <!-- Navigation Links -->
           <div class="flex items-center space-x-1">
             ${[
-              ['nav_game','#/game', 'Game'],
-              ['nav_tournament','#/tournament', 'Tournament'],
-              ['nav_leaderboard','#/leaderboard', 'Leaderboard'],
-              ['nav_friends','#/friends', 'Friends'],
-              ['nav_profile','#/profile', 'Profile'],
-              ['nav_settings','#/settings', 'Settings'],
+              ['nav_game','#/game', translations_nav[languageStore.language]!.game],
+              ['nav_tournament','#/tournament', translations_nav[languageStore.language]!.tournament],
+              ['nav_leaderboard','#/leaderboard', translations_nav[languageStore.language]!.leaderboard],
+              ['nav_friends','#/friends', translations_nav[languageStore.language]!.friends],
+              ['nav_profile','#/profile', translations_nav[languageStore.language]!.profile],
+            //   ['nav_settings','#/settings', translations_nav[languageStore.language]!.settings],
             ]
               .map(
                 ([id, href, label]) => `
@@ -85,7 +120,7 @@ export function renderNav() {
           <div class="relative group text-white cursor-pointer">
             <div class="flex items-center gap-1">
               <div class="w-3 h-3 rounded-full bg-green-400 animate-pulse"></div>
-              <span id="active-users-count" class="text-sm">Online Users: ${count}</span>
+              <span id="active-users-count" class="text-sm">${translations_nav[languageStore.language]!.online_users}: ${count}</span>
             </div>
             <ul id="active-users-list" class="absolute right-0 mt-2 hidden group-hover:block bg-white/90 text-black text-sm rounded-lg shadow-lg p-2 max-h-64 overflow-y-auto w-48 z-50">
               ${users.map(u => `<li>${u.name || u.id}</li>`).join('')}
@@ -94,7 +129,7 @@ export function renderNav() {
 
           <!-- Login Button -->
           <a id="login-btn" href="#/login" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg">
-            Login
+            ${ translations_nav[languageStore.language]!.loggin}
           </a>
 		  <div class="flex items-center space-x-2">
 			<label for="language-select" class="text-white font-semibold"></label>
