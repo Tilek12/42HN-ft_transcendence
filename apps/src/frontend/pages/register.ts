@@ -1,50 +1,9 @@
 import { renderNav } from './nav';
 import { renderBackgroundFull } from '../utils/layout';
 import { initLang } from './nav';
-import {languageStore} from './languages';
+import {languageStore, translations_register_page} from './languages';
 import type {Language} from './languages';
 
-export const translations_register_page: Record<Language, { [key: string]: string }> = {
-	EN: {
-		register_header: 'Create Account',
-		username_label: 'Username',
-		email_label: 'Email',
-		password_label: 'Password',
-		username_placeholder: 'Enter your username',
-		email_placeholder: 'Enter your email',
-		password_placeholder: 'Enter your password',
-		register_btn: 'Register',
-		register_error: 'Registration failed. Please check your details.',
-		already_have_account: 'Already have an account?',
-		sign_in: 'Sign In'
-	},
-	DE: {
-		register_header: 'Konto erstellen',
-		username_label: 'Benutzername',
-		email_label: 'E-Mail',
-		password_label: 'Passwort',
-		username_placeholder: 'Geben Sie Ihren Benutzernamen ein',
-		email_placeholder: 'Geben Sie Ihre E-Mail ein',
-		password_placeholder: 'Geben Sie Ihr Passwort ein',
-		register_btn: 'Registrieren',
-		register_error: 'Registrierung fehlgeschlagen. Bitte überprüfen Sie Ihre Angaben.',
-		already_have_account: 'Haben Sie bereits ein Konto?',
-		sign_in: 'Anmelden'
-	},
-	GR: {
-		register_header: 'Δημιουργία λογαριασμού',
-		username_label: 'Όνομα χρήστη',
-		email_label: 'Email',
-		password_label: 'Κωδικός',
-		username_placeholder: 'Εισάγετε το όνομα χρήστη σας',
-		email_placeholder: 'Εισάγετε το email σας',
-		password_placeholder: 'Εισάγετε τον κωδικό σας',
-		register_btn: 'Εγγραφή',
-		register_error: 'Η εγγραφή απέτυχε. Ελέγξτε τα στοιχεία σας.',
-		already_have_account: 'Έχετε ήδη λογαριασμό;',
-		sign_in: 'Σύνδεση'
-	}
-};
 
 export function renderRegister(root: HTMLElement) {
 	const t = translations_register_page[languageStore.language];

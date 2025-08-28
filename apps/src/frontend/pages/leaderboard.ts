@@ -1,44 +1,8 @@
 import { renderNav } from './nav'
 import { renderBackgroundTop } from '../utils/layout'
 import { initLang } from './nav';
-import {languageStore} from './languages';
+import {languageStore, translations_leaderboards} from './languages';
 import type {Language} from './languages'
-
-const translations_leaderboards: Record<Language, { [key: string]: string }> = {
-    EN: {
-        leaderboard_ld_header: 'Leaderboard',
-        top_player_ld_header: 'Top players.',
-        username_ld_header: 'Username',
-        wins_ld_header: 'Wins',
-        losses_ld_header: 'Losses',
-        trophies_ld_header: 'Trophies',
-        matches_played_ld_header: 'Matches Played',
-        wins_in_tour_ld_header: 'Wins in Tournament',
-        failed_ld_header: 'Failed to load leaderboard'
-    },
-    DE: {
-        leaderboard_ld_header: 'Bestenliste',
-        top_player_ld_header: 'Top-Spieler.',
-        username_ld_header: 'Benutzername',
-        wins_ld_header: 'Siege',
-        losses_ld_header: 'Niederlagen',
-        trophies_ld_header: 'Trophäen',
-        matches_played_ld_header: 'Gespielte Spiele',
-        wins_in_tour_ld_header: 'Siege im Turnier',
-        failed_ld_header: 'Fehler beim Laden der Bestenliste'
-    },
-    GR: {
-        leaderboard_ld_header: 'Πίνακας Κατάταξης',
-        top_player_ld_header: 'Κορυφαίοι παίκτες.',
-        username_ld_header: 'Όνομα Χρήστη',
-        wins_ld_header: 'Νίκες',
-        losses_ld_header: 'Ήττες',
-        trophies_ld_header: 'Τρόπαια',
-        matches_played_ld_header: 'Αγώνες που παίχτηκαν',
-        wins_in_tour_ld_header: 'Νίκες στο Τουρνουά',
-        failed_ld_header: 'Αποτυχία φόρτωσης πίνακα κατάταξης'
-    }
-};
 
 export async function renderLeaderboard(root: HTMLElement) {
 	const tr =  translations_leaderboards[languageStore.language];

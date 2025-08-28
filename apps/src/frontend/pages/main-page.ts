@@ -1,26 +1,7 @@
 import { renderNav } from "./nav"
 import { renderBackgroundFull } from "../utils/layout"
-import {languageStore} from './languages';
+import {languageStore, translations_main_page} from './languages';
 import type {Language} from './languages';
-
-
-export const translations_main_page: Record<Language, { [key: string]: string }> = {
-	EN: {
-		main_welcome_header: 'Welcome to Pong Game!',
-		main_subtitle: 'Start the game and prove your skills.',
-		main_view_game_btn: 'View Game'
-	},
-	DE: {
-		main_welcome_header: 'Willkommen beim Pong-Spiel!',
-		main_subtitle: 'Starte das Spiel und zeige dein Können.',
-		main_view_game_btn: 'Spiel anzeigen'
-	},
-	GR: {
-		main_welcome_header: 'Καλώς ήρθες στο παιχνίδι Pong!',
-		main_subtitle: 'Ξεκίνα το παιχνίδι και δείξε τις ικανότητές σου.',
-		main_view_game_btn: 'Προβολή Παιχνιδιού'
-	}
-};
 
 export function renderMainPage(root: HTMLElement) {
 	const t = translations_main_page[languageStore.language];

@@ -2,32 +2,10 @@ import { renderNav } from './nav';
 import { renderBackgroundTop } from '../utils/layout';
 import { getToken, validateLogin } from '../utils/auth';
 import { wsManager } from '../websocket/ws-manager';
-import {languageStore} from './languages';
+import {languageStore, translations_tournament_render} from './languages';
 import type {Language} from './languages';
 
-export const translations_tournament_render: Record<Language, { [key: string]: string }> = {
-    EN: {
-        tournament_lobby_header: '🏆 Tournament Lobby',
-        glory_header: 'Join a tournament and compete for glory!',
-        create_four_header: 'Create 4-Player Tournament',
-        create_eight_header: 'Create 8-Player Tournament',
-        empty_p_msg: 'No active tournaments yet.'
-    },
-    DE: {
-        tournament_lobby_header: '🏆 Turnierlobby',
-        glory_header: 'Tritt einem Turnier bei und kämpfe um Ruhm!',
-        create_four_header: '4-Spieler-Turnier erstellen',
-        create_eight_header: '8-Spieler-Turnier erstellen',
-        empty_p_msg: 'Noch keine aktiven Turniere.'
-    },
-    GR: {
-        tournament_lobby_header: '🏆 Λόμπι Τουρνουά',
-        glory_header: 'Μπες σε ένα τουρνουά και αγωνίσου για τη δόξα!',
-        create_four_header: 'Δημ. Τουρνουά 4 Παικτών',
-        create_eight_header: 'Δημ. Τουρνουά 8 Παικτών',
-        empty_p_msg: 'Δεν υπάρχουν ενεργά τουρνουά ακόμα.'
-    }
-};
+
 
 let currentTournamentId: string | null = null;
 

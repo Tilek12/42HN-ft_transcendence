@@ -2,59 +2,8 @@ import { renderNav } from './nav'
 import { renderBackgroundFull } from '../utils/layout';
 import { saveToken } from '../utils/auth';
 import { wsManager } from '../websocket/ws-manager';
-import {languageStore} from './languages';
+import {languageStore, translations_login_page} from './languages';
 import type {Language} from './languages';
-
-export const translations_login_page: Record<Language, { [key: string]: string }> = {
-	EN: {
-		login_header: 'Welcome Back',
-		login_subtitle: 'Sign in to continue to your account',
-		google_btn: 'Continue with Google',
-		or_continue: 'Or continue with email',
-		username_label: 'Username',
-		username_placeholder: 'Enter your username',
-		password_label: 'Password',
-		password_placeholder: 'Enter your password',
-		remember_me: 'Remember me',
-		forgot_password: 'Forgot password?',
-		sign_in_btn: 'Sign In',
-		dont_have_account: "Don't have an account?",
-		create_account: 'Create account',
-		error_message: 'Invalid username or password'
-	},
-	DE: {
-		login_header: 'Willkommen zurück',
-		login_subtitle: 'Melden Sie sich an, um fortzufahren',
-		google_btn: 'Mit Google fortfahren',
-		or_continue: 'Oder weiter mit E-Mail',
-		username_label: 'Benutzername',
-		username_placeholder: 'Geben Sie Ihren Benutzernamen ein',
-		password_label: 'Passwort',
-		password_placeholder: 'Geben Sie Ihr Passwort ein',
-		remember_me: 'Angemeldet bleiben',
-		forgot_password: 'Passwort vergessen?',
-		sign_in_btn: 'Anmelden',
-		dont_have_account: 'Sie haben kein Konto?',
-		create_account: 'Konto erstellen',
-		error_message: 'Ungültiger Benutzername oder Passwort'
-	},
-	GR: {
-		login_header: 'Καλώς ήρθες ξανά',
-		login_subtitle: 'Συνδεθείτε για να συνεχίσετε',
-		google_btn: 'Συνέχεια με Google',
-		or_continue: 'Ή συνεχίστε με email',
-		username_label: 'Όνομα χρήστη',
-		username_placeholder: 'Εισάγετε το όνομα χρήστη σας',
-		password_label: 'Κωδικός πρόσβασης',
-		password_placeholder: 'Εισάγετε τον κωδικό πρόσβασης',
-		remember_me: 'Να με θυμάσαι',
-		forgot_password: 'Ξεχάσατε τον κωδικό;',
-		sign_in_btn: 'Σύνδεση',
-		dont_have_account: 'Δεν έχετε λογαριασμό;',
-		create_account: 'Δημιουργία λογαριασμού',
-		error_message: 'Λανθασμένο όνομα χρήστη ή κωδικός'
-	}
-};
 
 export function renderLogin(root: HTMLElement) {
 const t = translations_login_page[languageStore.language];

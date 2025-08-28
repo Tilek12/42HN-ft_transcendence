@@ -1,39 +1,9 @@
 import { getToken} from '../utils/auth'
 import { getEnvVariable } from './TypeSafe';
 import { wsManager } from '../websocket/ws-manager';
-import {languageStore} from './languages';
+import {languageStore, translations_friends} from './languages';
 import type {Language} from './languages';
 
-
-export const translations_friends: Record<Language, { [key: string]: string }> = {
-    EN: {
-        unlink: 'Unlink',
-        link: 'Link',
-        pending: 'Pending...',
-        block: 'Block',
-        unblock: 'Unblock',
-        online: 'online',
-        offline: 'offline'
-    },
-    DE: {
-        unlink: 'Entfernen',
-        link: 'Verbinden',
-        pending: 'Ausstehend...',
-        block: 'Blockieren',
-        unblock: 'Entsperren',
-        online: 'online',
-        offline: 'offline'
-    },
-    GR: {
-        unlink: 'Αποσύνδεση',
-        link: 'Σύνδεση',
-        pending: 'Εκκρεμεί...',
-        block: 'Μπλοκάρισμα',
-        unblock: 'Ξεμπλοκάρισμα',
-        online: 'ενεργός',
-        offline: 'ανενεργός'
-    }
-};
 let lastPresence : any[] | undefined = [];
 let all_profiles_length : number |undefined = 0;
 

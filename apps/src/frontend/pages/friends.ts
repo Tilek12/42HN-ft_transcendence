@@ -4,24 +4,9 @@ import { getToken, clearToken, validateLogin } from '../utils/auth'
 import { renderProfilesList } from './renderProfiles';
 import { renderFriendsList } from './renderFriends';
 import { renderFriendRequestsList } from './renderFriendRequestList';
-import {languageStore} from './languages';
+import {languageStore, translations_friends_render} from './languages';
 import type {Language} from './languages';
 
-
-const translations_friends_render: Record<Language, { [key: string]: string }> = {
-    EN: {
-        friends_list_header: 'Friends List',
-        request_list_header: 'Requests List'
-    },
-    DE: {
-        friends_list_header: 'Freundesliste',
-        request_list_header: 'Anfragenliste'
-    },
-    GR: {
-        friends_list_header: 'Λίστα Φίλων',
-        request_list_header: 'Λίστα Αιτημάτων'
-    }
-};
 
 
 export async function renderFriends(root: HTMLElement) {

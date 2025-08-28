@@ -4,33 +4,9 @@ import { wsManager } from '../websocket/ws-manager';
 import { getToken, validateLogin } from '../utils/auth';
 import { COLORS } from '../constants/colors';
 import { initLang } from './nav';
-import {languageStore} from './languages';
+import {languageStore, translations_game_render} from './languages';
 import type {Language} from './languages';
 
-
-export const translations_game_render: Record<Language, { [key: string]: string }> = {
-    EN: {
-        pong_game_header: 'Pong Game',
-        play_alone_btn: 'Play Alone',
-        play_online_btn: 'Play Online (1v1)',
-        play_tournament_btn: 'Play Tournament',
-        info_text: 'Choose a game mode to begin'
-    },
-    DE: {
-        pong_game_header: 'Pong-Spiel',
-        play_alone_btn: 'Alleine spielen',
-        play_online_btn: 'Online spielen (1v1)',
-        play_tournament_btn: 'Turnier spielen',
-        info_text: 'Wähle einen Spielmodus, um zu beginnen'
-    },
-    GR: {
-        pong_game_header: 'Παιχνίδι Pong',
-        play_alone_btn: 'Παίξε Μόνος',
-        play_online_btn: 'Παίξε Online (1v1)',
-        play_tournament_btn: 'Παίξε Τουρνουά',
-        info_text: 'Επίλεξε λειτουργία παιχνιδιού για να ξεκινήσεις'
-    }
-};
 
 export async function renderGame(root: HTMLElement) {
   const isValid = await validateLogin();

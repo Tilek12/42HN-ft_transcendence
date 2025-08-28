@@ -1,73 +1,7 @@
 import { renderBackgroundTop } from "../utils/layout";
 import { wsManager } from '../websocket/ws-manager';
 import type {Language} from './languages';
-
-export const translations_profile: Record<Language, {[key: string]: string | undefined}> = 
-{
-	EN: {
-		your_profile : 'Your Profile',
-		update : 'Update',
-		delete : 'Delete',
-		edit : 'Edit',
-		cancel : 'Cancel',
-		logged_in : 'Logged in',
-		username : 'Username',
-		email : 'Email',
-		wins : 'wins',
-		losses : 'losses',
-		trophies : 'trophies',
-		joined : 'Joined',
-		current_password : 'Current password',
-		new_password: 'New Password',
-		confirm_new_password: 'Confirm New Passsword',
-		new_password_btn : 'New Password',
-		match_history : 'Match History',
-		load_more : 'Load More',
-		logout : 'Logout'
-	},
-	DE: {
-		your_profile: 'Dein Profil',
-		update: 'Aktualisieren',
-		delete: 'Löschen',
-		edit: 'Bearbeiten',
-		cancel: 'Abbrechen',
-		logged_in: 'Eingeloggt',
-		username: 'Benutzername',
-		email: 'E-Mail',
-		wins: 'Siege',
-		losses: 'Niederlagen',
-		trophies: 'Trophäen',
-		joined: 'Beigetreten',
-		current_password: 'Aktuelles Passwort',
-		new_password: 'Neues Passwort',
-		confirm_new_password: 'Neues Passwort bestätigen',
-		new_password_btn: 'Neues Passwort',
-		match_history: 'Spielverlauf',
-		load_more: 'Mehr laden',
-		logout: 'Abmelden'
-	  },
-	  GR: {
-		your_profile: 'Το προφίλ σας',
-		update: 'Ενημέρωση',
-		delete: 'Διαγραφή',
-		edit: 'Επεξεργασία',
-		cancel: 'Ακύρωση',
-		logged_in: 'Συνδεδεμένος',
-		username: 'Όνομα χρήστη',
-		email: 'Ημέιλ',
-		wins: 'Νίκες',
-		losses: 'Ήττες',
-		trophies: 'Τρόπαια',
-		joined: 'Εγγράφηκε',
-		current_password: 'Τρέχων κωδικός',
-		new_password: 'Νέος κωδικός',
-		confirm_new_password: 'Επιβεβαίωση νέου κωδικού',
-		new_password_btn: 'Νέος Κωδικός',
-		match_history: 'Ιστορικό αγώνων',
-		load_more: 'Περισσότερα Προφίλ',
-		logout: 'Αποσύνδεση'
-	  }
-}
+import {languageStore, translations_profile} from './languages'
 
 export type Profile_details = {
 	backend_url?: string;
