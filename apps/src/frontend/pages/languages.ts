@@ -1,6 +1,20 @@
 type Language = 'EN' | 'DE' | 'GR';
 
 
+
+
+
+export function transelate_per_id( tr_array: Record<Language, {[key: string]: string | undefined}>, tr_key_string : string, lang : Language, element_id: string)
+{
+	let headerEl = document.getElementById(element_id) as HTMLElement || HTMLInputElement;
+	console.log("The Element: ", headerEl);
+	if (tr_key_string.includes("placeholder") && headerEl) 
+			headerEl.placeholder = tr_array[lang][tr_key_string]
+	if (headerEl) headerEl.innerHTML = tr_array[lang][tr_key_string];
+}
+
+
+
 export const translations_profile: Record<Language, {[key: string]: string | undefined}> = 
 {
 	EN: {
@@ -10,12 +24,12 @@ export const translations_profile: Record<Language, {[key: string]: string | und
 		edit : 'Edit',
 		cancel : 'Cancel',
 		logged_in : 'Logged in',
-		username : 'Username',
-		email : 'Email',
-		wins : 'wins',
-		losses : 'losses',
-		trophies : 'trophies',
-		joined : 'Joined',
+		username : 'Username:',
+		email : 'Email:',
+		wins : 'wins:',
+		losses : 'losses:',
+		trophies : 'trophies:',
+		joined : 'Joined:',
 		current_password : 'Current password',
 		new_password: 'New Password',
 		confirm_new_password: 'Confirm New Passsword',
@@ -31,12 +45,12 @@ export const translations_profile: Record<Language, {[key: string]: string | und
 		edit: 'Bearbeiten',
 		cancel: 'Abbrechen',
 		logged_in: 'Eingeloggt',
-		username: 'Benutzername',
-		email: 'E-Mail',
-		wins: 'Siege',
-		losses: 'Niederlagen',
-		trophies: 'Trophäen',
-		joined: 'Beigetreten',
+		username: 'Benutzername:',
+		email: 'E-Mail:',
+		wins: 'Siege:',
+		losses: 'Niederlagen:',
+		trophies: 'Trophäen:',
+		joined: 'Beigetreten:',
 		current_password: 'Aktuelles Passwort',
 		new_password: 'Neues Passwort',
 		confirm_new_password: 'Neues Passwort bestätigen',
@@ -52,12 +66,12 @@ export const translations_profile: Record<Language, {[key: string]: string | und
 		edit: 'Επεξεργασία',
 		cancel: 'Ακύρωση',
 		logged_in: 'Συνδεδεμένος',
-		username: 'Όνομα χρήστη',
-		email: 'Ημέιλ',
-		wins: 'Νίκες',
-		losses: 'Ήττες',
-		trophies: 'Τρόπαια',
-		joined: 'Εγγράφηκε',
+		username: 'Όνομα χρήστη:',
+		email: 'Ημέιλ: ',
+		wins: 'Νίκες: ',
+		losses: 'Ήττες: ',
+		trophies: 'Τρόπαια: ',
+		joined: 'Εγγράφηκε: ',
 		current_password: 'Τρέχων κωδικός',
 		new_password: 'Νέος κωδικός',
 		confirm_new_password: 'Επιβεβαίωση νέου κωδικού',
@@ -212,24 +226,24 @@ export const translations_login_page: Record<Language, { [key: string]: string }
 export const translations_game_render: Record<Language, { [key: string]: string }> = {
 	EN: {
 		pong_game_header: 'Pong Game',
-		play_alone_btn: 'Play Alone',
-		play_online_btn: 'Play Online (1v1)',
-		play_tournament_btn: 'Play Tournament',
-		info_text: 'Choose a game mode to begin'
+		play_alone: 'Play Alone',
+		play_online: 'Play Online (1v1)',
+		play_tournament: 'Play Tournament',
+		info: 'Choose a game mode to begin'
 	},
 	DE: {
 		pong_game_header: 'Pong-Spiel',
-		play_alone_btn: 'Alleine spielen',
-		play_online_btn: 'Online spielen (1v1)',
-		play_tournament_btn: 'Turnier spielen',
-		info_text: 'Wähle einen Spielmodus, um zu beginnen'
+		play_alone: 'Alleine spielen',
+		play_online: 'Online spielen (1v1)',
+		play_tournament: 'Turnier spielen',
+		info: 'Wähle einen Spielmodus, um zu beginnen'
 	},
 	GR: {
 		pong_game_header: 'Παιχνίδι Pong',
-		play_alone_btn: 'Παίξε Μόνος',
-		play_online_btn: 'Παίξε Online (1v1)',
-		play_tournament_btn: 'Παίξε Τουρνουά',
-		info_text: 'Επίλεξε λειτουργία παιχνιδιού για να ξεκινήσεις'
+		play_alone: 'Παίξε Μόνος',
+		play_online: 'Παίξε Online (1v1)',
+		play_tournament: 'Παίξε Τουρνουά',
+		info: 'Επίλεξε λειτουργία παιχνιδιού για να ξεκινήσεις'
 	}
 };
 

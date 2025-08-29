@@ -1,6 +1,6 @@
 import { renderNav } from "./nav"
 import { renderBackgroundFull } from "../utils/layout"
-import {languageStore, translations_main_page} from './languages';
+import {languageStore, translations_main_page, transelate_per_id} from './languages';
 import type {Language} from './languages';
 
 export function renderMainPage(root: HTMLElement) {
@@ -16,15 +16,8 @@ export function renderMainPage(root: HTMLElement) {
 	`);
 
 	languageStore.subscribe((lang) => {
-		const t = translations_main_page[lang];
-		const mainWelcomeHeaderEl = document.getElementById('main_welcome_header');
-		if (mainWelcomeHeaderEl) mainWelcomeHeaderEl.innerHTML = t.main_welcome_header;
-		
-		const mainSubtitleEl = document.getElementById('main_subtitle');
-		if (mainSubtitleEl) mainSubtitleEl.innerHTML = t.main_subtitle;
-		
-		const mainViewGameBtnEl = document.getElementById('main_view_game_btn');
-		if (mainViewGameBtnEl) mainViewGameBtnEl.innerHTML = t.main_view_game_btn;
-		
+		transelate_per_id(translations_main_page,"main_welcome_header", lang, "main_welcome_header");
+		transelate_per_id(translations_main_page,"main_subtitle", lang, "main_subtitle");
+		transelate_per_id(translations_main_page,"main_view_game_btn", lang, "main_view_game_btn");
 	});
 }

@@ -1,22 +1,7 @@
 import { getToken} from '../utils/auth'
 import { wsManager } from '../websocket/ws-manager';
-import {languageStore} from './languages';
+import {languageStore, translations_friends_render} from './languages';
 import type {Language} from './languages';
-
-export const translations_friends_render: Record<Language, { [key: string]: string }> = {
-	EN: {
-		friends_list_header: 'Friends List',
-		request_list_header: 'Requests List'
-	},
-	DE: {
-		friends_list_header: 'Freundesliste',
-		request_list_header: 'Anfragenliste'
-	},
-	GR: {
-		friends_list_header: 'Λίστα Φίλων',
-		request_list_header: 'Λίστα Αιτημάτων'
-	}
-};
 
 const button_action = (is_friend: number, pending_direction : string, other_profile_id: number) => {
 	return `<button data-profile-answer = "accept" data-profile-id = "${other_profile_id}" class="answer-request-btn px-16 py-2 bg-green-600 hover:bg-green-700 text-white rounded">✔</button>

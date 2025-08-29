@@ -4,7 +4,7 @@ import { getToken, clearToken, validateLogin } from '../utils/auth'
 import { renderProfilesList } from './renderProfiles';
 import { renderFriendsList } from './renderFriends';
 import { renderFriendRequestsList } from './renderFriendRequestList';
-import {languageStore, translations_friends_render} from './languages';
+import {languageStore, translations_friends_render, transelate_per_id} from './languages';
 import type {Language} from './languages';
 
 
@@ -32,13 +32,10 @@ export async function renderFriends(root: HTMLElement) {
 	renderFriendsList('friends-list');
 
 	renderFriendRequestsList();
-	languageStore.subscribe(()=>{
-		const friendsListHeaderEl = document.getElementById('friends_list_header');
-		if (friendsListHeaderEl) friendsListHeaderEl.innerHTML = translations_friends_render[languageStore.language]!.friends_list_header;
-		
-		const requestListHeaderEl = document.getElementById('request_list_header');
-		if (requestListHeaderEl) requestListHeaderEl.innerHTML = translations_friends_render[languageStore.language]!.request_list_header;
-		
+	languageStore.subscribe((lang)=>{
+
+		transelate_per_id(translations_friends_render, "friends_list_header", lang, "friends_list_header");
+		transelate_per_id(translations_friends_render, "request_list_header", lang, "request_list_header");
 	}
 		)
 	document.getElementById('friend-requests-list')?.addEventListener(

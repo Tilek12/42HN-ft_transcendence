@@ -2,7 +2,7 @@ import { renderNav } from './nav'
 import { renderBackgroundFull } from '../utils/layout';
 import { saveToken } from '../utils/auth';
 import { wsManager } from '../websocket/ws-manager';
-import {languageStore, translations_login_page} from './languages';
+import {languageStore, translations_login_page, transelate_per_id} from './languages';
 import type {Language} from './languages';
 
 export function renderLogin(root: HTMLElement) {
@@ -110,50 +110,19 @@ const t = translations_login_page[languageStore.language];
     </div>
   `);
   languageStore.subscribe((lang) => {
-	const tr = translations_login_page[lang];
-
-	const loginHeaderEl = document.getElementById('login_header');
-	if (loginHeaderEl) loginHeaderEl.innerHTML = tr.login_header;
-	
-	const loginSubtitleEl = document.getElementById('login_subtitle');
-	if (loginSubtitleEl) loginSubtitleEl.innerHTML = tr.login_subtitle;
-	
-	const googleBtnEl = document.getElementById('google_btn');
-	if (googleBtnEl) googleBtnEl.innerHTML = tr.google_btn;
-	
-	const orContinueEl = document.getElementById('or_continue');
-	if (orContinueEl) orContinueEl.innerHTML = tr.or_continue;
-	
-	const usernameLabelEl = document.getElementById('username_label');
-	if (usernameLabelEl) usernameLabelEl.innerHTML = tr.username_label;
-	
-	const usernameInputEl = document.getElementById('username') as HTMLInputElement | null;
-	if (usernameInputEl) usernameInputEl.placeholder = tr.username_placeholder;
-	
-	const passwordLabelEl = document.getElementById('password_label');
-	if (passwordLabelEl) passwordLabelEl.innerHTML = tr.password_label;
-	
-	const passwordInputEl = document.getElementById('password') as HTMLInputElement | null;
-	if (passwordInputEl) passwordInputEl.placeholder = tr.password_placeholder;
-	
-	const rememberMeEl = document.getElementById('remember_me');
-	if (rememberMeEl) rememberMeEl.innerHTML = tr.remember_me;
-	
-	const forgotPasswordEl = document.getElementById('forgot_password');
-	if (forgotPasswordEl) forgotPasswordEl.innerHTML = tr.forgot_password;
-	
-	const signInBtnEl = document.getElementById('sign_in_btn');
-	if (signInBtnEl) signInBtnEl.innerHTML = tr.sign_in_btn;
-	
-	const dontHaveAccountEl = document.getElementById('dont_have_account');
-	if (dontHaveAccountEl) dontHaveAccountEl.innerHTML = tr.dont_have_account;
-	
-	const createAccountEl = document.getElementById('create_account');
-	if (createAccountEl) createAccountEl.innerHTML = tr.create_account;
-	
-	const errorTextEl = document.getElementById('error-text');
-	if (errorTextEl) errorTextEl.innerHTML = tr.error_message;
-	
+	transelate_per_id(translations_login_page, "login_header", lang, "login_header");
+	transelate_per_id(translations_login_page, "google_btn", lang, "google_btn");
+	transelate_per_id(translations_login_page, "or_continue", lang, "or_continue");
+	transelate_per_id(translations_login_page, "username_label", lang, "username_label");
+	transelate_per_id(translations_login_page, "username_placeholder", lang, "username");
+	transelate_per_id(translations_login_page, "password_label", lang, "password_label");
+	transelate_per_id(translations_login_page, "password_placeholder", lang, "password");
+	transelate_per_id(translations_login_page, "remember_me", lang, "remember_me");
+	transelate_per_id(translations_login_page, "forgot_password", lang, "forgot_password");
+	transelate_per_id(translations_login_page, "sign_in_btn", lang, "sign_in_btn");
+	transelate_per_id(translations_login_page, "dont_have_account", lang, "dont_have_account");
+	transelate_per_id(translations_login_page, "create_account", lang, "create_account");
+	transelate_per_id(translations_login_page, "error_message", lang, "error-text");
 });
 
   const form = document.getElementById('login-form') as HTMLFormElement;

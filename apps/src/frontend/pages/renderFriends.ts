@@ -1,26 +1,9 @@
 import { getToken} from '../utils/auth'
 import { getEnvVariable } from './TypeSafe';
 import { wsManager } from '../websocket/ws-manager';
-import {languageStore} from './languages';
-import type {Language} from './languages';
+import {languageStore, translations_friends_render} from './languages';
+// import type {Language} from './languages';
 
-export const translations_friends_render: Record<Language, { [key: string]: string }> = {
-    EN: {
-        friends_list_header: 'Friends List',
-        request_list_header: 'Requests List'
-    },
-    DE: {
-        friends_list_header: 'Freundesliste',
-        request_list_header: 'Anfragenliste'
-    },
-    GR: {
-        friends_list_header: 'Λίστα Φίλων',
-        request_list_header: 'Λίστα Αιτημάτων'
-    }
-};
-// let lastPresence : any[] | undefined = [];
-// let all_friends_len : number |undefined = 0;
-// let firstTime = 1
 export async function renderFriendsList(container_id : string, load?: boolean, allFriends ?: {friends: any[]}, friend_offeset ?: number, friend_limit ?: number )
 {
 	const container = document.getElementById(container_id);

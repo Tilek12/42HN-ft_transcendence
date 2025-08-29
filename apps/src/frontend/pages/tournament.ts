@@ -2,7 +2,7 @@ import { renderNav } from './nav';
 import { renderBackgroundTop } from '../utils/layout';
 import { getToken, validateLogin } from '../utils/auth';
 import { wsManager } from '../websocket/ws-manager';
-import {languageStore, translations_tournament_render} from './languages';
+import {languageStore, translations_tournament_render, transelate_per_id} from './languages';
 import type {Language} from './languages';
 
 
@@ -26,21 +26,11 @@ export async function renderTournament(root: HTMLElement) {
   `);
  languageStore.subscribe ((lang)=>
 {
-	const tournamentLobbyHeaderEl = document.getElementById('tournament_lobby_header');
-	if (tournamentLobbyHeaderEl) tournamentLobbyHeaderEl.innerHTML = translations_tournament_render[lang].tournament_lobby_header;
-	
-	const gloryHeaderEl = document.getElementById('glory_header');
-	if (gloryHeaderEl) gloryHeaderEl.innerHTML = translations_tournament_render[lang].glory_header;
-	
-	const emptyPMsgEl = document.getElementById('empty-p-msg');
-	if (emptyPMsgEl) emptyPMsgEl.innerHTML = translations_tournament_render[lang].empty_p_msg;
-	
-	const createTournament4El = document.getElementById('create-tournament-4');
-	if (createTournament4El) createTournament4El.innerHTML = translations_tournament_render[lang].create_four_header;
-	
-	const createTournament8El = document.getElementById('create-tournament-8');
-	if (createTournament8El) createTournament8El.innerHTML = translations_tournament_render[lang].create_eight_header;
-	
+	transelate_per_id(translations_tournament_render, "tournament_lobby_header", lang,"tournament_lobby_header");
+	transelate_per_id(translations_tournament_render, "glory_header", lang,"glory_header");
+	transelate_per_id(translations_tournament_render, "empty_p_msg", lang,"empty-p-msg");
+	transelate_per_id(translations_tournament_render, "create-four_header", lang,"create-tournament-4");
+	transelate_per_id(translations_tournament_render, "create_eight_header", lang,"create-tournament-8");
 })
   renderTournamentList();
   wsManager.subscribeToPresence(renderTournamentList);

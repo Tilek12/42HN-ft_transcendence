@@ -1,7 +1,7 @@
 import { renderNav } from './nav';
 import { renderBackgroundFull } from '../utils/layout';
 import { initLang } from './nav';
-import {languageStore, translations_register_page} from './languages';
+import {languageStore, translations_register_page, transelate_per_id} from './languages';
 import type {Language} from './languages';
 
 
@@ -46,38 +46,18 @@ export function renderRegister(root: HTMLElement) {
 	// ✅ Update translations when language changes
 	languageStore.subscribe((lang) => {
 		const tr = translations_register_page[lang];
-		const headerEl = document.getElementById('register_header');
-		if (headerEl) headerEl.innerHTML = tr.register_header;
-		
-		const usernameLabelEl = document.getElementById('username_label');
-		if (usernameLabelEl) usernameLabelEl.innerHTML = tr.username_label;
-		
-		const usernameInputEl = document.getElementById('username') as HTMLInputElement | null;
-		if (usernameInputEl) usernameInputEl.placeholder = tr.username_placeholder;
-		
-		const emailLabelEl = document.getElementById('email_label');
-		if (emailLabelEl) emailLabelEl.innerHTML = tr!.email_label;
-		
-		const emailInputEl = document.getElementById('email') as HTMLInputElement | null;
-		if (emailInputEl) emailInputEl.placeholder = tr.email_placeholder;
-		
-		const passwordLabelEl = document.getElementById('password_label');
-		if (passwordLabelEl) passwordLabelEl.innerHTML = tr.password_label;
-		
-		const passwordInputEl = document.getElementById('password') as HTMLInputElement | null;
-		if (passwordInputEl) passwordInputEl.placeholder = tr.password_placeholder;
-		
-		const registerBtnEl = document.getElementById('register_btn');
-		if (registerBtnEl) registerBtnEl.innerHTML = tr.register_btn;
-		
-		const registerErrorEl = document.getElementById('register_error');
-		if (registerErrorEl) registerErrorEl.innerHTML = tr.register_error;
-		
-		const alreadyHaveAccountEl = document.getElementById('already_have_account');
-		if (alreadyHaveAccountEl) alreadyHaveAccountEl.innerHTML = tr.already_have_account;
-		
-		const signInLinkEl = document.getElementById('sign_in_link');
-		if (signInLinkEl) signInLinkEl.innerHTML = tr.sign_in;
+
+		transelate_per_id(translations_register_page,"register_header", lang, "register_header");
+		transelate_per_id(translations_register_page,"username_label", lang, "username_label");
+		transelate_per_id(translations_register_page,"username_placeholder", lang, "username");
+		transelate_per_id(translations_register_page,"email_label", lang, "email_label");
+		transelate_per_id(translations_register_page,"email_placeholder", lang, "email");
+		transelate_per_id(translations_register_page,"password_label", lang, "password_label");
+		transelate_per_id(translations_register_page,"password_placeholder", lang, "password");
+		transelate_per_id(translations_register_page,"register_btn", lang, "register_btn");
+		transelate_per_id(translations_register_page,"register_error", lang, "register_error");
+		transelate_per_id(translations_register_page,"already_have_account", lang, "already_have_account");
+		transelate_per_id(translations_register_page,"sign_in", lang, "sign_in_link");
 		
 	});
 	initLang();

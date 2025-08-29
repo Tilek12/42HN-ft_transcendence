@@ -1,7 +1,7 @@
 import { renderNav } from './nav'
 import { renderBackgroundTop } from '../utils/layout'
 import { initLang } from './nav';
-import {languageStore, translations_leaderboards} from './languages';
+import {languageStore, translations_leaderboards, transelate_per_id} from './languages';
 import type {Language} from './languages'
 
 export async function renderLeaderboard(root: HTMLElement) {
@@ -55,31 +55,15 @@ export async function renderLeaderboard(root: HTMLElement) {
       </div>
     `);
 	languageStore.subscribe((lang)=>{
-		const tr =  translations_leaderboards[lang];
-		const leaderboardHeaderEl = document.getElementById("leaderboard_ld_header");
-		if (leaderboardHeaderEl) leaderboardHeaderEl.innerHTML = tr.leaderboard_ld_header;
-		
-		const topPlayerHeaderEl = document.getElementById("top_player_ld_header");
-		if (topPlayerHeaderEl) topPlayerHeaderEl.innerHTML = tr.top_player_ld_header;
-		
-		const usernameHeaderEl = document.getElementById("username_ld_header");
-		if (usernameHeaderEl) usernameHeaderEl.innerHTML = tr.username_ld_header;
-		
-		const winsHeaderEl = document.getElementById("wins_ld_header");
-		if (winsHeaderEl) winsHeaderEl.innerHTML = tr.wins_ld_header;
-		
-		const lossesHeaderEl = document.getElementById("losses_ld_header");
-		if (lossesHeaderEl) lossesHeaderEl.innerHTML = tr.losses_ld_header;
-		
-		const trophiesHeaderEl = document.getElementById("trophies_ld_header");
-		if (trophiesHeaderEl) trophiesHeaderEl.innerHTML = tr.trophies_ld_header;
-		
-		const matchesPlayedHeaderEl = document.getElementById("matches_played_ld_header");
-		if (matchesPlayedHeaderEl) matchesPlayedHeaderEl.innerHTML = tr.matches_played_ld_header;
-		
-		const winsInTourHeaderEl = document.getElementById("wins_in_tour_ld_header");
-		if (winsInTourHeaderEl) winsInTourHeaderEl.innerHTML = tr.wins_in_tour_ld_header;
-		
+		transelate_per_id(translations_leaderboards, "leaderboard_ld_header", lang, "leaderboard_ld_header");
+		transelate_per_id(translations_leaderboards, "top_player_ld_header", lang, "top_player_ld_header");
+		transelate_per_id(translations_leaderboards, "username_ld_header", lang, "username_ld_header");
+		transelate_per_id(translations_leaderboards, "wins_ld_header", lang, "wins_ld_header");
+		transelate_per_id(translations_leaderboards, "losses_ld_header", lang, "losses_ld_header");
+		transelate_per_id(translations_leaderboards, "trophies_ld_header", lang, "trophies_ld_header");
+		transelate_per_id(translations_leaderboards, "matches_played_ld_header", lang, "matches_played_ld_header");
+		transelate_per_id(translations_leaderboards, "wins_in_tour_ld_header", lang, "wins_in_tour_ld_header");
+		transelate_per_id(translations_leaderboards, "failed_ld_header", lang, "failed_ld_header");
 	});
   } catch (err: any) {
     root.innerHTML = renderBackgroundTop(`

@@ -1,7 +1,7 @@
 import { renderBackgroundTop } from "../utils/layout";
 import { wsManager } from '../websocket/ws-manager';
 import type {Language} from './languages';
-import {languageStore, translations_profile} from './languages'
+import {languageStore, translations_profile, transelate_per_id} from './languages'
 
 export type Profile_details = {
 	backend_url?: string;
@@ -58,71 +58,30 @@ export const profile_ids = (
 
 		}
 	};
-export const update_langauge_headers_user_profile = (lang  = 'EN') =>
+export const update_langauge_headers_user_profile = (lang : Language = 'EN') =>
 {
 	// const your_header_profile = document.getElementById("your_profile_header") as HTMLHeadElement;
-	const yourProfileHeaderEl = document.getElementById("your_profile_header");
-	if (yourProfileHeaderEl) yourProfileHeaderEl.innerHTML = translations_profile[lang].your_profile;
-	
-	const imageUpdateButtonHeaderEl = document.getElementById("image_update_button_header");
-	if (imageUpdateButtonHeaderEl) imageUpdateButtonHeaderEl.innerHTML = translations_profile[lang].update;
-	
-	const imageDeleteButtonHeaderEl = document.getElementById("image_delete_button_header");
-	if (imageDeleteButtonHeaderEl) imageDeleteButtonHeaderEl.innerHTML = translations_profile[lang]!.delete;
-	
-	const usernameHeaderEl = document.getElementById("username_header");
-	if (usernameHeaderEl) usernameHeaderEl.innerHTML = translations_profile[lang].username + ":";
-	
-	const editUsernameHeaderEl = document.getElementById("edit_username_header");
-	if (editUsernameHeaderEl) editUsernameHeaderEl.innerHTML = translations_profile[lang].edit;
-	
-	const updateUsernameHeaderEl = document.getElementById("update_username_header");
-	if (updateUsernameHeaderEl) updateUsernameHeaderEl.innerHTML = translations_profile[lang].update;
-	
-	const cancelUsernameHeaderEl = document.getElementById("cancel_username_header");
-	if (cancelUsernameHeaderEl) cancelUsernameHeaderEl.innerHTML = translations_profile[lang].cancel;
-	
-	const emailHeaderEl = document.getElementById("email_header");
-	if (emailHeaderEl) emailHeaderEl.innerHTML = translations_profile[lang].email + ":";
-	
-	const winsHeaderEl = document.getElementById("wins_header");
-	if (winsHeaderEl) winsHeaderEl.innerHTML = translations_profile[lang].wins + ":";
-	
-	const lossesHeaderEl = document.getElementById("losses_header");
-	if (lossesHeaderEl) lossesHeaderEl.innerHTML = translations_profile[lang].losses + ":";
-	
-	const trophiesHeaderEl = document.getElementById("trophies_header");
-	if (trophiesHeaderEl) trophiesHeaderEl.innerHTML = translations_profile[lang].trophies + ":";
-	
-	const joinedHeaderEl = document.getElementById("joined_header");
-	if (joinedHeaderEl) joinedHeaderEl.innerHTML = translations_profile[lang].joined + ":";
-	
-	const updatePassHeaderEl = document.getElementById("update_pass_header");
-	if (updatePassHeaderEl) updatePassHeaderEl.innerHTML = translations_profile[lang].update;
-	
-	const cancelPassHeaderEl = document.getElementById("cancel_pass_header");
-	if (cancelPassHeaderEl) cancelPassHeaderEl.innerHTML = translations_profile[lang].cancel;
-	
-	const matchHistoryHeaderEl = document.getElementById("match_history_header");
-	if (matchHistoryHeaderEl) matchHistoryHeaderEl.innerHTML = translations_profile[lang].match_history;
-	
-	const passwordEditBtnEl = document.getElementById("password-edit-btn");
-	if (passwordEditBtnEl) passwordEditBtnEl.innerHTML = translations_profile[lang].new_password_btn;
-	
-	const loadMoreHeaderEl = document.getElementById("load_more_header");
-	if (loadMoreHeaderEl) loadMoreHeaderEl.innerHTML = translations_profile[lang].load_more;
-	
-	const logoutHeaderEl = document.getElementById("logout_header");
-	if (logoutHeaderEl) logoutHeaderEl.innerHTML = translations_profile[lang].logout;
-
-	const oldCheckEl = document.getElementById("password-old-check") as HTMLInputElement | null;
-	if (oldCheckEl) oldCheckEl.placeholder = translations_profile[lang].current_password;
-	
-	const newPassEl = document.getElementById("password-new") as HTMLInputElement | null;
-	if (newPassEl) newPassEl.placeholder = translations_profile[lang].new_password;
-	
-	const confirmPassEl = document.getElementById("password-confirm") as HTMLInputElement | null;
-	if (confirmPassEl) confirmPassEl.placeholder = translations_profile[lang].confirm_new_password;
+	transelate_per_id(translations_profile,"your_profile", lang, "your_profile_header");
+	transelate_per_id(translations_profile,"update", lang, "image_update_button_header");
+	transelate_per_id(translations_profile,"delete", lang, "image_delete_button_header");
+	transelate_per_id(translations_profile,"username", lang, "username_header");
+	transelate_per_id(translations_profile,"edit", lang, "edit_username_header");
+	transelate_per_id(translations_profile,"update", lang, "update_username_header");
+	transelate_per_id(translations_profile,"cancel", lang, "cancel_username_header");
+	transelate_per_id(translations_profile,"email", lang, "email_header");
+	transelate_per_id(translations_profile,"wins", lang, "wins_header");
+	transelate_per_id(translations_profile,"losses", lang, "losses_header");
+	transelate_per_id(translations_profile,"trophies", lang, "trophies_header");
+	transelate_per_id(translations_profile,"joined", lang, "joined_header");
+	transelate_per_id(translations_profile,"update", lang, "update_pass_header");
+	transelate_per_id(translations_profile,"cancel", lang, "cancel_pass_header");
+	transelate_per_id(translations_profile,"match_history", lang, "match_history_header");
+	transelate_per_id(translations_profile,"new_password_btn", lang, "password-edit-btn");
+	transelate_per_id(translations_profile,"load_more", lang, "load_more_header");
+	transelate_per_id(translations_profile,"logout", lang, "logout_header");
+	transelate_per_id(translations_profile,"current_password", lang, "password-old-check");
+	transelate_per_id(translations_profile,"new_password", lang, "password-new");
+	transelate_per_id(translations_profile,"confirm_new_password", lang, "password-confirm");
 }
 export function renderUserProfile(backend_url: string, data: any, lang = 'EN')
 {
