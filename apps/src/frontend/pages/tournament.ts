@@ -29,7 +29,7 @@ export async function renderTournament(root: HTMLElement) {
 	transelate_per_id(translations_tournament_render, "tournament_lobby_header", lang,"tournament_lobby_header");
 	transelate_per_id(translations_tournament_render, "glory_header", lang,"glory_header");
 	transelate_per_id(translations_tournament_render, "empty_p_msg", lang,"empty-p-msg");
-	transelate_per_id(translations_tournament_render, "create-four_header", lang,"create-tournament-4");
+	transelate_per_id(translations_tournament_render, "create_four_header", lang,"create-tournament-4");
 	transelate_per_id(translations_tournament_render, "create_eight_header", lang,"create-tournament-8");
 })
   renderTournamentList();

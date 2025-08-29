@@ -79,9 +79,9 @@ export const update_langauge_headers_user_profile = (lang : Language = 'EN') =>
 	transelate_per_id(translations_profile,"new_password_btn", lang, "password-edit-btn");
 	transelate_per_id(translations_profile,"load_more", lang, "load_more_header");
 	transelate_per_id(translations_profile,"logout", lang, "logout_header");
-	transelate_per_id(translations_profile,"current_password", lang, "password-old-check");
-	transelate_per_id(translations_profile,"new_password", lang, "password-new");
-	transelate_per_id(translations_profile,"confirm_new_password", lang, "password-confirm");
+	transelate_per_id(translations_profile,"current_password_placeholder", lang, "password-old-check");
+	transelate_per_id(translations_profile,"new_password_placeholder", lang, "password-new");
+	transelate_per_id(translations_profile,"confirm_new_password_placeholder", lang, "password-confirm");
 }
 export function renderUserProfile(backend_url: string, data: any, lang = 'EN')
 {
