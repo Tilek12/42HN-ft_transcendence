@@ -1,7 +1,7 @@
 import { Player } from './types';
 import { GameRoom } from './game-room';
 import { userManager } from '../service-managers/user-manager';
-import { incrementWinsOrLossesOrTrophies } from '../database/user';
+import { incrementWinsOrLossesOrTrophies } from '../database/profile';
 import { createMatch } from '../database/match';
 
 export async function startGame(player: Player, mode: 'solo' | 'duel' | 'tournament', tournamentId?: string) {
