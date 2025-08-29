@@ -1,6 +1,5 @@
 import { WebSocket } from 'ws';
-import { Player } from '../game/types';
-import profile = require('../database/profile');
+import {profile} from '../database/profile';
 
 interface User {
 	id: string;
@@ -22,7 +21,6 @@ interface User {
 
 class UserManager {
 	private users = new Map<string, User>();
-	private waitingDuel = new Map<string, Player>();
 
 	getUser(id: string): User | undefined {
 		return this.users.get(id);
@@ -81,18 +79,6 @@ class UserManager {
 
 	getOnlineUsersCount() {
 		return this.users.size;
-	}
-
-	getWaitingDuel() {
-		return this.waitingDuel;
-	}
-
-	setWaitingDuelPlayer(id: string, player: Player) {
-		this.waitingDuel.set(id, player);
-	}
-
-	removeWaitingDuelPlayer(id: string) {
-		this.waitingDuel.delete(id);
 	}
 
 	setGameSocket(id: string, socket: WebSocket) {

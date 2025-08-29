@@ -28,7 +28,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 			const jwt = await req.jwtVerify();
 			const user = await findUserById(jwt.id);
 			const profile = await findProfileById(jwt.id);
-			console.log("================>>>Profile :", profile);
+			// console.log("================>>>Profile :", profile);
 			if (!user || !profile)
 				return res.status(404).send({message: 'User or profile not found'});
 			res.send({
