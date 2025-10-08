@@ -276,4 +276,8 @@ export class GameRoom {
   public isEnded(): boolean {
     return this.state.status === 'ended';
   }
+
+  public handleMove(playerId: string, direction: 'up' | 'down', side?: 'left' | 'right') {
+    this.move(playerId, direction, side);
+  }
 }

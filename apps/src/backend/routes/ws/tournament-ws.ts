@@ -5,6 +5,7 @@ import { WebSocket } from 'ws';
 import { Participant, TournamentState } from '../../tournament/tournament-types';
 import { userManager } from '../../service-managers/user-manager';
 import { tournamentManager } from '../../service-managers/tournament-manager';
+import { gameManager } from '../../service-managers/game-manager';
 import { PING_INTERVAL_MS } from '../../constants';
 
 const wsTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
@@ -45,6 +46,14 @@ const wsTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 					tournamentManager.quitTournament(userId);
 					userManager.removeTournamentSocket(userId);
 					socket.send(JSON.stringify({ type: 'tournamentLeft' }));
+				} else if (data.type === 'move') {
+					const tournament = tournamentManager.getUserTournament(userId);
+					if (tournament && tournament.mode === 'local') {
+						const game = gameManager.getRoomByPlayerId(userId);
+						if (game) {
+							game.handleMove(userId, data.direction, data.side);
+						}
+					}
 				}
 			} catch (err) {
 				console.warn('📛 [Tournament WS] Invalid message:', text);
@@ -86,6 +95,9 @@ const wsTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 						mode === 'local' ? socket : undefined,
 						extraNames
 					);
+					if (mode === 'local') {
+						tournamentManager.startTournament(tournament.id);
+					}
 				} else if (action === 'join') {
 					tournament = await tournamentManager.joinTournament(tournamentId!, participant);
 				}

@@ -23,6 +23,7 @@ export async function renderGame(root: HTMLElement) {
         <button id="play-alone" class="bg-[#037a76] text-white px-4 py-2 rounded shadow hover:bg-[#249f9c] transition">${tr!.play_alone}</button>
         <button id="play-online" class="bg-[#ed1b76] text-white px-4 py-2 rounded shadow hover:bg-[#f44786] transition">${tr!.play_online}</button>
         <button id="play-tournament" class="bg-[#facc15] text-black px-4 py-2 rounded shadow hover:bg-[#fbbf24] transition">${tr!.play_tournament}</button>
+
       </div>
       <div id="countdown" class="text-6xl font-bold text-white mb-6 hidden">5</div>
       <canvas id="pong" width="600" height="400" class="mx-auto border border-white/30 bg-white/10 backdrop-blur-md rounded shadow-lg hidden"></canvas>
@@ -81,6 +82,9 @@ export async function renderGame(root: HTMLElement) {
   document.getElementById('play-tournament')!.addEventListener('click', () => {
     location.hash = '#/tournament';
   });
+
+
+
 
   function startGame(mode: 'solo' | 'duel') {
     const token = getToken();

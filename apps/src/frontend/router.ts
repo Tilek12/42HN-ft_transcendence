@@ -3,6 +3,7 @@ import { renderTournament } from './pages/tournament'
 import { renderGame } from './pages/game'
 import { renderProfile } from './pages/profile'
 import { renderTournamentMatch } from './pages/tournament-match'
+
 import { renderLogin } from './pages/login'
 import { renderRegister } from './pages/register'
 import { renderFriends } from './pages/friends'
@@ -31,6 +32,7 @@ export async function router() {
     switch (route) {
       case '#/tournament': return renderTournament(root);
       case '#/tournament-match': return renderTournamentMatch(root);
+
       case '#/game': return renderGame(root);
       case '#/profile': return renderProfile(root);
       case '#/login': return renderLogin(root);

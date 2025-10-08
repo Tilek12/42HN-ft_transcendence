@@ -1,5 +1,6 @@
 import { Player, GameMode } from './game-types';
 import { gameManager } from '../service-managers/game-manager';
+import { tournamentManager } from '../service-managers/tournament-manager';
 import { incrementWinsOrLossesOrTrophies } from '../database/profile';
 import { createMatch } from '../database/match';
 
@@ -38,14 +39,18 @@ export async function startGame(player: Player, mode: GameMode, tournamentId?: s
 
 			//------ Save to matches table -------
 			const isTournamentMatch = mode === 'duel' && !!tournamentId;
-			// Create Match
-			await createMatch(
-				parseInt(winner.id),
-				parseInt(loser.id),
-				winnerScore,
-				loserScore,
-				isTournamentMatch
-			);
+			if (isTournamentMatch) {
+				const mode = tournamentManager.getTournamentMode(tournamentId!);
+				if (mode !== 'local') {
+					await createMatch(
+						parseInt(winner.id),
+						parseInt(loser.id),
+						winnerScore,
+						loserScore,
+						isTournamentMatch
+					);
+				}
+			}
 
 			// Get last inserted match ID
 			//    const { id: lastMatchId } = await db.get(`SELECT last_insert_rowid() as id`);

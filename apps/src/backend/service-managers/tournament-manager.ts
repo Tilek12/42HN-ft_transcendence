@@ -29,8 +29,10 @@ class TournamentManager {
     extraNames: string[] = []
   ) {
     const id = `t-${this.nextTid++}`;
-    const participants: Participant[] = [host];
-    if (mode === 'local') {
+    const participants: Participant[] = [];
+    if (mode === 'online') {
+      participants.push(host);
+    } else if (mode === 'local') {
       for (const name of extraNames) {
         participants.push({
           id: `local-${this.nextUid++}`,
@@ -59,6 +61,7 @@ class TournamentManager {
     if (mode === 'online') {
       await createTournamentDB(`Tournament ${id}`, parseInt(host.id));
     }
+    // Local tournaments are not stored in DB
 
     console.log(`🏆 [Tournament: ${tournament.id}] Created with participants: `, participants);
 
@@ -76,6 +79,7 @@ class TournamentManager {
     if (tournament.mode === 'online') {
       await joinTournamentDB(parseInt(tournament.id.split('-')[1]), parseInt(p.id));
     }
+    // Local tournaments don't store participants in DB
 
     sendTournamentUpdate();
     console.log(`🏆 [Tournament: ${tournamentId}] Player joined: ${p.id}`);
@@ -87,14 +91,14 @@ class TournamentManager {
   }
 
   /** Create the bracket and schedule round 1 */
-  private async startTournament(tournamentId: string) {
+  public async startTournament(tournamentId: string) {
     const t = this.tournaments.get(tournamentId);
     if (!t) return;
 
     t.status = 'active';
 
-    // Seed + pair
-    const seeded = this.shuffle([...t.participants]); // or deterministic seeding
+    // Seed + pair (in join/creation order)
+    const seeded = [...t.participants];
     const round0 = [];
     for (let i = 0; i < seeded.length; i += 2) {
       round0.push(this.makeMatch(t, 0, seeded[i], seeded[i + 1]));
@@ -143,7 +147,32 @@ class TournamentManager {
         if (t.mode === 'online') {
           void incrementWinsOrLossesOrTrophies(parseInt(winners[0].id), 'trophies');
         }
+        // Local tournaments don't award trophies
         console.log(`🏆 [Tournament: ${t.id}] Winner: ${winners[0].id}`);
+
+        // Send tournamentEnd message
+        const winner = winners[0];
+        if (t.mode === 'local') {
+          const ctrlSocket = this.localControlSocket.get(t.id);
+          if (ctrlSocket) {
+            ctrlSocket.send(JSON.stringify({
+              type: 'tournamentEnd',
+              winner: { id: winner.id, name: winner.name }
+            }));
+          }
+        } else {
+          // Online: broadcast to participants
+          for (const p of t.participants) {
+            const u = userManager.getUser(p.id);
+            if (u?.tournamentSocket?.readyState === WebSocket.OPEN) {
+              u.tournamentSocket.send(JSON.stringify({
+                type: 'tournamentEnd',
+                winner: { id: winner.id, name: winner.name }
+              }));
+            }
+          }
+        }
+
         this.broadcastTournamentUpdate(t.id);
         return;
       }
@@ -179,6 +208,16 @@ class TournamentManager {
   /** Start one match, wire onEnd → TournamentManager.onMatchEnded */
   private startOneMatch(t: TournamentState, match: Match, localSocket?: WebSocket) {
     match.status = 'running';
+
+    if (t.mode === 'local' && localSocket) {
+      localSocket.send(JSON.stringify({
+        type: 'matchStart',
+        tournamentId: t.id,
+        matchId: match.id,
+        p1: { id: match.p1.id, name: match.p1.name },
+        p2: { id: match.p2.id, name: match.p2.name }
+      }));
+    }
 
     const toPlayer = (p: Participant) => {
       // Online: use each user's game socket from userManager
@@ -280,14 +319,16 @@ class TournamentManager {
   }
 
   getSafeTournamentData() {
-    return Array.from(this.tournaments.values()).map(t => ({
-      id: t.id,
-      size: t.size,
-      joined: t.participants.length,
-      hostId: t.hostId,
-      status: t.status,
-      playerIds: t.participants.map(p => p.id)
-    }));
+    return Array.from(this.tournaments.values())
+      .filter(t => t.mode === 'online')
+      .map(t => ({
+        id: t.id,
+        size: t.size,
+        joined: t.participants.length,
+        hostId: t.hostId,
+        status: t.status,
+        playerIds: t.participants.map(p => p.id)
+      }));
   }
 
   getUserTournament(userId: string): TournamentState | null {
@@ -295,6 +336,11 @@ class TournamentManager {
       if (t.participants.some(p => p.id === userId)) return t;
     }
     return null;
+  }
+
+  getTournamentMode(tournamentId: string): 'local' | 'online' | null {
+    const t = this.tournaments.get(tournamentId);
+    return t ? t.mode : null;
   }
 
   quitTournament(userId: string) {
