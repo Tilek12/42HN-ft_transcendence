@@ -1,4 +1,5 @@
 import { WebSocket } from 'ws';
+import {profile} from '../database/profile';
 
 interface User {
 	id: string;

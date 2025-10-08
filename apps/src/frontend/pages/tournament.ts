@@ -2,8 +2,13 @@ import { renderNav } from './nav';
 import { renderBackgroundTop } from '../utils/layout';
 import { getToken, validateLogin } from '../utils/auth';
 import { wsManager } from '../websocket/ws-manager';
+import {languageStore, translations_tournament_render, transelate_per_id} from './languages';
+import type {Language} from './languages';
+
+
 
 let currentTournamentId: string | null = null;
+
 
 export async function renderTournament(root: HTMLElement) {
   const isValid = await validateLogin();
@@ -12,14 +17,21 @@ export async function renderTournament(root: HTMLElement) {
     return;
   }
 
-  root.innerHTML = renderNav() + renderBackgroundTop(`
+  root.innerHTML = renderBackgroundTop(`
     <div class="max-w-3xl mx-auto mt-20 p-6 bg-white/10 rounded-xl shadow-lg backdrop-blur-md">
-      <h1 class="text-3xl font-bold mb-4 text-center text-white">🏆 Tournament Lobby</h1>
-      <p class="text-center text-gray-400 mb-6">Join a tournament and compete for glory!</p>
+      <h1 id="tournament_lobby_header"class="text-3xl font-bold mb-4 text-center text-white">${translations_tournament_render[languageStore.language]!.tournament_lobby_header}</h1>
+      <p id="glory_header"class="text-center text-gray-400 mb-6">${translations_tournament_render[languageStore.language]!.glory_header}</p>
       <div id="tournament-list" class="space-y-4 text-white"></div>
     </div>
   `);
-
+ languageStore.subscribe ((lang)=>
+{
+	transelate_per_id(translations_tournament_render, "tournament_lobby_header", lang,"tournament_lobby_header");
+	transelate_per_id(translations_tournament_render, "glory_header", lang,"glory_header");
+	transelate_per_id(translations_tournament_render, "empty_p_msg", lang,"empty-p-msg");
+	transelate_per_id(translations_tournament_render, "create_four_header", lang,"create-tournament-4");
+	transelate_per_id(translations_tournament_render, "create_eight_header", lang,"create-tournament-8");
+})
   renderTournamentList();
   wsManager.subscribeToPresence(renderTournamentList);
 
@@ -75,8 +87,9 @@ export async function renderTournament(root: HTMLElement) {
 
     if (tournaments.length === 0) {
       const emptyMsg = document.createElement('p');
+	  emptyMsg.id = "empty-p-msg";
       emptyMsg.className = 'text-center text-gray-400';
-      emptyMsg.textContent = 'No active tournaments yet.';
+      emptyMsg.textContent = translations_tournament_render[languageStore.language]!.empty_p_msg;
       list.appendChild(emptyMsg);
     }
 
@@ -120,11 +133,11 @@ export async function renderTournament(root: HTMLElement) {
     createDiv.innerHTML = `
       <button class="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold"
         id="create-tournament-4" ${userTournament ? 'disabled' : ''}>
-        Create 4-Player Tournament
+        ${translations_tournament_render[languageStore.language]!.create_four_header}
       </button>
       <button class="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold ml-4"
         id="create-tournament-8" ${userTournament ? 'disabled' : ''}>
-        Create 8-Player Tournament
+        ${translations_tournament_render[languageStore.language]!.create_eight_header}
       </button>
     `;
 

@@ -23,6 +23,7 @@ export async function connectToDB() {
     CREATE TABLE IF NOT EXISTS profiles (
       id INTEGER PRIMARY KEY, -- same as user.id
 	  image_path TEXT DEFAULT 'default_pic.webp',
+	  image_blob BLOB,
 	  logged_in BOOLEAN DEFAULT FALSE,
 	  wins INTEGER DEFAULT 0,
 	  losses INTEGER DEFAULT 0,

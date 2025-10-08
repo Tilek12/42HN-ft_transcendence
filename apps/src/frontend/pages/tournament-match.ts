@@ -2,6 +2,7 @@ import { renderNav } from './nav';
 import { renderBackgroundTop } from '../utils/layout';
 import { wsManager } from '../websocket/ws-manager';
 
+
 export function renderTournamentMatch(root: HTMLElement) {
   const match = sessionStorage.getItem('currentTournamentMatch');
   if (!match) {
@@ -13,7 +14,7 @@ export function renderTournamentMatch(root: HTMLElement) {
   const { tournamentId, matchId, player1, player2 } = JSON.parse(match);
   console.log(`🎮 Starting tournament match: ${matchId}`);
 
-  root.innerHTML = renderNav() + renderBackgroundTop(`
+  root.innerHTML = renderBackgroundTop(`
     <h1 class="text-2xl font-bold mb-4">🏓 Tournament Match</h1>
     <p class="text-center text-gray-500 mb-2">Match: <strong>${matchId}</strong></p>
     <div id="countdown" class="text-6xl font-bold text-center text-gray-800 mb-2 hidden">5</div>

@@ -3,6 +3,10 @@ import { renderBackgroundTop } from '../utils/layout';
 import { wsManager } from '../websocket/ws-manager';
 import { getToken, validateLogin } from '../utils/auth';
 import { COLORS } from '../constants/colors';
+import { initLang } from './nav';
+import {languageStore, translations_game_render, transelate_per_id} from './languages';
+import type {Language} from './languages';
+
 
 export async function renderGame(root: HTMLElement) {
   const isValid = await validateLogin();
@@ -10,21 +14,30 @@ export async function renderGame(root: HTMLElement) {
     location.hash = '#/login';
     return;
   }
+  const tr = translations_game_render[languageStore.language];
 
-  root.innerHTML = renderNav() + renderBackgroundTop(`
+  root.innerHTML =renderBackgroundTop(`
     <div class="pt-24 max-w-xl mx-auto text-white text-center">
-      <h1 class="text-3xl font-bold mb-6">Pong Game</h1>
+      <h1 id="pong_game_header" class="text-3xl font-bold mb-6">${tr!.pong_game_header}</h1>
       <div class="flex justify-center gap-4 mb-8">
-        <button id="play-alone" class="bg-[#037a76] text-white px-4 py-2 rounded shadow hover:bg-[#249f9c] transition">Play Alone</button>
-        <button id="play-online" class="bg-[#ed1b76] text-white px-4 py-2 rounded shadow hover:bg-[#f44786] transition">Play Online (1v1)</button>
-        <button id="play-tournament" class="bg-[#facc15] text-black px-4 py-2 rounded shadow hover:bg-[#fbbf24] transition">Play Tournament</button>
+        <button id="play-alone" class="bg-[#037a76] text-white px-4 py-2 rounded shadow hover:bg-[#249f9c] transition">${tr!.play_alone}</button>
+        <button id="play-online" class="bg-[#ed1b76] text-white px-4 py-2 rounded shadow hover:bg-[#f44786] transition">${tr!.play_online}</button>
+        <button id="play-tournament" class="bg-[#facc15] text-black px-4 py-2 rounded shadow hover:bg-[#fbbf24] transition">${tr!.play_tournament}</button>
       </div>
       <div id="countdown" class="text-6xl font-bold text-white mb-6 hidden">5</div>
       <canvas id="pong" width="600" height="400" class="mx-auto border border-white/30 bg-white/10 backdrop-blur-md rounded shadow-lg hidden"></canvas>
-      <p id="info" class="mt-6 text-gray-200 text-sm">Choose a game mode to begin</p>
+      <p id="info" class="mt-6 text-gray-200 text-sm">${tr!.info}</p>
     </div>
   `);
+	languageStore.subscribe((lang)=>{
 
+		transelate_per_id(translations_game_render, "pong_game_header", lang, "pong_game_header");
+		transelate_per_id(translations_game_render, "play_alone", lang, "play-alone");
+		transelate_per_id(translations_game_render, "play_online", lang, "play-online");
+		transelate_per_id(translations_game_render, "play_tournament", lang, "play-tournament");
+		transelate_per_id(translations_game_render, "info", lang, "info");
+		
+	})
   const canvas = document.getElementById('pong') as HTMLCanvasElement;
   const ctx = canvas.getContext('2d')!;
   const info = document.getElementById('info')!;

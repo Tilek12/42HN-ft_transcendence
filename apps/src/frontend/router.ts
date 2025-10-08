@@ -17,6 +17,8 @@ export async function router() {
 
   root.style.opacity = '0';
 
+  // I want to be albe to change the 
+
   setTimeout(() => {
     root.innerHTML = '';
 
@@ -35,7 +37,7 @@ export async function router() {
       case '#/register': return renderRegister(root);
       case '#/friends': return renderFriends(root);
       case '#/leaderboard': return renderLeaderboard(root);
-      case '#/settings': return renderSettings(root);
+    //   case '#/settings': return renderSettings(root);
       case '#/':
       case '': return renderMainPage(root);
       default: return renderNotFound(root);

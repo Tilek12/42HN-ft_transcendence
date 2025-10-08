@@ -2,13 +2,14 @@ import { renderNav } from './nav'
 import { renderBackgroundFull } from '../utils/layout';
 import { saveToken } from '../utils/auth';
 import { wsManager } from '../websocket/ws-manager';
+import {languageStore, translations_login_page, transelate_per_id} from './languages';
+import type {Language} from './languages';
 
 export function renderLogin(root: HTMLElement) {
-  root.innerHTML = renderNav() + renderBackgroundFull(`
+const t = translations_login_page[languageStore.language];
+  root.innerHTML = renderBackgroundFull(`
     <div class="w-full max-w-md">
-      <!-- Glassmorphism card -->
       <div class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">
-        <!-- Logo/Icon area -->
         <div class="text-center mb-8">
           <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mb-4 shadow-lg">
             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -16,11 +17,10 @@ export function renderLogin(root: HTMLElement) {
                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h1 class="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-          <p class="text-gray-300 text-sm">Sign in to continue to your account</p>
+          <h1 id="login_header" class="text-3xl font-bold text-white mb-2">${t.login_header}</h1>
+          <p id="login_subtitle" class="text-gray-300 text-sm">${t.login_subtitle}</p>
         </div>
 
-        <!-- Google login button -->
         <button id="google-login"
           class="w-full bg-white/10 hover:bg-white/20 border border-white/30 text-white py-3 px-4 rounded-xl mb-6 transition-all duration-300 flex items-center justify-center space-x-3 hover:scale-105 backdrop-blur-sm group">
           <svg class="w-5 h-5 transition-transform group-hover:rotate-12" viewBox="0 0 24 24">
@@ -33,50 +33,34 @@ export function renderLogin(root: HTMLElement) {
             <path fill="currentColor"
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
           </svg>
-          <span class="font-medium">Continue with Google</span>
+          <span id="google_btn" class="font-medium">${t.google_btn}</span>
         </button>
 
-        <!-- Divider -->
         <div class="relative my-6">
           <div class="absolute inset-0 flex items-center">
             <div class="w-full border-t border-white/20"></div>
           </div>
           <div class="relative flex justify-center text-sm">
-            <span class="px-4 bg-transparent text-gray-300">Or continue with email</span>
+            <span id="or_continue" class="px-4 bg-transparent text-gray-300">${t.or_continue}</span>
           </div>
         </div>
 
-        <!-- Login form -->
         <form id="login-form" class="space-y-6">
           <div class="space-y-1">
-            <label for="username" class="block text-sm font-medium text-gray-200">Username</label>
+            <label id="username_label" for="username" class="block text-sm font-medium text-gray-200">${t.username_label}</label>
             <div class="relative">
-              <input type="text" id="username"
+              <input type="text" id="username" placeholder="${t.username_placeholder}"
                 class="w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-300 hover:bg-white/15"
-                placeholder="Enter your username" required />
-              <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
+                required />
             </div>
           </div>
 
           <div class="space-y-1">
-            <label for="password" class="block text-sm font-medium text-gray-200">Password</label>
+            <label id="password_label" for="password" class="block text-sm font-medium text-gray-200">${t.password_label}</label>
             <div class="relative">
-              <input type="password" id="password"
+              <input type="password" id="password" placeholder="${t.password_placeholder}"
                 class="w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-300 hover:bg-white/15"
-                placeholder="Enter your password" required />
-              <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-              </div>
+                required />
             </div>
           </div>
 
@@ -84,16 +68,16 @@ export function renderLogin(root: HTMLElement) {
             <label class="flex items-center text-gray-300">
               <input type="checkbox"
                 class="mr-2 rounded border-white/20 bg-white/10 text-blue-500 focus:ring-blue-500/50">
-              <span>Remember me</span>
+              <span id="remember_me">${t.remember_me}</span>
             </label>
-            <a href="#/forgot-password"
-              class="text-blue-400 hover:text-blue-300 transition-colors duration-200">Forgot password?</a>
+            <a id="forgot_password" href="#/forgot-password"
+              class="text-blue-400 hover:text-blue-300 transition-colors duration-200">${t.forgot_password}</a>
           </div>
 
           <button type="submit"
             class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-lg">
             <span class="flex items-center justify-center space-x-2">
-              <span>Sign In</span>
+              <span id="sign_in_btn">${t.sign_in_btn}</span>
               <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor"
                 viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -101,7 +85,6 @@ export function renderLogin(root: HTMLElement) {
             </span>
           </button>
 
-          <!-- Error message -->
           <div id="login-error" class="hidden">
             <div
               class="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl text-sm backdrop-blur-sm">
@@ -110,27 +93,37 @@ export function renderLogin(root: HTMLElement) {
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
-                <span id="error-text"></span>
+                <span id="error-text">${t.error_message}</span>
               </div>
             </div>
           </div>
         </form>
 
-        <!-- Register link -->
         <div class="text-center mt-8 pt-6 border-t border-white/10">
-          <p class="text-gray-300 text-sm mb-2">Don't have an account?</p>
+          <p id="dont_have_account" class="text-gray-300 text-sm mb-2">${t.dont_have_account}</p>
           <a href="#/register"
             class="inline-flex items-center space-x-1 text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-200 group">
-            <span>Create account</span>
-            <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
+            <span id="create_account">${t.create_account}</span>
           </a>
         </div>
       </div>
     </div>
   `);
+  languageStore.subscribe((lang) => {
+	transelate_per_id(translations_login_page, "login_header", lang, "login_header");
+	transelate_per_id(translations_login_page, "google_btn", lang, "google_btn");
+	transelate_per_id(translations_login_page, "or_continue", lang, "or_continue");
+	transelate_per_id(translations_login_page, "username_label", lang, "username_label");
+	transelate_per_id(translations_login_page, "username_placeholder", lang, "username");
+	transelate_per_id(translations_login_page, "password_label", lang, "password_label");
+	transelate_per_id(translations_login_page, "password_placeholder", lang, "password");
+	transelate_per_id(translations_login_page, "remember_me", lang, "remember_me");
+	transelate_per_id(translations_login_page, "forgot_password", lang, "forgot_password");
+	transelate_per_id(translations_login_page, "sign_in_btn", lang, "sign_in_btn");
+	transelate_per_id(translations_login_page, "dont_have_account", lang, "dont_have_account");
+	transelate_per_id(translations_login_page, "create_account", lang, "create_account");
+	transelate_per_id(translations_login_page, "error_message", lang, "error-text");
+});
 
   const form = document.getElementById('login-form') as HTMLFormElement;
   const errorContainer = document.getElementById('login-error')!;
@@ -185,6 +178,9 @@ export function renderLogin(root: HTMLElement) {
             <span>Success!</span>
           </div>
         `;
+		// const login_btn = document.getElementById('login-btn');
+		// console.log("Element : =======>>>", login_btn);
+		// login_btn?.classList.add("hidden");
         // connectPresenceSocket();
         wsManager.connectPresenceSocket();
         setTimeout(() => {

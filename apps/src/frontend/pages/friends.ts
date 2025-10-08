@@ -4,16 +4,21 @@ import { getToken, clearToken, validateLogin } from '../utils/auth'
 import { renderProfilesList } from './renderProfiles';
 import { renderFriendsList } from './renderFriends';
 import { renderFriendRequestsList } from './renderFriendRequestList';
+import {languageStore, translations_friends_render, transelate_per_id} from './languages';
+import type {Language} from './languages';
+
+
 
 export async function renderFriends(root: HTMLElement) {
-  const isValid = await validateLogin()
+  const isValid = await validateLogin();
+  
   if (!isValid) {
 	location.hash = '#/login'
 	return;
   }
 //   <button id="more-friends-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
 //   <button id="more-friend-requests-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
-	  root.innerHTML = renderNav() + renderBackgroundTop(`
+	  root.innerHTML = renderBackgroundTop(`
 		<div class="pt-24 max-w-xl mx-auto text-black p-6">
 		  <div id="friends-list"></div>
 		  <div id="friend-requests-list"></div>
@@ -23,8 +28,16 @@ export async function renderFriends(root: HTMLElement) {
 	let allFriends: {friends : any[]}[] | undefined= [];
 	let friends_offset = 0;
 	let friends_limit = 1;
+
 	renderFriendsList('friends-list');
+
 	renderFriendRequestsList();
+	languageStore.subscribe((lang)=>{
+
+		transelate_per_id(translations_friends_render, "friends_list_header", lang, "friends_list_header");
+		transelate_per_id(translations_friends_render, "request_list_header", lang, "request_list_header");
+	}
+		)
 	document.getElementById('friend-requests-list')?.addEventListener(
 
 		'click', async (e) =>
@@ -40,7 +53,7 @@ export async function renderFriends(root: HTMLElement) {
 			if (target.classList.contains('answer-request-btn'))
 			{
 				// console.log('answer clicked');
-				res = await fetch(`/api/answer-request`,
+				res = await fetch(`/api/private/answer-request`,
 					{
 						method: 'POST',
 						headers:
