@@ -2,11 +2,12 @@ import { renderNav } from './nav'
 import { renderBackgroundFull } from '../utils/layout';
 import { saveToken } from '../utils/auth';
 import { wsManager } from '../websocket/ws-manager';
-import {languageStore, translations_login_page, transelate_per_id} from './languages';
-import type {Language} from './languages';
+import { languageStore, translations_login_page, transelate_per_id, translations_errors } from './languages';
+import type { Language } from './languages';
 
 export function renderLogin(root: HTMLElement) {
-const t = translations_login_page[languageStore.language];
+  const t = translations_login_page[languageStore.language];
+  const error_trans = translations_errors[languageStore.language];
   root.innerHTML = renderBackgroundFull(`
     <div class="w-full max-w-md">
       <div class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">
@@ -93,7 +94,7 @@ const t = translations_login_page[languageStore.language];
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
-                <span id="error-text">${t.error_message}</span>
+                <span id="error_text">${t.error_message}</span>
               </div>
             </div>
           </div>
@@ -110,24 +111,24 @@ const t = translations_login_page[languageStore.language];
     </div>
   `);
   languageStore.subscribe((lang) => {
-	transelate_per_id(translations_login_page, "login_header", lang, "login_header");
-	transelate_per_id(translations_login_page, "google_btn", lang, "google_btn");
-	transelate_per_id(translations_login_page, "or_continue", lang, "or_continue");
-	transelate_per_id(translations_login_page, "username_label", lang, "username_label");
-	transelate_per_id(translations_login_page, "username_placeholder", lang, "username");
-	transelate_per_id(translations_login_page, "password_label", lang, "password_label");
-	transelate_per_id(translations_login_page, "password_placeholder", lang, "password");
-	transelate_per_id(translations_login_page, "remember_me", lang, "remember_me");
-	transelate_per_id(translations_login_page, "forgot_password", lang, "forgot_password");
-	transelate_per_id(translations_login_page, "sign_in_btn", lang, "sign_in_btn");
-	transelate_per_id(translations_login_page, "dont_have_account", lang, "dont_have_account");
-	transelate_per_id(translations_login_page, "create_account", lang, "create_account");
-	transelate_per_id(translations_login_page, "error_message", lang, "error-text");
-});
+    transelate_per_id(translations_login_page, "login_header", lang, "login_header");
+    transelate_per_id(translations_login_page, "google_btn", lang, "google_btn");
+    transelate_per_id(translations_login_page, "or_continue", lang, "or_continue");
+    transelate_per_id(translations_login_page, "username_label", lang, "username_label");
+    transelate_per_id(translations_login_page, "username_placeholder", lang, "username");
+    transelate_per_id(translations_login_page, "password_label", lang, "password_label");
+    transelate_per_id(translations_login_page, "password_placeholder", lang, "password");
+    transelate_per_id(translations_login_page, "remember_me", lang, "remember_me");
+    transelate_per_id(translations_login_page, "forgot_password", lang, "forgot_password");
+    transelate_per_id(translations_login_page, "sign_in_btn", lang, "sign_in_btn");
+    transelate_per_id(translations_login_page, "dont_have_account", lang, "dont_have_account");
+    transelate_per_id(translations_login_page, "create_account", lang, "create_account");
+    transelate_per_id(translations_errors, "error_message", lang, "error_text");
+  });
 
   const form = document.getElementById('login-form') as HTMLFormElement;
   const errorContainer = document.getElementById('login-error')!;
-  const errorText = document.getElementById('error-text')!;
+  const errorText = document.getElementById('error_text')!;
   const googleBtn = document.getElementById('google-login')!;
 
   form.addEventListener('submit', async (e) => {
@@ -157,10 +158,16 @@ const t = translations_login_page[languageStore.language];
         body: JSON.stringify({ username, password }),
       });
 
-      const data = await res.json();
+      const response_data = await res.json();
 
-      if (!res.ok || !data.token) {
-        errorText.textContent = data.message || 'Login failed';
+      if (!res.ok || !response_data.token) {
+        let error_message = response_data.message;
+        switch (error_message) {
+          case 'INVALID_PASSWORD': error_message = error_trans.error_invalid_password; break;
+          case 'INVALID_EMAIL': error_message = error_trans.error_invalid_email; break;
+          default: 'Login failed';
+        }
+        errorText.textContent = error_message;
         errorContainer.classList.remove('hidden');
 
         // auto hiding
@@ -168,7 +175,7 @@ const t = translations_login_page[languageStore.language];
           errorContainer.classList.add('hidden');
         }, 5000);
       } else {
-        saveToken(data.token);
+        saveToken(response_data.token);
         // success animation
         submitBtn.innerHTML = `
           <div class="flex items-center justify-center space-x-2">
@@ -178,9 +185,9 @@ const t = translations_login_page[languageStore.language];
             <span>Success!</span>
           </div>
         `;
-		// const login_btn = document.getElementById('login-btn');
-		// console.log("Element : =======>>>", login_btn);
-		// login_btn?.classList.add("hidden");
+        // const login_btn = document.getElementById('login-btn');
+        // console.log("Element : =======>>>", login_btn);
+        // login_btn?.classList.add("hidden");
         // connectPresenceSocket();
         wsManager.connectPresenceSocket();
         setTimeout(() => {
@@ -276,10 +283,10 @@ const t = translations_login_page[languageStore.language];
 //       body: JSON.stringify({ username, password }),
 //     });
 
-//     const data = await res.json();
+//     const response_data = await res.json();
 
 //     if (!res.ok) {
-//       error.textContent = data.message || 'Login failed';
+//       error.textContent = response_data.message || 'Login failed';
 //       error.classList.remove('hidden');
 //     } else {
 //       alert('✅ Logged in!');

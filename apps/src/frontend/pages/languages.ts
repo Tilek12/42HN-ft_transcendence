@@ -296,7 +296,7 @@ export const translations_leaderboards: Record<Language, { [key: string]: string
 		trophies_ld_header: 'Trophies',
 		matches_played_ld_header: 'Matches Played',
 		wins_in_tour_ld_header: 'Wins in Tournament',
-		failed_ld_header: 'Failed to load leaderboard'
+		failed_ld_header: 'Failed to load leaderboard',
 	},
 	DE: {
 		leaderboard_ld_header: 'Bestenliste',
@@ -307,7 +307,8 @@ export const translations_leaderboards: Record<Language, { [key: string]: string
 		trophies_ld_header: 'Trophäen',
 		matches_played_ld_header: 'Gespielte Spiele',
 		wins_in_tour_ld_header: 'Siege im Turnier',
-		failed_ld_header: 'Fehler beim Laden der Bestenliste'
+		failed_ld_header: 'Fehler beim Laden der Bestenliste',
+
 	},
 	GR: {
 		leaderboard_ld_header: 'Πίνακας Κατάταξης',
@@ -318,9 +319,26 @@ export const translations_leaderboards: Record<Language, { [key: string]: string
 		trophies_ld_header: 'Τρόπαια',
 		matches_played_ld_header: 'Αγώνες που παίχτηκαν',
 		wins_in_tour_ld_header: 'Νίκες στο Τουρνουά',
-		failed_ld_header: 'Αποτυχία φόρτωσης πίνακα κατάταξης'
+		failed_ld_header: 'Αποτυχία φόρτωσης πίνακα κατάταξης',
+
 	}
 };
+
+export const translations_errors: Record<Language, { [key: string]: string }> = {
+	EN: {
+		error_invalid_password: 'The Password must be 8-64 characters, contain at least one uppercase, one lowercase, one number and one special charracter',
+		error_invalid_email: 'Invalid Email',
+	},
+	DE: {
+		error_invalid_password: 'Password muss 8-64 Zeichen und mindestens einen Großbuchstaben, einen Kleinbuchstaben, ene Zahl und einen Spezialzeichen enthalten',
+		error_invalid_email: 'Email nicht korrekt',
+	},
+	GR: {
+		error_invalid_password: 'Ο κωδικός πρέπει να έχει 8–64 χαρακτήρες, με τουλάχιστον ένα κεφαλαίο, ένα πεζό, έναν αριθμό και έναν ειδικό χαρακτήρα.',
+		error_invalid_email: 'μη έγκυρο emailQ',
+	},
+};
+
 class LanguageStore {
 	private _language: Language = 'EN';
 	private listeners: ((lang : Language) => void)[] = [];

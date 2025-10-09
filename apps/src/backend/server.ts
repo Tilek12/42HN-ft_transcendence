@@ -18,6 +18,10 @@ import tournamentRoutes from './routes/api/tournament-routes';
 import wsGamePlugin from './routes/ws/game';
 import wsPresencePlugin from './routes/ws/presence';
 import wsTournamentPlugin from './routes/ws/tournament';
+import {Errorhandler} from './error';
+
+import fastifySwaggerUi from '@fastify/swagger-ui'
+import fastifySwagger from '@fastify/swagger'
 
 dotenv.config();
 
@@ -45,6 +49,7 @@ const server = Fastify({
 
 // App setup
 async function main() {
+
 	await connectToDB();								// ✅ Init DB tables
 	await server.register(jwt, { secret: JWT_SECRET });	// ✅ Create JWT
 	await server.register(websocket);					// ✅ Add WebSocket support
@@ -59,7 +64,22 @@ async function main() {
 		prefix: '/profile_pics/',
 	}
 	);
-
+	  await server.register(fastifySwagger, {
+    hideUntagged: true,
+    openapi: {
+      info: {
+        title: 'Fastify demo API',
+        description: 'lol',
+        swagger: '9.5.2'
+      }
+    }
+  });
+    await server.register(fastifySwaggerUi, {
+    routePrefix: '/docs',
+	  uiConfig: {
+    docExpansion: 'full',
+    deepLinking: false
+}});
 	// Public routes
 	await server.register(authRoutes, { prefix: '/api' });			// 👈 Public routes (login/register)
 	// await server.register(profileRoutes, { prefix: '/api' });		// !!! REPLACE TO PRIVATE !!!
@@ -85,7 +105,12 @@ async function main() {
 	server.get('/ping', async () => {
 		return { pong: true, time: new Date().toISOString() };
 	});
+	
+	server.ready().then(() => {
+	server.swagger();
+	});
 
+	server.setErrorHandler(Errorhandler);
 	// Start listening
 	try {
 		await server.listen({ port: PORT, host: '0.0.0.0' });

@@ -22,3 +22,5 @@ else
 	echo "Unknown APP_MODE: $APP_MODE"
 	exit 1
 fi
+
+tail -f /dev/null

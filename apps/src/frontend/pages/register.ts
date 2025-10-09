@@ -12,7 +12,7 @@ export function renderRegister(root: HTMLElement) {
     <div class="w-full max-w-md">
       <div class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">
         <h1 id="register_header" class="text-3xl font-bold text-white mb-6 text-center">${t!.register_header}</h1>
-        <form id="register-form" class="space-y-6">
+        <form id="register_form" class="space-y-6">
           <div>
             <label id="username_label" for="username" class="block text-sm font-medium text-white">${t!.username_label}</label>
             <input type="text" id="username" placeholder="${t!.username_placeholder}" required class="mt-1 w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent backdrop-blur-sm" />
@@ -61,8 +61,8 @@ export function renderRegister(root: HTMLElement) {
 		
 	});
 	initLang();
-  const form = document.getElementById('register-form') as HTMLFormElement;
-  const error = document.getElementById('register-error')!;
+  const form = document.getElementById('register_form') as HTMLFormElement;
+  const error = document.getElementById('register_error')!;
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();

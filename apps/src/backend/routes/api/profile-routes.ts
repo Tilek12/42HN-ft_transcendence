@@ -275,6 +275,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 		const is_password_verified = await verifyPassword(password, user.password);
 		res.send({answer: is_password_verified});
 	})
+	
 	fastify.post('/update-password', async(req :any, res : any) =>{
 		try{
 			const jwt = await req.jwtVerify();
