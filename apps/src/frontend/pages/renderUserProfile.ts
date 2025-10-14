@@ -58,6 +58,7 @@ export const profile_ids = (
 
 		}
 	};
+
 export const update_langauge_headers_user_profile = (lang : Language = 'EN') =>
 {
 	// const your_header_profile = document.getElementById("your_profile_header") as HTMLHeadElement;

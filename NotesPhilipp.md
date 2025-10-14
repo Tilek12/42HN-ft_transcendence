@@ -6,6 +6,24 @@
 - register page should login on success
 - check all languages.
 - fix login/logout button
+- use delete method to delete and put to change and general correct methods for things
+- fix prfile delete button
+- why is the profile rendering? for user list updates ok
+- fix the layout issues, its putting the body until the end of the screen. add a footer, 
+
+-logincheck is double in router and every route
+
+- why is router rendering every 100ms? //fixed
+- auth.ts line 5/6 ? what is this added for?
+
+- Add auth roles to have control from commandline for pong
+
+- Frontend sends /api/private/me request on hashchange?
+
+- why 2 database plugins?
+- is it injectionsafe?
+
+
 -	```
 	There must be a matchmaking system: the tournament system should
 	organize the matchmaking of the participants, and announce the next match

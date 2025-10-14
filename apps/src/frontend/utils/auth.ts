@@ -15,7 +15,7 @@ export function clearToken() {
 
 export function isLoggedIn(): boolean {
 
-	console.log("----------->>>>>get Token: ", getToken());
+	// console.log("----------->>>>>get Token: ", getToken());
 	return !!getToken();
 }
 

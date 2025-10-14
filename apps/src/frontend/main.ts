@@ -1,15 +1,19 @@
 import './styles.css'
 import { router } from './router'
-import { isLoggedIn } from './utils/auth'
+import { isLoggedIn, validateLogin } from './utils/auth'
 import { wsManager } from './websocket/ws-manager'
-import {renderNav} from './pages/nav';
-import {initLang} from './pages/nav';
+import {changeLoginButton, renderNav} from './pages/nav';
+import {initLang, initNav} from './pages/nav';
 import {languageStore} from './pages/languages'
 // import type {Language} from './pages/languages';
+import { toggleLogin } from './pages/nav';
+
+
 document.getElementById('navbar')!.innerHTML = renderNav();
 initLang();
+initNav()
 
-languageStore.subscribe ((lang)=>
+languageStore.subscribe (async (lang)=>
 	{
 		document.getElementById('navbar')!.innerHTML = renderNav();
 		const langSelect = document.getElementById('language-select') as HTMLSelectElement;
@@ -17,6 +21,8 @@ languageStore.subscribe ((lang)=>
 		langSelect.replaceWith(newElement);
 		newElement.value  = lang;
 		initLang();
+		initNav();
+		changeLoginButton( !await validateLogin());
 	}
 )
 // Initialize SPA router and WebSocket connections

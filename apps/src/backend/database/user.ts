@@ -8,7 +8,7 @@ async function findUserByEmail(email: string) {
 	return await db.get('SELECT * FROM users WHERE email = ?', email);
 }
 
-async function findUserById(id: string) {
+async function findUserById(id: number) {
 	return await db.get('SELECT * FROM users WHERE id = ?', id);
 }
 
@@ -23,7 +23,7 @@ async function createUser(username: string, email: string, hashedPassword: strin
 async function isUsername(new_username : string)
 {
 	const result = await db.get('SELECT id FROM users WHERE username = ? ', new_username);
-	console.log(`result ------->>> ${result}`)
+	// console.log(`result ------->>> ${result}`)
 	return result !== undefined ? true : false;
 }
 async function updateUsername (id: number, new_username: string)

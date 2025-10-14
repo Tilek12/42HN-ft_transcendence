@@ -1,4 +1,4 @@
-type Language = 'EN' | 'DE' | 'GR';
+export type Language = 'EN' | 'DE' | 'GR';
 
 
 
@@ -7,7 +7,7 @@ type Language = 'EN' | 'DE' | 'GR';
 export function transelate_per_id( tr_array: Record<Language, {[key: string]: string | undefined}>, tr_key_string : string, lang : Language, element_id: string)
 {
 	let headerEl = document.getElementById(element_id) as HTMLElement || HTMLInputElement;
-	console.log("The Element: ", headerEl);
+	// console.log("The Element: ", headerEl);
 	if (tr_key_string.includes("placeholder") && headerEl) 
 			headerEl.placeholder = tr_array[lang][tr_key_string]
 	if (headerEl) headerEl.innerHTML = tr_array[lang][tr_key_string];

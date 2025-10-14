@@ -1,57 +1,70 @@
 import { wsManager } from '../websocket/ws-manager';
-import {languageStore} from './languages';
-import type {Language} from './languages'
+import { languageStore } from './languages';
+import type { Language } from './languages';
+import { isLoggedIn, validateLogin } from '../utils/auth';
+import { getToken, clearToken } from '../utils/auth'
+
+
 let presenceUnsub: (() => void) | null = null;
+
 export const translations_nav: Record<Language, { [key: string]: string }> = {
-    EN: {
-        game: 'Game',
-        tournament: 'Tournament',
-        leaderboard: 'Leaderboard',
-        friends: 'Friends',
-        profile: 'Profile',
-        settings: 'Settings',
-		online_users: 'Online Users',
-		loggin: 'Loggin'
-    },
-    DE: {
-        game: 'Spiel',
-        tournament: 'Turnier',
-        leaderboard: 'Bestenliste',
-        friends: 'Freunde',
-        profile: 'Profil',
-        settings: 'Einstellungen',
-		online_users: 'Online Benutzer',
-		loggin: 'Anmelden'
-    },
-    GR: {
-        game: 'Παιχνίδι',
-        tournament: 'Τουρνουά',
-        leaderboard: 'Κατάταξη',
-        friends: 'Φίλοι',
-        profile: 'Προφίλ',
-        settings: 'Ρυθμίσεις',
-		online_users: 'Ενεργοί',
-		loggin: 'Σύνδεση'
-    }
+  EN: {
+    game: 'Game',
+    tournament: 'Tournament',
+    leaderboard: 'Leaderboard',
+    friends: 'Friends',
+    profile: 'Profile',
+    settings: 'Settings',
+    online_users: 'Online Users',
+    login: 'Login',
+    logout: 'Logout',
+  },
+  DE: {
+    game: 'Spiel',
+    tournament: 'Turnier',
+    leaderboard: 'Bestenliste',
+    friends: 'Freunde',
+    profile: 'Profil',
+    settings: 'Einstellungen',
+    online_users: 'Online Benutzer',
+    login: 'Anmelden',
+    logout: 'Abmelden',
+  },
+  GR: {
+    game: 'Παιχνίδι',
+    tournament: 'Τουρνουά',
+    leaderboard: 'Κατάταξη',
+    friends: 'Φίλοι',
+    profile: 'Προφίλ',
+    settings: 'Ρυθμίσεις',
+    online_users: 'Ενεργοί',
+    login: 'Σύνδεση',
+    logout: 'Αποσύνδεση',
+  }
 };
 
-export function initLang()
-{
-	const langSelect = document.getElementById('language-select') as HTMLSelectElement;
-	
-	// if(!langSelect) console.log('The langSelect is not Existing');
-	langSelect?.addEventListener('change', () => {
-		console.log('clicked');
-		languageStore.clicked++;
-		const selected = langSelect.value as 'EN' |'DE' | 'GR';
-		languageStore.language = selected;
-	})
-	languageStore.subscribe(lang => {
-		langSelect.value = lang;
-		console.log('the value changed', langSelect.value);
-	})
-	
+export function initLang() {
+  const langSelect = document.getElementById('language-select') as HTMLSelectElement;
+
+  // if(!langSelect) console.log('The langSelect is not Existing');
+  langSelect?.addEventListener('change', () => {
+    console.log('clicked');
+    languageStore.clicked++;
+    const selected = langSelect.value as 'EN' | 'DE' | 'GR';
+    languageStore.language = selected;
+  })
+  languageStore.subscribe(lang => {
+    langSelect.value = lang;
+    console.log('the value changed', langSelect.value);
+  })
+
 }
+
+export function initNav() {
+  const btn = document.getElementById('login-btn');
+  if (btn)
+    btn.addEventListener('click', toggleLogin);
+};
 
 async function updateOnlineUsers() {
   const count = wsManager.onlineUserCount;
@@ -61,6 +74,43 @@ async function updateOnlineUsers() {
 
   if (badge) badge.textContent = `Online Users: ${count}`;
   if (list) list.innerHTML = users.map(u => `<li>${u.name || u.id}</li>`).join('');
+};
+
+export function changeLoginButton(login: boolean) {
+  const button = document.getElementById('login-btn');
+
+  if (button && !login) {
+    const logoutText = translations_nav[languageStore.language]?.logout ?? 'Logout';
+    button.innerHTML = logoutText;
+    button.classList.remove("from-blue-600", "to-purple-600", "hover:from-blue-700", "hover:to-purple-70");
+    button.classList.add("from-blue-600", "to-purple-600", "hover:from-red-700", "hover:to-red-700");
+  }
+  else if (button) {
+    const logoutText = translations_nav[languageStore.language]?.login ?? 'Login';
+    button.innerHTML = logoutText;
+    button.classList.remove("from-blue-600", "to-purple-600", "hover:from-red-700", "hover:to-red-700")
+    button.classList.add("from-blue-600", "to-purple-600", "hover:from-blue-700", "hover:to-purple-70");
+  }
+}
+
+export async function toggleLogin() {
+
+  if (await validateLogin()) {
+    console.log("logging out");
+
+    const token = getToken();
+    await fetch('/api/logout',
+      {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+    wsManager.disconnectAllSockets();
+    wsManager.clearPresenceData();
+    clearToken();
+    changeLoginButton(true);
+  }
+  location.hash = '#/login';
+
 }
 
 export function renderNav() {
@@ -76,7 +126,6 @@ export function renderNav() {
 
   // Detect when DOM has been updated and patch content into it
   requestAnimationFrame(() => updateOnlineUsers());
-
 
 
   return `
@@ -98,22 +147,22 @@ export function renderNav() {
           <!-- Navigation Links -->
           <div class="flex items-center space-x-1">
             ${[
-              ['nav_game','#/game', translations_nav[languageStore.language]!.game],
-              ['nav_tournament','#/tournament', translations_nav[languageStore.language]!.tournament],
-              ['nav_leaderboard','#/leaderboard', translations_nav[languageStore.language]!.leaderboard],
-              ['nav_friends','#/friends', translations_nav[languageStore.language]!.friends],
-              ['nav_profile','#/profile', translations_nav[languageStore.language]!.profile],
-            //   ['nav_settings','#/settings', translations_nav[languageStore.language]!.settings],
-            ]
-              .map(
-                ([id, href, label]) => `
+      ['nav_game', '#/game', translations_nav[languageStore.language]!.game],
+      ['nav_tournament', '#/tournament', translations_nav[languageStore.language]!.tournament],
+      ['nav_leaderboard', '#/leaderboard', translations_nav[languageStore.language]!.leaderboard],
+      ['nav_friends', '#/friends', translations_nav[languageStore.language]!.friends],
+      ['nav_profile', '#/profile', translations_nav[languageStore.language]!.profile],
+      //   ['nav_settings','#/settings', translations_nav[languageStore.language]!.settings],
+    ]
+      .map(
+        ([id, href, label]) => `
                 <a id = "${id}"href="${href}" class="group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
                   <span class="relative z-10">${label}</span>
                   <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </a>
               `
-              )
-              .join('')}
+      )
+      .join('')}
           </div>
 
           <!-- Online Users -->
@@ -128,9 +177,9 @@ export function renderNav() {
           </div>
 
           <!-- Login Button -->
-          <a id="login-btn" href="#/login" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg">
-            ${ translations_nav[languageStore.language]!.loggin}
-          </a>
+          <button type="button" id="login-btn" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg">
+            ${translations_nav[languageStore.language]!.login}
+          </button>
 		  <div class="flex items-center space-x-2">
 			<label for="language-select" class="text-white font-semibold"></label>
 			<select id="language-select" 

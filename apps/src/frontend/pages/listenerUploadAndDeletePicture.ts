@@ -72,7 +72,9 @@ export const listenerUploadPicture = async (e : any) =>
 export const listenerDeletePicture = async (e : any) =>
 {
 	e.preventDefault();
+	console.log("what is going on");
 	const res = await fetch(`/api/private/delete_pic`,
+		
 		{
 			method: 'POST',
 			headers:
@@ -98,11 +100,12 @@ export const listenerLogoutBtn = async (e : any) =>
 	e.preventDefault();
 	{
 		const token = getToken();
-			await fetch('/api/private/logout',
+			const resp = await fetch('/api/private/logout',
 				{
 					method: 'POST',
 					headers: {'Authorization': `Bearer ${token}`},
 				});
+			console.log(resp);
 			wsManager.disconnectAllSockets();
 			wsManager.clearPresenceData();
 			clearToken();

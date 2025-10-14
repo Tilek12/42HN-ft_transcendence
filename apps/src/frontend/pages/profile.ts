@@ -80,7 +80,7 @@ const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) =>
 			}))
 		}
 		if(!load)
-			setTimeout(renderCheckerForProfiles, 500);
+			setTimeout(renderCheckerForProfiles, 1000);
 		// return allProfiles
 	}
 export async function renderProfile(root: HTMLElement) {
