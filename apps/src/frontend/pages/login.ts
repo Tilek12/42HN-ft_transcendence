@@ -130,6 +130,10 @@ export function renderLogin(root: HTMLElement) {
   const errorContainer = document.getElementById('login-error')!;
   const errorText = document.getElementById('error_text')!;
   const googleBtn = document.getElementById('google-login')!;
+  const navbar = document.getElementById('navbar');
+
+  if (navbar)
+    navbar.classList.add("hidden");
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();

@@ -32,7 +32,6 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 		//---------------Ican create here a default blob--------------
 		//------------I want to find the file-------------------------
 		//------------make it a blob----------------------------------
-		
 
 		//-----Thomas--------
 		res.send({ message: 'User registered successfully' });
@@ -63,7 +62,6 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 	//
 	fastify.post('/toggle2fa', {schema: toggle_TFA_Schema}, async (req : any, res : any) => {
 		// const user = await req.jwtVerify();
-
 	});
 }
 

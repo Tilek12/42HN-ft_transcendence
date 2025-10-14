@@ -11,24 +11,33 @@
 - why is the profile rendering? for user list updates ok
 - fix the layout issues, its putting the body until the end of the screen. add a footer, 
 
--logincheck is double in router and every route
+- logincheck is double in router and every route
 
 - why is router rendering every 100ms? //fixed
+
 - auth.ts line 5/6 ? what is this added for?
 
-- Add auth roles to have control from commandline for pong
+- Add auth roles to have control from commandline for pong - routes need to be thought of how to do it
 
-- Frontend sends /api/private/me request on hashchange?
+- change verify logged in status route
 
 - why 2 database plugins?
+
 - is it injectionsafe?
 
+- validate login is a real mess!! cleaned up..
+
+- implement "remember_me" feature? or get rid of it.
+
+- cleanup production mode: make setup-local script better, vite is not needed/turned off?
+
+- Allow users to set their preferred language as the default for subsequent visits
 
 -	```
 	There must be a matchmaking system: the tournament system should
 	organize the matchmaking of the participants, and announce the next match
 	```
-- 	```
+-	```
 	The tournament system must work with or without user
 	registration
 	With the module: aliases are linked to registered

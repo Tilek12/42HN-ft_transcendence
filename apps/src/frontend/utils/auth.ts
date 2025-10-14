@@ -13,11 +13,6 @@ export function clearToken() {
 	// disconnectPresenceSocket();
 }
 
-export function isLoggedIn(): boolean {
-
-	// console.log("----------->>>>>get Token: ", getToken());
-	return !!getToken();
-}
 
 export async function validateLogin(): Promise<boolean> {
 	const token = getToken();

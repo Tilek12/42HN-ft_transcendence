@@ -14,7 +14,6 @@ class WebSocketManager {
   private gameSocket: WebSocket | null = null;
   private presenceSocket: WebSocket | null = null;
   private tournamentSocket: WebSocket | null = null;
-  private readonly backendUrl: string;
 
   // Presence WebSocket state
   private MAX_RETRY = 10;
@@ -26,7 +25,6 @@ class WebSocketManager {
   private presenceListeners: PresenceCallback[] = [];
 
   constructor() {
-    this.backendUrl = ('wss://localhost:3000');
   }
 
   ///////////////////////////////////
@@ -42,7 +40,7 @@ class WebSocketManager {
     const token = getToken();
     if (!token) return null;
 
-    let url = `${this.backendUrl}/ws/game?mode=${mode}&token=${token}`;
+    let url = `/ws/game?mode=${mode}&token=${token}`;
     if (mode === 'tournament' && size) {
       url += `&size=${size}`;
       if (id) url += `&id=${id}`;
@@ -88,7 +86,7 @@ class WebSocketManager {
     const token = getToken();
     if (!token) return;
 
-    const url = `${this.backendUrl}/ws/presence?token=${token}`;
+    const url = `/ws/presence?token=${token}`;
     const socket = new WebSocket(url);
     this.presenceSocket = socket;
 
@@ -182,7 +180,7 @@ class WebSocketManager {
     const token = getToken();
     if (!token) return null;
 
-    let url = `${this.backendUrl}/ws/tournament?action=${action}&size=${size}&token=${token}`;
+    let url = `/ws/tournament?action=${action}&size=${size}&token=${token}`;
     if (action === 'join' && id) url += `&id=${id}`;
 
     const socket = new WebSocket(url);

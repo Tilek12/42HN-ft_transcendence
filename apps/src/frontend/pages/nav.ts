@@ -1,7 +1,7 @@
 import { wsManager } from '../websocket/ws-manager';
 import { languageStore } from './languages';
 import type { Language } from './languages';
-import { isLoggedIn, validateLogin } from '../utils/auth';
+import { validateLogin } from '../utils/auth';
 import { getToken, clearToken } from '../utils/auth'
 
 
@@ -96,7 +96,7 @@ export function changeLoginButton(login: boolean) {
 export async function toggleLogin() {
 
   if (await validateLogin()) {
-    console.log("logging out");
+    // console.log("logging out");
 
     const token = getToken();
     await fetch('/api/logout',
@@ -108,8 +108,12 @@ export async function toggleLogin() {
     wsManager.clearPresenceData();
     clearToken();
     changeLoginButton(true);
+    location.hash = '#/';
   }
-  location.hash = '#/login';
+  else
+  {
+    location.hash = '#/login';
+  }
 
 }
 
@@ -177,9 +181,7 @@ export function renderNav() {
           </div>
 
           <!-- Login Button -->
-          <button type="button" id="login-btn" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg">
-            ${translations_nav[languageStore.language]!.login}
-          </button>
+          <button type="button" id="login-btn" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"></button>
 		  <div class="flex items-center space-x-2">
 			<label for="language-select" class="text-white font-semibold"></label>
 			<select id="language-select" 

@@ -9,11 +9,6 @@ import type {Language} from './languages';
 
 
 export async function renderGame(root: HTMLElement) {
-  const isValid = await validateLogin();
-  if (!isValid) {
-    location.hash = '#/login';
-    return;
-  }
   const tr = translations_game_render[languageStore.language];
 
   root.innerHTML =renderBackgroundTop(`

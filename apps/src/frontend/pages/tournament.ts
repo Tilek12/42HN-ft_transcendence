@@ -2,8 +2,8 @@ import { renderNav } from './nav';
 import { renderBackgroundTop } from '../utils/layout';
 import { getToken, validateLogin } from '../utils/auth';
 import { wsManager } from '../websocket/ws-manager';
-import {languageStore, translations_tournament_render, transelate_per_id} from './languages';
-import type {Language} from './languages';
+import { languageStore, translations_tournament_render, transelate_per_id } from './languages';
+import type { Language } from './languages';
 
 
 
@@ -11,11 +11,6 @@ let currentTournamentId: string | null = null;
 
 
 export async function renderTournament(root: HTMLElement) {
-  const isValid = await validateLogin();
-  if (!isValid) {
-    location.hash = '#/login';
-    return;
-  }
 
   root.innerHTML = renderBackgroundTop(`
     <div class="max-w-3xl mx-auto mt-20 p-6 bg-white/10 rounded-xl shadow-lg backdrop-blur-md">
@@ -24,14 +19,13 @@ export async function renderTournament(root: HTMLElement) {
       <div id="tournament-list" class="space-y-4 text-white"></div>
     </div>
   `);
- languageStore.subscribe ((lang)=>
-{
-	transelate_per_id(translations_tournament_render, "tournament_lobby_header", lang,"tournament_lobby_header");
-	transelate_per_id(translations_tournament_render, "glory_header", lang,"glory_header");
-	transelate_per_id(translations_tournament_render, "empty_p_msg", lang,"empty-p-msg");
-	transelate_per_id(translations_tournament_render, "create_four_header", lang,"create-tournament-4");
-	transelate_per_id(translations_tournament_render, "create_eight_header", lang,"create-tournament-8");
-})
+  languageStore.subscribe((lang) => {
+    transelate_per_id(translations_tournament_render, "tournament_lobby_header", lang, "tournament_lobby_header");
+    transelate_per_id(translations_tournament_render, "glory_header", lang, "glory_header");
+    transelate_per_id(translations_tournament_render, "empty_p_msg", lang, "empty-p-msg");
+    transelate_per_id(translations_tournament_render, "create_four_header", lang, "create-tournament-4");
+    transelate_per_id(translations_tournament_render, "create_eight_header", lang, "create-tournament-8");
+  })
   renderTournamentList();
   wsManager.subscribeToPresence(renderTournamentList);
 
@@ -87,7 +81,7 @@ export async function renderTournament(root: HTMLElement) {
 
     if (tournaments.length === 0) {
       const emptyMsg = document.createElement('p');
-	  emptyMsg.id = "empty-p-msg";
+      emptyMsg.id = "empty-p-msg";
       emptyMsg.className = 'text-center text-gray-400';
       emptyMsg.textContent = translations_tournament_render[languageStore.language]!.empty_p_msg;
       list.appendChild(emptyMsg);

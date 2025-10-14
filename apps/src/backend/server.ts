@@ -66,7 +66,7 @@ async function main() {
 	// //upload pics path register
 	// const __dirname = path.dirname(fileURLToPath(import.meta.url));
 	// console.log(`here is the __dirname : ${__dirname}`);
-	
+
 	// server.register(fastifyStatic,
 	// 	{
 	// 		root: path.join(__dirname, 'assets/profile_pics'),
@@ -75,12 +75,35 @@ async function main() {
 
 	// );
 	await server.register(fastifySwagger, {
-		hideUntagged: true,
 		openapi: {
+			openapi: '3.0.0',
 			info: {
-				title: 'Trasnscendence API',
-				description: 'lol lets fucking go',
-				swagger: '9.5.2'
+				title: 'Transcendence',
+				description: 'Testing Transcendence API',
+				version: '0.1.0'
+			},
+			servers: [
+				{
+					url: 'https://localhost:3000',
+					description: 'Development server'
+				}
+			],
+			tags: [
+				{ name: 'user', description: 'User related end-points' },
+				{ name: 'code', description: 'Code related end-points' }
+			],
+			components: {
+				securitySchemes: {
+					apiKey: {
+						type: 'apiKey',
+						name: 'apiKey',
+						in: 'header'
+					}
+				}
+			},
+			externalDocs: {
+				url: 'https://swagger.io',
+				description: 'Find more info here'
 			}
 		}
 	});

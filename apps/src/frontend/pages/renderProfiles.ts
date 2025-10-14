@@ -57,13 +57,13 @@ const remove_load_btn = async (offset_pr: number, limit_pr: number, token_async:
 	return newProfiles.profiles.length === 0
 }
 
-const array_to_html = (profile : any, BACKEND_URL : string, profiles_len?: number) : string =>
+const array_to_html = (profile : any,  profiles_len?: number) : string =>
 {
 	let is_connected;
 	const listUsers :any[] | undefined = wsManager.presenceUserList.map((u)=> u.name);
 	is_connected = listUsers.includes(profile.username);
 	
-	const profile_pic_src = profile.image_blob ? `data:image/webp;base64,${profile.image_blob}` : `${BACKEND_URL}/profile_pics/${profile.image_path}`;
+	const profile_pic_src = profile.image_blob ? `data:image/webp;base64,${profile.image_blob}` : `/profile_pics/${profile.image_path}`;
 	return `<div class = "flex items-center bg-white p-4 rounded-xl shadow mb-2">
 				<img src= "${profile_pic_src}" class="w-12 h-12 rounded-full mr-4" />
 				<div class = "flex items-center flex-col">
@@ -95,7 +95,7 @@ export async function renderProfilesList (
 	//profiles-list
 	let return_res : AllProfileWithLimitAndOffset;
 	const container  = document.getElementById(element_id);
-	const BACKEND_URL = getEnvVariable('VITE_BACKEND_URL');
+	// const BACKEND_URL = getEnvVariable('VITE_BACKEND_URL'); //this is nuts how do you think there is env access in the frontend
 	let remove_load_button = false;
 	let old_limit = limit;
 	let old_offset = offset;
@@ -143,7 +143,7 @@ export async function renderProfilesList (
 		{
 			// console.log("NOW I'M HEREEEEEE inside", allProfiles);
 			const print = allProfiles.map((pr : any) => html+= pr.profiles.filter((profile : any)=> !profile.is_blocked).map((profile: any) =>
-				array_to_html(profile, BACKEND_URL, allProfiles?.length)).join(' '));
+				array_to_html(profile, allProfiles?.length)).join(' '));
 			// console.log("NOW I'M HEREEEEEE is printing?", print);
 		}
 		container.innerHTML = `<h1 class="text-2xl text-black font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Users List</h1>` + html;

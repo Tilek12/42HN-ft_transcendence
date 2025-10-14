@@ -17,7 +17,8 @@ export async function connectToDB() {
       password TEXT NOT NULL,
       role TEXT NOT NULL CHECK(role IN ('admin', 'user')),
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      tfa BOOLEAN DEFAULT FALSE
+      tfa BOOLEAN DEFAULT FALSE,
+      tfa_secret TEXT
     );
   `);
   //--------------profile table-----------------

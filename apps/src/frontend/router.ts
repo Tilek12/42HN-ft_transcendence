@@ -7,29 +7,32 @@ import { renderLogin } from './pages/login'
 import { renderRegister } from './pages/register'
 import { renderFriends } from './pages/friends'
 import { renderLeaderboard } from './pages/leaderboard'
-import { renderSettings } from './pages/settings'
 import { renderNotFound } from './pages/not-found'
 import { validateLogin } from './utils/auth'
-import { translations_nav } from './pages/nav';
-import { languageStore } from './pages/languages';
+import { changeLoginButton } from './pages/nav';
+import { wsManager } from './websocket/ws-manager'
 
 
 //stop this set timeout nonsense its stupid and makes it feel slower- philipp
 export async function router() {
   const root = document.getElementById('app')!;
   const route = location.hash || '#/';
-
-
+  const navbar = document.getElementById('navbar');
+  const isLoggedIn = await validateLogin();
+  if (navbar && navbar.classList.contains("hidden"))
+    navbar.classList.remove("hidden")
+  changeLoginButton(!isLoggedIn)
   // root.style.opacity = '0';
 
   // I want to be albe to change the 
 
   // setTimeout(() => {
   // root.innerHTML = '';
-
+if (isLoggedIn)
+  wsManager.connectPresenceSocket();
 
   const protectedRoutes = ['#/profile', '#/friends', '#/game', '#/settings', '#/tournament'];
-  if (protectedRoutes.includes(route) && !validateLogin()) {
+  if (protectedRoutes.includes(route) && !isLoggedIn) {
     location.hash = '#/login';
     return;
   }
