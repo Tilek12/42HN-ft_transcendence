@@ -2,13 +2,12 @@ import { renderMainPage } from './pages/main-page'
 import { renderTournament } from './pages/tournament'
 import { renderGame } from './pages/game'
 import { renderProfile } from './pages/profile'
-import { renderTournamentMatch } from './pages/tournament-match'
 import { renderLogin } from './pages/login'
 import { renderRegister } from './pages/register'
 import { renderFriends } from './pages/friends'
 import { renderLeaderboard } from './pages/leaderboard'
-import { renderSettings } from './pages/settings'
 import { renderNotFound } from './pages/not-found'
+// import { renderSettings } from './pages/settings'
 import { isLoggedIn } from './utils/auth'
 
 export async function router() {
@@ -16,8 +15,6 @@ export async function router() {
   const route = location.hash || '#/';
 
   root.style.opacity = '0';
-
-  // I want to be albe to change the 
 
   setTimeout(() => {
     root.innerHTML = '';
@@ -30,7 +27,6 @@ export async function router() {
 
     switch (route) {
       case '#/tournament': return renderTournament(root);
-      case '#/tournament-match': return renderTournamentMatch(root);
       case '#/game': return renderGame(root);
       case '#/profile': return renderProfile(root);
       case '#/login': return renderLogin(root);
