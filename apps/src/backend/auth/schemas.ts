@@ -49,15 +49,10 @@ const PasswrdSchema = {
 } as const;
 // export type StringSchema = FromSchema<typeof StringSchema>;
 
-const TFA_key_schema = {
-	type: 'array',
-	minItems: 6,
-	maxItems: 6,
-	items: {
-		type: 'integer',
-		minimum: 0,
-		maximum: 9,
-	}
+const TFA_token_schema = {
+	type: 'string',
+	minLength: 6,
+	maxLength: 6,
 } as const;
 // export type StringSchema = FromSchema<typeof StringSchema>;
 
@@ -77,10 +72,11 @@ export const loginSchema = {
 		properties: {
 			username: UsernameSchema,
 			password: PasswrdSchema,
+			tfa_token: TFA_token_schema,
 		},
 	},
 } as const;
-export type LoginBody = FromSchema<typeof loginSchema>;
+export type LoginBody = FromSchema<typeof loginSchema.body>;
 
 export const logoutSchema = {
 	//swagger
@@ -200,6 +196,48 @@ export const toggle_TFA_Schema = {
 } as const;
 export type toggle_TFA_body = FromSchema<typeof toggle_TFA_Schema.body>;
 
+export const verify_TFA_Schema = {
+	//swagger===========================================================
+	description: 'toggle 2fa',
+	tags: ['2FA'],
+	summary: 'sends a post request to toggle 2fa auth',
+	hidden: false,
+	// query===============================================================
+	//headers=============================================================
+	// headers: {
+	// 	type: 'object',
+	// 	properties: {
+	// 	},
+	// },
+	// querystring: false,
+
+	//body===============================================================
+	body: {
+		type: 'object',
+		properties: {
+			email: EmailSchema,
+			password: PasswrdSchema,
+			TFA_token: TFA_token_schema,
+		},
+		required: ['TFA_token','email','password']
+	},
+	//response============================================================
+	response: {
+		200: {
+			type: 'object',
+			properties: { message: { type: 'string' } }
+		},
+		404: {
+			type: 'object',
+			properties: { message: { type: 'string' } }
+		},
+		400: {
+			type: 'object',
+			properties: { message: { type: 'string' } }
+		},
+	}
+} as const;
+export type verify_TFA_body = FromSchema<typeof verify_TFA_Schema.body>;
 
 
 

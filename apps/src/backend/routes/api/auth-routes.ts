@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
 import { hashPassword, verifyPassword } from '../../auth/utils';
-import { loginSchema, logoutSchema, registerSchema, toggle_TFA_Schema} from '../../auth/schemas';
+import { loginSchema, logoutSchema, registerSchema } from '../../auth/schemas';
 import type { JWTPayload } from '../../plugins/authtypes';
 
 import {
@@ -11,11 +11,10 @@ import {
 
 import { updateProfileLogInState, createProfile } from '../../database/profile';
 import { generateqrcode, generateSecret } from '../../2FA/2fa';
-import { store2faKey } from '../../database/2fa';
 
-const authRoutes: FastifyPluginAsync = async (fastify : FastifyInstance) => {
+const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 	// Register
-	fastify.post('/register', { schema: registerSchema }, async (req : any, res : any) => {
+	fastify.post('/register', { schema: registerSchema }, async (req: any, res: any) => {
 		const { username, email, password, tfa } = req.body as any;
 		if (await findUserByUsername(username)) {
 			return res.status(400).send({ message: 'Username already taken' });
@@ -30,11 +29,10 @@ const authRoutes: FastifyPluginAsync = async (fastify : FastifyInstance) => {
 		console.log(user);
 		await createProfile(username);
 
-		if (tfa)
-		{
+		if (tfa) {
 			const secret = generateSecret();
 			const qrcode = await generateqrcode(secret);
-			res.status(200).send({ message: 'registered successfully' , qr: qrcode});
+			res.status(200).send({ message: 'registered successfully', qr: qrcode });
 		}
 		else
 			res.status(200).send({ message: 'registered successfully' });
@@ -42,7 +40,7 @@ const authRoutes: FastifyPluginAsync = async (fastify : FastifyInstance) => {
 	});
 
 	// Login
-	fastify.post('/login', { schema: loginSchema }, async (req : any, res : any) => {
+	fastify.post('/login', { schema: loginSchema }, async (req:any, res: any) => {
 		const { username, password } = req.body;
 		const user = await findUserByUsername(username);
 		// console.log(user);
@@ -50,16 +48,17 @@ const authRoutes: FastifyPluginAsync = async (fastify : FastifyInstance) => {
 			return res.status(401).send({ message: 'Invalid credentials' });
 		}
 		await updateProfileLogInState(user.id, true);
+		// if (user)
+			// ;
 		const token = fastify.jwt.sign({ id: user.id }, { expiresIn: '2h' });
 		res.send({ token });
 	});
 
 	// Logout
-	fastify.post('/logout', { schema: logoutSchema }, async (req : any, res : any) =>
-	{
+	fastify.post('/logout', { schema: logoutSchema }, async (req: any, res: any) => {
 		await req.jwtVerify();
 		const payload = req.user as JWTPayload;
-		
+
 		await updateProfileLogInState(payload.id, false);
 		res.send({ message: 'Logged out successfully' });
 	});

@@ -1,5 +1,5 @@
 *test*
-database
+apps/database
 .env*
 profile_pics/user*
 node_modules
@@ -7,7 +7,6 @@ secrets
 .fastify-blog
 dist
 cert
-apps/backend/src/database/dbTests.ts
 wb_kaa
 merge_test
 pic_branch_test

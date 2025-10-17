@@ -34,9 +34,11 @@ async function isUsername(new_username: string) {
 	// console.log(`result ------->>> ${result}`)
 	return result !== undefined ? true : false;
 }
+
 async function updateUsername(id: number, new_username: string) {
 	return await db.run('UPDATE users SET username = ? WHERE id = ?', [new_username, id]);
 }
+
 async function updatePasswordById(id: number, new_password: string) {
 	return await db.run('UPDATE users SET password = ? WHERE id = ?', [new_password, id]);
 }

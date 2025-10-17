@@ -1,12 +1,14 @@
 import { FastifyInstance, FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
-import type {toggle_TFA_body} from '../../auth/schemas';
-import { toggle_TFA_Schema} from '../../auth/schemas';
+import {toggle_TFA_body, verify_TFA_Schema} from '../../auth/schemas';
+import { toggle_TFA_Schema, verify_TFA_Schema} from '../../auth/schemas';
 import { verifyPassword } from '../../auth/utils';
 
 import { generateqrcode, generateSecret } from '../../2FA/2fa';
 import { JWTPayload } from '../../plugins/authtypes';
-import { findUserById } from '../../database/user';
+import { findUserByEmail, findUserById } from '../../database/user';
 import { store2faKey, delete2faKey } from '../../database/2fa';
+
+
 const authRoutes: FastifyPluginAsync = async (fastify : FastifyInstance) => {
 
 
@@ -40,9 +42,20 @@ const authRoutes: FastifyPluginAsync = async (fastify : FastifyInstance) => {
 			await delete2faKey(user.id);
 			res.status(200).send({message: "success"});
 		}
-
-
-
 	});
+
+	fastify.post<{Body: toggle_TFA_body}>('/qr', {schema: verify_TFA_Schema}, async (req : FastifyRequest, res : FastifyReply) => {
+		const { email, password, TFA_token } = req.body as toggle_TFA_body;
+		const user = await findUserByEmail(email);
+		if (!user)
+		{
+			return res.status(401).send({ message: 'Invalid credentials' });
+		}
+		if ()
+
+	
+	});
+
+
 }
 export default authRoutes;
