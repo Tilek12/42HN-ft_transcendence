@@ -25,6 +25,8 @@ import { Errorhandler } from './error';
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import fastifySwagger from '@fastify/swagger'
 
+import {generateqrcode} from './2FA/2fa'
+
 dotenv.config();
 
 // Environment
@@ -172,5 +174,6 @@ async function main() {
 	process.on('SIGINT', shutdown);
 	process.on('SIGTERM', shutdown);
 }
+
 
 main();

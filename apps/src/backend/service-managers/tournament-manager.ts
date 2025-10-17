@@ -2,7 +2,7 @@ import { Player } from '../game/types';
 import { GameRoom } from '../game/game-room';
 import { sendTournamentUpdate } from '../routes/ws/presence';
 // import { tournamentSockets } from '../../websocket/tournament'
-import { incrementWinsOrLossesOrTrophies } from '../database/user';
+// import { incrementWinsOrLossesOrTrophies } from '../database/user';
 // import { findProfileById } from '../database/profile';
 import { createTournamentDB, joinTournamentDB } from '../database/tournament';
 

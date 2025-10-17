@@ -60,10 +60,11 @@ export function initLang() {
 
 }
 
-export function initNav() {
+export async function initNav() {
   const btn = document.getElementById('login-btn');
   if (btn)
     btn.addEventListener('click', toggleLogin);
+  changeLoginButton(!await validateLogin());
 };
 
 async function updateOnlineUsers() {

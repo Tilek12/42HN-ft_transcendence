@@ -11,7 +11,7 @@ import { renderNotFound } from './pages/not-found'
 import { validateLogin } from './utils/auth'
 import { changeLoginButton } from './pages/nav';
 import { wsManager } from './websocket/ws-manager'
-
+import { renderQrcode } from './pages/2fa'
 
 //stop this set timeout nonsense its stupid and makes it feel slower- philipp
 export async function router() {
@@ -47,6 +47,7 @@ if (isLoggedIn)
     case '#/friends': return renderFriends(root);
     case '#/leaderboard': return renderLeaderboard(root);
     //   case '#/settings': return renderSettings(root);
+    case '#/2fa': return renderQrcode(root);
     case '#/':
     case '': return renderMainPage(root);
     default: return renderNotFound(root);

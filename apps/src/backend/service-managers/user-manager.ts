@@ -1,8 +1,8 @@
 import { WebSocket } from 'ws';
-import {profile} from '../database/profile';
+// import {profile} from '../database/profile';
 
 interface User {
-	id: string;
+	id: number;
 	name: string;
 	gameSocket: WebSocket | null;
 	presenceSocket: WebSocket | null;
@@ -20,13 +20,13 @@ interface User {
 }
 
 class UserManager {
-	private users = new Map<string, User>();
+	private users = new Map<number, User>();
 
-	getUser(id: string): User | undefined {
+	getUser(id: number): User | undefined {
 		return this.users.get(id);
 	}
 
-	createUser(id: string, name: string, presenceSocket: WebSocket): boolean {
+	createUser(id: number, name: string, presenceSocket: WebSocket): boolean {
 		if (this.users.has(id)) return false;
 
 		const user: User = {
@@ -44,7 +44,7 @@ class UserManager {
 		return true;
 	}
 
-	removeUser(id: string) {
+	removeUser(id: number) {
 		const user = this.getUser(id);
 		if (!user) return;
 
@@ -58,17 +58,17 @@ class UserManager {
 		this.users.delete(id);
 	}
 
-	setAlive(id: string, alive: boolean) {
+	setAlive(id: number, alive: boolean) {
 		const user = this.getUser(id);
 		if (user) user.isAlive = alive;
 	}
 
-	setInGame(id: string, value: boolean) {
+	setInGame(id: number, value: boolean) {
 		const user = this.getUser(id);
 		if (user) user.isInGame = value;
 	}
 
-	setInTornament(id: string, value: boolean) {
+	setInTornament(id: number, value: boolean) {
 		const user = this.getUser(id);
 		if (user) user.isInTournament = value;
 	}
@@ -81,7 +81,7 @@ class UserManager {
 		return this.users.size;
 	}
 
-	setGameSocket(id: string, socket: WebSocket) {
+	setGameSocket(id: number, socket: WebSocket) {
 		const user = this.getUser(id);
 		if (!user) return;
 
@@ -95,7 +95,7 @@ class UserManager {
 		user.gameSocket = socket;
 	}
 
-	removeGameSocket(id: string) {
+	removeGameSocket(id: number) {
 		const user = this.getUser(id);
 		if (user?.gameSocket) {
 			user.gameSocket.close();
@@ -103,7 +103,7 @@ class UserManager {
 		}
 	}
 
-	setPresenceSocket(id: string, socket: WebSocket) {
+	setPresenceSocket(id: number, socket: WebSocket) {
 		const user = this.getUser(id);
 		if (!user) return;
 
@@ -111,7 +111,7 @@ class UserManager {
 		user.presenceSocket = socket;
 	}
 
-	removePresenceSocket(id: string) {
+	removePresenceSocket(id: number) {
 		const user = this.getUser(id);
 		if (user?.presenceSocket) {
 			user.presenceSocket.close();
@@ -119,7 +119,7 @@ class UserManager {
 		}
 	}
 
-	setTournamentSocket(id: string, socket: WebSocket) {
+	setTournamentSocket(id: number, socket: WebSocket) {
 		const user = this.getUser(id);
 		if (!user) return;
 
@@ -127,7 +127,7 @@ class UserManager {
 		user.tournamentSocket = socket;
 	}
 
-	removeTournamentSocket(id: string) {
+	removeTournamentSocket(id: number) {
 		const user = this.getUser(id);
 		if (user?.tournamentSocket) {
 			user.tournamentSocket.close();

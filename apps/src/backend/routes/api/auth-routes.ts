@@ -1,11 +1,8 @@
-import { FastifyPluginAsync } from 'fastify';
+import { FastifyInstance, FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
 import { hashPassword, verifyPassword } from '../../auth/utils';
-import { loginSchema, logoutSchema, registerSchema, toggle_TFA_Schema } from '../../auth/schemas';
+import { loginSchema, logoutSchema, registerSchema, toggle_TFA_Schema} from '../../auth/schemas';
 import type { JWTPayload } from '../../plugins/authtypes';
 
-// import fs from 'fs';
-// import sharp from 'sharp';
-// import path from 'path';
 import {
 	findUserByUsername,
 	findUserByEmail,
@@ -13,11 +10,13 @@ import {
 } from '../../database/user';
 
 import { updateProfileLogInState, createProfile } from '../../database/profile';
+import { generateqrcode, generateSecret } from '../../2FA/2fa';
+import { store2faKey } from '../../database/2fa';
 
-const authRoutes: FastifyPluginAsync = async (fastify : any) => {
+const authRoutes: FastifyPluginAsync = async (fastify : FastifyInstance) => {
 	// Register
 	fastify.post('/register', { schema: registerSchema }, async (req : any, res : any) => {
-		const { username, email, password } = req.body as any;
+		const { username, email, password, tfa } = req.body as any;
 		if (await findUserByUsername(username)) {
 			return res.status(400).send({ message: 'Username already taken' });
 		}
@@ -26,15 +25,20 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 			return res.status(400).send({ message: 'Email already registered' });
 		}
 		const hashed = await hashPassword(password);
-		await createUser(username, email, hashed);
-		//-----Thomas--------
-		await createProfile(username);
-		//---------------Ican create here a default blob--------------
-		//------------I want to find the file-------------------------
-		//------------make it a blob----------------------------------
 
-		//-----Thomas--------
-		res.send({ message: 'User registered successfully' });
+		let user = await createUser(username, email, hashed, tfa);
+		console.log(user);
+		await createProfile(username);
+
+		if (tfa)
+		{
+			const secret = generateSecret();
+			const qrcode = await generateqrcode(secret);
+			res.status(200).send({ message: 'registered successfully' , qr: qrcode});
+		}
+		else
+			res.status(200).send({ message: 'registered successfully' });
+
 	});
 
 	// Login
@@ -58,10 +62,6 @@ const authRoutes: FastifyPluginAsync = async (fastify : any) => {
 		
 		await updateProfileLogInState(payload.id, false);
 		res.send({ message: 'Logged out successfully' });
-	});
-	//
-	fastify.post('/toggle2fa', {schema: toggle_TFA_Schema}, async (req : any, res : any) => {
-		// const user = await req.jwtVerify();
 	});
 }
 

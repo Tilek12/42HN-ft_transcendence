@@ -1,3 +1,4 @@
+import { StringLiteral } from "typescript";
 
 export type JWTPayload = {
   id: number,
@@ -7,8 +8,10 @@ export type JWTPayload = {
 
 export type User = {
   id: number,
-  username: string;
+  username: string,
+  email:string,
   password: string,
   role: string,
   tfa: boolean,
+  tfa_secret:string,
 }

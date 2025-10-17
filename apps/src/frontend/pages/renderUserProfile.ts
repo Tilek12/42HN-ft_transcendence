@@ -84,7 +84,7 @@ export const update_langauge_headers_user_profile = (lang : Language = 'EN') =>
 	transelate_per_id(translations_profile,"new_password_placeholder", lang, "password-new");
 	transelate_per_id(translations_profile,"confirm_new_password_placeholder", lang, "password-confirm");
 }
-export function renderUserProfile(backend_url: string, data: any, lang = 'EN')
+export function renderUserProfile(data: any, lang = 'EN')
 {
 	// const select = document.getElementById('language-select') as HTMLSelectElement; 
 	// const lang = select.value;

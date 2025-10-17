@@ -178,16 +178,9 @@ export const toggle_TFA_Schema = {
 			enable: { type: 'boolean' },
 			email: EmailSchema,
 			password: PasswrdSchema,
-			TFA_key: TFA_key_schema,
+			TFA_token: TFA_key_schema,
 		},
-		required: ['enable'],
-		allOf: [
-			{
-				if: { properties: { enable: { const: true } } },
-				then: { required: ['email', 'password'] },
-				else: { not: { required: ['email', 'password'] } },
-			}
-		]
+		required: ['enable','email','password']
 	},
 	//response============================================================
 	response: {
@@ -205,7 +198,7 @@ export const toggle_TFA_Schema = {
 		},
 	}
 } as const;
-export type toggle_TFA_body = FromSchema<typeof toggle_TFA_Schema>;
+export type toggle_TFA_body = FromSchema<typeof toggle_TFA_Schema.body>;
 
 
 
