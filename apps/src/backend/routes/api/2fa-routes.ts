@@ -6,7 +6,7 @@ import { verifyPassword } from '../../auth/utils';
 import { generateqrcode, generateSecret } from '../../2FA/2fa';
 import { JWTPayload } from '../../plugins/authtypes';
 import { findUserById } from '../../database/user';
-import { store2faKey, delete2faKey } from '../../database/2fa'
+import { store2faKey, delete2faKey } from '../../database/2fa';
 const authRoutes: FastifyPluginAsync = async (fastify : FastifyInstance) => {
 
 

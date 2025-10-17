@@ -79,8 +79,8 @@ setup-local: env-check	## 🌐 Setup local environment (IP, certs, etc.)
 	./scripts/setup-local.sh
 
 setup-ngrok: env-check	## 🚪 Setup ngrok tunnel
-	@printf "$(YELLOW)🌐 Setting up ngrok tunnel...$(RESET)\n"
-	./scripts/setup-ngrok.sh
+# 	@printf "$(YELLOW)🌐 Setting up ngrok tunnel...$(RESET)\n"
+# 	./scripts/setup-ngrok.sh
 
 ## --------------------------- ##
 ##       Utility Targets       ##

@@ -10,7 +10,7 @@ if [ ! -f "$ENV_FILE" ]; then
   echo "❌ .env file not found. Please create it with BACKEND_PORT or FRONTEND_PORT."
   exit 1
 fi
-mkdir -p database #create database folder for project in case freshly cloned repo doesnt have it yet
+mkdir -p apps/database #create database folder for project in case freshly cloned repo doesnt have it yet
 source "$ENV_FILE"
 
 if [ -z "$BACKEND_PORT" ] || [ -z "$FRONTEND_PORT" ]; then
@@ -19,7 +19,7 @@ if [ -z "$BACKEND_PORT" ] || [ -z "$FRONTEND_PORT" ]; then
 fi
 
 # 2. Detect local IP address (macOS + fallback)
-LOCAL_IP=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || hostname -I | awk '{print $1}')
+LOCAL_IP=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || hostname -i | awk '{print $1}')
 
 if [ -z "$LOCAL_IP" ]; then
   echo "❌ Could not detect your local IP address."
