@@ -31,8 +31,17 @@
 
 - cleanup production mode: make setup-local script better, vite is not needed/turned off?
 
-- Allow users to set their preferred language as the default for subsequent 
+- Allow users to set their preferred language as the default for subsequent !! -> put in jwt payload
 
+- production mode with fastify static
+
+- all websockt routes are not validated with the prehandler hook..
+
+- add explanation to register qrcode page
+
+- fix languages
+
+- add settings to enable /disable 2fa
 
 wokrflow 2fa auth:
 
@@ -68,7 +77,6 @@ the client can continue.
 
 the client sends the jwt, username, password, token to /api/2fa/disable.
 the server checks if all is correct, deletes 2fa_secret and bool, and returns 200.
-
 
 
 

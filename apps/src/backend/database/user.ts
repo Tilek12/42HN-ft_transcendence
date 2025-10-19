@@ -1,8 +1,23 @@
-import { User } from '../plugins/authtypes';
 import { db } from './client';
 
-async function findUserByUsername(username: string) {
-	return await db.get('SELECT * FROM users WHERE username = ?', username);
+export type User = {
+  id: number, 
+  username: string,
+  email:string,
+  password: string,
+  role: string,
+  is_logged_in: boolean,
+  tfa: boolean,
+  tfa_secret:string,
+}
+
+
+async function findUserByUsername(username: string): Promise<User | null> {
+	
+	const ret = await db.get('SELECT * FROM users WHERE username = ?', username);
+	if (!ret)
+		return null;
+	return ret as User;
 }
 
 async function findUserByEmail(email: string): Promise<User | null> {

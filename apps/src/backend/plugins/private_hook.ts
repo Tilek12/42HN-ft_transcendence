@@ -1,12 +1,10 @@
 import { FastifyPluginAsync } from 'fastify';
-import fp from 'fastify-plugin';
-// import type { JWTPayload } from './authtypes'
+import fp, { fastifyPlugin } from 'fastify-plugin';
 
 
+// only registered in protected scope
 const authPlugin: FastifyPluginAsync = async (fastify) => {
-  fastify.addHook('onRequest', async (req, res) => {
-    if (!req.url.startsWith('/api/private')) return;
-
+  fastify.addHook('preHandler', async (req, res) => {
     try {
       await req.jwtVerify();
 
@@ -17,3 +15,4 @@ const authPlugin: FastifyPluginAsync = async (fastify) => {
 };
 
 export default fp(authPlugin);
+

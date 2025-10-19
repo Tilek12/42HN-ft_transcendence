@@ -15,6 +15,7 @@ export async function connectToDB() {
       username TEXT UNIQUE NOT NULL,
       email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
+      is_logged_in BOOLEAN DEFAULT FALSE,
       role TEXT NOT NULL CHECK(role IN ('admin', 'user')),
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       tfa BOOLEAN DEFAULT FALSE,

@@ -41,7 +41,7 @@ const UsernameSchema = {
 } as const;
 // export type StringSchema = FromSchema<typeof StringSchema>;
 
-const PasswrdSchema = {
+const PasswordSchema = {
 	type: 'string',
 	pattern: '^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).*$',
 	minLength: 8,
@@ -71,10 +71,16 @@ export const loginSchema = {
 		required: ['username', 'password'],
 		properties: {
 			username: UsernameSchema,
-			password: PasswrdSchema,
+			password: PasswordSchema,
 			tfa_token: TFA_token_schema,
 		},
 	},
+	response: {
+		200: {
+			type: 'object',
+			properties: { jwt: { type: 'string' } }
+		}
+	}
 } as const;
 export type LoginBody = FromSchema<typeof loginSchema.body>;
 
@@ -142,19 +148,101 @@ export const registerSchema = {
 		properties: {
 			username: UsernameSchema,
 			email: EmailSchema,
-			password: PasswrdSchema,
+			password: PasswordSchema,
 		},
 	},
+	response: {
+		200: {
+			type: 'object',
+			properties: { jwt: { type: 'string' } }
+		},
+		401: {
+			type: 'object',
+			properties: { message: { type: 'string' } }
+		}
+	}
 } as const;
-export type StringS = FromSchema<typeof StringSchema>;
+export type registerBody = FromSchema<typeof registerSchema.body>;
 
 
 
-export const toggle_TFA_Schema = {
+export const enable_TFA_Schema = {
 	//swagger===========================================================
-	description: 'toggle 2fa',
+	description: 'enable 2fa',
 	tags: ['2FA'],
-	summary: 'sends a post request to toggle 2fa auth',
+	summary: 'sends a post request to enable 2fa auth',
+	hidden: false,
+	//headers=============================================================
+	headers: {
+		type: 'object',
+		properties: {
+			Authorization: BearerSchema
+		},
+		required: ['Authorization']
+	},
+	// querystring: false,
+
+	//body===============================================================
+	body: {},
+	//response============================================================
+	response: {
+		200: {
+			type: 'object',
+			properties: { qr: { type: 'string' } }
+		}
+	}
+} as const;
+export type enable_TFA_body = FromSchema<typeof enable_TFA_Schema.body>;
+
+export const disable_TFA_Schema = {
+	//swagger===========================================================
+	description: 'post request to disable the 2fa auth. needs jwt, password username email and token',
+	tags: ['2FA'],
+	summary: 'disable 2fa auth',
+	hidden: false,
+	//headers=============================================================
+	headers: {
+		type: 'object',
+		properties: {
+			Authorization: BearerSchema
+		},
+		required: ['Authorization']
+	},
+	// querystring: false,
+
+	//body===============================================================
+	body: {
+		type: 'object',
+		properties: {
+			username: UsernameSchema,
+			password: PasswordSchema,
+			tfa_token: TFA_token_schema,
+		},
+		required: ['username', 'password', 'tfa_token']
+	},
+	//response============================================================
+	response: {
+		200: {
+			type: 'object',
+			properties: { message: { type: 'string' } }
+		},
+		404: {
+			type: 'object',
+			properties: { message: { type: 'string' } }
+		},
+		400: {
+			type: 'object',
+			properties: { message: { type: 'string' } }
+		},
+	}
+} as const;
+export type disable_TFA_body = FromSchema<typeof disable_TFA_Schema.body>;
+
+export const verify_TFA_Schema = {
+	//swagger===========================================================
+	description: 'post request to verify 2fa token, needs a tmp jwt or real jwt, issues a new jwt',
+	tags: ['2FA'],
+	summary: 'verify 2fa token',
 	hidden: false,
 	// query===============================================================
 	//headers=============================================================
@@ -171,73 +259,30 @@ export const toggle_TFA_Schema = {
 	body: {
 		type: 'object',
 		properties: {
-			enable: { type: 'boolean' },
-			email: EmailSchema,
-			password: PasswrdSchema,
-			TFA_token: TFA_key_schema,
+			tfa_token: TFA_token_schema,
 		},
-		required: ['enable','email','password']
+		required: ['tfa_token']
 	},
 	//response============================================================
 	response: {
 		200: {
 			type: 'object',
-			properties: { message: { type: 'string' } }
-		},
-		404: {
-			type: 'object',
-			properties: { message: { type: 'string' } }
+			properties: { jwt: { type: 'string' } }
 		},
 		400: {
 			type: 'object',
 			properties: { message: { type: 'string' } }
 		},
-	}
-} as const;
-export type toggle_TFA_body = FromSchema<typeof toggle_TFA_Schema.body>;
-
-export const verify_TFA_Schema = {
-	//swagger===========================================================
-	description: 'toggle 2fa',
-	tags: ['2FA'],
-	summary: 'sends a post request to toggle 2fa auth',
-	hidden: false,
-	// query===============================================================
-	//headers=============================================================
-	// headers: {
-	// 	type: 'object',
-	// 	properties: {
-	// 	},
-	// },
-	// querystring: false,
-
-	//body===============================================================
-	body: {
-		type: 'object',
-		properties: {
-			email: EmailSchema,
-			password: PasswrdSchema,
-			TFA_token: TFA_token_schema,
-		},
-		required: ['TFA_token','email','password']
-	},
-	//response============================================================
-	response: {
-		200: {
-			type: 'object',
-			properties: { message: { type: 'string' } }
-		},
-		404: {
-			type: 'object',
-			properties: { message: { type: 'string' } }
-		},
-		400: {
+		401: {
 			type: 'object',
 			properties: { message: { type: 'string' } }
 		},
 	}
 } as const;
 export type verify_TFA_body = FromSchema<typeof verify_TFA_Schema.body>;
+
+
+
 
 
 

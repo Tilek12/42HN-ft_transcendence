@@ -49,6 +49,11 @@ export default defineConfig(({ mode }) => {
           ws: true,
           changeOrigin: true,
           secure: false
+        },
+        '/2fa': {
+          target: 'https://localhost:3000',
+          changeOrigin: true,
+          secure: false,
         }
       }
     }

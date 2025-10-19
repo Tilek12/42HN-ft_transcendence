@@ -1,4 +1,3 @@
-import { User } from '../plugins/authtypes';
 import { db } from './client';
 
 async function store2faKey(id: number, secret: string) {

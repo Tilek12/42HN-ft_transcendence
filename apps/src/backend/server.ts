@@ -3,16 +3,16 @@ import fs from 'fs';
 import websocket from '@fastify/websocket';
 import fastifyJwt, { FastifyJWTOptions } from '@fastify/jwt'
 import fastifyStatic from '@fastify/static';
-import path from 'path';
 import multipart from '@fastify/multipart'
 import { JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts'
 import helmet from '@fastify/helmet'
-import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
-import { connectToDB } from './database/client';
-import authPlugin from './plugins/auth';
-import authRoutes from './routes/api/auth-routes';
+import { connectToDB, db } from './database/client';
+import authPlugin  from './plugins/private_hook';
+import tfa_validate_hook from './plugins/2fa_hook'
+import authRoutes from './routes/auth/auth-routes';
+import tfa_Routes from './routes/auth/2fa-routes';
 import userRoutes from './routes/api/user-routes';
 import profileRoutes from './routes/api/profile-routes';
 import matchRoutes from './routes/api/match-routes';
@@ -25,7 +25,9 @@ import { Errorhandler } from './error';
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import fastifySwagger from '@fastify/swagger'
 
-import {generateqrcode} from './2FA/2fa'
+
+
+
 
 dotenv.config();
 
@@ -44,6 +46,22 @@ const server = Fastify({
 	logger: {
 		transport: {
 			target: 'pino-pretty'
+		},
+		serializers: {
+			req(request) {
+				return {
+					method: request.method,
+					url: request.url,
+					body: request.body,
+					// headers: request.headers,
+				};
+			},
+			res(reply) {
+				return {
+					statusCode: reply.statusCode,
+					// message: reply,
+				};
+			}
 		}
 	},
 	https: {
@@ -65,17 +83,6 @@ async function main() {
 	await server.register(multipart);					// file supposrt for fastify
 	server.register(helmet);							// adds http headers for security
 
-	// //upload pics path register
-	// const __dirname = path.dirname(fileURLToPath(import.meta.url));
-	// console.log(`here is the __dirname : ${__dirname}`);
-
-	// server.register(fastifyStatic,
-	// 	{
-	// 		root: path.join(__dirname, 'assets/profile_pics'),
-	// 		prefix: '/profile_pics/',
-	// 	}
-
-	// );
 	await server.register(fastifySwagger, {
 		openapi: {
 			openapi: '3.0.0',
@@ -90,23 +97,6 @@ async function main() {
 					description: 'Development server'
 				}
 			],
-			tags: [
-				{ name: 'user', description: 'User related end-points' },
-				{ name: 'code', description: 'Code related end-points' }
-			],
-			components: {
-				securitySchemes: {
-					apiKey: {
-						type: 'apiKey',
-						name: 'apiKey',
-						in: 'header'
-					}
-				}
-			},
-			externalDocs: {
-				url: 'https://swagger.io',
-				description: 'Find more info here'
-			}
 		}
 	});
 	await server.register(fastifySwaggerUi, {
@@ -116,25 +106,30 @@ async function main() {
 			deepLinking: false
 		}
 	});
-	// Public routes
-	await server.register(authRoutes, { prefix: '/api' });			// 👈 Public routes (login/register)
-	// await server.register(profileRoutes, { prefix: '/api' });		// !!! REPLACE TO PRIVATE !!!
-	await server.register(tournamentRoutes, { prefix: '/api' });	// !!! REPLACE TO PRIVATE !!!
 
+
+	// Public routes
+	await server.register(authRoutes, { prefix: '/api' });			// Public routes (login/register)
+	// await server.register(profileRoutes, { prefix: '/api' });	// !!! REPLACE TO PRIVATE !!!
+	// await server.register(tournamentRoutes, { prefix: '/api' });	// !!! REPLACE TO PRIVATE !!!
+	await server.register(async (tfa_Scope: any) => {
+		await server.register(tfa_validate_hook);					// 2fa validation
+		await server.register(tfa_Routes, { prefix: '/2fa' });		// 2fa routes: /2fa/...
+	})
 	// Protected scope of routes
 	await server.register(async (protectedScope: any) => {
-		await protectedScope.register(authPlugin);			// 👈 Middleware checking token
-		await protectedScope.register(userRoutes);			// 👈 Protected routes: /api/private/me
-		await protectedScope.register(profileRoutes);		// 👈 Protected routes: /api/private/profile
-		// await protectedScope.register(tournamentRoutes);	// 👈 Protected routes: /api/private/tournaments
-		await protectedScope.register(matchRoutes);			// 👈 Protected routes: /api/private/match
+		await protectedScope.register(authPlugin);			// Middleware checking token
+		await protectedScope.register(userRoutes);			// Protected routes: /api/private/me
+		await protectedScope.register(profileRoutes);		// Protected routes: /api/private/profile
+		// await protectedScope.register(tournamentRoutes);	// Protected routes: /api/private/tournaments
+		await protectedScope.register(matchRoutes);			// Protected routes: /api/private/match
 	}, { prefix: '/api/private' });
 
 	// WebSocket scope of routes
 	await server.register(async (websocketScope: any) => {
-		await websocketScope.register(wsGamePlugin);		// 🕹️ Game-only socket:  /ws/game
-		await websocketScope.register(wsPresencePlugin);	// 🔁 Persistent socket: /ws/presence
-		await websocketScope.register(wsTournamentPlugin);	// 🏆 Tournament socket: /ws/tournament
+		await websocketScope.register(wsGamePlugin);		// Game-only socket:  /ws/game
+		await websocketScope.register(wsPresencePlugin);	// Persistent socket: /ws/presence
+		await websocketScope.register(wsTournamentPlugin);	// Tournament socket: /ws/tournament
 	}, { prefix: '/ws' });
 
 	// Simple health check
@@ -146,7 +141,8 @@ async function main() {
 		server.swagger();
 	});
 
-	server.setErrorHandler(Errorhandler);
+
+	// server.setErrorHandler(Errorhandler);
 	// Start listening
 	try {
 		await server.listen({ port: PORT, host: '0.0.0.0' });

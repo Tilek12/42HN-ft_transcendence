@@ -23,6 +23,8 @@ export async function findProfileById(id:  number)
 export async function createProfile(username: string)
 {
 	let user = await findUserByUsername(username);
+	if (!user)
+		return;
 	await db.run(
 		'INSERT INTO profiles (id, logged_in, wins, losses, trophies) VALUES (?,?,?,?,?)',
 		user.id, false, 0, 0, 0
@@ -36,6 +38,11 @@ export async function updateProfileLogInState(id: number, status: boolean)
 {
 	await db.run(
 		'UPDATE profiles SET logged_in = ? WHERE id = ?',
+		status,
+		id
+	);
+	await db.run(
+		'UPDATE users SET is_logged_in = ? WHERE id = ?',
 		status,
 		id
 	);

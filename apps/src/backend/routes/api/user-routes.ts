@@ -9,7 +9,8 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
 	fastify.get('/me', async (req, res) => {
 		const payload = req.user as JWTPayload;
 		const user = await findUserById(payload.id);
-		if (!user) return res.status(404).send({ message: 'User not found' });
+		if (!user || !user.is_logged_in) 
+			return res.status(400).send({ message: 'User not found' });
 		
 		// i cant believe we were sending all userdata except password over??
 

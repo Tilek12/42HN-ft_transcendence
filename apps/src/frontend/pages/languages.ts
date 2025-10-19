@@ -1,42 +1,44 @@
 export type Language = 'EN' | 'DE' | 'GR';
 
 
+type translation_set = Record<Language, { [key: string]: string }>;
 
+interface HTMLElement {
+	placeholder:string
+}
 
-
-export function transelate_per_id( tr_array: Record<Language, {[key: string]: string | undefined}>, tr_key_string : string, lang : Language, element_id: string)
-{
-	let headerEl = document.getElementById(element_id) as HTMLElement || HTMLInputElement;
+export function transelate_per_id(tr_array: translation_set, tr_key_string: string, lang: Language, element_id: string) {
+	let headerEl = document.getElementById(element_id) as HTMLElement;
 	// console.log("The Element: ", headerEl);
-	if (tr_key_string.includes("placeholder") && headerEl) 
-			headerEl.placeholder = tr_array[lang][tr_key_string]
+	if (tr_key_string.includes("placeholder") && headerEl)
+		headerEl.placeholder = tr_array[lang][tr_key_string]
 	if (headerEl) headerEl.innerHTML = tr_array[lang][tr_key_string];
 }
 
 
 
-export const translations_profile: Record<Language, {[key: string]: string | undefined}> = 
+export const translations_profile: translation_set =
 {
 	EN: {
-		your_profile : 'Your Profile',
-		update : 'Update',
-		delete : 'Delete',
-		edit : 'Edit',
-		cancel : 'Cancel',
-		logged_in : 'Logged in',
-		username : 'Username:',
-		email : 'Email:',
-		wins : 'wins:',
-		losses : 'losses:',
-		trophies : 'trophies:',
-		joined : 'Joined:',
-		current_password_placeholder : 'Current password',
+		your_profile: 'Your Profile',
+		update: 'Update',
+		delete: 'Delete',
+		edit: 'Edit',
+		cancel: 'Cancel',
+		logged_in: 'Logged in',
+		username: 'Username:',
+		email: 'Email:',
+		wins: 'wins:',
+		losses: 'losses:',
+		trophies: 'trophies:',
+		joined: 'Joined:',
+		current_password_placeholder: 'Current password',
 		new_password_placeholder: 'New Password',
 		confirm_new_password_placeholder: 'Confirm New Passsword',
-		new_password_btn : 'New Password',
-		match_history : 'Match History',
-		load_more : 'Load More',
-		logout : 'Logout'
+		new_password_btn: 'New Password',
+		match_history: 'Match History',
+		load_more: 'Load More',
+		logout: 'Logout'
 	},
 	DE: {
 		your_profile: 'Dein Profil',
@@ -58,8 +60,8 @@ export const translations_profile: Record<Language, {[key: string]: string | und
 		match_history: 'Spielverlauf',
 		load_more: 'Mehr laden',
 		logout: 'Abmelden'
-	  },
-	  GR: {
+	},
+	GR: {
 		your_profile: 'Το προφίλ σας',
 		update: 'Ενημέρωση',
 		delete: 'Διαγραφή',
@@ -79,10 +81,10 @@ export const translations_profile: Record<Language, {[key: string]: string | und
 		match_history: 'Ιστορικό αγώνων',
 		load_more: 'Περισσότερα Προφίλ',
 		logout: 'Αποσύνδεση'
-	  }
+	}
 }
 
-export const translations_friends: Record<Language, { [key: string]: string }> = {
+export const translations_friends: translation_set = {
 	EN: {
 		unlink: 'Unlink',
 		link: 'Link',
@@ -112,7 +114,7 @@ export const translations_friends: Record<Language, { [key: string]: string }> =
 	}
 };
 
-export const translations_register_page: Record<Language, { [key: string]: string }> = {
+export const translations_register_page: translation_set = {
 	EN: {
 		register_header: 'Create Account',
 		username_label: 'Username',
@@ -121,7 +123,8 @@ export const translations_register_page: Record<Language, { [key: string]: strin
 		username_placeholder: 'Enter your username',
 		email_placeholder: 'Enter your email',
 		password_placeholder: 'Enter your password',
-		tfa_label: 'Enable 2 Factor Authentification',
+		qrcode_label:  'Enable 2 Factor Authentification by scanning this QR code with an authenticator app',
+		tfa_label: 'Enable 2FA',
 		tfa_placeholder: '6 digit code',
 		register_btn: 'Register',
 		register_error: 'Registration failed. Please check your details.',
@@ -136,7 +139,8 @@ export const translations_register_page: Record<Language, { [key: string]: strin
 		username_placeholder: 'Geben Sie Ihren Benutzernamen ein',
 		email_placeholder: 'Geben Sie Ihre E-Mail ein',
 		password_placeholder: 'Geben Sie Ihr Passwort ein',
-		tfa_label: '2FA aktivieren',
+		qrcode_label: 'Aktiviere 2FA Authentifizierung. Scanne diesen QR Code mit einer Authenticator App',
+		tfa_label: '2FA Aktivieren',
 		tfa_placeholder: '6 stelliger code',
 		register_btn: 'Registrieren',
 		register_error: 'Registrierung fehlgeschlagen. Bitte überprüfen Sie Ihre Angaben.',
@@ -151,16 +155,17 @@ export const translations_register_page: Record<Language, { [key: string]: strin
 		username_placeholder: 'Εισάγετε το όνομα χρήστη σας',
 		email_placeholder: 'Εισάγετε το email σας',
 		password_placeholder: 'Εισάγετε τον κωδικό σας',
-		tfa_label: '2FA ενεργοποιώ',
+		qrcode_label: 'Ενεργοποιήστε τον έλεγχο ταυτότητας δύο παραγόντων σαρώνοντας αυτόν τον κωδικό QR με μια εφαρμογή ελέγχου ταυτότητας.',
+		tfa_label: 'Ενεργοποίηση 2FA',
 		tfa_placeholder: '6ψήφιος κωδικός',
 		register_btn: 'Εγγραφή',
 		register_error: 'Η εγγραφή απέτυχε. Ελέγξτε τα στοιχεία σας.',
 		already_have_account: 'Έχετε ήδη λογαριασμό;',
-		sign_in: 'Σύνδεση'
+		sign_in: 'Σύνδεση',
 	}
 };
 
-export const translations_main_page: Record<Language, { [key: string]: string }> = {
+export const translations_main_page: translation_set = {
 	EN: {
 		main_welcome_header: 'Welcome to Pong Game!',
 		main_subtitle: 'Start the game and prove your skills.',
@@ -178,7 +183,7 @@ export const translations_main_page: Record<Language, { [key: string]: string }>
 	}
 };
 
-export const translations_login_page: Record<Language, { [key: string]: string }> = {
+export const translations_login_page: translation_set = {
 	EN: {
 		login_header: 'Welcome Back',
 		login_subtitle: 'Sign in to continue to your account',
@@ -191,6 +196,7 @@ export const translations_login_page: Record<Language, { [key: string]: string }
 		remember_me: 'Remember me',
 		forgot_password: 'Forgot password?',
 		sign_in_btn: 'Sign In',
+		tfa_placeholder: '6 digit code',
 		dont_have_account: "Don't have an account?",
 		create_account: 'Create account',
 		error_message: 'Invalid username or password'
@@ -207,6 +213,7 @@ export const translations_login_page: Record<Language, { [key: string]: string }
 		remember_me: 'Angemeldet bleiben',
 		forgot_password: 'Passwort vergessen?',
 		sign_in_btn: 'Anmelden',
+		tfa_placeholder: '6 stelliger code',
 		dont_have_account: 'Sie haben kein Konto?',
 		create_account: 'Konto erstellen',
 		error_message: 'Ungültiger Benutzername oder Passwort'
@@ -223,13 +230,14 @@ export const translations_login_page: Record<Language, { [key: string]: string }
 		remember_me: 'Να με θυμάσαι',
 		forgot_password: 'Ξεχάσατε τον κωδικό;',
 		sign_in_btn: 'Σύνδεση',
+		tfa_placeholder: '6ψήφιος κωδικός',
 		dont_have_account: 'Δεν έχετε λογαριασμό;',
 		create_account: 'Δημιουργία λογαριασμού',
 		error_message: 'Λανθασμένο όνομα χρήστη ή κωδικός'
 	}
 };
 
-export const translations_game_render: Record<Language, { [key: string]: string }> = {
+export const translations_game_render: translation_set = {
 	EN: {
 		pong_game_header: 'Pong Game',
 		play_alone: 'Play Alone',
@@ -253,7 +261,7 @@ export const translations_game_render: Record<Language, { [key: string]: string 
 	}
 };
 
-export const translations_friends_render: Record<Language, { [key: string]: string }> = {
+export const translations_friends_render: translation_set = {
 	EN: {
 		friends_list_header: 'Friends List',
 		request_list_header: 'Requests List'
@@ -268,7 +276,7 @@ export const translations_friends_render: Record<Language, { [key: string]: stri
 	}
 };
 
-export const translations_tournament_render: Record<Language, { [key: string]: string }> = {
+export const translations_tournament_render: translation_set = {
 	EN: {
 		tournament_lobby_header: '🏆 Tournament Lobby',
 		glory_header: 'Join a tournament and compete for glory!',
@@ -292,7 +300,7 @@ export const translations_tournament_render: Record<Language, { [key: string]: s
 	}
 };
 
-export const translations_leaderboards: Record<Language, { [key: string]: string }> = {
+export const translations_leaderboards: translation_set = {
 	EN: {
 		leaderboard_ld_header: 'Leaderboard',
 		top_player_ld_header: 'Top players.',
@@ -330,48 +338,58 @@ export const translations_leaderboards: Record<Language, { [key: string]: string
 	}
 };
 
-export const translations_errors: Record<Language, { [key: string]: string }> = {
+export const translations_errors: translation_set = {
 	EN: {
 		error_invalid_password: 'The Password must be 8-64 characters, contain at least one uppercase, one lowercase, one number and one special charracter',
 		error_invalid_email: 'Invalid Email',
+		error_invalid_user: 'User doesnt exist',
+		error_no_token: 'No 2fa token submitted',
+		error_logged_in: 'Already logged in',
+		error_invalid_token: 'Invalid 2fa code supplied',
+		error_default: "Error",
 	},
 	DE: {
 		error_invalid_password: 'Password muss 8-64 Zeichen und mindestens einen Großbuchstaben, einen Kleinbuchstaben, ene Zahl und einen Spezialzeichen enthalten',
 		error_invalid_email: 'Email nicht korrekt',
+		error_invalid_user: 'Benutzer existiert nicht',
+		error_no_token: 'Kein 2fa code gesendet',
+		error_logged_in: 'Bereits eingeloggt',
+		error_invalid_token: 'Ungültiger 2fa code',
+		error_default: "Fehler",
 	},
 	GR: {
 		error_invalid_password: 'Ο κωδικός πρέπει να έχει 8–64 χαρακτήρες, με τουλάχιστον ένα κεφαλαίο, ένα πεζό, έναν αριθμό και έναν ειδικό χαρακτήρα.',
 		error_invalid_email: 'μη έγκυρο emailQ',
+		error_invalid_user: 'Ο χρήστης δεν υπάρχει',
+		error_no_token: 'Δεν υποβλήθηκε κωδικός 2FA',
+		error_logged_in: 'Έχετε ήδη συνδεθεί',
+		error_invalid_token: 'Ο κωδικός 2FA που δόθηκε δεν είναι έγκυρος',
+		error_default: "Σφάλμα",
 	},
 };
 
 class LanguageStore {
 	private _language: Language = 'EN';
-	private listeners: ((lang : Language) => void)[] = [];
+	private listeners: ((lang: Language) => void)[] = [];
 	private _clicked: number = 0;
 
-	set language(lang: Language)
-	{
+	set language(lang: Language) {
 		this._language = lang;
 		this.listeners.forEach(cb => cb(lang));
 	}
 
-	get language()
-	{
+	get language() {
 		return this._language;
 	}
-	set clicked(cl: number)
-	{
+	set clicked(cl: number) {
 		this._clicked = cl;
 	}
-	get clicked()
-	{
+	get clicked() {
 		return this._clicked;
 	}
-	subscribe(cb: (lang: Language) => void)
-	{
+	subscribe(cb: (lang: Language) => void) {
 		this.listeners.push(cb);
 	}
-} 
+}
 
 export const languageStore = new LanguageStore();

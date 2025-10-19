@@ -1,10 +1,7 @@
-import { StringLiteral } from "typescript";
-
-export type JWTPayload = {
+export type payload = {
   id: number,
   username: string,
   tfa: boolean,
   role: string,
   type: string,
-};
-
+}

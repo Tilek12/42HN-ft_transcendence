@@ -1,6 +1,6 @@
-import { renderNav , changeLoginButton} from './nav'
+import { renderNav, changeLoginButton } from './nav'
 import { renderBackgroundFull } from '../utils/layout';
-import { saveToken } from '../utils/auth';
+import { saveToken, enabled_2fa, clearToken } from '../utils/auth';
 import { wsManager } from '../websocket/ws-manager';
 import { languageStore, translations_login_page, transelate_per_id, translations_errors } from './languages';
 import type { Language } from './languages';
@@ -22,27 +22,13 @@ export function renderLogin(root: HTMLElement) {
           <p id="login_subtitle" class="text-gray-300 text-sm">${t.login_subtitle}</p>
         </div>
 
-        <button id="google-login"
-          class="w-full bg-white/10 hover:bg-white/20 border border-white/30 text-white py-3 px-4 rounded-xl mb-6 transition-all duration-300 flex items-center justify-center space-x-3 hover:scale-105 backdrop-blur-sm group">
-          <svg class="w-5 h-5 transition-transform group-hover:rotate-12" viewBox="0 0 24 24">
-            <path fill="currentColor"
-              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-            <path fill="currentColor"
-              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-            <path fill="currentColor"
-              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-            <path fill="currentColor"
-              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-          </svg>
-          <span id="google_btn" class="font-medium">${t.google_btn}</span>
-        </button>
-
+  
         <div class="relative my-6">
           <div class="absolute inset-0 flex items-center">
             <div class="w-full border-t border-white/20"></div>
           </div>
           <div class="relative flex justify-center text-sm">
-            <span id="or_continue" class="px-4 bg-transparent text-gray-300">${t.or_continue}</span>
+            <span id="or_continue" class="px-4 bg-transparent text-gray-300"></span>
           </div>
         </div>
 
@@ -65,16 +51,6 @@ export function renderLogin(root: HTMLElement) {
             </div>
           </div>
 
-          <div class="flex items-center justify-between text-sm">
-            <label class="flex items-center text-gray-300">
-              <input type="checkbox"
-                class="mr-2 rounded border-white/20 bg-white/10 text-blue-500 focus:ring-blue-500/50">
-              <span id="remember_me">${t.remember_me}</span>
-            </label>
-            <a id="forgot_password" href="#/forgot-password"
-              class="text-blue-400 hover:text-blue-300 transition-colors duration-200">${t.forgot_password}</a>
-          </div>
-
           <button type="submit"
             class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-lg">
             <span class="flex items-center justify-center space-x-2">
@@ -85,7 +61,12 @@ export function renderLogin(root: HTMLElement) {
               </svg>
             </span>
           </button>
-
+        </form>
+        <form id="tfa_container"  class=" hidden flex flex-col items-center justify-center">
+          <label id="tfa_label" class="text-center text-gray-300 space-x-2 ">Please enter your TOTP code from your atuhenticator</label>
+          <input id="2fa_token" type="numeric" placeholder="${t!.tfa_placeholder}" pattern="[0-9]{6}" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class=" m-2 bg-white/10 w-40 h-10 m-1 text-center rounded placeholder-gray-400 ocus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent backdrop-blur-sm">
+          <button id="token_submit" type="submit" class="w-full mt-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-lg">Submit</button>
+        </form>
           <div id="login-error" class="hidden">
             <div
               class="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl text-sm backdrop-blur-sm">
@@ -98,8 +79,6 @@ export function renderLogin(root: HTMLElement) {
               </div>
             </div>
           </div>
-        </form>
-
         <div class="text-center mt-8 pt-6 border-t border-white/10">
           <p id="dont_have_account" class="text-gray-300 text-sm mb-2">${t.dont_have_account}</p>
           <a href="#/register"
@@ -129,7 +108,6 @@ export function renderLogin(root: HTMLElement) {
   const form = document.getElementById('login-form') as HTMLFormElement;
   const errorContainer = document.getElementById('login-error')!;
   const errorText = document.getElementById('error_text')!;
-  const googleBtn = document.getElementById('google-login')!;
   const navbar = document.getElementById('navbar');
 
   if (navbar)
@@ -163,8 +141,7 @@ export function renderLogin(root: HTMLElement) {
       });
 
       const response_data = await res.json();
-
-      if (!res.ok || !response_data.token) {
+      if (!res.ok || !response_data.jwt) {
         let error_message = response_data.message;
         switch (error_message) {
           case 'INVALID_PASSWORD': error_message = error_trans.error_invalid_password; break;
@@ -179,28 +156,84 @@ export function renderLogin(root: HTMLElement) {
           errorContainer.classList.add('hidden');
         }, 5000);
       } else {
-        saveToken(response_data.token);
-        // success animation
-        submitBtn.innerHTML = `
-          <div class="flex items-center justify-center space-x-2">
+        saveToken(response_data.jwt);
+        if (enabled_2fa()) {
+          form.classList.add('hidden');
+          const tfa_container = document.getElementById('tfa_container') as HTMLFormElement;
+          if (!tfa_container)
+            throw new Error("no tfa_container");
+          tfa_container.classList.remove('hidden');
+
+          tfa_container.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const tfa_token = (document.getElementById('2fa_token') as HTMLInputElement).value;
+            const button = document.getElementById('token_submit') as HTMLButtonElement;
+            const res = await fetch('/2fa/verify', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${response_data.jwt}`
+              },
+              body: JSON.stringify({ tfa_token }),
+            });
+
+            const res2faverify = await res.json();
+            console.log(res2faverify)
+            if (!res2faverify.jwt) {
+              let error_message = res2faverify.message;
+              switch (res2faverify.message){
+              case "INVALID_USER": error_message = error_trans.error_invalid_user; break;
+              case "INVALID_NO_TOKEN": error_message = error_trans.error_no_token; break;
+              case "INVALID_USER_LOGGED_IN": error_message = error_trans.error_logged_in; break;
+              case "INVALID_TOKEN": error_message = error_trans.error_invalid_token; break;
+              default: error_message = error_trans.error_default; break;
+              }
+              errorText.textContent = error_message;
+              errorContainer.classList.remove('hidden');
+
+              // auto hiding
+              setTimeout(() => {
+                errorContainer.classList.add('hidden');
+                renderLogin(root);
+              }, 3000);
+              return;
+
+            } else {
+              clearToken()
+              saveToken(res2faverify.jwt);
+              button.innerHTML = `
+                <div class="flex items-center justify-center space-x-2">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Success!</span>
+                </div>
+                `;
+              setTimeout(() => {
+              location.hash = '#/profile';
+              }, 1000);
+              changeLoginButton(false);
+            }
+          })
+        }
+        else {
+          // success animation
+          submitBtn.innerHTML = `
+            <div class="flex items-center justify-center space-x-2">
             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
             </svg>
             <span>Success!</span>
-          </div>
-        `;
-        // const login_btn = document.getElementById('login-btn');
-        // console.log("Element : =======>>>", login_btn);
-        // login_btn?.classList.add("hidden");
-        // connectPresenceSocket();
-        wsManager.connectPresenceSocket();
-        setTimeout(() => {
-          location.hash = '#/profile';
-        }, 1000);
-        changeLoginButton(false);
+            </div>
+            `;
+          // setTimeout(() => {
+          //   location.hash = '#/profile';
+          // }, 1000);
+          // changeLoginButton(false);
+        }
       }
     } catch (error) {
-      errorText.textContent = 'Network error. Please try again.';
+      errorText.textContent = error as any;
       errorContainer.classList.remove('hidden');
     } finally {
       // resetting btn after delay
@@ -210,99 +243,4 @@ export function renderLogin(root: HTMLElement) {
       }, 2000);
     }
   });
-
-  googleBtn.addEventListener('click', async () => {
-    // loading animation
-    const originalText = googleBtn.innerHTML;
-    googleBtn.innerHTML = `
-      <div class="flex items-center justify-center space-x-3">
-        <svg class="animate-spin h-5 w-5 tex/privatet-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        <span>Connecting...</span>
-      </div>
-    `;
-
-    setTimeout(() => {
-      alert('🧪 Google login not implemented yet.');
-      googleBtn.innerHTML = originalText;
-    }, 1500);
-
-    // Optional: Redirect to OAuth endpoint
-    // location.href = '/api/auth/google'
-  });
 }
-
-
-
-
-// import { renderNav } from './nav'
-
-// export function renderLogin(root: HTMLElement) {
-//   root.innerHTML = renderNav() + `
-//     <div class="max-w-md mx-auto mt-10 bg-white p-8 rounded shadow">
-//       <h1 class="text-3xl font-bold mb-6 text-center">Sign In</h1>
-
-//       <button id="google-login" class="w-full bg-red-500 text-white py-2 px-4 rounded mb-6 hover:bg-red-600">
-//         🔒 Login via Google
-//       </button>
-
-//       <form id="login-form" class="space-y-6">
-//         <div>
-//           <label for="username" class="block text-left text-sm font-medium text-gray-700">Username</label>
-//           <input type="text" id="username" class="mt-1 block w-full border px-3 py-2 rounded shadow-sm" required />
-//         </div>
-
-//         <div>
-//           <label for="password" class="block text-left text-sm font-medium text-gray-700">Password</label>
-//           <input type="password" id="password" class="mt-1 block w-full border px-3 py-2 rounded shadow-sm" required />
-//         </div>
-
-//         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
-//           Login
-//         </button>
-
-//         <p id="login-error" class="text-red-600 text-sm mt-2 hidden"></p>
-//       </form>
-
-//       <div class="text-center mt-6">
-//         <p class="text-sm text-gray-600">No account?</p>
-//         <a href="#/register" class="text-blue-600 hover:underline font-semibold">Register</a>
-//       </div>
-//     </div>
-//   `;
-
-//   const form = document.getElementById('login-form') as HTMLFormElement;
-//   const error = document.getElementById('login-error')!;
-//   const googleBtn = document.getElementById('google-login')!;
-
-//   form.addEventListener('submit', async (e) => {
-//     e.preventDefault();
-//     const username = (document.getElementById('username') as HTMLInputElement).value;
-//     const password = (document.getElementById('password') as HTMLInputElement).value;
-
-//     const res = await fetch('/api/login', {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ username, password }),
-//     });
-
-//     const response_data = await res.json();
-
-//     if (!res.ok) {
-//       error.textContent = response_data.message || 'Login failed';
-//       error.classList.remove('hidden');
-//     } else {
-//       alert('✅ Logged in!');
-//       location.hash = '#/profile';
-//     }
-//   });
-
-//   googleBtn.addEventListener('click', async () => {
-//     // Replace with actual redirect or popup flow later
-//     alert('🧪 Google login not implemented yet.');
-//     // Optional: Redirect to OAuth endpoint
-//     // location.href = '/api/auth/google'
-//   });
-// }

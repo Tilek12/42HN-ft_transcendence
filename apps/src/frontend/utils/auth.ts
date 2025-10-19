@@ -1,4 +1,5 @@
-// import { disconnectPresenceSocket } from "../websocket/presence";
+import { OPEN_READONLY } from 'sqlite3';
+import {payload} from '../pages/types'
 
 export function saveToken(token: string) {
 	sessionStorage.setItem('jwt', token);
@@ -11,6 +12,26 @@ export function getToken(): string | null {
 export function clearToken() {
 	sessionStorage.removeItem('jwt');
 	// disconnectPresenceSocket();
+}
+
+export function enabled_2fa():boolean {
+	const payload = get_jwt_payload();
+	if (payload)
+	{
+		return payload.tfa;
+	}
+	return false;
+}
+
+export function get_jwt_payload(): payload | null {
+
+	const token = getToken();
+	if (token){
+		const arr = token.split('.');
+		if (arr[1])
+			return JSON.parse(atob(arr[1])) as payload;
+	}
+	return null;
 }
 
 

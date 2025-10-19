@@ -4,6 +4,7 @@ import { initLang } from './nav';
 import { languageStore, translations_register_page, transelate_per_id } from './languages';
 import type { Language } from './languages';
 import { saveToken } from '../utils/auth';
+import { getToken, clearToken } from '../utils/auth'
 
 export function renderRegister(root: HTMLElement) {
   const t = translations_register_page[languageStore.language];
@@ -84,70 +85,70 @@ export function renderRegister(root: HTMLElement) {
       body: JSON.stringify({ username, email, password, tfa }),
     });
 
-    const data = await res.json();
+    let data = await res.json();
 
-    if (!res.ok) {
+    if (!res.ok || !data.jwt) {
       error.textContent = data.message || '❌ Registration failed.';
       error.classList.remove('hidden');
       return;
     }
     if (tfa) {
+      const res = await fetch('/2fa/enable', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${data.jwt}`,
+        },
+        body: JSON.stringify({})
+      });
+      const data2fa = await res.json();
+      if (!res.ok) {
+        error.textContent = data.message || '❌ Registration failed.';
+        error.classList.remove('hidden');
+        return;
+      }
+      const qr = data2fa.qr;
       form.classList.add('hidden');
       const tfa_container = document.getElementById('tfa_container') as HTMLFormElement;
-      const qr = data.qr;
-      console.log("no qrcode gotten: ", qr);
+      const jwt = data.jwt;
       tfa_container.innerHTML = `
-        <img src="${qr}" class="rounded">
+        <label id="qrcode_label" class="">${t!.qrcode_label}</label>
+        <img src="${qr}" class="rounded m-3">
         <div id="token_input" class="flex flex-row">
-        <input type="numeric" placeholder="${t!.tfa_placeholder}" pattern="[0-9]{6}" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class=" m-2 bg-white/10 w-40 h-10 m-1 text-center rounded placeholder-gray-400 ocus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent backdrop-blur-sm">
+        <input id="2fa_token" type="numeric" placeholder="${t!.tfa_placeholder}" pattern="[0-9]{6}" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class=" m-2 bg-white/10 w-40 h-10 m-1 text-center rounded placeholder-gray-400 ocus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent backdrop-blur-sm">
         </div>
         <button id="token_submit" type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-lg">Submit</button>
       `
       tfa_container.classList.remove("hidden");
       tfa_container.addEventListener('submit', async (e) => {
-        try {
-          const res = await fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password }),
-          });
+        e.preventDefault();
+        const tfa_token = (document.getElementById('2fa_token') as HTMLInputElement).value;
+        const res = await fetch('/2fa/verify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${data.jwt}` },
+          body: JSON.stringify({tfa_token}),
+        });
 
-          const response_data = await res.json();
+        const res2faverify = await res.json();
 
-          if (!res.ok || !response_data.token) {
+        if (!res2faverify.ok || !res2faverify.token) {
+          error.textContent = res2faverify.message || "failed";
+          error.classList.remove("hidden")
 
-          } else {
-            saveToken(response_data.token);
-          }
-        }
-        catch (error) {
-          alert("Register failed");
-          location.hash = '#/';
-         }
 
-      });
-    }
-        try {
-          const res = await fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password }),
-          });
-
-          const response_data = await res.json();
-
-          if (!res.ok || !response_data.token) {
-              
-          } else {
-            saveToken(response_data.token);
-          }
-        }
-        catch (error) {
-          alert("Register failed");
-          location.hash = '#/';
-         }
+        } else {
+          saveToken(res2faverify.jwt);
           location.hash = '#/profile';
-        changeLoginButton(false);
-
+        }
+      })
+    }
+    else
+    {
+      saveToken(data.jwt);
+      location.hash = '#/profile';
+    }
+    
   });
 }
