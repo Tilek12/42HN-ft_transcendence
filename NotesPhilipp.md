@@ -43,7 +43,22 @@
 
 - add settings to enable /disable 2fa
 
+
+- set a notfound handler like in demo
+
+- WHY does the presence websocket route have the token in the url???? WTF literally fix this
+
+- Why are certs in the fucking commit history?
+
 wokrflow 2fa auth:
+
+- fastify.post('/check-given-old-password => rework
+
+- fastify.post('/update-password'
+
+- register logic rewortk, get logged in only when 2fa is verifed
+
+
 
 endpoints:	
 -			/api/2fa/enable		POST	//sends qrcode		needs tmp token / token

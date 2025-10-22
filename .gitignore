@@ -1,12 +1,9 @@
 *test*
-apps/database
+# *.db
+database
 .env*
 profile_pics/user*
 node_modules
 secrets
-.fastify-blog
 dist
 cert
-wb_kaa
-merge_test
-pic_branch_test

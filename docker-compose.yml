@@ -20,7 +20,6 @@ services:
       - ssl_cert
       - ssl_key
 
-
 secrets:
       ssl_cert:
         file: ./cert/cert.pem
