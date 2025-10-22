@@ -2,7 +2,7 @@ import { renderNav } from './nav'
 import { renderBackgroundTop } from '../utils/layout'
 import { initLang } from './nav';
 import {languageStore, translations_leaderboards, transelate_per_id} from './languages';
-import type {Language} from './languages'
+import type {Language} from '../types'
 
 export async function renderLeaderboard(root: HTMLElement) {
 	const tr =  translations_leaderboards[languageStore.language];

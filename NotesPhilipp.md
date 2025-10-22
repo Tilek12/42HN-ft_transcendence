@@ -60,6 +60,8 @@ wokrflow 2fa auth:
 
 - private jwt verify hook should check for tmp token or normal token.
 
+- get all types straight on the frontend 
+
 endpoints:	
 -			/api/2fa/enable		POST	//sends qrcode		needs tmp token / token
 -			/api/2fa/disable	POST	//sends nothing		needs jwt username password 2fatoken 
@@ -67,6 +69,7 @@ endpoints:
 -			/api/2fa/verify		POST	//sends jwt			needs tmp token
 -			/api/login			POST	//sends tmp token	needs username password 2fatoken
 -			/api/register		POST	//sends tmp token	needs username email password
+
 
 #### register with 2fa
 first you register, client passes email username and password in the form and enable 2fa.

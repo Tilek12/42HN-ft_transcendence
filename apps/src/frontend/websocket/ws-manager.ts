@@ -1,13 +1,5 @@
 import { getToken } from '../utils/auth';
-
-export type GameMode = 'solo' | 'duel' | 'tournament';
-
-interface PresenceUser {
-  id: string;
-  name?: string;
-}
-
-type PresenceCallback = (users: number, tournaments: any[]) => void;
+import { GameMode, PresenceUser, PresenceCallback } from '../types';
 
 class WebSocketManager {
   // Basic WebSocket connections
@@ -182,7 +174,11 @@ class WebSocketManager {
     const token = getToken();
     if (!token) return null;
 
+<<<<<<< HEAD
     let url = `/ws/tournament?action=${action}&size=${size}&token=${token}`;
+=======
+    let url = `${this.backendUrl}/ws/tournament?action=${action}&size=${size}&token=${token}&mode=${mode}`;
+>>>>>>> origin/tilek-tournament-test
     if (action === 'join' && id) url += `&id=${id}`;
     if (names && names.length > 0) url += `&names=${encodeURIComponent(JSON.stringify(names))}`;
 

@@ -1,11 +1,8 @@
-import { renderNav } from './nav'
 import { renderBackgroundTop } from '../utils/layout';
-import { getToken, clearToken, validateLogin } from '../utils/auth'
-import { renderProfilesList } from './renderProfiles';
+import { getToken } from '../utils/auth'
 import { renderFriendsList } from './renderFriends';
 import { renderFriendRequestsList } from './renderFriendRequestList';
 import {languageStore, translations_friends_render, transelate_per_id} from './languages';
-import type {Language} from './languages';
 
 
 
