@@ -1,5 +1,4 @@
-import { Player, GhostPlayer, GameState, GameMessage, OnGameEnd } from './types';
-import { advanceTournament } from '../service-managers/tournament-manager';
+import { Player, GhostPlayer, GameState, GameMessage, OnGameEnd, GameMode } from './game-types';
 
 const FRAME_RATE = 1000 / 60;
 const PADDLE_HEIGHT = 20;
@@ -12,7 +11,7 @@ const FREEZE = 5;
 export class GameRoom {
   public readonly id: string;
   private players: [Player, Player];
-  private mode: 'solo' | 'duel';
+  private mode: GameMode;
   private tournamentId?: string;
   private state: GameState;
   private interval: NodeJS.Timeout;
@@ -24,13 +23,14 @@ export class GameRoom {
 
   constructor(
     id: string,
+    mode: GameMode,
     player1: Player,
     player2: Player | null,
     tournamentId?: string
   ) {
     this.id = id;
     this.players = [player1, player2 ?? GhostPlayer];
-    this.mode = player2 ? 'duel' : 'solo';
+    this.mode = mode;
     if (tournamentId) this.tournamentId = tournamentId;
     this.state = this.initState();
     this.setupListeners();
@@ -55,30 +55,6 @@ export class GameRoom {
     };
   }
 
-  // private handleMessage(player: Player, raw: string) {
-  //   if (raw === 'pong') return;
-
-  //   let message: GameMessage;
-  //   try {
-  //     message = JSON.parse(raw);
-  //   } catch {
-  //     console.warn(`⚠️ Invalid message from ${player.id}:`, raw);
-  //     return;
-  //   }
-
-  //   switch (message.type) {
-  //     case 'move':
-  //       this.move(player.id, message.direction);
-  //       break;
-  //     case 'quit':
-  //       this.broadcast({ type: 'disconnect', who: player.id });
-  //       this.end();
-  //       break;
-  //     default:
-  //       console.warn(`⚠️ Unknown message type from ${player.id}:`, message);
-  //   }
-  // }
-
   private setupListeners() {
     for (const player of this.players) {
       if (player === GhostPlayer) continue;
@@ -96,11 +72,18 @@ export class GameRoom {
         }
 
         if (m.type === 'move') {
-          let targetId = player.id;
-          if (this.mode === 'solo' && m.side === 'right') {
-            targetId = GhostPlayer.id;
+          if (this.mode === 'solo') {
+            // one socket controls both paddles
+            const target = m.side === 'right' ? this.players[1].id : this.players[0].id;
+            this.move(target, m.direction);
+          } else if (this.mode === 'local') {
+            // same socket, but use side field to choose
+            const target = m.side === 'right' ? this.players[1].id : this.players[0].id;
+            this.move(target, m.direction);
+          } else {
+            // duel/match: player only controls their own paddle
+            this.move(player.id, m.direction);
           }
-          this.move(targetId, m.direction);
         } else if (m.type === 'quit') {
           this.broadcast({ type: 'disconnect', who: player.id });
           this.end();
@@ -197,9 +180,6 @@ export class GameRoom {
 
       setTimeout(() => this.end(), 1000);
 
-      if (this.tournamentId && this.winner !== GhostPlayer) {
-        advanceTournament(this.tournamentId, this.winner);
-      }
       return;
     }
 
@@ -228,8 +208,10 @@ export class GameRoom {
 
   private broadcast(msg: any) {
     for (const p of this.players) {
-      if (p !== GhostPlayer && p.socket.readyState === p.socket.OPEN) {
-        p.socket.send(JSON.stringify(msg));
+      if (p !== GhostPlayer && p.socket.readyState === 1) {
+        try {
+          p.socket.send(JSON.stringify(msg));
+        } catch {}
       }
     }
   }
@@ -243,14 +225,6 @@ export class GameRoom {
     if (this.onEnd && this.winner && this.loser) {
       this.onEnd(this.winner, this.loser, this.winnerScore, this.loserScore);
     }
-
-    for (const p of this.players) {
-      if (p !== GhostPlayer && p.socket.readyState === p.socket.OPEN) {
-        try {
-          p.socket.close(1000, 'Game Ended');
-        } catch {}
-      }
-    }
   }
 
   public onEndCallback(onEnd: OnGameEnd): void {
@@ -263,5 +237,9 @@ export class GameRoom {
 
   public isEnded(): boolean {
     return this.state.status === 'ended';
+  }
+
+  public handleMove(playerId: string, direction: 'up' | 'down', side?: 'left' | 'right') {
+    this.move(playerId, direction, side);
   }
 }

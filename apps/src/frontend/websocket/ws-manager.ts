@@ -173,7 +173,9 @@ class WebSocketManager {
     action: 'join' | 'create',
     size: 4 | 8,
     id?: string,
-    onMessage?: (msg: any) => void
+    onMessage?: (msg: any) => void,
+    mode: 'local' | 'online' = 'online',
+    names?: string[]
   ): WebSocket | null {
     if (this.tournamentSocket) this.disconnectTournamentSocket();
 
@@ -182,6 +184,7 @@ class WebSocketManager {
 
     let url = `/ws/tournament?action=${action}&size=${size}&token=${token}`;
     if (action === 'join' && id) url += `&id=${id}`;
+    if (names && names.length > 0) url += `&names=${encodeURIComponent(JSON.stringify(names))}`;
 
     const socket = new WebSocket(url);
     this.tournamentSocket = socket;

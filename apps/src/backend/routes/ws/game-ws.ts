@@ -3,11 +3,11 @@ import fp from 'fastify-plugin';
 import { WebSocket } from 'ws';
 
 import { startGame, cancelDuelSearch } from '../../game/matchmaking';
-import { Player } from '../../game/types';
+import { Player } from '../../game/game-types';
 import { userManager } from '../../service-managers/user-manager';
 import { PING_INTERVAL_MS } from '../../constants';
 
-const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
+const wsGamePlugin: FastifyPluginAsync = async (fastify: any) => {
 	fastify.get('/game', { websocket: true }, (socket: WebSocket, req: FastifyRequest) => {
 		// parse query quickly
 		const { token } = (req.query as any) ?? {};
@@ -46,7 +46,7 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify) => {
 
 		socket.on('message', onMessage);
 		socket.on('close', () => { closed = true; });
-		socket.on('error', (err) => fastify.log.warn('[Game WS] socket error', err));
+		socket.on('error', (err: any) => fastify.log.warn('[Game WS] socket error', err));
 
 		(async () => {
 			let userId: string;

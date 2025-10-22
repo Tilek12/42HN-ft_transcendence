@@ -1,5 +1,4 @@
 import { WebSocket } from 'ws';
-// import {profile} from '../database/profile';
 
 interface User {
 	id: number;
@@ -12,11 +11,6 @@ interface User {
 	isAlive: boolean;
 	isInGame: boolean;
 	isInTournament: boolean;
-	logged_in?: boolean;
-	profileId?: string,
-	wins?: number;
-	losses?: number;
-	trophies?: number;
 }
 
 class UserManager {
@@ -68,7 +62,7 @@ class UserManager {
 		if (user) user.isInGame = value;
 	}
 
-	setInTornament(id: number, value: boolean) {
+	setInTournament(id: string, value: boolean) {
 		const user = this.getUser(id);
 		if (user) user.isInTournament = value;
 	}
