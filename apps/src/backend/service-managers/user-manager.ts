@@ -1,17 +1,5 @@
 import { WebSocket } from 'ws';
-
-interface User {
-	id: number;
-	name: string;
-	gameSocket: WebSocket | null;
-	presenceSocket: WebSocket | null;
-	tournamentSocket: WebSocket | null;
-	tournamentId?: number;
-	tournamentMatchId?: number;
-	isAlive: boolean;
-	isInGame: boolean;
-	isInTournament: boolean;
-}
+import { User } from '../types'
 
 class UserManager {
 	private users = new Map<number, User>();
