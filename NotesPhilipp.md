@@ -58,7 +58,7 @@ wokrflow 2fa auth:
 
 - register logic rewortk, get logged in only when 2fa is verifed
 
-
+- private jwt verify hook should check for tmp token or normal token.
 
 endpoints:	
 -			/api/2fa/enable		POST	//sends qrcode		needs tmp token / token
