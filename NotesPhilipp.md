@@ -39,7 +39,7 @@
 
 - add explanation to register qrcode page
 
-- fix languages
+- fix languages -> make it available in register and login site -> independent from navbarq
 
 - add settings to enable /disable 2fa
 
