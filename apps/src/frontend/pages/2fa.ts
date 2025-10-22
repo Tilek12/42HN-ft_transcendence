@@ -23,3 +23,4 @@ export async function renderQrcode(root: HTMLElement) {
 						</div>`;
 
 }
+

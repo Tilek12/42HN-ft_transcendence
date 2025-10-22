@@ -1,31 +1,22 @@
-export type Language = 'EN' | 'DE' | 'GR';
+import { Language, PlaceholderElement, TranslationSet } from '../types'
 
 
-type translation_set = Record<Language, { [key: string]: string }>;
-
-interface PlaceholderElement extends HTMLElement {
-	placeholder:string
-}
-
-export function transelate_per_id(tr_array: translation_set, tr_key_string: string, lang: Language, element_id: string) {
-	let headerEl = document.getElementById(element_id) as unknown;
-	if (headerEl) {
-		let header = headerEl as PlaceholderElement;
-		if (tr_key_string.includes("placeholder"))
+export function transelate_per_id(tr_array: TranslationSet, tr_key_string: string, lang: Language, element_id: string) {
+	let headerEl = document.getElementById(element_id) as PlaceholderElement;
+	if (headerEl)
+	{
+		let placeholder = tr_array[lang][tr_key_string];
+		if (placeholder && tr_key_string.includes("placeholder"))
 		{
-			const placeholder = tr_array[lang][tr_key_string];
-			if (placeholder)
-			{
-				header.placeholder = placeholder;
-				header.innerHTML = placeholder;
-			}
+			headerEl.placeholder = placeholder;
+			headerEl.innerHTML = placeholder;
 		}
 	}
 }
 
 
 
-export const translations_profile: translation_set =
+export const translations_profile: TranslationSet =
 {
 	EN: {
 		your_profile: 'Your Profile',
@@ -92,7 +83,7 @@ export const translations_profile: translation_set =
 	}
 }
 
-export const translations_friends: translation_set = {
+export const translations_friends: TranslationSet = {
 	EN: {
 		unlink: 'Unlink',
 		link: 'Link',
@@ -122,7 +113,7 @@ export const translations_friends: translation_set = {
 	}
 };
 
-export const translations_register_page: translation_set = {
+export const translations_register_page: TranslationSet = {
 	EN: {
 		register_header: 'Create Account',
 		username_label: 'Username',
@@ -173,7 +164,7 @@ export const translations_register_page: translation_set = {
 	}
 };
 
-export const translations_main_page: translation_set = {
+export const translations_main_page: TranslationSet = {
 	EN: {
 		main_welcome_header: 'Welcome to Pong Game!',
 		main_subtitle: 'Start the game and prove your skills.',
@@ -191,7 +182,7 @@ export const translations_main_page: translation_set = {
 	}
 };
 
-export const translations_login_page: translation_set = {
+export const translations_login_page: TranslationSet = {
 	EN: {
 		login_header: 'Welcome Back',
 		login_subtitle: 'Sign in to continue to your account',
@@ -245,7 +236,7 @@ export const translations_login_page: translation_set = {
 	}
 };
 
-export const translations_game_render: translation_set = {
+export const translations_game_render: TranslationSet = {
 	EN: {
 		pong_game_header: 'Pong Game',
 		play_alone: 'Play Alone',
@@ -269,7 +260,7 @@ export const translations_game_render: translation_set = {
 	}
 };
 
-export const translations_friends_render: translation_set = {
+export const translations_friends_render: TranslationSet = {
 	EN: {
 		friends_list_header: 'Friends List',
 		request_list_header: 'Requests List'
@@ -284,7 +275,7 @@ export const translations_friends_render: translation_set = {
 	}
 };
 
-export const translations_tournament_render: translation_set = {
+export const translations_tournament_render: TranslationSet = {
 	EN: {
 		tournament_lobby_header: '🏆 Tournament Lobby',
 		glory_header: 'Join a tournament and compete for glory!',
@@ -308,7 +299,7 @@ export const translations_tournament_render: translation_set = {
 	}
 };
 
-export const translations_leaderboards: translation_set = {
+export const translations_leaderboards: TranslationSet = {
 	EN: {
 		leaderboard_ld_header: 'Leaderboard',
 		top_player_ld_header: 'Top players.',
@@ -346,7 +337,7 @@ export const translations_leaderboards: translation_set = {
 	}
 };
 
-export const translations_errors: translation_set = {
+export const translations_errors: TranslationSet = {
 	EN: {
 		error_invalid_password: 'The Password must be 8-64 characters, contain at least one uppercase, one lowercase, one number and one special charracter',
 		error_invalid_email: 'Invalid Email',
