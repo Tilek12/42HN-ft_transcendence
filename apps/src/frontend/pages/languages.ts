@@ -3,16 +3,24 @@ export type Language = 'EN' | 'DE' | 'GR';
 
 type translation_set = Record<Language, { [key: string]: string }>;
 
-interface HTMLElement {
+interface PlaceholderElement extends HTMLElement {
 	placeholder:string
 }
 
 export function transelate_per_id(tr_array: translation_set, tr_key_string: string, lang: Language, element_id: string) {
-	let headerEl = document.getElementById(element_id) as HTMLElement;
-	// console.log("The Element: ", headerEl);
-	if (tr_key_string.includes("placeholder") && headerEl)
-		headerEl.placeholder = tr_array[lang][tr_key_string]
-	if (headerEl) headerEl.innerHTML = tr_array[lang][tr_key_string];
+	let headerEl = document.getElementById(element_id) as unknown;
+	if (headerEl) {
+		let header = headerEl as PlaceholderElement;
+		if (tr_key_string.includes("placeholder"))
+		{
+			const placeholder = tr_array[lang][tr_key_string];
+			if (placeholder)
+			{
+				header.placeholder = placeholder;
+				header.innerHTML = placeholder;
+			}
+		}
+	}
 }
 
 

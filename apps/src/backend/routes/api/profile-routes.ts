@@ -46,7 +46,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify : any) => {
 				{
 					username: user.username,
 					email: user.email,
-					created_at: user.created_at,
+ 					created_at: user.created_at,
 				}
 			})
 		} catch (err) {

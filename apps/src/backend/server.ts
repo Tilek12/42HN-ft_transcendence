@@ -158,6 +158,7 @@ async function main() {
 	const shutdown = async () => {
 		console.log('\n🛑 Gracefully shutting down...');
 		try {
+			logout_all_users();
 			await server.close();
 			console.log('❎ Server closed');
 			process.exit(0);
