@@ -1,15 +1,16 @@
 import { db } from './client';
+import { User } from '../types'
 
-export type User = {
-  id: number, 
-  username: string,
-  email:string,
-  password: string,
-  role: string,
-  is_logged_in: boolean,
-  tfa: boolean,
-  tfa_secret:string,
-}
+// export type User = {
+//   id: number, 
+//   username: string,
+//   email:string,
+//   password: string,
+//   role: string,
+//   is_logged_in: boolean,
+//   tfa: boolean,
+//   tfa_secret:string,
+// }
 
 
 async function findUserByUsername(username: string): Promise<User | null> {
@@ -44,6 +45,17 @@ async function createUser(username: string, email: string, hashedPassword: strin
 		"user"
 	);
 }
+async function log_in(user: User) {
+	return await db.run('UPDATE users SET is_logged_in = ? WHERE id = ?', [true, user.id]);
+}
+async function log_out(user: User) {
+	return await db.run('UPDATE users SET is_logged_in = ? WHERE id = ?', [false, user.id]);
+}
+
+async function logout_all_users() {
+	return await db.run('UPDATE users SET is_logged_in = false')
+}
+
 async function isUsername(new_username: string) {
 	const result = await db.get('SELECT id FROM users WHERE username = ? ', new_username);
 	// console.log(`result ------->>> ${result}`)
@@ -63,4 +75,4 @@ async function getUsernameById(id: number): Promise<string | null> {
 	return row?.username || null;
 }
 
-export { findUserByUsername, findUserById, findUserByEmail, createUser, isUsername, updateUsername, updatePasswordById, getUsernameById };
+export { findUserByUsername, findUserById, findUserByEmail, createUser, log_in, log_out, logout_all_users, isUsername, updateUsername, updatePasswordById, getUsernameById };

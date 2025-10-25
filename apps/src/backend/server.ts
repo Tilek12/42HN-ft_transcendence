@@ -9,8 +9,9 @@ import helmet from '@fastify/helmet'
 import dotenv from 'dotenv';
 
 import { connectToDB, db } from './database/client';
-import authPlugin  from './plugins/private_hook';
-import tfa_validate_hook from './plugins/2fa_hook'
+import { logout_all_users } from './database/user'
+import protected_validate_hook  from './Scopes/protected_scope';
+import tfa_validate_hook from './Scopes/2fa_scope'
 import authRoutes from './routes/auth/auth-routes';
 import tfa_Routes from './routes/auth/2fa-routes';
 import userRoutes from './routes/api/user-routes';
@@ -34,7 +35,7 @@ dotenv.config();
 // Environment
 const LOCAL_IP = process.env.LOCAL_IP || '127.0.0.1';
 const PORT = parseInt(process.env.BACKEND_PORT || '3000');
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = fs.readFileSync('/run/secrets/jwt_secret');
 
 if (!JWT_SECRET) {
 	console.error('❌ Missing JWT_SECRET in .env');
@@ -118,18 +119,19 @@ async function main() {
 	})
 	// Protected scope of routes
 	await server.register(async (protectedScope: any) => {
-		await protectedScope.register(authPlugin);			// Middleware checking token
-		await protectedScope.register(userRoutes);			// Protected routes: /api/private/me
-		await protectedScope.register(profileRoutes);		// Protected routes: /api/private/profile
-		// await protectedScope.register(tournamentRoutes);	// Protected routes: /api/private/tournaments
-		await protectedScope.register(matchRoutes);			// Protected routes: /api/private/match
+		await protectedScope.register(protected_validate_hook);		// Middleware checking token
+		await protectedScope.register(userRoutes);					// Protected routes: /api/private/me
+		await protectedScope.register(profileRoutes);				// Protected routes: /api/private/profile
+		// await protectedScope.register(tournamentRoutes);			// Protected routes: /api/private/tournaments
+		await protectedScope.register(matchRoutes);					// Protected routes: /api/private/match
 	}, { prefix: '/api/private' });
 
 	// WebSocket scope of routes
 	await server.register(async (websocketScope: any) => {
-		await websocketScope.register(wsGamePlugin);		// Game-only socket:  /ws/game
-		await websocketScope.register(wsPresencePlugin);	// Persistent socket: /ws/presence
-		await websocketScope.register(wsTournamentPlugin);	// Tournament socket: /ws/tournament
+		await websocketScope.register(protected_validate_hook)		// Middleware checking token
+		await websocketScope.register(wsGamePlugin);				// Game-only socket:  /ws/game
+		await websocketScope.register(wsPresencePlugin);			// Persistent socket: /ws/presence
+		await websocketScope.register(wsTournamentPlugin);			// Tournament socket: /ws/tournament
 	}, { prefix: '/ws' });
 
 	// Simple health check

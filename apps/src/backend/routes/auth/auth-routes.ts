@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
 import { hashPassword, verifyPassword } from '../../auth/utils';
 import { LoginBody, loginSchema, logoutSchema, registerBody, registerSchema } from '../../auth/schemas';
-import type { JWTPayload } from '../../plugins/authtypes';
-
+import type { JWTPayload } from '../../types';
+import { Jwt_type } from '../../types';
 import {
 	findUserByUsername,
 	findUserByEmail,
@@ -29,10 +29,10 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		await createProfile(username);
 		if (!user)
 			return res.status(500).send({ message: "database error" });
-		let payload: JWTPayload = { id: user.id, username: user.username, tfa: user.tfa, role: user.role, type: "normal" };
+		let payload: JWTPayload = { id: user.id, username: user.username, tfa: user.tfa, role: user.role, type: Jwt_type.normal };
 		let token: string;
 		if (user.tfa) {
-			payload.type = "tmp";
+			payload.type = Jwt_type.tmp;
 			token = fastify.jwt.sign(payload, { expiresIn: '10min' });
 		}
 		else
@@ -55,10 +55,10 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			return res.status(401).send({ message: 'Invalid password' });
 		}
 
-		let payload: JWTPayload = { id: user.id, username: user.username, tfa: user.tfa, role: user.role, type: "normal" };
+		let payload: JWTPayload = { id: user.id, username: user.username, tfa: user.tfa, role: user.role, type: Jwt_type.normal };
 		let token: string;
 		if (user.tfa) {
-			payload.type = "tmp";
+			payload.type = Jwt_type.tmp;
 			token = fastify.jwt.sign(payload, { expiresIn: '10min' });
 		}
 		else {

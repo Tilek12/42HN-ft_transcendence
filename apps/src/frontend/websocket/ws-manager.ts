@@ -174,11 +174,7 @@ class WebSocketManager {
     const token = getToken();
     if (!token) return null;
 
-<<<<<<< HEAD
     let url = `/ws/tournament?action=${action}&size=${size}&token=${token}`;
-=======
-    let url = `${this.backendUrl}/ws/tournament?action=${action}&size=${size}&token=${token}&mode=${mode}`;
->>>>>>> origin/tilek-tournament-test
     if (action === 'join' && id) url += `&id=${id}`;
     if (names && names.length > 0) url += `&names=${encodeURIComponent(JSON.stringify(names))}`;
 
