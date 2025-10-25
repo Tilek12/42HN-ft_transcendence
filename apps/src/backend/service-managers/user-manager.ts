@@ -1,4 +1,4 @@
-import { WebSocket } from 'ws';
+import * as WebSocket from 'ws'
 import { User } from '../types'
 
 class UserManager {
@@ -8,37 +8,39 @@ class UserManager {
 		return this.users.get(id);
 	}
 
-	createUser(id: number, name: string, presenceSocket: WebSocket): boolean {
-		if (this.users.has(id)) return false;
+	createUser(newuser:User, presenceSocket: WebSocket): boolean {
+		if (this.users.has(newuser.id)) return false;
 
-		const user: User = {
-			id,
-			name,
-			gameSocket: null,
-			presenceSocket,
-			tournamentSocket: null,
-			isAlive: true,
-			isInGame: false,
-			isInTournament: false,
-		};
+		const user: User = newuser;
+		
+			user.name = 			newuser.username,
+			user.gameSocket =		null,
+			user.presenceSocket =	presenceSocket,
+			user.tournamentSocket =	null,
+			user.isAlive =			true,
+			user.isInGame =			false,
+			user.isInTournament =	false,
 
-		this.users.set(id, user);
+		this.users.set(user.id, user);
 		return true;
 	}
 
 	removeUser(id: number) {
 		const user = this.getUser(id);
-		if (!user) return;
+		if (user)
+		{
+			// Only forcibly close sockets if this is a *true* logout or lost connection
+			if (user.presenceSocket?.readyState === WebSocket.OPEN)
+				user.presenceSocket.close();
 
-		// Only forcibly close sockets if this is a *true* logout or lost connection
-		if (user.presenceSocket?.readyState === WebSocket.OPEN)
-			user.presenceSocket.close();
+			user.gameSocket?.close();
+			user.tournamentSocket?.close();
 
-		user.gameSocket?.close();
-		user.tournamentSocket?.close();
-
-		this.users.delete(id);
-	}
+			this.users.delete(id);
+		}
+		else
+			return;
+}
 
 	setAlive(id: number, alive: boolean) {
 		const user = this.getUser(id);
@@ -50,7 +52,7 @@ class UserManager {
 		if (user) user.isInGame = value;
 	}
 
-	setInTournament(id: string, value: boolean) {
+	setInTournament(id: number, value: boolean) {
 		const user = this.getUser(id);
 		if (user) user.isInTournament = value;
 	}

@@ -4,7 +4,7 @@ import { enable_TFA_body, verify_TFA_body, disable_TFA_body } from '../../auth/s
 import { verifyPassword } from '../../auth/utils';
 
 import { generateqrcode, generateSecret, validate_2fa_token } from '../../2FA/2fa';
-import { JWTPayload } from '../../plugins/authtypes';
+import { JWTPayload } from '../../Scopes/authtypes';
 import { findUserById } from '../../database/user';
 import { store2faKey, delete2faKey } from '../../database/2fa';
 import { updateProfileLogInState } from '../../database/profile';

@@ -77,6 +77,8 @@ check_ssl_tool() {
     fi
 }
 
+
+
 check_ssl_tool
 
 # 5. Create self-signed cert for IP if not exists
@@ -111,6 +113,18 @@ if [[ ! -f "$KEY_FILE" || ! -f "$CERT_FILE" ]]; then
 else
   echo "✅ Existing certificate found at $CERT_DIR"
 fi
+
+
+# CHECK for JWT SECRET and generate in case not there
+JWT_SECRET="$CERT_DIR/jwt_secret.txt"
+if openssl rand -base64 -out $JWT_SECRET 64; then
+  echo ✅ JWT SECRET generated at $JWT_SECRET;
+else
+  echo "❌ openssl not able to generate jwt secret";
+  exit 1;
+fi
+
+
 
 # 6. Output usage info
 echo

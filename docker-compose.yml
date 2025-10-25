@@ -19,12 +19,15 @@ services:
     secrets:
       - ssl_cert
       - ssl_key
+      - jwt_secret
 
 secrets:
       ssl_cert:
         file: ./cert/cert.pem
       ssl_key:
         file: ./cert/key.pem
+      jwt_secret:
+        file: ./cert/jwt_secret.txt
 
 networks:
   pong-network:

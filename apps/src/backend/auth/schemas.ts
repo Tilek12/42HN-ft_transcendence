@@ -56,6 +56,22 @@ const TFA_token_schema = {
 } as const;
 // export type StringSchema = FromSchema<typeof StringSchema>;
 
+export const WebsocketSchema = {
+	//swagger
+	description: 'start a presence websocket',
+	tags: ['websocket'],
+	summary: 'ws',
+	hidden: false,
+	//query
+	// querystring: false,
+	headers: {
+		type: 'object',
+		properties: {
+			Authorization: BearerSchema
+		},
+		required: ['Authorization']
+	},
+} as const;
 
 export const loginSchema = {
 	//swagger

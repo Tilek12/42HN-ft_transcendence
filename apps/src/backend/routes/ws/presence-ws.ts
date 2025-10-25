@@ -1,11 +1,13 @@
 import { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
-import { WebSocket } from 'ws';
-
+import * as WebSocket from 'ws'
 import { userManager } from '../../service-managers/user-manager';
 import { tournamentManager } from '../../service-managers/tournament-manager';
 import { findUserById, getUsernameById } from '../../database/user';
 import { PING_INTERVAL_MS } from '../../constants';
+import { WebsocketSchema } from '../../auth/schemas'
+import { JWTPayload } from '../../types';
+
 
 export const sendPresenceUpdate = () => {
 	const users = userManager.getOnlineUsers();
@@ -38,16 +40,8 @@ export const sendTournamentUpdate = () => {
 
 const wsPresencePlugin: FastifyPluginAsync = async (fastify: any) => {
 	// WebSocket route
-	fastify.get('/presence', { websocket: true }, (socket: WebSocket, req: FastifyRequest) => {
-		// read token from query (support frameworks that put query on req.query)
-		const qsToken = (req.query && (req.query as any).token) ??
-			new URLSearchParams((req as any).url?.split('?')[1] || '').get('token');
-
-		if (!qsToken) {
-			try { socket.close(4001, 'Missing token'); } catch {}
-			return;
-		}
-
+	fastify.get('/presence', {schema:WebsocketSchema, websocket: true }, (socket: WebSocket, req: FastifyRequest) => {
+		
 		// buffer incoming messages while we verify token
 		const messageBuffer: any[] = [];
 		let authenticated = false;
@@ -73,18 +67,11 @@ const wsPresencePlugin: FastifyPluginAsync = async (fastify: any) => {
 		socket.on('error', (err) => {
 			fastify.log.warn({ err },'[Presence WS] socket error');
 		});
+		const payload = req.user as JWTPayload;
 
 		// Begin async verification AFTER handlers attached
-		(async () => {
-			let userId: number;
-			try {
-				const payload: any = await fastify.jwt.verify(qsToken);
-				userId = payload.id;
-			} catch (err) {
-				try { if (!closed) socket.close(4002, 'Invalid token'); } catch {}
-				return;
-			}
-
+		(async (userId:number, socket: WebSocket) => {
+	
 			// Reject duplicate presence connections
 			if (userManager.getUser(userId)) {
 				fastify.log.warn(`[Presence WS] Duplicate connection rejected for: ${userId}`);
@@ -105,7 +92,7 @@ const wsPresencePlugin: FastifyPluginAsync = async (fastify: any) => {
 			}
 
 			// Register presenceSocket in userManager (this will close any old socket if present)
-			userManager.createUser(userId, userName, socket);
+			userManager.createUser(user, socket);
 			(req as any).__authenticatedUserId = userId; // small tag to allow message handler to access id
 			authenticated = true;
 
@@ -131,7 +118,7 @@ const wsPresencePlugin: FastifyPluginAsync = async (fastify: any) => {
 				fastify.log.info(`🔴 [Presence WS] Disconnected: ${userId}`);
 				sendPresenceUpdate();
 			});
-		})();
+		})(payload.id, socket);
 	});
 
 	// single heartbeat/ping system (pings presence, game and tournament sockets through userManager)
