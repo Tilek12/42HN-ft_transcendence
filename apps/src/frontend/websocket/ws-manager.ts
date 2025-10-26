@@ -79,13 +79,12 @@ class WebSocketManager {
     if (!token) return;
 
     const url = `/ws/presence`;
-    const socket = new WebSocket(url, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const socket = new WebSocket(url);
     this.presenceSocket = socket;
 
     socket.onopen = () => {
       console.log('👥 [Presence WS] Connected');
+      socket.send(token);
       this.retryAttempts = 0;
     };
 

@@ -128,7 +128,6 @@ async function main() {
 
 	// WebSocket scope of routes
 	await server.register(async (websocketScope: any) => {
-		await websocketScope.register(protected_validate_hook)		// Middleware checking token
 		await websocketScope.register(wsGamePlugin);				// Game-only socket:  /ws/game
 		await websocketScope.register(wsPresencePlugin);			// Persistent socket: /ws/presence
 		await websocketScope.register(wsTournamentPlugin);			// Tournament socket: /ws/tournament
@@ -159,8 +158,8 @@ async function main() {
 	// Graceful shutdown
 	const shutdown = async () => {
 		console.log('\n🛑 Gracefully shutting down...');
+		await logout_all_users();
 		try {
-			logout_all_users();
 			await server.close();
 			console.log('❎ Server closed');
 			process.exit(0);

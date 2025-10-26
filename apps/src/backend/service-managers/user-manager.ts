@@ -8,7 +8,7 @@ class UserManager {
 		return this.users.get(id);
 	}
 
-	createUser(newuser:User, presenceSocket: WebSocket): boolean {
+	createUser(newuser:User, presenceSocket: WebSocket.WebSocket): boolean {
 		if (this.users.has(newuser.id)) return false;
 
 		const user: User = newuser;

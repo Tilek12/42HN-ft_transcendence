@@ -226,10 +226,10 @@ export function renderLogin(root: HTMLElement) {
             <span>Success!</span>
             </div>
             `;
-          // setTimeout(() => {
-          //   location.hash = '#/profile';
-          // }, 1000);
-          // changeLoginButton(false);
+          setTimeout(() => {
+            location.hash = '#/profile';
+          }, 1000);
+          changeLoginButton(false);
         }
       }
     } catch (error) {
