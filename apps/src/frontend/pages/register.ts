@@ -132,6 +132,7 @@ export function renderRegister(root: HTMLElement) {
         });
 
         const res2faverify = await res.json();
+        console.log(res2faverify.jwt);
 
         if (!res2faverify.ok || !res2faverify.token) {
           error.textContent = res2faverify.message || "failed";
@@ -146,6 +147,7 @@ export function renderRegister(root: HTMLElement) {
     }
     else
     {
+      console.log(data.jwt);
       saveToken(data.jwt);
       location.hash = '#/profile';
     }

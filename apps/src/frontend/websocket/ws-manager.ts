@@ -78,8 +78,10 @@ class WebSocketManager {
     const token = getToken();
     if (!token) return;
 
-    const url = `/ws/presence?token=${token}`;
-    const socket = new WebSocket(url);
+    const url = `/ws/presence`;
+    const socket = new WebSocket(url, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
     this.presenceSocket = socket;
 
     socket.onopen = () => {
