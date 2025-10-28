@@ -62,9 +62,12 @@ class WebSocketManager {
         if (this.gameSocket.readyState === WebSocket.OPEN) {
           this.gameSocket.send('quit');
         }
-        this.gameSocket.close();
-      } catch {}
-      this.gameSocket = null;
+      } catch { }
+      const socket = this.gameSocket;
+      socket.onclose = () => {
+        this.gameSocket = null;
+      }
+      socket.close();
     }
   }
 
@@ -78,16 +81,18 @@ class WebSocketManager {
     const token = getToken();
     if (!token) return;
 
-    const url = `/ws/presence?token=${token}`;
+    const url = `/ws/presence`;
     const socket = new WebSocket(url);
     this.presenceSocket = socket;
 
     socket.onopen = () => {
-      console.log('👥 [Presence WS] Connected');
+      console.log('👥 [Presence WS] Opening websocket..');
+      socket.send(token);
       this.retryAttempts = 0;
     };
 
     socket.onmessage = (e) => {
+      console.log(e)
       if (e.data === 'ping')
         socket.send('pong');
       else {
@@ -120,7 +125,7 @@ class WebSocketManager {
         console.log(`👥 [Presence WS] Retry attempt ${this.retryAttempts}/${this.MAX_RETRY}`);
         this.reconnectTimeout = setTimeout(() => this.connectPresenceSocket(onUpdate), 3000);
       } else {
-          console.warn(`👥 [Presence WS] Stopped trying to reconnect after ${this.MAX_RETRY} attempts.`);
+        console.warn(`👥 [Presence WS] Stopped trying to reconnect after ${this.MAX_RETRY} attempts.`);
       }
     };
 
@@ -132,8 +137,11 @@ class WebSocketManager {
   disconnectPresenceSocket() {
     if (this.reconnectTimeout) clearTimeout(this.reconnectTimeout);
     if (this.presenceSocket) {
-      this.presenceSocket.close();
-      this.presenceSocket = null;
+      const socket = this.presenceSocket;
+      socket.onclose = () => {
+        this.presenceSocket = null;
+      };
+      socket.close();
     }
   }
 
@@ -213,9 +221,12 @@ class WebSocketManager {
       console.log('🎯 [Tournament WS] Manually disconnecting');
       try {
         this.tournamentSocket.send(JSON.stringify({ type: 'quitTournament' }));
-      } catch {}
-      this.tournamentSocket.close();
-      this.tournamentSocket = null;
+      } catch { }
+      const socket = this.tournamentSocket;
+      socket.onclose = () => {
+        this.tournamentSocket = null;
+      }
+      socket.close();
     }
   }
 

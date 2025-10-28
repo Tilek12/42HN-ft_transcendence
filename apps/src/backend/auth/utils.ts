@@ -12,14 +12,13 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
   return bcrypt.compare(password, hash);
 }
 
-
 export async function verifyUserJWT(req: FastifyRequest, type:Jwt_type[]) : Promise<boolean> {
 try {
       await req.jwtVerify();
       const payload = req.user as JWTPayload;
-      if (payload.type in type)
+      if (type.includes(payload.type))
         return true;
       }
-     catch { }
+     catch (e) { console.log(e)}
 return false;
 } 

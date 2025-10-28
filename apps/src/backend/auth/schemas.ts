@@ -64,13 +64,13 @@ export const WebsocketSchema = {
 	hidden: false,
 	//query
 	// querystring: false,
-	headers: {
-		type: 'object',
-		properties: {
-			Authorization: BearerSchema
-		},
-		required: ['Authorization']
-	},
+	// headers: {
+	// 	type: 'object',
+	// 	properties: {
+	// 		Authorization: BearerSchema
+	// 	},
+	// 	required: ['Authorization']
+	// },
 } as const;
 
 export const loginSchema = {

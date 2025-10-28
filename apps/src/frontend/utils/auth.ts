@@ -46,7 +46,6 @@ export async function validateLogin(): Promise<boolean> {
 	  if (!res.ok) throw new Error();
 	  return true;
 	} catch (e:any){
-		console.log(e)
 	  	clearToken();
 	  return false;
 	}

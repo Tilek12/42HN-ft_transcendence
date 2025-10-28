@@ -1,8 +1,35 @@
 # Things to fix for eval
 ------------------------
+
+presence: 
+``` 
+Problem in Firefox:
+
+this.presenceSocket is set to null immediately after calling .close().
+
+Firefox may still be in the middle of the close handshake.
+
+If you relied on this.presenceSocket inside onclose or other cleanup, Firefox doesn’t get a chance to fully fire events.
+
+Chrome is more forgiving; it keeps internal references long enough to finish.Problem in Firefox:
+
+this.presenceSocket is set to null immediately after calling .close().
+
+Firefox may still be in the middle of the close handshake.
+
+If you relied on this.presenceSocket inside onclose or other cleanup, Firefox doesn’t get a chance to fully fire events.
+
+Chrome is more forgiving; it keeps internal references long enough to finish.
+
+```
+- websocket auth improve?
+- websocket logic so many tryblocks??
+- frontend fetches so many things at login...
+- settings page?
+- type for presence messages? -> frontend
 - tailwind in production mode
 - why are profiles not in users table?
-- route schemas need to be updated and implemented properly, presence is authenticated with jwtoken in querystring???
+- route schemas need to be updated and implemented properly, presence is authenticated 	with jwtoken in querystring???
 - register page should login on success
 - check all languages.
 - fix login/logout button
@@ -152,3 +179,8 @@ https://medium.com/@pdlsandesh144/a-step-by-step-guide-on-using-node-js-to-imple
 
 ### routes:
 > - POST 
+
+
+Im absoloutely stunned what amazing event you put together and made it happen. im really happy i attended it, i even took vacation for it and dont regret it at all. i love the effort you put into it and the overall vibe. i was happy that so many 42 students participated, as im at the end of my curriculum/ in internship and not at campus often anymore. so it was good to connect to the community again. 
+There are two major things that i disliked and i think that should be improved for the next time: 
+First: the end of the Hackathon. The Idea of splitting up the main project to incorporate a hardware workshop as a sidequest in general i think is a great idea, as it ofers an alternative for people not ready or willing to commit to a complete webapp or more interested in hardware building. But the fact that it was almost a complete second independent Event was a bit wierd. As it took also the whole hackaton time to do this project it, afterward it being a sidequest 
