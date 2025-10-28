@@ -1,8 +1,35 @@
 # Things to fix for eval
 ------------------------
+
+presence: 
+``` 
+Problem in Firefox:
+
+this.presenceSocket is set to null immediately after calling .close().
+
+Firefox may still be in the middle of the close handshake.
+
+If you relied on this.presenceSocket inside onclose or other cleanup, Firefox doesn’t get a chance to fully fire events.
+
+Chrome is more forgiving; it keeps internal references long enough to finish.Problem in Firefox:
+
+this.presenceSocket is set to null immediately after calling .close().
+
+Firefox may still be in the middle of the close handshake.
+
+If you relied on this.presenceSocket inside onclose or other cleanup, Firefox doesn’t get a chance to fully fire events.
+
+Chrome is more forgiving; it keeps internal references long enough to finish.
+
+```
+- websocket auth improve?
+- websocket logic so many tryblocks??
+- frontend fetches so many things at login...
+- settings page?
+- type for presence messages? -> frontend
 - tailwind in production mode
 - why are profiles not in users table?
-- route schemas need to be updated and implemented properly, presence is authenticated with jwtoken in querystring???
+- route schemas need to be updated and implemented properly, presence is authenticated 	with jwtoken in querystring???
 - register page should login on success
 - check all languages.
 - fix login/logout button

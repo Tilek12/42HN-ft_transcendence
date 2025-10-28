@@ -39,12 +39,17 @@ class UserManager {
 			this.users.delete(id);
 		}
 		else
+		{
+			console.log("no user to removee")
 			return;
+		}
 }
 
-	setAlive(id: number, alive: boolean) {
+	setAlive(id: number) {
 		const user = this.getUser(id);
-		if (user) user.isAlive = alive;
+		if (user){
+			user.isAlive = true;
+		}
 	}
 
 	setInGame(id: number, value: boolean) {
@@ -121,6 +126,7 @@ class UserManager {
 
 	checkHeartbeats() {
 		for (const [id, user] of this.users.entries()) {
+			// console.log("User alive: ", user.username);
 			if (!user.isAlive) {
 				console.log(`💀 [Presence WS] Removing inactive user: ${id}`);
 				this.removeUser(id);

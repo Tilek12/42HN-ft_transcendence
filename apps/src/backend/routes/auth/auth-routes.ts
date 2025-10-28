@@ -36,7 +36,10 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			token = fastify.jwt.sign(payload, { expiresIn: '10min' });
 		}
 		else
+		{
+			await updateProfileLogInState(user.id, true);
 			token = fastify.jwt.sign(payload, { expiresIn: '2h' });
+		}
 		res.send({ jwt: token });
 	});
 

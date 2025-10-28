@@ -1,6 +1,6 @@
 import { wsManager } from '../websocket/ws-manager';
 import { languageStore } from './languages';
-import type { Language } from './languages';
+import type { Language } from '../types';
 import { validateLogin } from '../utils/auth';
 import { getToken, clearToken } from '../utils/auth'
 

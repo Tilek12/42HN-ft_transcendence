@@ -37,7 +37,6 @@ export function get_jwt_payload(): payload | null {
 
 export async function validateLogin(): Promise<boolean> {
 	const token = getToken();
-	console.log(token);
 	if (!token) return false;
 	try {
 	  const res = await fetch('/api/private/me', {
@@ -46,7 +45,6 @@ export async function validateLogin(): Promise<boolean> {
 	  if (!res.ok) throw new Error();
 	  return true;
 	} catch (e:any){
-		console.log(e)
 	  	clearToken();
 	  return false;
 	}
