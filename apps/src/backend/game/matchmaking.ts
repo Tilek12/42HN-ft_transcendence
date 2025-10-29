@@ -11,6 +11,16 @@ export async function startGame(player: Player, mode: GameMode, tournamentId?: s
 		return;
 	}
 
+	if (mode === 'tournament') {
+		// Tournament mode: player is joining a tournament game
+		// The game room should already exist, just update the player's socket
+		const game = tournamentManager.getGameForPlayer(player.id);
+		if (game) {
+			game.updateSocket(player);
+		}
+		return;
+	}
+
 	if (mode !== 'duel') {
 		console.warn(`🚫 Invalid game mode: ${mode}`);
 		return;

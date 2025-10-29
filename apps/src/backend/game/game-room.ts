@@ -14,7 +14,7 @@ export class GameRoom {
   private mode: GameMode;
   private tournamentId?: string;
   private state: GameState;
-  private interval: NodeJS.Timeout;
+  private interval!: NodeJS.Timeout;
   private winner: Player | null = null;
   private loser: Player | null = null;
   private winnerScore: number = 0;
@@ -57,9 +57,9 @@ export class GameRoom {
 
   private setupListeners() {
     for (const player of this.players) {
-      if (player === GhostPlayer) continue;
+      if (player.socket === GhostPlayer.socket) continue;
 
-      player.socket.on('message', (msg) => {
+      (player.socket as any).on('message', (msg: any) => {
         const text = msg.toString();
         if (text === 'pong') return;
 
@@ -90,7 +90,7 @@ export class GameRoom {
         }
       });
 
-      player.socket.on('close', () => {
+      (player.socket as any).on('close', () => {
         this.broadcast({ type: 'disconnect', who: player.id });
         this.end();
       });
@@ -135,15 +135,15 @@ export class GameRoom {
       ball.y = Math.max(0, Math.min(height, ball.y));
     }
 
-    const pad1 = paddles[p1.id];
-    const pad2 = paddles[p2.id];
+    const pad1 = paddles[p1.id]!;
+    const pad2 = paddles[p2.id]!;
     const hit = (py: number) => ball.y >= py && ball.y <= py + PADDLE_HEIGHT;
 
     if (ball.x <= 2 && hit(pad1)) {
       ball.x = 2;
       ball.vx *= -1;
     } else if (ball.x <= 0) {
-      score[p2.id]++;
+      score[p2.id]!++;
       this.resetBall(1);
     }
 
@@ -151,14 +151,14 @@ export class GameRoom {
       ball.x = width - 2;
       ball.vx *= -1;
     } else if (ball.x >= width) {
-      score[p1.id]++;
+      score[p1.id]!++;
       this.resetBall(-1);
     }
 
     // Win condition
-    if (score[p1.id] >= WIN_SCORE || score[p2.id] >= WIN_SCORE) {
-      const p1Score = score[p1.id];
-      const p2Score = score[p2.id];
+    if (score[p1.id]! >= WIN_SCORE || score[p2.id]! >= WIN_SCORE) {
+      const p1Score = score[p1.id]!;
+      const p2Score = score[p2.id]!;
 
       if (p1Score > p2Score) {
         this.winner = p1;
@@ -208,7 +208,7 @@ export class GameRoom {
 
   private broadcast(msg: any) {
     for (const p of this.players) {
-      if (p !== GhostPlayer && p.socket.readyState === 1) {
+      if (p.socket !== GhostPlayer.socket && p.socket.readyState === 1) {
         try {
           p.socket.send(JSON.stringify(msg));
         } catch {}
@@ -240,6 +240,15 @@ export class GameRoom {
   }
 
   public handleMove(playerId: string, direction: 'up' | 'down', side?: 'left' | 'right') {
-    this.move(playerId, direction, side);
+    this.move(playerId, direction);
+  }
+
+  public updateSocket(player: Player) {
+    const index = this.players.findIndex(p => p.id === player.id);
+    if (index !== -1) {
+      this.players[index] = player;
+      // Re-setup listeners for the updated socket
+      this.setupListeners();
+    }
   }
 }

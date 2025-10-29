@@ -1,5 +1,5 @@
 import { WebSocket } from 'ws';
-import { Player } from '../game/game-types';
+import { Player, GhostPlayer } from '../game/game-types';
 import { userManager } from './user-manager';
 import { gameManager } from './game-manager';
 import {
@@ -217,6 +217,20 @@ class TournamentManager {
         p1: { id: match.p1.id, name: match.p1.name },
         p2: { id: match.p2.id, name: match.p2.name }
       }));
+    } else if (t.mode === 'online') {
+      // Send matchStart to both players' tournament sockets
+      [match.p1, match.p2].forEach(player => {
+        const user = userManager.getUser(player.id);
+        if (user?.tournamentSocket?.readyState === WebSocket.OPEN) {
+          user.tournamentSocket.send(JSON.stringify({
+            type: 'matchStart',
+            tournamentId: t.id,
+            size: t.size,
+            player1: match.p1.id,
+            player2: match.p2.id
+          }));
+        }
+      });
     }
 
     const toPlayer = (p: Participant) => {
@@ -227,8 +241,8 @@ class TournamentManager {
       }
       const u = userManager.getUser(p.id);
       if (!u?.gameSocket) {
-        // you may want to notify missing connection; here we fall back to a ghost socket to avoid crash
-        return { id: p.id, name: p.name, socket: (u?.gameSocket as any) } as Player;
+        // Fall back to ghost socket to avoid crash; will be updated when game socket connects
+        return { id: p.id, name: p.name, socket: GhostPlayer.socket } as Player;
       }
       return { id: p.id, name: p.name, socket: u.gameSocket } as Player;
     };
@@ -245,6 +259,16 @@ class TournamentManager {
     );
 
     match.gameId = game.id;
+
+    // For online tournaments, update sockets if players already connected their game sockets
+    if (t.mode === 'online') {
+      [match.p1, match.p2].forEach(p => {
+        const user = userManager.getUser(p.id);
+        if (user?.gameSocket) {
+          game.updateSocket({ id: p.id, name: p.name, socket: user.gameSocket as any });
+        }
+      });
+    }
 
     // Return a promise for local sequential flow
     if (t.mode === 'local') {
@@ -341,6 +365,20 @@ class TournamentManager {
   getTournamentMode(tournamentId: string): 'local' | 'online' | null {
     const t = this.tournaments.get(tournamentId);
     return t ? t.mode : null;
+  }
+
+  getGameForPlayer(playerId: string): any {
+    const tournament = this.getUserTournament(playerId);
+    if (!tournament) return null;
+
+    for (const round of tournament.rounds) {
+      for (const match of round) {
+        if (match.status === 'running' && (match.p1.id === playerId || match.p2.id === playerId)) {
+          return gameManager.getRoom(match.gameId!);
+        }
+      }
+    }
+    return null;
   }
 
   quitTournament(userId: string) {
