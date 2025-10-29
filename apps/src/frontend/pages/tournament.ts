@@ -36,6 +36,7 @@ export async function renderTournament(root: HTMLElement) {
         </div>
       </div>
       <div id="online-section">
+        <div id="winner-announcement" class="hidden mb-4 p-4 bg-yellow-500/20 border border-yellow-400 rounded-lg text-center text-white"></div>
         <div id="tournament-list" class="space-y-4 text-white"></div>
       </div>
       <div id="local-section" class="hidden">
@@ -206,6 +207,65 @@ export async function renderTournament(root: HTMLElement) {
         console.log('🎯 Spectating match in tournament bracket');
         // Optionally update bracket display live here
       }
+    } else if (msg.type === 'tournamentEnd') {
+      // Show winner announcement in tournament lobby for all players
+      const token = getToken();
+      const userId = token ? JSON.parse(atob(token.split('.')[1])).id : null;
+      const isWinner = msg.winner.id === userId;
+
+      const announcementEl = document.getElementById('winner-announcement')!;
+
+      if (isWinner) {
+        // Winner gets special celebration
+        announcementEl.innerHTML = `
+          <div style="color: gold; font-size: 32px; font-weight: bold; text-align: center; margin: 20px 0;">
+            🏆 CONGRATULATIONS! You are the CHAMPION! 🏆
+          </div>
+          <div style="color: white; font-size: 18px; text-align: center;">
+            You won the tournament! 🎉
+          </div>
+        `;
+      } else {
+        // Show who won for other players
+        announcementEl.innerHTML = `
+          <div style="color: gold; font-size: 24px; font-weight: bold; text-align: center; margin: 20px 0;">
+            🏆 Tournament Complete! 🏆
+          </div>
+          <div style="color: white; font-size: 18px; text-align: center;">
+            Winner: ${msg.winner.name}
+          </div>
+        `;
+      }
+
+      announcementEl.classList.remove('hidden');
+
+      // If player is currently in a match, also show on match screen and return to lobby
+      if (isPlayerInMatch) {
+        document.getElementById('online-status')!.innerHTML = announcementEl.innerHTML;
+
+        // Return to tournament lobby after showing winner
+        setTimeout(() => {
+          document.getElementById('online-tournament-match')!.classList.add('hidden');
+          document.getElementById('tournament-mode')!.classList.remove('hidden');
+          isPlayerInMatch = false;
+          currentMatch = null;
+          gameState = null;
+          if (gameSocket) {
+            gameSocket.close();
+            gameSocket = null;
+          }
+        }, 7000); // Show winner for 7 seconds
+      }
+
+      // Hide announcement after 7 seconds and reset tournament state
+      setTimeout(() => {
+        announcementEl.classList.add('hidden');
+        announcementEl.innerHTML = '';
+        // Reset tournament state
+        currentTournamentId = null;
+        wsManager.disconnectTournamentSocket();
+        renderTournamentList();
+      }, 7000); // Show winner for 7 seconds
     }
   }
 

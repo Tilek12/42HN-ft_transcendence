@@ -202,7 +202,13 @@ class TournamentManager {
 
   /** Online tournaments: start whole round in parallel */
   private startRoundSimultaneously(t: TournamentState, roundIdx: number) {
-    for (const m of t.rounds[roundIdx]) this.startOneMatch(t, m);
+    // Add delay for subsequent rounds to allow socket reconnection
+    const delay = roundIdx > 0 ? 4000 : 0; // 4 second delay for rounds after the first
+
+    for (const m of t.rounds[roundIdx]) {
+      const match = m; // Capture value to fix closure bug
+      setTimeout(() => this.startOneMatch(t, match), delay);
+    }
   }
 
   /** Start one match, wire onEnd → TournamentManager.onMatchEnded */
