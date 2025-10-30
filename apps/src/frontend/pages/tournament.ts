@@ -201,7 +201,14 @@ export async function renderTournament(root: HTMLElement) {
       if (msg.player1 === userId || msg.player2 === userId) {
         // 🎯 Player is part of this match – handle on tournament page
         isPlayerInMatch = true;
-        currentMatch = { p1: msg.player1, p2: msg.player2 };
+        // Get player names from tournament participants
+        const tournament = wsManager.onlineTournaments.find(t => t.id === msg.tournamentId);
+        const p1Name = tournament?.playerIds.includes(msg.player1) ? 'Player 1' : msg.player1; // fallback
+        const p2Name = tournament?.playerIds.includes(msg.player2) ? 'Player 2' : msg.player2; // fallback
+        currentMatch = {
+          p1: { id: msg.player1, name: p1Name },
+          p2: { id: msg.player2, name: p2Name }
+        };
         startOnlineTournamentMatch(msg);
       } else {
         console.log('🎯 Spectating match in tournament bracket');
@@ -475,6 +482,9 @@ export async function renderTournament(root: HTMLElement) {
     document.getElementById('online-section')!.classList.add('hidden');
     document.getElementById('online-tournament-match')!.classList.remove('hidden');
 
+    // Clear any previous match status messages
+    document.getElementById('online-status')!.textContent = 'Match starting...';
+
     // Create game socket for tournament
     gameSocket = wsManager.createGameSocket('tournament', msg.size, msg.tournamentId);
     if (!gameSocket) {
@@ -702,8 +712,8 @@ export async function renderTournament(root: HTMLElement) {
     ctx.fillStyle = 'white';
     ctx.font = '16px sans-serif';
     const names = gameState.playerNames || {};
-    const p1Name = names[currentMatch.p1.id] || currentMatch.p1.id;
-    const p2Name = names[currentMatch.p2.id] || currentMatch.p2.id;
+    const p1Name = names[currentMatch.p1.id] || currentMatch.p1.name || currentMatch.p1.id;
+    const p2Name = names[currentMatch.p2.id] || currentMatch.p2.name || currentMatch.p2.id;
     ctx.fillText(p1Name, 20, 20);
     ctx.fillText(p2Name, width - ctx.measureText(p2Name).width - 20, 20);
 

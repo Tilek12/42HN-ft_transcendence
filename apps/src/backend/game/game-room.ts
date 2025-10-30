@@ -51,7 +51,11 @@ export class GameRoom {
       },
       width: FIELD_WIDTH,
       height: FIELD_HEIGHT,
-      status: 'playing'
+      status: 'playing',
+      playerNames: {
+        [p1.id]: p1.name,
+        [p2.id]: p2.name
+      }
     };
   }
 
@@ -185,13 +189,7 @@ export class GameRoom {
 
     this.broadcast({
       type: 'update',
-      state: {
-        ...this.state,
-        playerNames: {
-          [p1.id]: p1.name,
-          [p2.id]: p2.name
-        }
-      }
+      state: this.state
     });
   }
 

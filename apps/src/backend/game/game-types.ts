@@ -21,6 +21,7 @@ export interface GameState {
 	width: number;
 	height: number;
 	status: 'playing' | 'ended';
+	playerNames: { [id: string]: string };
 }
 
 export interface MoveMessage {
