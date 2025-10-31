@@ -519,12 +519,22 @@ export async function renderTournament(root: HTMLElement) {
         case 'start':
           document.getElementById('online-countdown')!.classList.add('hidden');
           document.getElementById('online-pong')!.classList.remove('hidden');
+          // Show player matchup like local tournaments
+          if (currentMatch) {
+            document.getElementById('online-status')!.innerHTML = `<div style="font-size: 24px; font-weight: bold; color: white; text-align: center; margin: 10px 0;">${currentMatch.p1.name || currentMatch.p1.id} VS ${currentMatch.p2.name || currentMatch.p2.id}</div>`;
+          }
           break;
 
         case 'update':
           gameState = gameMsg.state;
           if (document.getElementById('online-pong')!.classList.contains('hidden')) {
             document.getElementById('online-pong')!.classList.remove('hidden');
+          }
+          // Update status with real player names when game state is received
+          if (gameState?.playerNames && currentMatch) {
+            const p1Name = gameState.playerNames[currentMatch.p1.id] || currentMatch.p1.name || currentMatch.p1.id;
+            const p2Name = gameState.playerNames[currentMatch.p2.id] || currentMatch.p2.name || currentMatch.p2.id;
+            document.getElementById('online-status')!.innerHTML = `<div style="font-size: 24px; font-weight: bold; color: white; text-align: center; margin: 10px 0;">${p1Name} VS ${p2Name}</div>`;
           }
           drawOnlineGame();
           break;
