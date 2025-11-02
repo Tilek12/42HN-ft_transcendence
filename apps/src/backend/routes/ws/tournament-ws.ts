@@ -7,6 +7,7 @@ import { userManager } from '../../service-managers/user-manager';
 import { tournamentManager } from '../../service-managers/tournament-manager';
 import { gameManager } from '../../service-managers/game-manager';
 import { PING_INTERVAL_MS } from '../../constants';
+import { JWTPayload, User } from '../../types';
 
 const wsTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 	fastify.get('/tournament', { websocket: true }, (socket: WebSocket, req: FastifyRequest) => {
@@ -26,41 +27,48 @@ const wsTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 
 		const buffer: any[] = [];
 		let authenticated = false;
-		let userId: string;
+		let user: User | undefined;
+		let decoded: JWTPayload
 
-		const onMessage = (msg: any) => {
-			if (!authenticated) {
-				buffer.push(msg);
-				return;
-			}
-
-			const text = msg.toString();
-			if (text === 'pong') {
-				userManager.setInTournament(userId, true);
-				return;
-			}
-
+		socket.on('message', (msg: any) => {
 			try {
-				const data = JSON.parse(text);
-				if (data.type === 'quitTournament') {
-					tournamentManager.quitTournament(userId);
-					userManager.removeTournamentSocket(userId);
-					socket.send(JSON.stringify({ type: 'tournamentLeft' }));
-				} else if (data.type === 'move') {
-					const tournament = tournamentManager.getUserTournament(userId);
-					if (tournament && tournament.mode === 'local') {
-						const game = gameManager.getRoomByPlayerId(userId);
-						if (game) {
-							game.handleMove(userId, data.direction, data.side);
+				if (!authenticated) {
+					decoded = fastify.jwt.verify(msg) as JWTPayload;
+					user = userManager.getUser(decoded.id)
+					if (! user)
+						throw new Error(`User not valid: ${decoded.id}`);
+					fastify.log.info(`🟢 [Tournament WS] Connected: ${user.username}`);
+				}
+				else {
+					const text = msg.toString();
+					if (text === 'pong') {
+						userManager.setInTournament(user!.id, true);
+						return;
+					}
+
+				
+					const data = JSON.parse(text);
+					if (data.type === 'quitTournament') {
+						tournamentManager.quitTournament(userId);
+						userManager.removeTournamentSocket(userId);
+						socket.send(JSON.stringify({ type: 'tournamentLeft' }));
+					} else if (data.type === 'move') {
+						const tournament = tournamentManager.getUserTournament(userId);
+						if (tournament && tournament.mode === 'local') {
+							const game = gameManager.getRoomByPlayerId(userId);
+							if (game) {
+								game.handleMove(userId, data.direction, data.side);
+							}
 						}
 					}
 				}
 			} catch (err) {
-				console.warn('📛 [Tournament WS] Invalid message:', text);
+				fastify.log.warn('📛 [Tournament WS] Invalid message:', err);
+				socket.close(4001, 'Unauthorized')
+				return;
 			}
-		};
+		});
 
-		socket.on('message', onMessage);
 		socket.on('close', () => {
 			console.log(`❌ [Tournament WS] Disconnected: ${userId}`);
 			tournamentManager.quitTournament(userId);

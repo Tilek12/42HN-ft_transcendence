@@ -48,11 +48,11 @@ const wsPresencePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) =>
 		let user: User | null;
 		let decoded: JWTPayload;
 		// Sync attach to prevent dropped messages
-		socket.on('message', async (raw: any) => {
+		socket.on('message', async (msg: any) => {
 			// console.log("presence ws message handler");
 			try {
 				if (!authenticated) {
-					decoded = fastify.jwt.verify(raw) as JWTPayload;
+					decoded = fastify.jwt.verify(msg) as JWTPayload;
 
 					if (userManager.getUser(decoded.id))
 						throw new Error(` Duplicate connection rejected for: ${decoded.id}`);
@@ -71,8 +71,8 @@ const wsPresencePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) =>
 				}
 				else {
 					// If already authenticated, we only expect pongs
-					const msg = raw.toString();
-					if (msg === 'pong' && user)
+					const message = msg.toString();
+					if (messagge === 'pong' && user)
 					{
 							 userManager.setAlive(user.id);
 					}
@@ -109,7 +109,7 @@ const wsPresencePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) =>
 		try {
 			userManager.checkHeartbeats(); // implementation updated to ping all socket-types
 		} catch (err) {
-			fastify.log.warn({ err }, '[Presence WS] heartbeat check error');
+			fastify.log.warn({ err }, '💀 [Presence WS] heartbeat check error');
 		}
 	}, PING_INTERVAL_MS);
 };
