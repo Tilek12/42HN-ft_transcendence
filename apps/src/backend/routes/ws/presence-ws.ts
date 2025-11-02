@@ -5,7 +5,7 @@ import { userManager } from '../../service-managers/user-manager';
 import { tournamentManager } from '../../service-managers/tournament-manager';
 import { findUserById, getUsernameById } from '../../database/user';
 import { PING_INTERVAL_MS } from '../../constants';
-import { WebsocketSchema } from '../../auth/schemas'
+import { PresenceWebsocketSchema } from './WebsocketSchemas'
 import { JWTPayload } from '../../types';
 import { verifyUserJWT } from '../../auth/utils';
 import { Jwt_type, User } from '../../types';
@@ -43,7 +43,7 @@ export const sendTournamentUpdate = () => {
 
 const wsPresencePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 	// WebSocket route
-	fastify.get('/presence', { schema: WebsocketSchema, websocket: true }, (socket, req) => {
+	fastify.get('/presence', { schema: PresenceWebsocketSchema, websocket: true }, (socket, req) => {
 		let authenticated = false;
 		let user: User | null;
 		let decoded: JWTPayload;
@@ -72,7 +72,7 @@ const wsPresencePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) =>
 				else {
 					// If already authenticated, we only expect pongs
 					const message = msg.toString();
-					if (messagge === 'pong' && user)
+					if (message === 'pong' && user)
 					{
 							 userManager.setAlive(user.id);
 					}

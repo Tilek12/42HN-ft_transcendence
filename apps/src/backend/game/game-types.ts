@@ -1,17 +1,15 @@
+import Websocket from 'ws';
+
 export interface Player {
 	id: string;
 	name: string;
-	socket: WebSocket;
+	socket: Websocket;
 }
 
 export const GhostPlayer: Player = {
 	id: 'ghost',
 	name: '__ghost',
-	socket: {
-	  send() {},
-	  close() {},
-	  readyState: 0
-	} as unknown as WebSocket
+	socket: {} as unknown as WebSocket
 };
 
 export interface GameState {

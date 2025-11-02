@@ -10,6 +10,7 @@ import {
 } from '../../database/user';
 
 import { updateProfileLogInState, createProfile } from '../../database/profile';
+import { userManager } from '../../service-managers/user-manager';
 
 const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 	// Register
@@ -57,8 +58,15 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		if (!(await verifyPassword(password, user.password))) {
 			return res.status(401).send({ message: 'Invalid password' });
 		}
-
-		let payload: JWTPayload = { id: user.id, username: user.username, tfa: user.tfa, role: user.role, type: Jwt_type.normal };
+		if (user && userManager.getUser(user.id))
+		{
+			return res.status(410).send({message: 'User already logged in'})
+		}
+		let payload: JWTPayload = { id: user.id,
+									username: user.username,
+									tfa: user.tfa,
+									role: user.role,
+									type: Jwt_type.normal };
 		let token: string;
 		if (user.tfa) {
 			payload.type = Jwt_type.tmp;

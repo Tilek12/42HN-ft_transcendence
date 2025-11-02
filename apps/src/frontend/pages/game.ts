@@ -1,11 +1,9 @@
 import { renderNav } from './nav';
 import { renderBackgroundTop } from '../utils/layout';
 import { wsManager } from '../websocket/ws-manager';
-import { getToken, validateLogin } from '../utils/auth';
+import { getToken } from '../utils/auth';
 import { COLORS } from '../constants/colors';
-import { initLang } from './nav';
 import {languageStore, translations_game_render, transelate_per_id} from './languages';
-import type {Language} from './languages';
 
 
 export async function renderGame(root: HTMLElement) {
@@ -92,13 +90,13 @@ export async function renderGame(root: HTMLElement) {
     info.textContent =
       mode === 'solo'
         ? 'Solo mode: Use W/S for left paddle, ↑/↓ for right paddle'
-        : 'Online mode: Use ↑/↓ arrows. Waiting for opponent...';
+        : 'Online mode: Use ↑/↓ arrows. Waiting for opponent...';    
 
-    socket = wsManager.createGameSocket(mode);
+    socket = wsManager.createGameSocket(mode); 
     if (!socket) {
       alert('❌ Failed to create game socket');
       return;
-    }
+    } 
 
     socket.onmessage = (event) => {
       if (event.data === 'ping') {

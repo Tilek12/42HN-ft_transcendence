@@ -1,107 +1,105 @@
 import { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
-import { WebSocket } from 'ws';
+import  WebSocket from 'ws';
 
 import { startGame, cancelDuelSearch } from '../../game/matchmaking';
-import { Player } from '../../game/game-types';
+import { GameMode, Player } from '../../game/game-types';
 import { userManager } from '../../service-managers/user-manager';
 import { PING_INTERVAL_MS } from '../../constants';
+import { GameWebsocketSchema, GameWebsocketQuery } from './WebsocketSchemas';
+import { JWTPayload, User } from '../../types';
+import { sleep } from '../../utils'
+import { WebsocketHandler } from '@fastify/websocket';
+
+
+async function setup(user:User, socket:WebSocket, buffer:string[], mode:string)
+{
+	// set the game socket (this will close previous if exists)
+	userManager.setGameSocket(user.id, socket);
+	userManager.setInGame(user.id, true);
+
+	// create Player with this socket and start matchmaking / game
+	const player: Player = { id: user.id.toString(), name: user.username, socket };
+	await startGame(player, mode as GameMode);
+
+	while (buffer.length)
+	{
+		const raw = buffer.shift();
+		try {
+			const msg = raw;
+			if (msg === 'pong') userManager.setInGame(user.id, true);
+			if (msg === 'quit') {
+				socket.close(1000, "Quit game");
+			}
+		} catch {}
+	}
+
+	// attach final close handler to cleanup (will be appended to the close handlers )
+	socket.on('close', () => {
+		cancelDuelSearch(user.id.toString()); // TODO change id everywhere to number type
+		userManager.removeGameSocket(user.id);
+		userManager.setInGame(user.id, false);
+	});
+}
+
 
 const wsGamePlugin: FastifyPluginAsync = async (fastify: any) => {
-	fastify.get('/game', { websocket: true }, (socket: WebSocket, req: FastifyRequest) => {
+	fastify.get('/game', { websocket: true, Schema:GameWebsocketSchema}, (socket: WebSocket, req: FastifyRequest) => {
 		// parse query quickly
-		const { token } = (req.query as any) ?? {};
-		const mode = (req.query as any)?.mode ??
-					new URLSearchParams((req as any).url?.split('?')[1] || '').get('mode') ?? 'solo';
-		const tournamentId = (req.query as any)?.id ?? undefined;
+		const buffer: string[] = [];
+		const	query = req.query as GameWebsocketQuery;
+		const	mode = query.mode;
+		let 	authenticated = false;
+		let		closed = false;
+		let		user: User | undefined = undefined;
+		let decoded: JWTPayload;
 
-		if (!token) {
-			try { socket.close(4001, 'Missing token'); } catch {}
-			return;
-		}
-
-		// buffer and attach synchronous handler to avoid dropped messages
-		const buffer: any[] = [];
-		let authenticated = false;
-		let closed = false;
-		let authUserId: string | null = null;
-
-		const onMessage = (raw: any) => {
-			if (!authenticated) {
-				buffer.push(raw);
-				return;
-			}
+		socket.on('message', async (raw: any) => {
 			try {
-				const msg = raw.toString();
-				if (msg === 'pong') {
-					userManager.setInGame(authUserId!, true);
-				} else if (msg === 'quit') {
-					cancelDuelSearch(authUserId!);
-					try { socket.close(); } catch {}
-				} else {
-					// other messages are handled by GameRoom since player.socket is same socket
-				}
-			} catch {}
-		};
-
-		socket.on('message', onMessage);
-		socket.on('close', () => { closed = true; });
-		socket.on('error', (err: any) => fastify.log.warn('[Game WS] socket error', err));
-
-		(async () => {
-			let userId: string;
-			try {
-				const payload: any = await fastify.jwt.verify(token);
-				userId = payload.id;
-			} catch (err) {
-				try { if (!closed) socket.close(4002, 'Invalid or expired token'); } catch {}
-				return;
-			}
-
-			// presence must exist
-			const presenceUser = userManager.getUser(userId);
-			if (!presenceUser) {
-				try { if (!closed) socket.close(4003, 'Presence connection not found'); } catch {}
-				return;
-			}
-
-			// set the game socket (this will close previous if exists)
-			userManager.setGameSocket(userId, socket);
-			userManager.setInGame(userId, true);
-			authUserId = userId;
-			authenticated = true;
-
-			fastify.log.info(`🏓 [Game WS] Connected: ${userId} (${mode})`);
-
-			// create Player with this socket and start matchmaking / game
-			const player: Player = { id: userId, name: presenceUser.name, socket };
-			try {
-				await startGame(player, mode as any, tournamentId);
-			} catch (err) {
-				fastify.log.warn('[Game WS] startGame error', err);
-			}
-
-			// process buffered messages (likely none)
-			while (buffer.length) {
-				const raw = buffer.shift();
-				try {
-					const msg = raw.toString();
-					if (msg === 'pong') userManager.setInGame(userId, true);
-					if (msg === 'quit') {
-						cancelDuelSearch(userId);
-						try { socket.close(); } catch {}
+				if (!authenticated)
+				{
+					decoded = fastify.jwt.verify(raw) as JWTPayload;
+					user = userManager.getUser(decoded.id);
+					if (!user)
+						throw new Error("User not present");
+					else {
+						await setup(user, socket, buffer, mode);
+						fastify.log.info(`🏓 [Game WS] Connected: ${user.id} (${mode})`);
+						authenticated = true;
 					}
-				} catch {}
+				}
+				else if (user)
+				{
+					const msg = raw.toString();
+					if (msg === 'pong') 
+					{
+						userManager.setInGame(user.id, true);
+					} 
+					else if (msg === 'quit')
+					{
+						// this execution path is reached only when the user has authenticated so no need for cancelDuelSearch
+						socket.close(); 
+					} //else other messages are handled by GameRoom since player.socket is same socket
+				}
+				else
+				{
+					buffer.push(raw.toString());
+				}
+			} catch (e:any){
+				fastify.log.warn(`🔴 [Game WS] Error: ${e}`);
+				socket.close(4003, 'Unauthorized')
 			}
+		});
+		socket.on('close', () => { 
+			closed = true;
+			fastify.log.info(`❌ [Game WS] Disconnected: ${user?user.id:'unauthenticated user'}`);
+		});
+		socket.on('error', (err: any) => fastify.log.warn('🔴 [Game WS] socket error', err));
 
-			// attach final close handler to cleanup (will be appended but original close handler exists)
-			socket.on('close', () => {
-				fastify.log.info(`❌ [Game WS] Disconnected: ${userId}`);
-				cancelDuelSearch(userId);
-				userManager.removeGameSocket(userId);
-				userManager.setInGame(userId, false);
-			});
-		})();
+
+
+
+
 	});
 
 	setInterval(() => {

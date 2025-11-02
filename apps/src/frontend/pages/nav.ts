@@ -105,9 +105,9 @@ export async function toggleLogin() {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
       });
+    clearToken();
     wsManager.disconnectAllSockets();
     wsManager.clearPresenceData();
-    clearToken();
     changeLoginButton(true);
     location.hash = '#/';
   }

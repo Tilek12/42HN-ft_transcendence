@@ -23,7 +23,7 @@ class WebSocketManager {
   // -------- GAME SOCKET -------- //
   ///////////////////////////////////
 
-  createGameSocket(mode: GameMode, size?: 4 | 8, id?: string): WebSocket | null {
+  createGameSocket(mode: GameMode): WebSocket | null {
     if (this.gameSocket && this.gameSocket.readyState === WebSocket.OPEN) {
       console.warn('🕹️ [Game WS] Already connected');
       return this.gameSocket;
@@ -32,16 +32,16 @@ class WebSocketManager {
     const token = getToken();
     if (!token) return null;
 
-    let url = `/ws/game?mode=${mode}&token=${token}`;
-    if (mode === 'tournament' && size) {
-      url += `&size=${size}`;
-      if (id) url += `&id=${id}`;
-    }
+    let url = `/ws/game?mode=${mode}`;
+  
 
-    const socket = new WebSocket(url);
+    const socket = new WebSocket(url);  
     this.gameSocket = socket;
 
-    socket.onopen = () => console.log('🕹️ [Game WS] Connected');
+    socket.onopen = () => {
+      socket.send(token);
+      console.log('🕹️ [Game WS] Connected');
+    }
 
     socket.onmessage = (e) => {
       if (e.data === 'ping') socket.send('pong');
@@ -114,10 +114,10 @@ class WebSocketManager {
     };
 
     socket.onclose = (e) => {
-      console.log('👥 [Presence WS] Disconnected', e.reason);
+      console.log('👥 [Presence WS] Disconnected! Reason: ', e.reason);
       this.presenceSocket = null;
       this.disconnectGameSocket();
-
+      this.disconnectTournamentSocket();
       if (e.code === 4003 || !getToken()) return;
 
       this.retryAttempts++;
@@ -137,11 +137,8 @@ class WebSocketManager {
   disconnectPresenceSocket() {
     if (this.reconnectTimeout) clearTimeout(this.reconnectTimeout);
     if (this.presenceSocket) {
-      const socket = this.presenceSocket;
-      socket.onclose = () => {
-        this.presenceSocket = null;
-      };
-      socket.close();
+      this.presenceSocket.close(4000, "Logout");
+      // this.presenceSocket = null;
     }
   }
 
@@ -169,7 +166,7 @@ class WebSocketManager {
   // -------- TOURNAMENT SOCKET -------- //
   /////////////////////////////////////////
 
-  connectTournamentSocket(
+  connectTournamentSocket( 
     action: 'join' | 'create',
     size: 4 | 8,
     id?: string,
@@ -182,14 +179,17 @@ class WebSocketManager {
     const token = getToken();
     if (!token) return null;
 
-    let url = `/ws/tournament?action=${action}&size=${size}&token=${token}`;
+    let url = `/ws/tournament?action=${action}&size=${size}`;
     if (action === 'join' && id) url += `&id=${id}`;
     if (names && names.length > 0) url += `&names=${encodeURIComponent(JSON.stringify(names))}`;
 
     const socket = new WebSocket(url);
     this.tournamentSocket = socket;
 
-    socket.onopen = () => console.log('🎯 [Tournament WS] Connected:', url);
+    socket.onopen = () => {
+      socket.send(token)
+      console.log('🎯 [Tournament WS] Connected:', url);
+    }
 
     socket.onmessage = (e) => {
       if (e.data === 'ping') socket.send('pong');
@@ -213,7 +213,7 @@ class WebSocketManager {
       this.tournamentSocket = null;
     };
 
-    return socket;
+    return socket; 
   }
 
   disconnectTournamentSocket() {
@@ -222,11 +222,7 @@ class WebSocketManager {
       try {
         this.tournamentSocket.send(JSON.stringify({ type: 'quitTournament' }));
       } catch { }
-      const socket = this.tournamentSocket;
-      socket.onclose = () => {
-        this.tournamentSocket = null;
-      }
-      socket.close();
+        this.tournamentSocket.close();
     }
   }
 

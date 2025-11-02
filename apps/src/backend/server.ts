@@ -147,7 +147,7 @@ async function main() {
 	// Start listening
 	try {
 		await server.listen({ port: PORT, host: '0.0.0.0' });
-		console.log('✅ Server running on:');
+		console.log(`✅ [PID ${process.pid}] Server running on:`);
 		console.log(`     Local: https://localhost:${PORT}`);
 		console.log(`   Network: https://${LOCAL_IP}:${PORT}`);
 	} catch (err) {
@@ -155,10 +155,14 @@ async function main() {
 		process.exit(1);
 	}
 
+	let isShuttingDown = false;
 	// Graceful shutdown
 	const shutdown = async () => {
-		console.log('\n🛑 Gracefully shutting down...');
+		  if (isShuttingDown) return; // guard the shutdown as concurrently sends two sigints to process when running in dev mode
+  			isShuttingDown = true;
+		console.log(`\n🛑 [PID ${process.pid}] Gracefully shutting down...`);
 		await logout_all_users();
+		console.log("❎ All Users logged out.");
 		try {
 			await server.close();
 			console.log('❎ Server closed');
