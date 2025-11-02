@@ -19,6 +19,7 @@ export interface GameState {
 	width: number;
 	height: number;
 	status: 'playing' | 'ended';
+	playerNames: { [id: string]: string };
 }
 
 export interface MoveMessage {
@@ -27,7 +28,7 @@ export interface MoveMessage {
 	side?: 'left' | 'right'; // ← optional, used in solo mode
 }
 
-export type GameMode = 'solo' | 'duel' | 'match' | 'local';
+export type GameMode = 'solo' | 'duel' | 'match' | 'local' | 'tournament';
 
 export type GameMessage =
 	| { type: 'move'; direction: 'up' | 'down'; side?: 'left' | 'right' }

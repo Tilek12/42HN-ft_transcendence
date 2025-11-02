@@ -1,5 +1,5 @@
 import { WebSocket } from 'ws';
-import { Player } from '../game/game-types';
+import { Player, GhostPlayer } from '../game/game-types';
 import { userManager } from './user-manager';
 import { gameManager } from './game-manager';
 import {
@@ -20,6 +20,7 @@ class TournamentManager {
   private nextMid = 1;  // Match ID starts at 1
   private nextUid = 2;  // User ID starts at 2 (1 is reserved for host)
   private localControlSocket = new Map<string, WebSocket>();
+  private playerReadyStates = new Map<string, Set<string>>(); // matchKey -> Set<playerId>
 
   async createTournament(
     mode: TournamentMode,
@@ -200,14 +201,90 @@ class TournamentManager {
     }
   }
 
-  /** Online tournaments: start whole round in parallel */
+  /** Online tournaments: start whole round in parallel with staggered starts */
   private startRoundSimultaneously(t: TournamentState, roundIdx: number) {
-    for (const m of t.rounds[roundIdx]) this.startOneMatch(t, m);
+    if (roundIdx === 0) {
+      // First round: wait for ALL players to be ready, then start all matches simultaneously
+      this.startFirstRoundSimultaneously(t);
+    } else {
+      // Subsequent rounds: stagger matches to prevent server overload
+      const baseDelay = 4000; // 4s base delay for subsequent rounds
+      t.rounds[roundIdx].forEach((match, index) => {
+        const delay = baseDelay + (index * 500); // 500ms stagger between matches
+        setTimeout(() => this.startOneMatch(t, match), delay);
+      });
+    }
+  }
+
+  /** Wait for all players in first round to be ready, then start all matches simultaneously */
+  private startFirstRoundSimultaneously(t: TournamentState) {
+    const round = t.rounds[0];
+    if (!round) return;
+
+    // Send matchStart to all players in the first round
+    round.forEach(match => {
+      [match.p1, match.p2].forEach(player => {
+        const user = userManager.getUser(player.id);
+        if (user?.tournamentSocket?.readyState === WebSocket.OPEN) {
+          user.tournamentSocket.send(JSON.stringify({
+            type: 'matchStart',
+            tournamentId: t.id,
+            size: t.size,
+            player1: match.p1.id,
+            player2: match.p2.id,
+            matchId: match.id
+          }));
+        }
+      });
+    });
+
+    // Wait for ALL tournament participants to signal readiness
+    this.waitForAllPlayersReady(t.id, round);
+  }
+
+  /** Wait for all tournament players to be ready before starting first round matches */
+  private waitForAllPlayersReady(tournamentId: string, matches: Match[]) {
+    const readyKey = `${tournamentId}-round0`;
+    const expectedPlayers = new Set(matches.flatMap(m => [m.p1.id, m.p2.id]));
+    const timeout = 15000; // 15 second timeout for first round
+    const startTime = Date.now();
+
+    const checkReady = () => {
+      const readyPlayers = this.playerReadyStates.get(readyKey)?.size || 0;
+
+      if (readyPlayers >= expectedPlayers.size) {
+        // All players ready, start all matches simultaneously
+        matches.forEach(match => {
+          this.startActualMatch(tournamentId, match);
+        });
+        this.playerReadyStates.delete(readyKey);
+        console.log(`🎮 [Tournament ${tournamentId}] All first round matches started simultaneously`);
+        return;
+      }
+
+      if (Date.now() - startTime > timeout) {
+        // Timeout - start with whoever is ready
+        console.warn(`⏰ [Tournament ${tournamentId}] Timeout waiting for all players (${readyPlayers}/${expectedPlayers.size} ready), starting available matches`);
+        matches.forEach(match => {
+          const matchReadyPlayers = this.playerReadyStates.get(`${tournamentId}-${match.id}`)?.size || 0;
+          if (matchReadyPlayers === 2) {
+            this.startActualMatch(tournamentId, match);
+          }
+        });
+        this.playerReadyStates.delete(readyKey);
+        return;
+      }
+
+      // Check again in 100ms
+      setTimeout(checkReady, 100);
+    };
+
+    checkReady();
   }
 
   /** Start one match, wire onEnd → TournamentManager.onMatchEnded */
   private startOneMatch(t: TournamentState, match: Match, localSocket?: WebSocket) {
-    match.status = 'running';
+    match.status = 'waiting_for_sockets';
 
     if (t.mode === 'local' && localSocket) {
       localSocket.send(JSON.stringify({
@@ -217,7 +294,65 @@ class TournamentManager {
         p1: { id: match.p1.id, name: match.p1.name },
         p2: { id: match.p2.id, name: match.p2.name }
       }));
+      // For local tournaments, start immediately since socket is ready
+      this.startActualMatch(t, match, localSocket);
+    } else if (t.mode === 'online') {
+      // Send matchStart to both players' tournament sockets
+      [match.p1, match.p2].forEach(player => {
+        const user = userManager.getUser(player.id);
+        if (user?.tournamentSocket?.readyState === WebSocket.OPEN) {
+          user.tournamentSocket.send(JSON.stringify({
+            type: 'matchStart',
+            tournamentId: t.id,
+            size: t.size,
+            player1: match.p1.id,
+            player2: match.p2.id,
+            matchId: match.id
+          }));
+        }
+      });
+      // Wait for players to signal socket readiness
+      this.waitForPlayerSockets(t.id, match);
     }
+  }
+
+  /** Wait for both players to signal their game sockets are ready */
+  private waitForPlayerSockets(tournamentId: string, match: Match) {
+    const readyKey = `${tournamentId}-${match.id}`;
+    const timeout = 10000; // 10 second timeout
+    const startTime = Date.now();
+
+    const checkReady = () => {
+      const readyPlayers = this.playerReadyStates.get(readyKey)?.size || 0;
+
+      if (readyPlayers === 2) {
+        // Both players ready, start the actual game
+        this.startActualMatch(tournamentId, match);
+        this.playerReadyStates.delete(readyKey);
+        return;
+      }
+
+      if (Date.now() - startTime > timeout) {
+        // Timeout - force start with available sockets
+        console.warn(`⏰ [Tournament ${tournamentId}] Timeout waiting for sockets in match ${match.id}, starting with ${readyPlayers}/2 ready`);
+        this.startActualMatch(tournamentId, match);
+        this.playerReadyStates.delete(readyKey);
+        return;
+      }
+
+      // Check again in 100ms
+      setTimeout(checkReady, 100);
+    };
+
+    checkReady();
+  }
+
+  /** Actually start the game after socket readiness is confirmed */
+  private startActualMatch(tournamentId: string, match: Match, localSocket?: WebSocket) {
+    const t = this.tournaments.get(tournamentId);
+    if (!t) return;
+
+    match.status = 'running';
 
     const toPlayer = (p: Participant) => {
       // Online: use each user's game socket from userManager
@@ -227,8 +362,8 @@ class TournamentManager {
       }
       const u = userManager.getUser(p.id);
       if (!u?.gameSocket) {
-        // you may want to notify missing connection; here we fall back to a ghost socket to avoid crash
-        return { id: p.id, name: p.name, socket: (u?.gameSocket as any) } as Player;
+        // Fall back to ghost socket to avoid crash; will be updated when game socket connects
+        return { id: p.id, name: p.name, socket: GhostPlayer.socket } as Player;
       }
       return { id: p.id, name: p.name, socket: u.gameSocket } as Player;
     };
@@ -245,6 +380,16 @@ class TournamentManager {
     );
 
     match.gameId = game.id;
+
+    // For online tournaments, update sockets if players already connected their game sockets
+    if (t.mode === 'online') {
+      [match.p1, match.p2].forEach(p => {
+        const user = userManager.getUser(p.id);
+        if (user?.gameSocket) {
+          game.updateSocket({ id: p.id, name: p.name, socket: user.gameSocket as any });
+        }
+      });
+    }
 
     // Return a promise for local sequential flow
     if (t.mode === 'local') {
@@ -341,6 +486,44 @@ class TournamentManager {
   getTournamentMode(tournamentId: string): 'local' | 'online' | null {
     const t = this.tournaments.get(tournamentId);
     return t ? t.mode : null;
+  }
+
+  getGameForPlayer(playerId: string): any {
+    const tournament = this.getUserTournament(playerId);
+    if (!tournament) return null;
+
+    for (const round of tournament.rounds) {
+      for (const match of round) {
+        if (match.status === 'running' && (match.p1.id === playerId || match.p2.id === playerId)) {
+          return gameManager.getRoom(match.gameId!);
+        }
+      }
+    }
+    return null;
+  }
+
+  /** Handle player socket ready signal */
+  public playerSocketReady(tournamentId: string, matchId: string, playerId: string) {
+    // Handle both individual match readiness and round-wide readiness
+    const matchReadyKey = `${tournamentId}-${matchId}`;
+    const roundReadyKey = `${tournamentId}-round0`;
+
+    // Always track individual match readiness
+    if (!this.playerReadyStates.has(matchReadyKey)) {
+      this.playerReadyStates.set(matchReadyKey, new Set());
+    }
+    this.playerReadyStates.get(matchReadyKey)!.add(playerId);
+
+    // For first round, also track round-wide readiness
+    const tournament = this.tournaments.get(tournamentId);
+    if (tournament && tournament.rounds.length > 0 && tournament.rounds[0].some(m => m.id === matchId)) {
+      if (!this.playerReadyStates.has(roundReadyKey)) {
+        this.playerReadyStates.set(roundReadyKey, new Set());
+      }
+      this.playerReadyStates.get(roundReadyKey)!.add(playerId);
+    }
+
+    console.log(`🎯 [Tournament ${tournamentId}] Player ${playerId} ready for match ${matchId}`);
   }
 
   quitTournament(userId: string) {
