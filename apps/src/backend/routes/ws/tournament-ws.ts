@@ -54,6 +54,9 @@ const wsTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 							game.handleMove(userId, data.direction, data.side);
 						}
 					}
+				} else if (data.type === 'playerReady') {
+					// Handle player socket ready signal for tournament matches
+					tournamentManager.playerSocketReady(data.tournamentId, data.matchId, userId);
 				}
 			} catch (err) {
 				console.warn('📛 [Tournament WS] Invalid message:', text);

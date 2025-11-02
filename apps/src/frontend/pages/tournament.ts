@@ -209,6 +209,20 @@ export async function renderTournament(root: HTMLElement) {
           p1: { id: msg.player1, name: p1Name },
           p2: { id: msg.player2, name: p2Name }
         };
+        // Create game socket first, then signal readiness
+        gameSocket = wsManager.createGameSocket('tournament', msg.size, msg.tournamentId);
+        if (!gameSocket) {
+          alert('Failed to create game socket for tournament match');
+          return;
+        }
+
+        // Signal that our game socket is ready
+        wsManager.tournamentWS?.send(JSON.stringify({
+          type: 'playerReady',
+          tournamentId: msg.tournamentId,
+          matchId: msg.matchId
+        }));
+
         startOnlineTournamentMatch(msg);
       } else {
         console.log('🎯 Spectating match in tournament bracket');
@@ -483,14 +497,7 @@ export async function renderTournament(root: HTMLElement) {
     document.getElementById('online-tournament-match')!.classList.remove('hidden');
 
     // Clear any previous match status messages
-    document.getElementById('online-status')!.textContent = 'Match starting...';
-
-    // Create game socket for tournament
-    gameSocket = wsManager.createGameSocket('tournament', msg.size, msg.tournamentId);
-    if (!gameSocket) {
-      alert('Failed to create game socket for tournament match');
-      return;
-    }
+    document.getElementById('online-status')!.textContent = 'Waiting for both players to be ready...';
 
     gameSocket.onmessage = (event) => {
       if (event.data === 'ping') {

@@ -2,7 +2,7 @@ export type TournamentMode = 'local' | 'online';
 export type TournamentSize = 4 | 8;
 export type TournamentStatus = 'waiting' | 'active' | 'finished';
 
-export type MatchStatus = 'scheduled' | 'running' | 'finished';
+export type MatchStatus = 'scheduled' | 'waiting_for_sockets' | 'running' | 'finished';
 
 export interface Participant { id: string; name: string; } // online: userId; local: ephemeral id
 

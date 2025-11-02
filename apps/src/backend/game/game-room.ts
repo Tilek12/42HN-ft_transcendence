@@ -1,6 +1,7 @@
 import { Player, GhostPlayer, GameState, GameMessage, OnGameEnd, GameMode } from './game-types';
 
-const FRAME_RATE = 1000 / 60;
+const PHYSICS_FRAME_RATE = 1000 / 60; // 60 FPS for physics (original speed)
+const NETWORK_FRAME_RATE = 1000 / 30;  // 30 FPS for network updates
 const PADDLE_HEIGHT = 20;
 const BALL_SPEED = 0.6;
 const FIELD_WIDTH = 100;
@@ -14,12 +15,15 @@ export class GameRoom {
   private mode: GameMode;
   private tournamentId?: string;
   private state: GameState;
-  private interval!: NodeJS.Timeout;
+  private physicsInterval!: NodeJS.Timeout;
+  private networkInterval!: NodeJS.Timeout;
   private winner: Player | null = null;
   private loser: Player | null = null;
   private winnerScore: number = 0;
   private loserScore: number = 0;
   private onEnd: OnGameEnd | null = null;
+  private pendingBroadcast = false;
+  private gameEnded = false;
 
   constructor(
     id: string,
@@ -122,18 +126,25 @@ export class GameRoom {
   }
 
   private start() {
-    this.interval = setInterval(() => this.updateGame(), FRAME_RATE);
+    // Physics loop at 60 FPS
+    this.physicsInterval = setInterval(() => this.updatePhysics(), PHYSICS_FRAME_RATE);
+
+    // Network updates at 30 FPS
+    this.networkInterval = setInterval(() => this.sendNetworkUpdate(), NETWORK_FRAME_RATE);
+
     console.log(`🕹️ [GameRoom] Game started!`);
     this.broadcast({ type: 'start' });
   }
 
-  private updateGame() {
+  private updatePhysics() {
     const { ball, paddles, score, width, height } = this.state;
     const [p1, p2] = this.players;
 
+    // Ball movement
     ball.x += ball.vx;
     ball.y += ball.vy;
 
+    // Wall collision
     if (ball.y <= 0 || ball.y >= height) {
       ball.vy *= -1;
       ball.y = Math.max(0, Math.min(height, ball.y));
@@ -143,6 +154,7 @@ export class GameRoom {
     const pad2 = paddles[p2.id]!;
     const hit = (py: number) => ball.y >= py && ball.y <= py + PADDLE_HEIGHT;
 
+    // Paddle collisions and scoring
     if (ball.x <= 2 && hit(pad1)) {
       ball.x = 2;
       ball.vx *= -1;
@@ -159,38 +171,56 @@ export class GameRoom {
       this.resetBall(-1);
     }
 
-    // Win condition
+    // Win condition check
     if (score[p1.id]! >= WIN_SCORE || score[p2.id]! >= WIN_SCORE) {
-      const p1Score = score[p1.id]!;
-      const p2Score = score[p2.id]!;
+      this.handleGameEnd();
+    }
+  }
 
-      if (p1Score > p2Score) {
-        this.winner = p1;
-        this.winnerScore = p1Score;
-        this.loser = p2;
-        this.loserScore = p2Score;
-      } else {
-        this.winner = p2;
-        this.winnerScore = p2Score;
-        this.loser = p1;
-        this.loserScore = p1Score;
-      }
+  private sendNetworkUpdate() {
+    // Don't send updates if game has ended (except for local mode to show final state)
+    if (this.gameEnded && this.mode !== 'local') return;
 
-      this.broadcast({
-        type: 'end',
-        winner: { id: this.winner.id, name: this.winner.name },
-        loser: { id: this.loser.id, name: this.loser.name }
+    // Only send update if no pending broadcast to prevent flooding
+    if (!this.pendingBroadcast) {
+      this.pendingBroadcast = true;
+      setImmediate(() => {
+        this.broadcast({
+          type: 'update',
+          state: this.state
+        });
+        this.pendingBroadcast = false;
       });
+    }
+  }
 
-      setTimeout(() => this.end(), 1000);
+  private handleGameEnd() {
+    this.gameEnded = true;  // Set flag immediately to stop network updates
 
-      return;
+    const { score } = this.state;
+    const [p1, p2] = this.players;
+    const p1Score = score[p1.id]!;
+    const p2Score = score[p2.id]!;
+
+    if (p1Score > p2Score) {
+      this.winner = p1;
+      this.winnerScore = p1Score;
+      this.loser = p2;
+      this.loserScore = p2Score;
+    } else {
+      this.winner = p2;
+      this.winnerScore = p2Score;
+      this.loser = p1;
+      this.loserScore = p1Score;
     }
 
     this.broadcast({
-      type: 'update',
-      state: this.state
+      type: 'end',
+      winner: { id: this.winner.id, name: this.winner.name },
+      loser: { id: this.loser.id, name: this.loser.name }
     });
+
+    setTimeout(() => this.end(), 1000);
   }
 
   private resetBall(direction: 1 | -1) {
@@ -206,7 +236,7 @@ export class GameRoom {
 
   private broadcast(msg: any) {
     for (const p of this.players) {
-      if (p.socket !== GhostPlayer.socket && p.socket.readyState === 1) {
+      if (p.socket !== GhostPlayer.socket && p.socket.readyState === WebSocket.OPEN) {
         try {
           p.socket.send(JSON.stringify(msg));
         } catch {}
@@ -217,7 +247,8 @@ export class GameRoom {
   private end() {
     if (this.isEnded()) return;
 
-    clearInterval(this.interval);
+    clearInterval(this.physicsInterval);
+    clearInterval(this.networkInterval);
     this.state.status = 'ended';
 
     if (this.onEnd && this.winner && this.loser) {
