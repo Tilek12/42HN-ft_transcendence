@@ -107,8 +107,8 @@ class WebSocketManager {
           }
           this.notifyPresenceListeners();
           onUpdate?.(msg);
-        } catch {
-          console.warn('👥 [Presence WS] Invalid message:', e.data);
+        } catch (e) {
+          console.warn('👥 [Presence WS] Invalid message:', e);
         }
       }
     };
@@ -179,7 +179,7 @@ class WebSocketManager {
     const token = getToken();
     if (!token) return null;
 
-    let url = `/ws/tournament?action=${action}&size=${size}`;
+    let url = `/ws/tournament?action=${action}&size=${size}&token=${token}`;
     if (action === 'join' && id) url += `&id=${id}`;
     if (names && names.length > 0) url += `&names=${encodeURIComponent(JSON.stringify(names))}`;
 
@@ -227,6 +227,7 @@ class WebSocketManager {
   }
 
   quitTournament() {
+    console.log("quit ", this.tournamentSocket)
     if (this.tournamentSocket?.readyState === WebSocket.OPEN) {
       console.log('🎯 [Tournament WS] Sending quitTournament');
       this.tournamentSocket.send(JSON.stringify({ type: 'quitTournament' }));
