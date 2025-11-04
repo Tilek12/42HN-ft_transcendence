@@ -1,0 +1,356 @@
+./apps/src/backend/auth/schemas.ts:49:		required: ['username', 'password'],
+./apps/src/backend/auth/schemas.ts:52:			password: PasswrdSchema,
+./apps/src/backend/auth/schemas.ts:79:		required: ['logged_in', 'username', 'password'],
+./apps/src/backend/auth/schemas.ts:83:			password: { type: 'string' },
+./apps/src/backend/auth/schemas.ts:104:		required: ['username', 'email', 'password'],
+./apps/src/backend/auth/schemas.ts:108:			password: PasswrdSchema,
+./apps/src/backend/auth/schemas.ts:127:			Authorization: { type: 'string', pattern: '^Bearer.+'}
+./apps/src/backend/auth/schemas.ts:129:		required: ['Authorization']
+./apps/src/backend/auth/utils.ts:3:export async function hashPassword(password: string): Promise<string> {
+./apps/src/backend/auth/utils.ts:4:  return bcrypt.hash(password, 10);
+./apps/src/backend/auth/utils.ts:7:export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+./apps/src/backend/auth/utils.ts:8:  return bcrypt.compare(password, hash);
+./apps/src/backend/database/client.ts:17:      password TEXT NOT NULL,
+./apps/src/backend/database/user.ts:15:async function createUser(username: string, email: string, hashedPassword: string) {
+./apps/src/backend/database/user.ts:17:		'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+./apps/src/backend/database/user.ts:20:		hashedPassword
+./apps/src/backend/database/user.ts:33:async function updatePasswordById(id : number, new_password: string)
+./apps/src/backend/database/user.ts:35:	return await db.run('UPDATE users SET password = ? WHERE id = ?', [new_password, id]);
+./apps/src/backend/database/user.ts:43:export {findUserByUsername, findUserById, findUserByEmail, createUser, isUsername, updateUsername, updatePasswordById, getUsernameById};
+./apps/src/backend/error.ts:9:	if (message.startsWith("body/password must match pattern"))
+./apps/src/backend/error.ts:11:		message = "INVALID_PASSWORD";
+./apps/src/backend/plugins/auth.ts:4:const authPlugin: FastifyPluginAsync = async (fastify) => {
+./apps/src/backend/plugins/auth.ts:12:    const authHeader = req.headers.authorization;
+./apps/src/backend/plugins/auth.ts:13:    if (!authHeader?.startsWith('Bearer ')) {
+./apps/src/backend/plugins/auth.ts:14:      return res.status(401).send({ message: 'Missing or invalid token' });
+./apps/src/backend/plugins/auth.ts:21:      return res.status(401).send({ message: 'Invalid or expired token' });
+./apps/src/backend/plugins/auth.ts:26:export default fp(authPlugin);
+./apps/src/backend/routes/api/auth-routes.ts:2:import { hashPassword, verifyPassword } from '../../auth/utils';
+./apps/src/backend/routes/api/auth-routes.ts:3:import { loginSchema, registerSchema } from '../../auth/schemas';
+./apps/src/backend/routes/api/auth-routes.ts:14:const authRoutes: FastifyPluginAsync = async (fastify : any) => {
+./apps/src/backend/routes/api/auth-routes.ts:17:		const { username, email, password } = req.body as any;
+./apps/src/backend/routes/api/auth-routes.ts:25:		const hashed = await hashPassword(password);
+./apps/src/backend/routes/api/auth-routes.ts:40:		const { username, password } = req.body as any;
+./apps/src/backend/routes/api/auth-routes.ts:42:		if (!user || !(await verifyPassword(password, user.password))) {
+./apps/src/backend/routes/api/auth-routes.ts:43:			return res.status(401).send({ message: 'Invalid credentials' });
+./apps/src/backend/routes/api/auth-routes.ts:46:		const token = fastify.jwt.sign({ id: user.id }, { expiresIn: '2h' });
+./apps/src/backend/routes/api/auth-routes.ts:47:		res.send({ token });
+./apps/src/backend/routes/api/auth-routes.ts:59:export default authRoutes;
+./apps/src/backend/routes/api/match-routes.ts:10:	// Create a match (requires authentication)
+./apps/src/backend/routes/api/match-routes.ts:37:			res.status(401).send({ message: 'Unauthorized or error creating match' });
+./apps/src/backend/routes/api/match-routes.ts:51:	// Get matches for a user (requires authentication)
+./apps/src/backend/routes/api/match-routes.ts:69:			res.status(401).send({ message: 'Unauthorized or error retrieving matches' });
+./apps/src/backend/routes/api/profile-routes.ts:7:	updateUsername, updatePasswordById } from '../../database/user';
+./apps/src/backend/routes/api/profile-routes.ts:23:import {verifyPassword, hashPassword} from '../../auth/utils';
+./apps/src/backend/routes/api/profile-routes.ts:53:			res.status(401).send({message: 'Invalid or expired token'});
+./apps/src/backend/routes/api/profile-routes.ts:111:			res.status(401).send({message: 'Unauthorized or error delete_pic'});
+./apps/src/backend/routes/api/profile-routes.ts:123:			res.status(401).send({message: 'Unauthorized parse_friends'});
+./apps/src/backend/routes/api/profile-routes.ts:135:			res.status(401).send({message: 'Unauthorized unlink_profile'});
+./apps/src/backend/routes/api/profile-routes.ts:148:			res.status(401).send({message: 'Unauthorized block_profile'});
+./apps/src/backend/routes/api/profile-routes.ts:160:			res.status(401).send({message: 'Unauthorized unbock_profile'});
+./apps/src/backend/routes/api/profile-routes.ts:177:			res.status(401).send({message: 'Unauthorized link_profile'});
+./apps/src/backend/routes/api/profile-routes.ts:189:			res.status(401).send({message: 'Unauthorized pending_request'});
+./apps/src/backend/routes/api/profile-routes.ts:207:			res.status(401).send({message: 'Unauthorized answer_request'});
+./apps/src/backend/routes/api/profile-routes.ts:266:				res.status(401).send({message: 'Unauthorized parse_profiles'});
+./apps/src/backend/routes/api/profile-routes.ts:270:	fastify.post('/check-given-old-password', async(req : any, res : any) =>{
+./apps/src/backend/routes/api/profile-routes.ts:274:		const password = await req.body.password;
+./apps/src/backend/routes/api/profile-routes.ts:275:		const is_password_verified = await verifyPassword(password, user.password);
+./apps/src/backend/routes/api/profile-routes.ts:276:		res.send({answer: is_password_verified});
+./apps/src/backend/routes/api/profile-routes.ts:279:	fastify.post('/update-password', async(req :any, res : any) =>{
+./apps/src/backend/routes/api/profile-routes.ts:283:			const password = await req.body.password;
+./apps/src/backend/routes/api/profile-routes.ts:284:			const hashed = await hashPassword(password);
+./apps/src/backend/routes/api/profile-routes.ts:285:			await updatePasswordById(id, hashed);
+./apps/src/backend/routes/api/profile-routes.ts:286:			res.send({message: 'User successfully updated his password!'});
+./apps/src/backend/routes/api/tournament-routes.ts:27:			res.status(401).send({ message: 'Unauthorized or error creating tournament' });
+./apps/src/backend/routes/api/tournament-routes.ts:44:			res.status(401).send({ message: 'Unauthorized or error joining tournament' });
+./apps/src/backend/routes/api/tournament-routes.ts:64:			res.status(401).send({ message: 'Unauthorized or error linking match' });
+./apps/src/backend/routes/api/user-routes.ts:10:		const { password, ...safeUser } = user;
+./apps/src/backend/routes/ws/game-ws.ts:13:		const { token } = (req.query as any) ?? {};
+./apps/src/backend/routes/ws/game-ws.ts:18:		if (!token) {
+./apps/src/backend/routes/ws/game-ws.ts:19:			try { socket.close(4001, 'Missing token'); } catch {}
+./apps/src/backend/routes/ws/game-ws.ts:25:		let authenticated = false;
+./apps/src/backend/routes/ws/game-ws.ts:27:		let authUserId: string | null = null;
+./apps/src/backend/routes/ws/game-ws.ts:30:			if (!authenticated) {
+./apps/src/backend/routes/ws/game-ws.ts:37:					userManager.setInGame(authUserId!, true);
+./apps/src/backend/routes/ws/game-ws.ts:39:					cancelDuelSearch(authUserId!);
+./apps/src/backend/routes/ws/game-ws.ts:54:				const payload: any = await fastify.jwt.verify(token);
+./apps/src/backend/routes/ws/game-ws.ts:57:				try { if (!closed) socket.close(4002, 'Invalid or expired token'); } catch {}
+./apps/src/backend/routes/ws/game-ws.ts:71:			authUserId = userId;
+./apps/src/backend/routes/ws/game-ws.ts:72:			authenticated = true;
+./apps/src/backend/routes/ws/presence-ws.ts:42:		// read token from query (support frameworks that put query on req.query)
+./apps/src/backend/routes/ws/presence-ws.ts:43:		const qsToken = (req.query && (req.query as any).token) ??
+./apps/src/backend/routes/ws/presence-ws.ts:44:			new URLSearchParams((req as any).url?.split('?')[1] || '').get('token');
+./apps/src/backend/routes/ws/presence-ws.ts:46:		if (!qsToken) {
+./apps/src/backend/routes/ws/presence-ws.ts:47:			try { socket.close(4001, 'Missing token'); } catch {}
+./apps/src/backend/routes/ws/presence-ws.ts:51:		// buffer incoming messages while we verify token
+./apps/src/backend/routes/ws/presence-ws.ts:53:		let authenticated = false;
+./apps/src/backend/routes/ws/presence-ws.ts:58:			// store raw bytes / strings until auth finished
+./apps/src/backend/routes/ws/presence-ws.ts:59:			if (!authenticated) {
+./apps/src/backend/routes/ws/presence-ws.ts:63:			// If already authenticated, we only expect pongs (but presence socket only needs pongs)
+./apps/src/backend/routes/ws/presence-ws.ts:66:				if (msg === 'pong') userManager.setAlive((req as any).__authenticatedUserId, true);
+./apps/src/backend/routes/ws/presence-ws.ts:81:				const payload: any = await fastify.jwt.verify(qsToken);
+./apps/src/backend/routes/ws/presence-ws.ts:84:				try { if (!closed) socket.close(4002, 'Invalid token'); } catch {}
+./apps/src/backend/routes/ws/presence-ws.ts:109:			(req as any).__authenticatedUserId = userId; // small tag to allow message handler to access id
+./apps/src/backend/routes/ws/presence-ws.ts:110:			authenticated = true;
+./apps/src/backend/routes/ws/presence-ws.ts:127:			// update handlers to use userId (already our onMessage uses req.__authenticatedUserId)
+./apps/src/backend/routes/ws/tournament-ws.ts:14:		const token = params.get('token');
+./apps/src/backend/routes/ws/tournament-ws.ts:22:		if (!token || !action || (action === 'join' && !tournamentId)) {
+./apps/src/backend/routes/ws/tournament-ws.ts:28:		let authenticated = false;
+./apps/src/backend/routes/ws/tournament-ws.ts:32:			if (!authenticated) {
+./apps/src/backend/routes/ws/tournament-ws.ts:79:				const payload = await fastify.jwt.verify(token);
+./apps/src/backend/routes/ws/tournament-ws.ts:118:				authenticated = true;
+./apps/src/backend/server.ts:12:import authPlugin from './plugins/auth';
+./apps/src/backend/server.ts:13:import authRoutes from './routes/api/auth-routes';
+./apps/src/backend/server.ts:33:if (!JWT_SECRET) {
+./apps/src/backend/server.ts:34:	console.error('❌ Missing JWT_SECRET in .env');
+./apps/src/backend/server.ts:45:		key: fs.readFileSync('/run/secrets/ssl_key'),
+./apps/src/backend/server.ts:46:		cert: fs.readFileSync('/run/secrets/ssl_cert')
+./apps/src/backend/server.ts:54:	await server.register(jwt, { secret: JWT_SECRET });	// ✅ Create JWT
+./apps/src/backend/server.ts:84:	await server.register(authRoutes, { prefix: '/api' });			// 👈 Public routes (login/register)
+./apps/src/backend/server.ts:90:		await protectedScope.register(authPlugin);			// 👈 Middleware checking token
+./apps/src/frontend/images/about.txt:4:- Graphics Author: Copyright 2020 Twitter, Inc and other contributors (https://github.com/twitter/twemoji)
+./apps/src/frontend/main.ts:3:import { isLoggedIn } from './utils/auth'
+./apps/src/frontend/pages/friends.ts:3:import { getToken, clearToken, validateLogin } from '../utils/auth'
+./apps/src/frontend/pages/friends.ts:62:							Authorization : `Bearer ${getToken()}`,
+./apps/src/frontend/pages/game.ts:4:import { getToken, validateLogin } from '../utils/auth';
+./apps/src/frontend/pages/game.ts:86:    const token = getToken();
+./apps/src/frontend/pages/game.ts:87:    if (!token) {
+./apps/src/frontend/pages/languages.ts:33:		current_password_placeholder : 'Current password',
+./apps/src/frontend/pages/languages.ts:34:		new_password_placeholder: 'New Password',
+./apps/src/frontend/pages/languages.ts:35:		confirm_new_password_placeholder: 'Confirm New Passsword',
+./apps/src/frontend/pages/languages.ts:36:		new_password_btn : 'New Password',
+./apps/src/frontend/pages/languages.ts:54:		current_password_placeholder: 'Aktuelles Passwort',
+./apps/src/frontend/pages/languages.ts:55:		new_password_placeholder: 'Neues Passwort',
+./apps/src/frontend/pages/languages.ts:56:		confirm_new_password_placeholder: 'Neues Passwort bestätigen',
+./apps/src/frontend/pages/languages.ts:57:		new_password_btn: 'Neues Passwort',
+./apps/src/frontend/pages/languages.ts:75:		current_password_placeholder: 'Τρέχων κωδικός',
+./apps/src/frontend/pages/languages.ts:76:		new_password_placeholder: 'Νέος κωδικός',
+./apps/src/frontend/pages/languages.ts:77:		confirm_new_password_placeholder: 'Επιβεβαίωση νέου κωδικού',
+./apps/src/frontend/pages/languages.ts:78:		new_password_btn: 'Νέος Κωδικός',
+./apps/src/frontend/pages/languages.ts:120:		password_label: 'Password',
+./apps/src/frontend/pages/languages.ts:123:		password_placeholder: 'Enter your password',
+./apps/src/frontend/pages/languages.ts:133:		password_label: 'Passwort',
+./apps/src/frontend/pages/languages.ts:136:		password_placeholder: 'Geben Sie Ihr Passwort ein',
+./apps/src/frontend/pages/languages.ts:146:		password_label: 'Κωδικός',
+./apps/src/frontend/pages/languages.ts:149:		password_placeholder: 'Εισάγετε τον κωδικό σας',
+./apps/src/frontend/pages/languages.ts:183:		password_label: 'Password',
+./apps/src/frontend/pages/languages.ts:184:		password_placeholder: 'Enter your password',
+./apps/src/frontend/pages/languages.ts:186:		forgot_password: 'Forgot password?',
+./apps/src/frontend/pages/languages.ts:190:		error_message: 'Invalid username or password'
+./apps/src/frontend/pages/languages.ts:199:		password_label: 'Passwort',
+./apps/src/frontend/pages/languages.ts:200:		password_placeholder: 'Geben Sie Ihr Passwort ein',
+./apps/src/frontend/pages/languages.ts:202:		forgot_password: 'Passwort vergessen?',
+./apps/src/frontend/pages/languages.ts:215:		password_label: 'Κωδικός πρόσβασης',
+./apps/src/frontend/pages/languages.ts:216:		password_placeholder: 'Εισάγετε τον κωδικό πρόσβασης',
+./apps/src/frontend/pages/languages.ts:218:		forgot_password: 'Ξεχάσατε τον κωδικό;',
+./apps/src/frontend/pages/languages.ts:329:		error_invalid_password: 'The Password must be 8-64 characters, contain at least one uppercase, one lowercase, one number and one special charracter',
+./apps/src/frontend/pages/languages.ts:333:		error_invalid_password: 'Password muss 8-64 Zeichen und mindestens einen Großbuchstaben, einen Kleinbuchstaben, ene Zahl und einen Spezialzeichen enthalten',
+./apps/src/frontend/pages/languages.ts:337:		error_invalid_password: 'Ο κωδικός πρέπει να έχει 8–64 χαρακτήρες, με τουλάχιστον ένα κεφαλαίο, ένα πεζό, έναν αριθμό και έναν ειδικό χαρακτήρα.',
+./apps/src/frontend/pages/ListenerProfileList.ts:2:import { getToken} from '../utils/auth'
+./apps/src/frontend/pages/ListenerProfileList.ts:12:	token_jwt : any,
+./apps/src/frontend/pages/ListenerProfileList.ts:23:				Authorization: `Bearer ${attributes.token_jwt}`,
+./apps/src/frontend/pages/ListenerProfileList.ts:37:	const token = getToken();
+./apps/src/frontend/pages/ListenerProfileList.ts:41:			api_endpoint: `link-profile`, token_jwt:  token, profile_id: profileId});
+./apps/src/frontend/pages/ListenerProfileList.ts:46:			api_endpoint: `pending-request`, token_jwt:  token, profile_id: profileId});
+./apps/src/frontend/pages/ListenerProfileList.ts:51:			api_endpoint: `unlink-profile`, token_jwt:  token, profile_id: profileId});
+./apps/src/frontend/pages/ListenerProfileList.ts:56:			api_endpoint: `block-profile`, token_jwt:  token, profile_id: profileId});
+./apps/src/frontend/pages/ListenerProfileList.ts:61:			api_endpoint: `unblock-profile`, token_jwt:  token, profile_id: profileId});
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:1:import {getToken} from '../utils/auth'
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:2://----------------------Password Listeners-------------------------------
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:3:const listenerPasswordEdit = (
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:4:	password_old_check : HTMLInputElement,
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:5:	 password_new : HTMLInputElement, 
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:6:	 password_confirm : HTMLInputElement,
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:7:	password_update_btn : HTMLButtonElement,
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:8:	password_cancel_btn : HTMLButtonElement,
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:9:	password_edit_btn : HTMLButtonElement
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:12:		password_old_check?.classList.remove('hidden');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:13:		password_new?.classList.remove('hidden');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:14:		password_confirm?.classList.remove('hidden');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:15:		password_update_btn?.classList.remove('hidden');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:16:		password_cancel_btn?.classList.remove('hidden');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:17:		password_edit_btn?.classList.add('hidden');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:19:const listenerPasswordCancel = (
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:20:	password_old_check : HTMLInputElement,
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:21:	password_new : HTMLInputElement, 
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:22:	password_confirm : HTMLInputElement,
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:23:	password_update_btn : HTMLButtonElement,
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:24:	password_cancel_btn : HTMLButtonElement,
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:25:	password_edit_btn : HTMLButtonElement
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:28:		password_old_check?.classList.add('hidden');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:29:		password_new?.classList.add('hidden');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:30:		password_confirm?.classList.add('hidden');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:31:		password_update_btn?.classList.add('hidden');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:32:		password_cancel_btn?.classList.add('hidden');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:33:		password_edit_btn?.classList.remove('hidden');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:35:	const listenerPasswordUpdate = async (
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:36:		password_old_check : HTMLInputElement,
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:37:		password_new : HTMLInputElement, 
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:38:		password_confirm : HTMLInputElement,
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:39:		password_update_btn : HTMLButtonElement,
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:40:		password_cancel_btn : HTMLButtonElement,
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:41:		password_edit_btn : HTMLButtonElement
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:44:	let old_value = password_old_check.value;
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:45:	let new_value = password_new.value;
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:46:	let confirm_value = password_confirm.value;
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:48:	let res = await fetch('/api/private/check-given-old-password',
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:53:				'Authorization': `Bearer ${getToken()}`,
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:56:			body: JSON.stringify({password: old_value}),
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:64:		alert('try again to write your old password!')
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:69:		alert('The new and confirm password are not the same');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:74:		alert ('Try a password with more than 6 characters!');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:79:		alert('The given new password must be different than the older one');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:82:		res = await fetch('/api/private/update-password',
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:87:				'Authorization': `Bearer ${getToken()}`,
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:90:			body: JSON.stringify({password: new_value}),
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:97:			password_old_check.value ='';
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:98:			password_confirm.value ='';
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:99:			password_new.value ='';
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:104:	password_old_check?.classList.add('hidden');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:105:	password_new?.classList.add('hidden');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:106:	password_confirm?.classList.add('hidden');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:107:	password_update_btn?.classList.add('hidden');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:108:	password_cancel_btn?.classList.add('hidden');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:109:	password_edit_btn?.classList.remove('hidden');
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:166:							'Authorization': `Bearer ${getToken()}`,
+./apps/src/frontend/pages/listenerUpdatePasswordAndUsername.ts:190:export {listenerPasswordEdit, listenerPasswordCancel, listenerPasswordUpdate, listenerUsernameCancel, listenerUsernameUpdate, listenerUsernameEdit};
+./apps/src/frontend/pages/listenerUploadAndDeletePicture.ts:1:import { getToken, clearToken} from '../utils/auth'
+./apps/src/frontend/pages/listenerUploadAndDeletePicture.ts:53:					'Authorization': `Bearer ${getToken()}`,
+./apps/src/frontend/pages/listenerUploadAndDeletePicture.ts:80:				Authorization: `Bearer ${getToken()}`,
+./apps/src/frontend/pages/listenerUploadAndDeletePicture.ts:100:		const token = getToken();
+./apps/src/frontend/pages/listenerUploadAndDeletePicture.ts:104:					headers: {'Authorization': `Bearer ${token}`},
+./apps/src/frontend/pages/listenerUploadAndDeletePicture.ts:108:			clearToken();
+./apps/src/frontend/pages/login.ts:3:import { saveToken } from '../utils/auth';
+./apps/src/frontend/pages/login.ts:60:            <label id="password_label" for="password" class="block text-sm font-medium text-gray-200">${t.password_label}</label>
+./apps/src/frontend/pages/login.ts:62:              <input type="password" id="password" placeholder="${t.password_placeholder}"
+./apps/src/frontend/pages/login.ts:74:            <a id="forgot_password" href="#/forgot-password"
+./apps/src/frontend/pages/login.ts:75:              class="text-blue-400 hover:text-blue-300 transition-colors duration-200">${t.forgot_password}</a>
+./apps/src/frontend/pages/login.ts:119:    transelate_per_id(translations_login_page, "password_label", lang, "password_label");
+./apps/src/frontend/pages/login.ts:120:    transelate_per_id(translations_login_page, "password_placeholder", lang, "password");
+./apps/src/frontend/pages/login.ts:122:    transelate_per_id(translations_login_page, "forgot_password", lang, "forgot_password");
+./apps/src/frontend/pages/login.ts:152:    const password = (document.getElementById('password') as HTMLInputElement).value;
+./apps/src/frontend/pages/login.ts:158:        body: JSON.stringify({ username, password }),
+./apps/src/frontend/pages/login.ts:163:      if (!res.ok || !response_data.token) {
+./apps/src/frontend/pages/login.ts:166:          case 'INVALID_PASSWORD': error_message = error_trans.error_invalid_password; break;
+./apps/src/frontend/pages/login.ts:178:        saveToken(response_data.token);
+./apps/src/frontend/pages/login.ts:227:    // Optional: Redirect to OAuth endpoint
+./apps/src/frontend/pages/login.ts:228:    // location.href = '/api/auth/google'
+./apps/src/frontend/pages/login.ts:253://           <label for="password" class="block text-left text-sm font-medium text-gray-700">Password</label>
+./apps/src/frontend/pages/login.ts:254://           <input type="password" id="password" class="mt-1 block w-full border px-3 py-2 rounded shadow-sm" required />
+./apps/src/frontend/pages/login.ts:278://     const password = (document.getElementById('password') as HTMLInputElement).value;
+./apps/src/frontend/pages/login.ts:283://       body: JSON.stringify({ username, password }),
+./apps/src/frontend/pages/login.ts:300://     // Optional: Redirect to OAuth endpoint
+./apps/src/frontend/pages/login.ts:301://     // location.href = '/api/auth/google'
+./apps/src/frontend/pages/profile.ts:2:import { getToken, clearToken, validateLogin } from '../utils/auth'
+./apps/src/frontend/pages/profile.ts:9:import {listenerPasswordCancel, listenerPasswordEdit, listenerPasswordUpdate} from './listenerUpdatePasswordAndUsername';
+./apps/src/frontend/pages/profile.ts:10:import {listenerUsernameUpdate, listenerUsernameCancel, listenerUsernameEdit} from './listenerUpdatePasswordAndUsername' ;
+./apps/src/frontend/pages/profile.ts:95:    headers: { 'Authorization': `Bearer ${getToken()}` }
+./apps/src/frontend/pages/profile.ts:100:		data.message === 'Invalid or expired token') {
+./apps/src/frontend/pages/profile.ts:101:        	clearToken();
+./apps/src/frontend/pages/profile.ts:141:	//---------------Password Related Variables------------------------------------
+./apps/src/frontend/pages/profile.ts:142:	const password_old_check = document.getElementById('password-old-check') as HTMLInputElement;
+./apps/src/frontend/pages/profile.ts:143:	const password_new = document.getElementById('password-new') as HTMLInputElement;
+./apps/src/frontend/pages/profile.ts:144:	const password_confirm = document.getElementById('password-confirm') as HTMLInputElement;
+./apps/src/frontend/pages/profile.ts:145:	const password_edit_btn = document.getElementById('password-edit-btn') as HTMLButtonElement;
+./apps/src/frontend/pages/profile.ts:146:	const password_update_btn = document.getElementById('password-update-btn') as HTMLButtonElement;
+./apps/src/frontend/pages/profile.ts:147:	const password_cancel_btn = document.getElementById('password-cancel-btn') as HTMLButtonElement;
+./apps/src/frontend/pages/profile.ts:177:	document.getElementById('password-edit-btn')?.addEventListener('click', ()=> 
+./apps/src/frontend/pages/profile.ts:178:		listenerPasswordEdit(
+./apps/src/frontend/pages/profile.ts:179:			password_old_check,
+./apps/src/frontend/pages/profile.ts:180:			password_new, 
+./apps/src/frontend/pages/profile.ts:181:			password_confirm, 
+./apps/src/frontend/pages/profile.ts:182:			password_update_btn, 
+./apps/src/frontend/pages/profile.ts:183:			password_cancel_btn, 
+./apps/src/frontend/pages/profile.ts:184:			password_edit_btn
+./apps/src/frontend/pages/profile.ts:186:	document.getElementById('password-cancel-btn')?.addEventListener('click', ()=>
+./apps/src/frontend/pages/profile.ts:187:		listenerPasswordCancel(
+./apps/src/frontend/pages/profile.ts:188:			password_old_check,
+./apps/src/frontend/pages/profile.ts:189:			password_new, 
+./apps/src/frontend/pages/profile.ts:190:			password_confirm, 
+./apps/src/frontend/pages/profile.ts:191:			password_update_btn, 
+./apps/src/frontend/pages/profile.ts:192:			password_cancel_btn, 
+./apps/src/frontend/pages/profile.ts:193:			password_edit_btn
+./apps/src/frontend/pages/profile.ts:195:	document.getElementById('password-update-btn')?.addEventListener('click', async ()=>
+./apps/src/frontend/pages/profile.ts:196:		listenerPasswordUpdate(
+./apps/src/frontend/pages/profile.ts:197:			password_old_check,
+./apps/src/frontend/pages/profile.ts:198:			password_new, 
+./apps/src/frontend/pages/profile.ts:199:			password_confirm, 
+./apps/src/frontend/pages/profile.ts:200:			password_update_btn, 
+./apps/src/frontend/pages/profile.ts:201:			password_cancel_btn, 
+./apps/src/frontend/pages/profile.ts:202:			password_edit_btn
+./apps/src/frontend/pages/profile.ts:240:			  'Authorization': `Bearer ${getToken()}`
+./apps/src/frontend/pages/register.ts:27:            <label id="password_label" for="password" class="block text-sm font-medium text-white">${t!.password_label}</label>
+./apps/src/frontend/pages/register.ts:28:            <input type="password" id="password" placeholder="${t!.password_placeholder}" required class="mt-1 w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent backdrop-blur-sm" />
+./apps/src/frontend/pages/register.ts:55:		transelate_per_id(translations_register_page,"password_label", lang, "password_label");
+./apps/src/frontend/pages/register.ts:56:		transelate_per_id(translations_register_page,"password_placeholder", lang, "password");
+./apps/src/frontend/pages/register.ts:72:    const password = (document.getElementById('password') as HTMLInputElement).value;
+./apps/src/frontend/pages/register.ts:77:      body: JSON.stringify({ username, email, password }),
+./apps/src/frontend/pages/renderFriendRequestList.ts:1:import { getToken} from '../utils/auth'
+./apps/src/frontend/pages/renderFriendRequestList.ts:16:	const token = getToken();
+./apps/src/frontend/pages/renderFriendRequestList.ts:20:			{headers: {Authorization: `Bearer ${token}`}
+./apps/src/frontend/pages/renderFriends.ts:1:import { getToken} from '../utils/auth'
+./apps/src/frontend/pages/renderFriends.ts:17:				headers: {Authorization: `Bearer ${getToken()}`},
+./apps/src/frontend/pages/renderProfiles.ts:1:import { getToken} from '../utils/auth'
+./apps/src/frontend/pages/renderProfiles.ts:49:const remove_load_btn = async (offset_pr: number, limit_pr: number, token_async: any, res_async : any, remove_reload_button ?:boolean) : Promise<boolean>=>
+./apps/src/frontend/pages/renderProfiles.ts:55:	res_async = await fetch(`/api/private/parse-profiles?offset=${offset_pr}&limit=${limit_pr}`,{headers: {Authorization: `Bearer ${token_async}`}});
+./apps/src/frontend/pages/renderProfiles.ts:109:		const token = getToken();
+./apps/src/frontend/pages/renderProfiles.ts:123:			res = await fetch(`/api/private/parse-profiles?offset=${offset}&limit=${limit}`,{headers: {Authorization: `Bearer ${token}`}});
+./apps/src/frontend/pages/renderProfiles.ts:138:		remove_load_button = await remove_load_btn(offset, limit,token, res);
+./apps/src/frontend/pages/renderUserProfile.ts:79:	transelate_per_id(translations_profile,"new_password_btn", lang, "password-edit-btn");
+./apps/src/frontend/pages/renderUserProfile.ts:82:	transelate_per_id(translations_profile,"current_password_placeholder", lang, "password-old-check");
+./apps/src/frontend/pages/renderUserProfile.ts:83:	transelate_per_id(translations_profile,"new_password_placeholder", lang, "password-new");
+./apps/src/frontend/pages/renderUserProfile.ts:84:	transelate_per_id(translations_profile,"confirm_new_password_placeholder", lang, "password-confirm");
+./apps/src/frontend/pages/renderUserProfile.ts:128:		<input id="password-old-check" type="password" placeholder=""
+./apps/src/frontend/pages/renderUserProfile.ts:131:		<button type="button" data-toggle="password-old-check" class="absolute right-7 top-1.5 text-gray-500">👁</button>
+./apps/src/frontend/pages/renderUserProfile.ts:135:		<input id="password-new" type="password" placeholder=""
+./apps/src/frontend/pages/renderUserProfile.ts:137:		<button type="button" data-toggle="password-update-one" class="absolute right-2 top-1.5 text-gray-500">👁</button>
+./apps/src/frontend/pages/renderUserProfile.ts:141:		<input id="password-confirm" type="password" placeholder=""
+./apps/src/frontend/pages/renderUserProfile.ts:143:		<button type="button" data-toggle="password-update-two" class="absolute right-2 top-1.5 text-gray-500">👁</button>
+./apps/src/frontend/pages/renderUserProfile.ts:147:		<button id="password-edit-btn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded"></button>
+./apps/src/frontend/pages/renderUserProfile.ts:148:		<button id="password-update-btn" class="hidden px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"><span id="update_pass_header"></span></button>
+./apps/src/frontend/pages/renderUserProfile.ts:149:		<button id="password-cancel-btn" class="hidden px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded"><span id="cancel_pass_header"></span></button>
+./apps/src/frontend/pages/settings.ts:3:import { validateLogin } from '../utils/auth'
+./apps/src/frontend/pages/settings.ts:15:      <p class="text-gray-400">Update preferences, password, etc.</p>
+./apps/src/frontend/pages/tournament.ts:3:import { getToken, validateLogin } from '../utils/auth';
+./apps/src/frontend/pages/tournament.ts:198:      const token = getToken();
+./apps/src/frontend/pages/tournament.ts:199:      const userId = token ? JSON.parse(atob(token.split('.')[1])).id : null;
+./apps/src/frontend/pages/tournament.ts:233:      const token = getToken();
+./apps/src/frontend/pages/tournament.ts:234:      const userId = token ? JSON.parse(atob(token.split('.')[1])).id : null;
+./apps/src/frontend/pages/tournament.ts:298:    const token = getToken();
+./apps/src/frontend/pages/tournament.ts:299:    const userId = token ? JSON.parse(atob(token.split('.')[1])).id : null;
+./apps/src/frontend/pages/tournament.ts:717:    const token = getToken();
+./apps/src/frontend/pages/tournament.ts:718:    const userId = token ? JSON.parse(atob(token.split('.')[1])).id : null;
+./apps/src/frontend/router.ts:11:import { isLoggedIn } from './utils/auth'
+./apps/src/frontend/utils/auth.ts:3:export function saveToken(token: string) {
+./apps/src/frontend/utils/auth.ts:4:	sessionStorage.setItem('jwt', token);
+./apps/src/frontend/utils/auth.ts:7:export function getToken(): string | null {
+./apps/src/frontend/utils/auth.ts:11:export function clearToken() {
+./apps/src/frontend/utils/auth.ts:18:	console.log("----------->>>>>get Token: ", getToken());
+./apps/src/frontend/utils/auth.ts:19:	return !!getToken();
+./apps/src/frontend/utils/auth.ts:23:	const token = getToken();
+./apps/src/frontend/utils/auth.ts:24:	if (!token) return false;
+./apps/src/frontend/utils/auth.ts:27:		headers: { Authorization: `Bearer ${token}` },
+./apps/src/frontend/utils/auth.ts:32:	  clearToken();
+./apps/src/frontend/websocket/ws-manager.ts:1:import { getToken } from '../utils/auth';
+./apps/src/frontend/websocket/ws-manager.ts:42:    const token = getToken();
+./apps/src/frontend/websocket/ws-manager.ts:43:    if (!token) return null;
+./apps/src/frontend/websocket/ws-manager.ts:45:    let url = `${this.backendUrl}/ws/game?mode=${mode}&token=${token}`;
+./apps/src/frontend/websocket/ws-manager.ts:88:    const token = getToken();
+./apps/src/frontend/websocket/ws-manager.ts:89:    if (!token) return;
+./apps/src/frontend/websocket/ws-manager.ts:91:    const url = `${this.backendUrl}/ws/presence?token=${token}`;
+./apps/src/frontend/websocket/ws-manager.ts:126:      if (e.code === 4003 || !getToken()) return;
+./apps/src/frontend/websocket/ws-manager.ts:184:    const token = getToken();
+./apps/src/frontend/websocket/ws-manager.ts:185:    if (!token) return null;
+./apps/src/frontend/websocket/ws-manager.ts:187:    let url = `${this.backendUrl}/ws/tournament?action=${action}&size=${size}&token=${token}&mode=${mode}`;
+./apps/src/vite.config.mts:38:        key: fs.readFileSync('/run/secrets/ssl_key'),
+./apps/src/vite.config.mts:39:        cert: fs.readFileSync('/run/secrets/ssl_cert'),
+./docker-compose.yml:21:    secrets:
+./docker-compose.yml:26:secrets:
+./scripts/setup-ngrok.sh:6:  echo "❌ .env file not found. Please create it with BACKEND_PORT, NGROK_AUTHTOKEN and NGROK_DOMAIN."
+./scripts/setup-ngrok.sh:12:if [ -z "$BACKEND_PORT" ] || [ -z "$NGROK_AUTHTOKEN" ] || [ -z "$NGROK_DOMAIN" ]; then
+./scripts/setup-ngrok.sh:13:  echo "❌ BACKEND_PORT, NGROK_AUTHTOKEN or NGROK_DOMAIN is not set in .env file."
+./scripts/setup-ngrok.sh:36:# 3. Set ngrok token if not exist
+./scripts/setup-ngrok.sh:37:if ! grep -q "authtoken:" ~/.config/ngrok/ngrok.yml 2>/dev/null; then
+./scripts/setup-ngrok.sh:38:  echo "🔐 Setting up ngrok token..."
+./scripts/setup-ngrok.sh:39:  ngrok config add-authtoken "$NGROK_AUTHTOKEN"
+./scripts/setup-ngrok.sh:41:  echo "ℹ️  Ngrok authtoken already configured, skipping..."

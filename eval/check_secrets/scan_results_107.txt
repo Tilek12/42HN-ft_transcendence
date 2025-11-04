@@ -1,0 +1,107 @@
+./apps/src/backend/auth/utils.ts:3:export async function hashPassword(password: string): Promise<string> {
+./apps/src/backend/auth/utils.ts:4:  return bcrypt.hash(password, 10);
+./apps/src/backend/auth/utils.ts:7:export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+./apps/src/backend/auth/utils.ts:8:  return bcrypt.compare(password, hash);
+./apps/src/backend/database/client.ts:17:      password TEXT NOT NULL,
+./apps/src/backend/database/user.ts:15:async function createUser(username: string, email: string, hashedPassword: string) {
+./apps/src/backend/database/user.ts:17:		'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+./apps/src/backend/database/user.ts:20:		hashedPassword
+./apps/src/backend/database/user.ts:33:async function updatePasswordById(id : number, new_password: string)
+./apps/src/backend/database/user.ts:35:	return await db.run('UPDATE users SET password = ? WHERE id = ?', [new_password, id]);
+./apps/src/backend/database/user.ts:43:export {findUserByUsername, findUserById, findUserByEmail, createUser, isUsername, updateUsername, updatePasswordById, getUsernameById};
+./apps/src/backend/error.ts:9:	if (message.startsWith("body/password must match pattern"))
+./apps/src/backend/error.ts:11:		message = "INVALID_PASSWORD";
+./apps/src/backend/plugins/auth.ts:4:const authPlugin: FastifyPluginAsync = async (fastify) => {
+./apps/src/backend/plugins/auth.ts:12:    const authHeader = req.headers.authorization;
+./apps/src/backend/plugins/auth.ts:13:    if (!authHeader?.startsWith('Bearer ')) {
+./apps/src/backend/plugins/auth.ts:14:      return res.status(401).send({ message: 'Missing or invalid token' });
+./apps/src/backend/plugins/auth.ts:21:      return res.status(401).send({ message: 'Invalid or expired token' });
+./apps/src/backend/plugins/auth.ts:26:export default fp(authPlugin);
+./apps/src/backend/routes/api/auth-routes.ts:2:import { hashPassword, verifyPassword } from '../../auth/utils';
+./apps/src/backend/routes/api/auth-routes.ts:3:import { loginSchema, registerSchema } from '../../auth/schemas';
+./apps/src/backend/routes/api/auth-routes.ts:14:const authRoutes: FastifyPluginAsync = async (fastify : any) => {
+./apps/src/backend/routes/api/auth-routes.ts:17:		const { username, email, password } = req.body as any;
+./apps/src/backend/routes/api/auth-routes.ts:25:		const hashed = await hashPassword(password);
+./apps/src/backend/routes/api/auth-routes.ts:40:		const { username, password } = req.body as any;
+./apps/src/backend/routes/api/auth-routes.ts:42:		if (!user || !(await verifyPassword(password, user.password))) {
+./apps/src/backend/routes/api/auth-routes.ts:43:			return res.status(401).send({ message: 'Invalid credentials' });
+./apps/src/backend/routes/api/auth-routes.ts:46:		const token = fastify.jwt.sign({ id: user.id }, { expiresIn: '2h' });
+./apps/src/backend/routes/api/auth-routes.ts:47:		res.send({ token });
+./apps/src/backend/routes/api/auth-routes.ts:59:export default authRoutes;
+./apps/src/backend/routes/api/match-routes.ts:10:	// Create a match (requires authentication)
+./apps/src/backend/routes/api/match-routes.ts:37:			res.status(401).send({ message: 'Unauthorized or error creating match' });
+./apps/src/backend/routes/api/match-routes.ts:51:	// Get matches for a user (requires authentication)
+./apps/src/backend/routes/api/match-routes.ts:69:			res.status(401).send({ message: 'Unauthorized or error retrieving matches' });
+./apps/src/backend/routes/api/profile-routes.ts:7:	updateUsername, updatePasswordById } from '../../database/user';
+./apps/src/backend/routes/api/profile-routes.ts:23:import {verifyPassword, hashPassword} from '../../auth/utils';
+./apps/src/backend/routes/api/profile-routes.ts:53:			res.status(401).send({message: 'Invalid or expired token'});
+./apps/src/backend/routes/api/profile-routes.ts:111:			res.status(401).send({message: 'Unauthorized or error delete_pic'});
+./apps/src/backend/routes/api/profile-routes.ts:123:			res.status(401).send({message: 'Unauthorized parse_friends'});
+./apps/src/backend/routes/api/profile-routes.ts:135:			res.status(401).send({message: 'Unauthorized unlink_profile'});
+./apps/src/backend/routes/api/profile-routes.ts:148:			res.status(401).send({message: 'Unauthorized block_profile'});
+./apps/src/backend/routes/api/profile-routes.ts:160:			res.status(401).send({message: 'Unauthorized unbock_profile'});
+./apps/src/backend/routes/api/profile-routes.ts:177:			res.status(401).send({message: 'Unauthorized link_profile'});
+./apps/src/backend/routes/api/profile-routes.ts:189:			res.status(401).send({message: 'Unauthorized pending_request'});
+./apps/src/backend/routes/api/profile-routes.ts:207:			res.status(401).send({message: 'Unauthorized answer_request'});
+./apps/src/backend/routes/api/profile-routes.ts:266:				res.status(401).send({message: 'Unauthorized parse_profiles'});
+./apps/src/backend/routes/api/profile-routes.ts:270:	fastify.post('/check-given-old-password', async(req : any, res : any) =>{
+./apps/src/backend/routes/api/profile-routes.ts:274:		const password = await req.body.password;
+./apps/src/backend/routes/api/profile-routes.ts:275:		const is_password_verified = await verifyPassword(password, user.password);
+./apps/src/backend/routes/api/profile-routes.ts:276:		res.send({answer: is_password_verified});
+./apps/src/backend/routes/api/profile-routes.ts:279:	fastify.post('/update-password', async(req :any, res : any) =>{
+./apps/src/backend/routes/api/profile-routes.ts:283:			const password = await req.body.password;
+./apps/src/backend/routes/api/profile-routes.ts:284:			const hashed = await hashPassword(password);
+./apps/src/backend/routes/api/profile-routes.ts:285:			await updatePasswordById(id, hashed);
+./apps/src/backend/routes/api/profile-routes.ts:286:			res.send({message: 'User successfully updated his password!'});
+./apps/src/backend/routes/api/tournament-routes.ts:27:			res.status(401).send({ message: 'Unauthorized or error creating tournament' });
+./apps/src/backend/routes/api/tournament-routes.ts:44:			res.status(401).send({ message: 'Unauthorized or error joining tournament' });
+./apps/src/backend/routes/api/tournament-routes.ts:64:			res.status(401).send({ message: 'Unauthorized or error linking match' });
+./apps/src/backend/routes/api/user-routes.ts:10:		const { password, ...safeUser } = user;
+./apps/src/backend/routes/ws/game-ws.ts:13:		const { token } = (req.query as any) ?? {};
+./apps/src/backend/routes/ws/game-ws.ts:18:		if (!token) {
+./apps/src/backend/routes/ws/game-ws.ts:19:			try { socket.close(4001, 'Missing token'); } catch {}
+./apps/src/backend/routes/ws/game-ws.ts:25:		let authenticated = false;
+./apps/src/backend/routes/ws/game-ws.ts:27:		let authUserId: string | null = null;
+./apps/src/backend/routes/ws/game-ws.ts:30:			if (!authenticated) {
+./apps/src/backend/routes/ws/game-ws.ts:37:					userManager.setInGame(authUserId!, true);
+./apps/src/backend/routes/ws/game-ws.ts:39:					cancelDuelSearch(authUserId!);
+./apps/src/backend/routes/ws/game-ws.ts:54:				const payload: any = await fastify.jwt.verify(token);
+./apps/src/backend/routes/ws/game-ws.ts:57:				try { if (!closed) socket.close(4002, 'Invalid or expired token'); } catch {}
+./apps/src/backend/routes/ws/game-ws.ts:71:			authUserId = userId;
+./apps/src/backend/routes/ws/game-ws.ts:72:			authenticated = true;
+./apps/src/backend/routes/ws/presence-ws.ts:42:		// read token from query (support frameworks that put query on req.query)
+./apps/src/backend/routes/ws/presence-ws.ts:43:		const qsToken = (req.query && (req.query as any).token) ??
+./apps/src/backend/routes/ws/presence-ws.ts:44:			new URLSearchParams((req as any).url?.split('?')[1] || '').get('token');
+./apps/src/backend/routes/ws/presence-ws.ts:46:		if (!qsToken) {
+./apps/src/backend/routes/ws/presence-ws.ts:47:			try { socket.close(4001, 'Missing token'); } catch {}
+./apps/src/backend/routes/ws/presence-ws.ts:51:		// buffer incoming messages while we verify token
+./apps/src/backend/routes/ws/presence-ws.ts:53:		let authenticated = false;
+./apps/src/backend/routes/ws/presence-ws.ts:58:			// store raw bytes / strings until auth finished
+./apps/src/backend/routes/ws/presence-ws.ts:59:			if (!authenticated) {
+./apps/src/backend/routes/ws/presence-ws.ts:63:			// If already authenticated, we only expect pongs (but presence socket only needs pongs)
+./apps/src/backend/routes/ws/presence-ws.ts:66:				if (msg === 'pong') userManager.setAlive((req as any).__authenticatedUserId, true);
+./apps/src/backend/routes/ws/presence-ws.ts:81:				const payload: any = await fastify.jwt.verify(qsToken);
+./apps/src/backend/routes/ws/presence-ws.ts:84:				try { if (!closed) socket.close(4002, 'Invalid token'); } catch {}
+./apps/src/backend/routes/ws/presence-ws.ts:109:			(req as any).__authenticatedUserId = userId; // small tag to allow message handler to access id
+./apps/src/backend/routes/ws/presence-ws.ts:110:			authenticated = true;
+./apps/src/backend/routes/ws/presence-ws.ts:127:			// update handlers to use userId (already our onMessage uses req.__authenticatedUserId)
+./apps/src/backend/routes/ws/tournament-ws.ts:14:		const token = params.get('token');
+./apps/src/backend/routes/ws/tournament-ws.ts:22:		if (!token || !action || (action === 'join' && !tournamentId)) {
+./apps/src/backend/routes/ws/tournament-ws.ts:28:		let authenticated = false;
+./apps/src/backend/routes/ws/tournament-ws.ts:32:			if (!authenticated) {
+./apps/src/backend/routes/ws/tournament-ws.ts:79:				const payload = await fastify.jwt.verify(token);
+./apps/src/backend/routes/ws/tournament-ws.ts:118:				authenticated = true;
+./apps/src/backend/server.ts:12:import authPlugin from './plugins/auth';
+./apps/src/backend/server.ts:13:import authRoutes from './routes/api/auth-routes';
+./apps/src/backend/server.ts:33:if (!JWT_SECRET) {
+./apps/src/backend/server.ts:45:		key: fs.readFileSync('/run/secrets/ssl_key'),
+./apps/src/backend/server.ts:46:		cert: fs.readFileSync('/run/secrets/ssl_cert')
+./apps/src/backend/server.ts:54:	await server.register(jwt, { secret: JWT_SECRET });	// ✅ Create JWT
+./apps/src/backend/server.ts:84:	await server.register(authRoutes, { prefix: '/api' });			// 👈 Public routes (login/register)
+./apps/src/backend/server.ts:90:		await protectedScope.register(authPlugin);			// 👈 Middleware checking token
+./apps/src/vite.config.mts:38:        key: fs.readFileSync('/run/secrets/ssl_key'),
+./apps/src/vite.config.mts:39:        cert: fs.readFileSync('/run/secrets/ssl_cert'),
+./scripts/setup-ngrok.sh:12:if [ -z "$BACKEND_PORT" ] || [ -z "$NGROK_AUTHTOKEN" ] || [ -z "$NGROK_DOMAIN" ]; then
+./scripts/setup-ngrok.sh:36:# 3. Set ngrok token if not exist
+./scripts/setup-ngrok.sh:37:if ! grep -q "authtoken:" ~/.config/ngrok/ngrok.yml 2>/dev/null; then
+./scripts/setup-ngrok.sh:39:  ngrok config add-authtoken "$NGROK_AUTHTOKEN"
