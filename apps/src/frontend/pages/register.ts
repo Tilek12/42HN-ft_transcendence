@@ -132,14 +132,16 @@ export function renderRegister(root: HTMLElement) {
         });
 
         const res2faverify = await res.json();
-        console.log(res2faverify.jwt);
-
-        if (!res2faverify.ok || !res2faverify.token) {
+        console.log(res2faverify);
+        if (!res2faverify.jwt)
+        {
+          console.log("not verified");
           error.textContent = res2faverify.message || "failed";
-          error.classList.remove("hidden")
-
-
-        } else {
+          error.classList.remove("hidden");
+        } 
+        else
+        {
+          console.log("Verified")
           saveToken(res2faverify.jwt);
           location.hash = '#/profile';
         }

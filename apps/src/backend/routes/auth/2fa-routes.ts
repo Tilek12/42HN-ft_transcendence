@@ -4,7 +4,7 @@ import { enable_TFA_body, verify_TFA_body, disable_TFA_body } from '../../auth/s
 import { verifyPassword } from '../../auth/utils';
 
 import { generateqrcode, generateSecret, validate_2fa_token } from '../../2FA/2fa';
-import { JWTPayload } from '../../Scopes/authtypes';
+import { JWTPayload, Jwt_type } from '../../types';
 import { findUserById } from '../../database/user';
 import { store2faKey, delete2faKey } from '../../database/2fa';
 import { updateProfileLogInState } from '../../database/profile';
@@ -31,7 +31,7 @@ const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		const secret = generateSecret();
 		store2faKey(user.id, secret);
 		const qr = await generateqrcode(secret);
-		return res.status(200).send({ qr: qr });
+		return res.status(200).send({ qr: qr ,ok:1});
 	});
 
 	//disables the 2fa auth functionality. needs username, passsowrd 2fa_token and jwt
@@ -55,7 +55,7 @@ const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		if (!validate_2fa_token(tfa_token, user.tfa_secret))
 			return res.status(401).send({ message: "INVALID_TFA_TOKEN" });
 		delete2faKey(user.id);
-		return res.status(200).send({ message: "SUCCESS" });
+		return res.status(200).send({ message: "SUCCESS" , ok:1});
 	});
 
 
@@ -78,7 +78,7 @@ const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			return res.status(401).send({message: "INVALID_TOKEN"});
 		}
 
-		payload.type = "normal";
+		payload.type = Jwt_type.normal;
 		const jwt = fastify.jwt.sign(payload, { expiresIn: '2h' });
 		await updateProfileLogInState(user.id, true);
 		
