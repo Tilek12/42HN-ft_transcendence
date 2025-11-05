@@ -12,7 +12,7 @@ import { changeLoginButton } from './pages/nav';
 import { wsManager } from './websocket/ws-manager'
 import { renderQrcode } from './pages/2fa'
 
-//stop this set timeout nonsense its stupid and makes it feel slower- philipp
+
 export async function router() {
   const root = document.getElementById('app')!;
   const route = location.hash || '#/';
@@ -21,12 +21,10 @@ export async function router() {
   if (navbar && navbar.classList.contains("hidden"))
     navbar.classList.remove("hidden")
   changeLoginButton(!isLoggedIn)
-  // root.style.opacity = '0';
 
-  // I want to be albe to change the 
 
-  // setTimeout(() => {
-  // root.innerHTML = '';
+
+
 if (isLoggedIn)
   wsManager.connectPresenceSocket();
 
@@ -51,9 +49,5 @@ if (isLoggedIn)
     default: return renderNotFound(root);
   }
 
-  // }, 100);
 
-  // setTimeout(() => {
-  //   root.style.opacity = '1';
-  // }, 200);
 }

@@ -68,9 +68,9 @@ export function renderRegister(root: HTMLElement) {
   initLang();
   const form = document.getElementById('register_form') as HTMLFormElement;
   const error = document.getElementById('register_error')!;
-  const navbar = document.getElementById('navbar');
-  if (navbar)
-    navbar.classList.add("hidden");
+  const navigation = document.getElementById('navigation');
+  if (navigation)
+    navigation.classList.add("hidden");
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();

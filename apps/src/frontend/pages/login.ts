@@ -108,10 +108,10 @@ export function renderLogin(root: HTMLElement) {
   const form = document.getElementById('login-form') as HTMLFormElement;
   const errorContainer = document.getElementById('login-error')!;
   const errorText = document.getElementById('error_text')!;
-  const navbar = document.getElementById('navbar');
+  const navigation = document.getElementById('navigation');
 
-  if (navbar)
-    navbar.classList.add("hidden");
+  if (navigation)
+    navigation.classList.add("hidden");
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
