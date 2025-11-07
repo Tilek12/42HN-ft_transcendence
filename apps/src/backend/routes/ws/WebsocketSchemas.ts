@@ -46,3 +46,29 @@ export const GameWebsocketSchema = {
 
 export type GameWebsocketQuery = FromSchema<typeof GameWebsocketSchema.querystring>;
 
+export const TournamentWebsocketSchema = {
+	//swagger
+	description: 'start a game websocket',
+	tags: ['websocket'],
+	summary: 'game ws',
+	hidden: false,
+	// query
+		querystring: {
+		type: 'object',
+		properties: {
+
+		},
+		required: ['']
+	// },
+	// headers: {
+	// 	type: 'object',
+	// 	properties: {
+	// 		Authorization: BearerSchema // add only when updating logic with cookies
+	// 	},
+	// 	required: ['Authorization']
+	},
+
+} as const;
+
+export type TournamentWebsocketQuery = FromSchema<typeof TournamentWebsocketSchema.querystring>;
+

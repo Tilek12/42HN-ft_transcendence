@@ -57,9 +57,9 @@ class UserManager {
 		if (user) user.isInGame = value;
 	}
 
-	setInTournament(id: number, value: boolean) {
-		const user = this.getUser(id);
-		if (user) user.isInTournament = value;
+	setInTournament(user:User, value: boolean) {
+		if (user)
+			 user.isInTournament = value;
 	}
 
 	getOnlineUsers() {
@@ -108,17 +108,16 @@ class UserManager {
 		}
 	}
 
-	setTournamentSocket(id: number, socket: WebSocket) {
-		const user = this.getUser(id);
+	setTournamentSocket(user:User | undefined, socket: WebSocket) {
+		
 		if (!user) return;
 
 		user.tournamentSocket?.close();
 		user.tournamentSocket = socket;
 	}
 
-	removeTournamentSocket(id: number) {
-		const user = this.getUser(id);
-		if (user?.tournamentSocket) {
+	removeTournamentSocket(user: User | undefined) {
+		if (user && user.tournamentSocket) {
 			user.tournamentSocket.close();
 			user.tournamentSocket = null;
 		}

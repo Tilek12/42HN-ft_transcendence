@@ -6,7 +6,7 @@ export const listenerLoadBtn = async (allProfiles : {profiles: any[]}[] | undefi
 	{
 		if (allProfiles)
 		{
-			allProfiles = await renderProfilesList('profiles-list', true, allProfiles, profile_offset, profile_limit);
+			// allProfiles = await renderProfilesList('profiles-list', true, allProfiles, profile_offset, profile_limit);
 			profile_offset += profile_limit;
 		}
 	}

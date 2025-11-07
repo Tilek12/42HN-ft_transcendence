@@ -23,8 +23,8 @@ class GameManager {
 			console.log(`🏁 [GameManager] Game ended in room ${room.id}: ${winner.name} (${winnerScore} - ${loserScore}) ${loser.name}`);
 
 			// Clean up sockets
-			userManager.removeGameSocket(winner.id);
-			userManager.removeGameSocket(loser.id);
+			userManager.removeGameSocket(Number(winner.id));
+			userManager.removeGameSocket(Number(loser.id));
 
 			if (isTournament && tournamentId && matchId) {
 				tournamentManager.onMatchEnd(
@@ -75,7 +75,7 @@ class GameManager {
 		this.waitingDuel.set(id, player);
 	}
 
-	removeWaitingDuelPlayer(id: string) {
+	removeWaitingDuelPlayer(id: string ) {
 		this.waitingDuel.delete(id);
 	}
 }

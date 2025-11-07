@@ -1,7 +1,7 @@
-import { renderNav } from "./nav"
+
 import { renderBackgroundFull } from "../utils/layout"
 import {languageStore, translations_main_page, transelate_per_id} from './languages';
-import type {Language} from './languages';
+
 
 export function renderMainPage(root: HTMLElement) {
 	const t = translations_main_page[languageStore.language];

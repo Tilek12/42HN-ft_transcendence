@@ -1,10 +1,9 @@
-import { renderNav, changeLoginButton } from './nav';
+
 import { renderBackgroundFull } from '../utils/layout';
 import { initLang } from './nav';
 import { languageStore, translations_register_page, transelate_per_id } from './languages';
-import type { Language } from './languages';
 import { saveToken } from '../utils/auth';
-import { getToken, clearToken } from '../utils/auth'
+
 
 export function renderRegister(root: HTMLElement) {
   const t = translations_register_page[languageStore.language];

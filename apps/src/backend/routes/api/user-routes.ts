@@ -1,9 +1,8 @@
 import { FastifyPluginAsync } from 'fastify';
 import { findUserById } from '../../database/user';
 // import { userManager } from '../../service-managers/user-manager';
-import type { JWTPayload , User} from '../../types';
-// import { JWT } from '@fastify/jwt';
-// import { JwkKeyExportOptions } from 'crypto';
+import type { JWTPayload } from '../../types';
+
 
 const userRoutes: FastifyPluginAsync = async (fastify) => {
 	fastify.get('/me', async (req, res) => {

@@ -78,7 +78,7 @@ class TournamentManager {
 
 		tournament.participants.push(p);
 		if (tournament.mode === 'online') {
-			await joinTournamentDB(parseInt(tournament.id.split('-')[1]), parseInt(p.id));
+			await joinTournamentDB(Number(tournament.id.split('-')[1]), Number(p.id));
 		}
 		// Local tournaments don't store participants in DB
 
@@ -102,7 +102,7 @@ class TournamentManager {
 		const seeded = [...t.participants];
 		const round0 = [];
 		for (let i = 0; i < seeded.length; i += 2) {
-			round0.push(this.makeMatch(t, 0, seeded[i], seeded[i + 1]));
+			round0.push(this.makeMatch(t, 0, seeded[i]!, seeded[i + 1]!));
 		}
 		t.rounds.push(round0);
 
@@ -137,7 +137,7 @@ class TournamentManager {
 
 		// If all matches in this round finished, build next round or finish
 		const round = t.rounds[match.roundIndex];
-		if (round.every(m => m.status === 'finished')) {
+		if (round && round.every(m => m.status === 'finished')) {
 			const winners = round
 				.map(m => t.participants.find(p => p.id === m.winnerId)!)
 				.filter(Boolean);
@@ -146,10 +146,10 @@ class TournamentManager {
 				// tournament finished
 				t.status = 'finished';
 				if (t.mode === 'online') {
-					void incrementWinsOrLossesOrTrophies(parseInt(winners[0].id), 'trophies');
+					void incrementWinsOrLossesOrTrophies(parseInt(winners[0]!.id), 'trophies');
 				}
 				// Local tournaments don't award trophies
-				console.log(`🏆 [Tournament: ${t.id}] Winner: ${winners[0].id}`);
+				console.log(`🏆 [Tournament: ${t.id}] Winner: ${winners[0]!.id}`);
 
 				// Send tournamentEnd message
 				const winner = winners[0];
@@ -158,17 +158,17 @@ class TournamentManager {
 					if (ctrlSocket) {
 						ctrlSocket.send(JSON.stringify({
 							type: 'tournamentEnd',
-							winner: { id: winner.id, name: winner.name }
+							winner: { id: winner!.id, name: winner!.name }
 						}));
 					}
 				} else {
 					// Online: broadcast to participants
 					for (const p of t.participants) {
-						const u = userManager.getUser(p.id);
-						if (u?.tournamentSocket?.readyState === WebSocket.OPEN) {
+						const u = userManager.getUser(Number(p.id));
+						if (u && u.tournamentSocket?.readyState === WebSocket.OPEN) {
 							u.tournamentSocket.send(JSON.stringify({
 								type: 'tournamentEnd',
-								winner: { id: winner.id, name: winner.name }
+								winner: { id: winner!.id, name: winner!.name }
 							}));
 						}
 					}
@@ -182,7 +182,7 @@ class TournamentManager {
 			const nextIdx = match.roundIndex + 1;
 			const nextRound: Match[] = [];
 			for (let i = 0; i < winners.length; i += 2) {
-				nextRound.push(this.makeMatch(t, nextIdx, winners[i], winners[i + 1]));
+				nextRound.push(this.makeMatch(t, nextIdx, winners[i]!, winners[i + 1]!));
 			}
 			t.rounds.push(nextRound);
 
@@ -196,7 +196,7 @@ class TournamentManager {
 	/** Local tournaments: start matches one-by-one on the same computer */
 	private async startRoundSequentially(t: TournamentState, roundIdx: number) {
 		const ctrlSocket = this.localControlSocket.get(t.id);
-		for (const m of t.rounds[roundIdx]) {
+		for (const m of t.rounds[roundIdx]!) {
 			await this.startOneMatch(t, m, ctrlSocket); // await: resolves when game ends
 		}
 	}
@@ -209,7 +209,7 @@ class TournamentManager {
 		} else {
 			// Subsequent rounds: stagger matches to prevent server overload
 			const baseDelay = 4000; // 4s base delay for subsequent rounds
-			t.rounds[roundIdx].forEach((match, index) => {
+			t.rounds[roundIdx]!.forEach((match, index) => {
 				const delay = baseDelay + (index * 500); // 500ms stagger between matches
 				setTimeout(() => this.startOneMatch(t, match), delay);
 			});
@@ -224,8 +224,8 @@ class TournamentManager {
 		// Send matchStart to all players in the first round
 		round.forEach(match => {
 			[match.p1, match.p2].forEach(player => {
-				const user = userManager.getUser(player.id);
-				if (user?.tournamentSocket?.readyState === WebSocket.OPEN) {
+				const user = userManager.getUser(Number(player.id));
+				if (user && user.tournamentSocket?.readyState === WebSocket.OPEN) {
 					user.tournamentSocket.send(JSON.stringify({
 						type: 'matchStart',
 						tournamentId: t.id,
@@ -295,11 +295,11 @@ class TournamentManager {
 				p2: { id: match.p2.id, name: match.p2.name }
 			}));
 			// For local tournaments, start immediately since socket is ready
-			this.startActualMatch(t, match, localSocket);
+			this.startActualMatch(t.id, match, localSocket);
 		} else if (t.mode === 'online') {
 			// Send matchStart to both players' tournament sockets
 			[match.p1, match.p2].forEach(player => {
-				const user = userManager.getUser(player.id);
+				const user = userManager.getUser(Number(player.id));
 				if (user?.tournamentSocket?.readyState === WebSocket.OPEN) {
 					user.tournamentSocket.send(JSON.stringify({
 						type: 'matchStart',
@@ -360,12 +360,14 @@ class TournamentManager {
 			if (t.mode === 'local' && localSocket) {
 				return { id: p.id, name: p.name, socket: localSocket } as Player;
 			}
-			const u = userManager.getUser(p.id);
-			if (!u?.gameSocket) {
+			const u = userManager.getUser(Number(p.id));
+			if (!u) {
 				// Fall back to ghost socket to avoid crash; will be updated when game socket connects
-				return { id: p.id, name: p.name, socket: GhostPlayer.socket } as Player;
+				return GhostPlayer;
 			}
-			return { id: p.id, name: p.name, socket: u.gameSocket } as Player;
+			else {
+				return { id: p.id, name: p.name, socket: u.gameSocket } as Player;
+			}
 		};
 
 		const p1 = toPlayer(match.p1);
@@ -384,7 +386,7 @@ class TournamentManager {
 		// For online tournaments, update sockets if players already connected their game sockets
 		if (t.mode === 'online') {
 			[match.p1, match.p2].forEach(p => {
-				const user = userManager.getUser(p.id);
+				const user = userManager.getUser(Number(p.id));
 				if (user?.gameSocket) {
 					game.updateSocket({ id: p.id, name: p.name, socket: user.gameSocket as any });
 				}
@@ -422,13 +424,13 @@ class TournamentManager {
 		return undefined;
 	}
 
-	private shuffle<T>(arr: T[]) {
-		for (let i = arr.length - 1; i > 0; i--) {
-			const j = (Math.random() * (i + 1)) | 0;
-			[arr[i], arr[j]] = [arr[j], arr[i]];
-		}
-		return arr;
-	}
+	// private shuffle<T>(arr: T[]) {
+	// 	for (let i = arr.length - 1; i > 0; i--) {
+	// 		const j = (Math.random() * (i + 1)) | 0;
+	// 		[arr[i], arr[j]] = [arr[j], arr[i]];
+	// 	}
+	// 	return arr;
+	// }
 
 	/** push updates to UIs (tournament lobby + participants) */
 	private broadcastTournamentUpdate(tournamentId: string) {
@@ -440,7 +442,7 @@ class TournamentManager {
 		});
 
 		for (const p of t.participants) {
-			const u = userManager.getUser(p.id);
+			const u = userManager.getUser(Number(p.id));
 			if (u?.tournamentSocket?.readyState === WebSocket.OPEN) {
 				u.tournamentSocket.send(update);
 			}
@@ -516,7 +518,7 @@ class TournamentManager {
 
 		// For first round, also track round-wide readiness
 		const tournament = this.tournaments.get(tournamentId);
-		if (tournament && tournament.rounds.length > 0 && tournament.rounds[0].some(m => m.id === matchId)) {
+		if (tournament && tournament.rounds.length > 0 && tournament.rounds[0]!.some(m => m.id === matchId)) {
 			if (!this.playerReadyStates.has(roundReadyKey)) {
 				this.playerReadyStates.set(roundReadyKey, new Set());
 			}

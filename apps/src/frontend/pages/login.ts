@@ -3,7 +3,7 @@ import { renderBackgroundFull } from '../utils/layout';
 import { saveToken, enabled_2fa, clearToken } from '../utils/auth';
 import { wsManager } from '../websocket/ws-manager';
 import { languageStore, translations_login_page, transelate_per_id, translations_errors } from './languages';
-import type { Language } from './languages';
+
 
 export function renderLogin(root: HTMLElement) {
   const t = translations_login_page[languageStore.language];

@@ -15,7 +15,7 @@ export function clearToken() {
 }
 
 export function enabled_2fa():boolean {
-	const payload = get_jwt_payload();
+	const payload = getJWTPayload();
 	if (payload)
 	{
 		return payload.tfa;
@@ -23,7 +23,7 @@ export function enabled_2fa():boolean {
 	return false;
 }
 
-export function get_jwt_payload(): payload | null {
+export function getJWTPayload(): payload | null {
 
 	const token = getToken();
 	if (token){

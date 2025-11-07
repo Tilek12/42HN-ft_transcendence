@@ -16,6 +16,7 @@ export interface User {
 	role:string,
 	email:string,
 	password:string,
+	created_at: string,
 	//game info
 	gameSocket: WebSocket | null;
 	presenceSocket: WebSocket | null;

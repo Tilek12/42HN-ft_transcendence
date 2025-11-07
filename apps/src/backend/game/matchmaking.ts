@@ -36,10 +36,10 @@ export async function startGame(player: Player, mode: GameMode, tournamentId?: s
 
 	if (players.length >= 2) {
 		const [p1, p2] = players;
-		gameManager.removeWaitingDuelPlayer(p1.id);
-		gameManager.removeWaitingDuelPlayer(p2.id);
+		gameManager.removeWaitingDuelPlayer(p1!.id);
+		gameManager.removeWaitingDuelPlayer(p2!.id);
 
-		const game = gameManager.createGame(p1, p2, tournamentId);
+		const game = gameManager.createGame( 'duel',p1! ,p2!, tournamentId);
 		game.onEndCallback( async(winner, loser, winnerScore, loserScore) => {
 			//------Thomas code-------
 			if (winner)

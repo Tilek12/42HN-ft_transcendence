@@ -1,4 +1,4 @@
-import { renderNav } from './nav'
+
 import { renderBackgroundTop } from '../utils/layout'
 import { validateLogin } from '../utils/auth'
 import { initLang } from './nav';

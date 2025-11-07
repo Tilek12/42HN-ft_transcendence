@@ -1,8 +1,8 @@
 import { getToken} from '../utils/auth'
-import { getEnvVariable } from './TypeSafe';
+
 import { wsManager } from '../websocket/ws-manager';
 import {languageStore, translations_friends} from './languages';
-import type {Language} from './languages';
+
 
 let lastPresence : any[] | undefined = [];
 let all_profiles_length : number |undefined = 0;

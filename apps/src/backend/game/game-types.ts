@@ -1,4 +1,5 @@
-import Websocket from 'ws';
+
+import  WebSocket from 'ws';
 
 export type Player =
 	| {

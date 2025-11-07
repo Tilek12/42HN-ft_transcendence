@@ -1,6 +1,6 @@
 import { renderBackgroundTop } from "../utils/layout";
 import { wsManager } from '../websocket/ws-manager';
-import type {Language} from './languages';
+import type {Language} from '../types';
 import {languageStore, translations_profile, transelate_per_id} from './languages'
 
 export type Profile_details = {

@@ -1,17 +1,13 @@
-// import { renderNav } from './nav'
+
 import { getToken, clearToken, validateLogin } from '../utils/auth'
 import { renderProfilesList } from './renderProfiles';
 import { renderUserProfile, profile_ids, update_langauge_headers_user_profile } from './renderUserProfile';
 import type { Profile_details } from './renderUserProfile';
 import { listenerFriendAndBlock } from './ListenerProfileList';
 import { listenerDeletePicture, listenerLogoutBtn, listenerUploadPicture } from './listenerUploadAndDeletePicture';
-import { getEnvVariable } from './TypeSafe';
 import { listenerPasswordCancel, listenerPasswordEdit, listenerPasswordUpdate } from './listenerUpdatePasswordAndUsername';
 import { listenerUsernameUpdate, listenerUsernameCancel, listenerUsernameEdit } from './listenerUpdatePasswordAndUsername';
-// import type { AllProfileWithLimitAndOffset, return_on_render } from './renderProfiles';
 import { wsManager } from '../websocket/ws-manager';
-// import {languageStore} from './languages';
-// import { initLang } from './nav';
 import { languageStore } from './languages';
 
 let i = 0;

@@ -1,6 +1,5 @@
 import { getToken, clearToken} from '../utils/auth'
 import { wsManager } from '../websocket/ws-manager';
-import { getEnvVariable } from './TypeSafe';
 
 
 export const compressFile = async (file: File) : Promise<File> =>
@@ -86,9 +85,8 @@ export const listenerDeletePicture = async (e : any) =>
 	const data = await res.json();
 	if (res.ok)
 	{
-		const BACKEND_URL = getEnvVariable('VITE_BACKEND_URL');
 		const img  = document.getElementById('profile_pic') as HTMLImageElement;
-		img.src = `${BACKEND_URL}/profile_pics/default_pic.webp`;
+		img.src = `/profile_pics/default_pic.webp`;
 
 	}
 	else

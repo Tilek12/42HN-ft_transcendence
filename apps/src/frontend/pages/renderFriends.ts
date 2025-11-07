@@ -1,13 +1,11 @@
 import { getToken} from '../utils/auth'
-import { getEnvVariable } from './TypeSafe';
 import { wsManager } from '../websocket/ws-manager';
 import {languageStore, translations_friends_render} from './languages';
-// import type {Language} from './languages';
+
 
 export async function renderFriendsList(container_id : string, load?: boolean, allFriends ?: {friends: any[]}, friend_offeset ?: number, friend_limit ?: number )
 {
 	const container = document.getElementById(container_id);
-	const BACKEND_URL : string = getEnvVariable('VITE_BACKEND_URL');
 	if (!container) return;
 	try
 	{
@@ -28,7 +26,7 @@ export async function renderFriendsList(container_id : string, load?: boolean, a
 		is_connected = listUsers.includes(friend.username);
 		const img_src = friend.image_blob ? 
 				`data:image/webp;base64,${friend.image_blob}` : 
-				`${BACKEND_URL}/profile_pics/${friend.image_path}`;
+				`/profile_pics/${friend.image_path}`;
 		return `<div class = "flex items-center bg-white p-4 rounded-xl shadow mb-2">
 			<img src= "${img_src}" class="w-12 h-12 rounded-full mr-4" />
 		<div>
