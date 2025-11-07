@@ -1,4 +1,4 @@
-import { Player, GameMode } from './game-types';
+import { Player, GameMode, GhostPlayer } from './game-types';
 import { gameManager } from '../service-managers/game-manager';
 import { tournamentManager } from '../service-managers/tournament-manager';
 import { incrementWinsOrLossesOrTrophies } from '../database/profile';
@@ -7,7 +7,7 @@ import { createMatch } from '../database/match';
 export async function startGame(player: Player, mode: GameMode, tournamentId?: string) {
 
 	if (mode === 'solo') {
-		gameManager.createGame(mode, player, undefined);
+		gameManager.createGame(mode, player, GhostPlayer);
 		return;
 	}
 

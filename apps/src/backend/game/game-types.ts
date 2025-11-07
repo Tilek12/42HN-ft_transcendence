@@ -1,15 +1,24 @@
 import Websocket from 'ws';
 
-export interface Player {
-	id: string;
-	name: string;
-	socket: Websocket;
-}
+export type Player =
+	| {
+		id: string;
+		name: string;
+		socket: WebSocket;
+		isGhost?: false;
+	}
+	| {
+		id: '__ghost';
+		name: '__ghost';
+		socket: null;
+		isGhost: true;
+	};
 
 export const GhostPlayer: Player = {
-	id: 'ghost',
+	id: '__ghost',
 	name: '__ghost',
-	socket: {} as unknown as WebSocket
+	socket: null,
+	isGhost: true,
 };
 
 export interface GameState {

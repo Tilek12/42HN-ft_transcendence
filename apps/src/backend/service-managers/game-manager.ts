@@ -8,14 +8,14 @@ class GameManager {
 	private waitingDuel = new Map<string, Player>();
 	private nextId = 1;
 
-	createGame(mode: GameMode, p1: Player, p2?: Player, tournamentId?: string, matchId?: string): GameRoom {
+	createGame(mode: GameMode, p1: Player, p2: Player, tournamentId?: string, matchId?: string): GameRoom {
 		let isTournament: boolean = tournamentId && matchId ? true : false;
 		let roomId: string;
 		if (isTournament)
 			roomId = `[${tournamentId}]:[${matchId}]:[g-${this.nextId++}]`;
 		else
 			roomId = `g-${this.nextId++}`;
-		const room = new GameRoom(roomId, mode, p1, p2 ?? null, tournamentId);
+		const room = new GameRoom(roomId, mode, p1, p2, tournamentId);
 		this.rooms.set(roomId, room);
 
 		// Auto-remove room when the game ends
@@ -26,7 +26,7 @@ class GameManager {
 			userManager.removeGameSocket(winner.id);
 			userManager.removeGameSocket(loser.id);
 
-			if (isTournament) {
+			if (isTournament && tournamentId && matchId) {
 				tournamentManager.onMatchEnd(
 					tournamentId,
 					matchId,
