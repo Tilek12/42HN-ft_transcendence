@@ -35,15 +35,15 @@ dotenv.config();
 const LOCAL_IP = process.env.LOCAL_IP || '127.0.0.1';
 let PORT = Number(process.env.BACKEND_PORT || '443');
 const JWT_SECRET = fs.readFileSync('/run/secrets/jwt_secret');
-const APP_MODE = process.env.LOCAL_IP || 'production';
+const APP_MODE = process.env.APP_MODE || 'production';
 
 if (!JWT_SECRET) {
 	console.error('❌ Missing JWT_SECRET in .env');
 	process.exit(1);
 }
-if (APP_MODE == 'production') {
-	process.exit(1);
-}
+// if (APP_MODE == 'production') {
+// 	PORT = 443;
+// }
 
 console.log(PORT);
 
@@ -90,36 +90,35 @@ async function main() {
 	await server.register(multipart);					// file supposrt for fastify
 	server.register(helmet);							// adds http headers for security
 
-	if (APP_MODE == "development") {
-		await server.register(fastifySwagger, {
-			openapi: {
-				openapi: '3.0.0',
-				info: {
-					title: 'Transcendence',
-					description: 'Testing Transcendence API',
-					version: '0.1.0'
-				},
-				servers: [
-					{
-						url: 'https://localhost:3000',
-						description: 'Development server'
-					}
-				],
-			}
-		});
-		await server.register(fastifySwaggerUi, {
-			routePrefix: '/docs',
-			uiConfig: {
-				docExpansion: 'full',
-				deepLinking: false
-			}
-		});
-	}
-	else {
+
+	await server.register(fastifySwagger, {
+		openapi: {
+			openapi: '3.0.0',
+			info: {
+				title: 'Transcendence',
+				description: 'Testing Transcendence API',
+				version: '0.1.0'
+			},
+			servers: [
+				{
+					url: 'https://localhost:3000',
+					description: 'Development server'
+				}
+			],
+		}
+	});
+	await server.register(fastifySwaggerUi, {
+		routePrefix: '/docs',
+		uiConfig: {
+			docExpansion: 'full',
+			deepLinking: false
+		}
+	});
+
+	if (APP_MODE == "production") {
 		server.register(fastifyStatic, {
 			root: '/app/dist/frontend',
-			serve : true,
-			prefix: '/',
+			serve: true,
 		});
 	}
 
