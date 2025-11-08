@@ -1,11 +1,11 @@
  FROM node:24 AS base
 
 #install dependencies
-FROM base AS deps
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm install -g typescript
-RUN npm install
+# FROM base AS deps
+# WORKDIR /app
+# COPY package.json package-lock.json ./
+# RUN npm install -g typescript
+# RUN npm install
 
 WORKDIR /app
 
@@ -14,9 +14,6 @@ RUN chmod +x /init/setup-docker.sh
 
 # COPY apps/package.json ./
 # COPY apps/package-lock.json ./
-
-
-
 
 
 # CMD ["tail", "-f", "/dev/null"]
