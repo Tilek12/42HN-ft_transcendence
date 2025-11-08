@@ -2,18 +2,17 @@
 
 cd /app
 
-npm install
+npm i
+npm install vite -g
+npm install concurrently -g
+# npm install vite -g
+# npm install vite -g
 
-npm install -g typescript
-npm install -g concurrently
-npm install -g tsx
-npm install -g vite
 
 
 if [ "$APP_MODE" = "development" ]; then
 	echo "=========================>>> Starting in DEVELOPMENT mode! <<========================="
-	vite --config /app/src/vite.config.mts &
-	tsx watch /app/src/backend/server.ts 
+	npm run dev;
 	
 elif [ "$APP_MODE" = "production" ]; then
 	echo "=========================>>> Starting in PRODUCTION mode! <<========================="
@@ -23,4 +22,4 @@ else
 	exit 1
 fi
 
-tail -f /dev/null
+tail -f /dev/null #remove before eval
