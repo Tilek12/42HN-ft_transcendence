@@ -36,9 +36,9 @@ PROD = APP_MODE=production
 ##  Project Lifecycle Targets  ##
 ## --------------------------- ##
 
-start: setup-local setup-ngrok up	## 🚀 Full start process (setup + run)
+start: setup-local up	## 🚀 Full start process (setup + run)
 
-dev: setup-local setup-ngrok updev
+dev: setup-local updev
 
 stop: clean		## 🛑 Stop all services (graceful shutdown)
 
@@ -78,9 +78,6 @@ setup-local: env-check	## 🌐 Setup local environment (IP, certs, etc.)
 	@printf "$(YELLOW)🔧 Setting up local development environment...$(RESET)\n"
 	./scripts/setup-local.sh
 
-setup-ngrok: env-check	## 🚪 Setup ngrok tunnel
-# 	@printf "$(YELLOW)🌐 Setting up ngrok tunnel...$(RESET)\n"
-# 	./scripts/setup-ngrok.sh
 
 ## --------------------------- ##
 ##       Utility Targets       ##

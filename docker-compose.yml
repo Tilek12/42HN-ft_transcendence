@@ -2,7 +2,8 @@
 services:
   backend:
     build:
-      dockerfile: apps/Dockerfile
+      context: apps 
+      dockerfile: Dockerfile
     container_name: app
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
@@ -12,7 +13,6 @@ services:
     env_file:
       - ./.env
     environment:
-      - NODE_ENV=development
       - APP_MODE=${APP_MODE}
     networks:
       - pong-network

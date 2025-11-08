@@ -105,7 +105,6 @@ const wsPresencePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) =>
 
 	// single heartbeat/ping system (pings presence, game and tournament sockets through userManager)
 	setInterval(() => {
-		console.log("presence ws interval");
 		try {
 			userManager.checkHeartbeats(); // implementation updated to ping all socket-types
 		} catch (err) {

@@ -1,5 +1,5 @@
 import QRCode from 'qrcode'
-import * as OTPAuth from "otpauth";
+import * as OTPAuth from 'otpauth';
 
 
 const issuer:string = "Linda, Thomas, Rustam, Tilek, Philipp";
