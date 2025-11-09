@@ -41,11 +41,10 @@ if (!JWT_SECRET) {
 	console.error('❌ Missing JWT_SECRET in .env');
 	process.exit(1);
 }
-// if (APP_MODE == 'production') {
-// 	PORT = 443;
-// }
-
-console.log(PORT);
+if (APP_MODE == 'production') {
+	PORT = 8080;
+}
+console.log(`===========>>> Server setup in APP_MODE:${APP_MODE} and NODE_ENV: ${process.env.NODE_ENV} <<<===========`);
 
 // Create server instance
 const server = Fastify({
@@ -116,6 +115,7 @@ async function main() {
 	});
 
 	if (APP_MODE == "production") {
+		server.log.info("Setting up fastify static");
 		server.register(fastifyStatic, {
 			root: '/app/dist/frontend',
 			serve: true,

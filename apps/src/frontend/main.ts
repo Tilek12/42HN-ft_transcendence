@@ -1,8 +1,8 @@
-import { router } from './router'
-import { validateLogin } from './utils/auth'
-import { renderNav} from './pages/nav';
-import {initLang, initNav} from './pages/nav';
-import {languageStore} from './pages/languages'
+import { router } from './router.js'
+import { validateLogin } from './utils/auth.js'
+import { renderNav} from './pages/nav.js';
+import {initLang, initNav} from './pages/nav.js';
+import {languageStore} from './pages/languages.js'
 
 
 

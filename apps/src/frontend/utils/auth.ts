@@ -1,4 +1,3 @@
-import { OPEN_READONLY } from 'sqlite3';
 import {payload} from '../pages/types'
 
 export function saveToken(token: string) {
