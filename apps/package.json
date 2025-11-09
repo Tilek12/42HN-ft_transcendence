@@ -1,10 +1,10 @@
 {
 	"name": "transcendence",
 	"scripts": {
-		"dev": "concurrently \"vite --config /app/src/vite.config.mts\" \"tsx watch /app/src/backend/server.ts\"",
-		"build": " tsc -p src/tsconfig.json",
+		"dev": "concurrently \"vite --config /app/vite.config.mts\" \"tsx watch /app/src/backend/server.ts\"",
+		"build": " tsc -p src/tsconfig.json; cp -R src/frontend/images/ dist/frontend/; cp src/frontend/index.html dist/frontend/; cp src/frontend/styles.css dist/frontend/; npx tailwindcss -i src/frontend/styles.css -o dist/frontend/styles.css",
 		"prod": " npm run build && node dist/backend/server.js",
-		"update":"ncu -u"
+		"update": "ncu -u"
 	},
 	"dependencies": {
 		"@fastify/helmet": "^13.0.2",
@@ -18,12 +18,16 @@
 		"@tailwindcss/cli": "^4.1.17",
 		"@types/bcrypt": "^6.0.0",
 		"@types/node": "^24.10.0",
+		"@types/qrcode": "^1.5.6",
 		"@types/sharp": "0.32.0",
+		"@types/ws": "^8.18.1",
 		"autoprefixer": "^10.4.21",
 		"bcrypt": "^6.0.0",
 		"close-with-grace": "^2.3.0",
+		"concurrently": "^9.2.1",
 		"dotenv": "^17.2.3",
 		"fastify": "^5.6.1",
+		"npm-check-updates": "^19.1.2",
 		"otpauth": "^9.4.1",
 		"pino-pretty": "^13.1.2",
 		"postcss": "^8.5.6",
@@ -32,16 +36,8 @@
 		"sqlite": "^5.1.1",
 		"sqlite3": "^5.1.7",
 		"tailwindcss": "^4.1.17",
-		"typescript": "^5.9.3",
-		"@types/qrcode": "^1.5.6",
-		"@types/ws": "^8.18.1"
-	},
-	"devDependencies": {
-		
-		"npm-check-updates": "^19.1.2",
-		"concurrently": "^9.2.1",
 		"tsx": "^4.20.6",
+		"typescript": "^5.9.3",
 		"vite": "^7.2.2"
 	}
 }
-
