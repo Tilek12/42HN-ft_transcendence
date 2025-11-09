@@ -2,8 +2,8 @@
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
     // File Layout
-    "rootDir": ".",
-    "outDir": "/app/dist",
+    "rootDir": "/app/src/backend",
+    "outDir": "/app/dist/backend",
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
@@ -41,5 +41,6 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     // "skipLibCheck": true,
-  }
+  },
+  "include": ["/app/src/backend/**/*"]
 }

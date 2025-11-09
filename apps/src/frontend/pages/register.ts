@@ -1,8 +1,8 @@
 
-import { renderBackgroundFull } from '../utils/layout';
-import { initLang } from './nav';
-import { languageStore, translations_register_page, transelate_per_id } from './languages';
-import { saveToken } from '../utils/auth';
+import { renderBackgroundFull } from '../utils/layout.js';
+import { initLang } from './nav.js';
+import { languageStore, translations_register_page, transelate_per_id } from './languages.js';
+import { saveToken } from '../utils/auth.js';
 
 
 export function renderRegister(root: HTMLElement) {

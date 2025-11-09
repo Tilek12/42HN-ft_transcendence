@@ -1,4 +1,4 @@
-import { Language, PlaceholderElement, TranslationSet } from '../types'
+import { Language, PlaceholderElement, TranslationSet } from '../types.js'
 
 
 export function transelate_per_id(tr_array: TranslationSet, tr_key_string: string, lang: Language, element_id: string) {

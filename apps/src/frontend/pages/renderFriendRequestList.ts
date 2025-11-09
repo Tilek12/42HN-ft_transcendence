@@ -1,6 +1,6 @@
-import { getToken} from '../utils/auth'
-import { wsManager } from '../websocket/ws-manager';
-import {languageStore, translations_friends_render} from './languages';
+import { getToken} from '../utils/auth.js'
+import { wsManager } from '../websocket/ws-manager.js';
+import {languageStore, translations_friends_render} from './languages.js';
 
 
 const button_action = (is_friend: number, pending_direction : string, other_profile_id: number) => {

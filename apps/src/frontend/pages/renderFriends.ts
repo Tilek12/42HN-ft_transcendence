@@ -1,6 +1,6 @@
-import { getToken} from '../utils/auth'
-import { wsManager } from '../websocket/ws-manager';
-import {languageStore, translations_friends_render} from './languages';
+import { getToken} from '../utils/auth.js'
+import { wsManager } from '../websocket/ws-manager.js';
+import {languageStore, translations_friends_render} from './languages.js';
 
 
 export async function renderFriendsList(container_id : string, load?: boolean, allFriends ?: {friends: any[]}, friend_offeset ?: number, friend_limit ?: number )

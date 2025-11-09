@@ -1,4 +1,4 @@
-import {payload} from '../pages/types'
+import {payload} from '../types.js'
 
 export function saveToken(token: string) {
 	sessionStorage.setItem('jwt', token);

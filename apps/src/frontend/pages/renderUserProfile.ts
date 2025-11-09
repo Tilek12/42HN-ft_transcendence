@@ -1,7 +1,7 @@
-import { renderBackgroundTop } from "../utils/layout";
-import { wsManager } from '../websocket/ws-manager';
-import type {Language} from '../types';
-import {languageStore, translations_profile, transelate_per_id} from './languages'
+import { renderBackgroundTop } from '../utils/layout.js';
+import { wsManager } from '../websocket/ws-manager.js';
+import type {Language} from '../types.js';
+import {languageStore, translations_profile, transelate_per_id} from './languages.js'
 
 export type Profile_details = {
 	backend_url?: string;

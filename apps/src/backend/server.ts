@@ -24,7 +24,7 @@ import wsTournamentPlugin from './routes/ws/tournament-ws';
 import { Errorhandler } from './error';
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import fastifySwagger from '@fastify/swagger'
-import path from 'path'
+
 
 
 
@@ -35,16 +35,16 @@ dotenv.config();
 const LOCAL_IP = process.env.LOCAL_IP || '127.0.0.1';
 let PORT = Number(process.env.BACKEND_PORT || '443');
 const JWT_SECRET = fs.readFileSync('/run/secrets/jwt_secret');
-const APP_MODE = process.env.APP_MODE || 'production';
+const APP_MODE = process.env.NODE_ENV ;
 
-if (!JWT_SECRET) {
+if (!JWT_SECRET || !APP_MODE) {
 	console.error('❌ Missing JWT_SECRET in .env');
 	process.exit(1);
 }
 if (APP_MODE == 'production') {
 	PORT = 8080;
 }
-console.log(`===========>>> Server setup in APP_MODE:${APP_MODE} and NODE_ENV: ${process.env.NODE_ENV} <<<===========`);
+console.log(`===========>>> Server setup in APP_MODE:${APP_MODE} <<<===========`);
 
 // Create server instance
 const server = Fastify({

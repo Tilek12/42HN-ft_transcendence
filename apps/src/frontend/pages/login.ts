@@ -1,8 +1,8 @@
-import { renderNav, changeLoginButton } from './nav'
-import { renderBackgroundFull } from '../utils/layout';
-import { saveToken, enabled_2fa, clearToken } from '../utils/auth';
-import { wsManager } from '../websocket/ws-manager';
-import { languageStore, translations_login_page, transelate_per_id, translations_errors } from './languages';
+import { renderNav, changeLoginButton } from './nav.js'
+import { renderBackgroundFull } from '../utils/layout.js';
+import { saveToken, enabled_2fa, clearToken } from '../utils/auth.js';
+import { wsManager } from '../websocket/ws-manager.js';
+import { languageStore, translations_login_page, transelate_per_id, translations_errors } from './languages.js';
 
 
 export function renderLogin(root: HTMLElement) {

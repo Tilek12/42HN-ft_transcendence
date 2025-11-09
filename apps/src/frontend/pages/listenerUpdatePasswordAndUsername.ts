@@ -1,4 +1,4 @@
-import {getToken} from '../utils/auth'
+import {getToken} from '../utils/auth.js'
 //----------------------Password Listeners-------------------------------
 const listenerPasswordEdit = (
 	password_old_check : HTMLInputElement,

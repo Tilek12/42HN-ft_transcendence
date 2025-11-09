@@ -1,9 +1,9 @@
-import { renderNav } from './nav';
-import { renderBackgroundTop } from '../utils/layout';
-import { wsManager } from '../websocket/ws-manager';
-import { getToken } from '../utils/auth';
-import { COLORS } from '../constants/colors';
-import { languageStore, translations_game_render, transelate_per_id } from './languages';
+
+import { renderBackgroundTop } from '../utils/layout.js';
+import { wsManager } from '../websocket/ws-manager.js';
+import { getToken } from '../utils/auth.js';
+import { COLORS } from '../constants/colors.js';
+import { languageStore, translations_game_render, transelate_per_id } from './languages.js';
 
 
 export async function renderGame(root: HTMLElement) {
@@ -47,7 +47,7 @@ export async function renderGame(root: HTMLElement) {
 
 	let socket: WebSocket | null = null;
 	let gameState: any = null;
-	let moveInterval: NodeJS.Timeout | null = null;
+	let moveInterval: number | null = null;
 	let playerNames: Record<string, string> = {};
 
 	const heldKeys: Record<string, boolean> = {};
