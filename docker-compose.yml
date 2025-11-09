@@ -12,8 +12,7 @@ services:
     env_file:
       - ./.env
     environment:
-      - NODE_ENV=production
-      - APP_MODE=${APP_MODE}
+      - NODE_ENV=${NODE_ENV}
     networks:
       - pong-network
     secrets:

@@ -1,16 +1,16 @@
-import { renderMainPage } from './pages/main-page'
-import { renderTournament } from './pages/tournament'
-import { renderGame } from './pages/game'
-import { renderProfile } from './pages/profile'
-import { renderLogin } from './pages/login'
-import { renderRegister } from './pages/register'
-import { renderFriends } from './pages/friends'
-import { renderLeaderboard } from './pages/leaderboard'
-import { renderNotFound } from './pages/not-found'
-import { validateLogin } from './utils/auth'
-import { changeLoginButton } from './pages/nav';
-import { wsManager } from './websocket/ws-manager'
-import { renderQrcode } from './pages/2fa'
+import { renderMainPage } from './pages/main-page.js';
+import { renderTournament } from './pages/tournament.js';
+import { renderGame } from './pages/game.js';
+import { renderProfile } from './pages/profile.js';
+import { renderLogin } from './pages/login.js';
+import { renderRegister } from './pages/register.js';
+import { renderFriends } from './pages/friends.js';
+import { renderLeaderboard } from './pages/leaderboard.js';
+import { renderNotFound } from './pages/not-found.js';
+import { validateLogin } from './utils/auth.js';
+import { changeLoginButton } from './pages/nav.js';
+import { wsManager } from './websocket/ws-manager.js';
+import { renderQrcode } from './pages/2fa.js';
 
 
 export async function router() {

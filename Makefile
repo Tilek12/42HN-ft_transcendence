@@ -28,8 +28,8 @@ COMPOSE := $(DOCKER_COMPOSE) -f $(COMPOSE_FILE)
 ENV_FILE := .env
 
 # Mode switches
-DEV = APP_MODE=development
-PROD = APP_MODE=production
+DEV = NODE_ENV=development
+PROD = NODE_ENV=production
 
 
 ## --------------------------- ##

@@ -1,14 +1,14 @@
 
-import { getToken, clearToken, validateLogin } from '../utils/auth'
-import { renderProfilesList } from './renderProfiles';
-import { renderUserProfile, profile_ids, update_langauge_headers_user_profile } from './renderUserProfile';
-import type { Profile_details } from './renderUserProfile';
-import { listenerFriendAndBlock } from './ListenerProfileList';
-import { listenerDeletePicture, listenerLogoutBtn, listenerUploadPicture } from './listenerUploadAndDeletePicture';
-import { listenerPasswordCancel, listenerPasswordEdit, listenerPasswordUpdate } from './listenerUpdatePasswordAndUsername';
-import { listenerUsernameUpdate, listenerUsernameCancel, listenerUsernameEdit } from './listenerUpdatePasswordAndUsername';
-import { wsManager } from '../websocket/ws-manager';
-import { languageStore } from './languages';
+import { getToken, clearToken, validateLogin } from '../utils/auth.js'
+import { renderProfilesList } from './renderProfiles.js';
+import { renderUserProfile, profile_ids, update_langauge_headers_user_profile } from './renderUserProfile.js';
+import type { Profile_details } from './renderUserProfile.js';
+import { listenerFriendAndBlock } from './ListenerProfileList.js';
+import { listenerDeletePicture, listenerLogoutBtn, listenerUploadPicture } from './listenerUploadAndDeletePicture.js';
+import { listenerPasswordCancel, listenerPasswordEdit, listenerPasswordUpdate } from './listenerUpdatePasswordAndUsername.js';
+import { listenerUsernameUpdate, listenerUsernameCancel, listenerUsernameEdit } from './listenerUpdatePasswordAndUsername.js';
+import { wsManager } from '../websocket/ws-manager.js';
+import { languageStore } from './languages.js';
 
 let i = 0;
 type Match =

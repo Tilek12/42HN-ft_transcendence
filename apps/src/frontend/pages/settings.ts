@@ -1,7 +1,7 @@
 
-import { renderBackgroundTop } from '../utils/layout'
-import { validateLogin } from '../utils/auth'
-import { initLang } from './nav';
+import { renderBackgroundTop } from '../utils/layout.js'
+import { validateLogin } from '../utils/auth.js'
+import { initLang } from './nav.js';
 export async function renderSettings(root: HTMLElement) {
   const isValid = await validateLogin()
   if (!isValid) {

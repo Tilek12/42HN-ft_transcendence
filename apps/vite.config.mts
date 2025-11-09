@@ -33,7 +33,7 @@ export default defineConfig(({ mode }) => {
       port: frontendPort,
       strictPort: true,
       open: false,
-      base: "/app/distbuilding",
+      base: "/app/vite",
       https: {
         key: fs.readFileSync('/run/secrets/ssl_key'),
         cert: fs.readFileSync('/run/secrets/ssl_cert'),

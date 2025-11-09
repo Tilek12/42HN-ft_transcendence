@@ -1,8 +1,8 @@
-import { renderBackgroundTop } from '../utils/layout';
-import { getToken } from '../utils/auth'
-import { renderFriendsList } from './renderFriends';
-import { renderFriendRequestsList } from './renderFriendRequestList';
-import {languageStore, translations_friends_render, transelate_per_id} from './languages';
+import { renderBackgroundTop } from '../utils/layout.js';
+import { getToken } from '../utils/auth.js'
+import { renderFriendsList } from './renderFriends.js';
+import { renderFriendRequestsList } from './renderFriendRequestList.js';
+import {languageStore, translations_friends_render, transelate_per_id} from './languages.js';
 
 
 

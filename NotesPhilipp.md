@@ -52,7 +52,10 @@ Chrome is more forgiving; it keeps internal references long enough to finish.
 
 - is it injectionsafe?
 
-- validate login is a real mess!! cleaned up..
+- use local storage to remember language preference
+
+- use cookies?
+- store jwt in the correct place!
 
 - implement "remember_me" feature? or get rid of it.
 

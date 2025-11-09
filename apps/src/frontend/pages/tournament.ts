@@ -1,9 +1,9 @@
 
-import { renderBackgroundTop } from '../utils/layout';
-import { getToken, getJWTPayload } from '../utils/auth';
-import { wsManager } from '../websocket/ws-manager';
-import { COLORS } from '../constants/colors';
-import { languageStore, translations_tournament_render, transelate_per_id } from './languages';
+import { renderBackgroundTop } from '../utils/layout.js';
+import { getToken, getJWTPayload } from '../utils/auth.js';
+import { wsManager } from '../websocket/ws-manager.js';
+import { COLORS } from '../constants/colors.js';
+import { languageStore, translations_tournament_render, transelate_per_id } from './languages.js';
 
 
 
