@@ -1,8 +1,8 @@
-import { wsManager } from '../websocket/ws-manager';
-import { languageStore } from './languages';
-import type { Language } from '../types';
-import { validateLogin } from '../utils/auth';
-import { getToken, clearToken } from '../utils/auth'
+import { wsManager } from '../websocket/ws-manager.js';
+import { languageStore } from './languages.js';
+import type { Language } from '../types.js';
+import { validateLogin } from '../utils/auth.js';
+import { getToken, clearToken } from '../utils/auth.js'
 
 
 let presenceUnsub: (() => void) | null = null;

@@ -24,7 +24,7 @@ import wsTournamentPlugin from './routes/ws/tournament-ws';
 import { Errorhandler } from './error';
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import fastifySwagger from '@fastify/swagger'
-import path from 'path'
+
 
 
 
@@ -35,17 +35,16 @@ dotenv.config();
 const LOCAL_IP = process.env.LOCAL_IP || '127.0.0.1';
 let PORT = Number(process.env.BACKEND_PORT || '443');
 const JWT_SECRET = fs.readFileSync('/run/secrets/jwt_secret');
-const APP_MODE = process.env.LOCAL_IP || 'production';
+const APP_MODE = process.env.NODE_ENV ;
 
-if (!JWT_SECRET) {
+if (!JWT_SECRET || !APP_MODE) {
 	console.error('❌ Missing JWT_SECRET in .env');
 	process.exit(1);
 }
 if (APP_MODE == 'production') {
-	process.exit(1);
+	PORT = 8080;
 }
-
-console.log(PORT);
+console.log(`===========>>> Server setup in APP_MODE:${APP_MODE} <<<===========`);
 
 // Create server instance
 const server = Fastify({
@@ -90,36 +89,36 @@ async function main() {
 	await server.register(multipart);					// file supposrt for fastify
 	server.register(helmet);							// adds http headers for security
 
-	if (APP_MODE == "development") {
-		await server.register(fastifySwagger, {
-			openapi: {
-				openapi: '3.0.0',
-				info: {
-					title: 'Transcendence',
-					description: 'Testing Transcendence API',
-					version: '0.1.0'
-				},
-				servers: [
-					{
-						url: 'https://localhost:3000',
-						description: 'Development server'
-					}
-				],
-			}
-		});
-		await server.register(fastifySwaggerUi, {
-			routePrefix: '/docs',
-			uiConfig: {
-				docExpansion: 'full',
-				deepLinking: false
-			}
-		});
-	}
-	else {
+
+	await server.register(fastifySwagger, {
+		openapi: {
+			openapi: '3.0.0',
+			info: {
+				title: 'Transcendence',
+				description: 'Testing Transcendence API',
+				version: '0.1.0'
+			},
+			servers: [
+				{
+					url: 'https://localhost:3000',
+					description: 'Development server'
+				}
+			],
+		}
+	});
+	await server.register(fastifySwaggerUi, {
+		routePrefix: '/docs',
+		uiConfig: {
+			docExpansion: 'full',
+			deepLinking: false
+		}
+	});
+
+	if (APP_MODE == "production") {
+		server.log.info("Setting up fastify static");
 		server.register(fastifyStatic, {
 			root: '/app/dist/frontend',
-			serve : true,
-			prefix: '/',
+			serve: true,
 		});
 	}
 

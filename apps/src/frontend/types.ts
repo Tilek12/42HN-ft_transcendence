@@ -27,4 +27,10 @@ export interface PlaceholderElement extends HTMLElement {
 	placeholder:string
 }
 
-
+export type payload = {
+  id: number,
+  username: string,
+  tfa: boolean,
+  role: string,
+  type: string,
+}

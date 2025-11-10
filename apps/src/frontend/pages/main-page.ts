@@ -1,6 +1,6 @@
 
-import { renderBackgroundFull } from "../utils/layout"
-import {languageStore, translations_main_page, transelate_per_id} from './languages';
+import { renderBackgroundFull } from "../utils/layout.js"
+import {languageStore, translations_main_page, transelate_per_id} from './languages.js';
 
 
 export function renderMainPage(root: HTMLElement) {

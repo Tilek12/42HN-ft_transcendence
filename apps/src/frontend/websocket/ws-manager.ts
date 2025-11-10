@@ -1,5 +1,5 @@
-import { getToken } from '../utils/auth';
-import { GameMode, PresenceUser, PresenceCallback } from '../types';
+import { getToken } from '../utils/auth.js';
+import { GameMode, PresenceUser, PresenceCallback } from '../types.js';
 
 class WebSocketManager {
   // Basic WebSocket connections

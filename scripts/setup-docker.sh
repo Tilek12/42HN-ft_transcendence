@@ -1,26 +1,18 @@
 #! /bin/bash
 
-cd /app
+mkdir -p dist
+mkdir -p vite
+echo "====================>>> Starting Docker in NODE_ENV:$NODE_ENV <<======================"
 
-npm install
+npm i
 
-npm install -g typescript
-npm install -g concurrently
-npm install -g tsx
-npm install -g vite
-
-
-if [ "$APP_MODE" = "development" ]; then
-	echo "=========================>>> Starting in DEVELOPMENT mode! <<========================="
-	vite --config /app/src/vite.config.mts &
-	tsx watch /app/src/backend/server.ts 
-	
-elif [ "$APP_MODE" = "production" ]; then
-	echo "=========================>>> Starting in PRODUCTION mode! <<========================="
+if [ "$NODE_ENV" = "development" ]; then
+	npm run dev;
+elif [ "$NODE_ENV" = "production" ]; then
 	npm run prod;
 else
-	echo "Unknown APP_MODE: $APP_MODE"
+	echo "Unknown NODE_ENV: $NODE_ENV"
 	exit 1
 fi
 
-tail -f /dev/null
+tail -f /dev/null #remove before eval

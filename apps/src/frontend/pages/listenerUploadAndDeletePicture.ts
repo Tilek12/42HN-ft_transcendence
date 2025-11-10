@@ -1,5 +1,5 @@
-import { getToken, clearToken} from '../utils/auth'
-import { wsManager } from '../websocket/ws-manager';
+import { getToken, clearToken} from '../utils/auth.js'
+import { wsManager } from '../websocket/ws-manager.js';
 
 
 export const compressFile = async (file: File) : Promise<File> =>

@@ -2,7 +2,6 @@
 services:
   backend:
     build:
-      # context: apps 
       dockerfile: apps/Dockerfile
     container_name: app
     ports:
@@ -13,7 +12,7 @@ services:
     env_file:
       - ./.env
     environment:
-      - APP_MODE=${APP_MODE}
+      - NODE_ENV=${NODE_ENV}
     networks:
       - pong-network
     secrets:
@@ -32,3 +31,6 @@ secrets:
 networks:
   pong-network:
     driver: bridge
+
+volumes:
+  node_deps:

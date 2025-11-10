@@ -1,7 +1,7 @@
-import { getToken} from '../utils/auth'
+import { getToken} from '../utils/auth.js'
 
-import { wsManager } from '../websocket/ws-manager';
-import {languageStore, translations_friends} from './languages';
+import { wsManager } from '../websocket/ws-manager.js';
+import {languageStore, translations_friends} from './languages.js';
 
 
 let lastPresence : any[] | undefined = [];
