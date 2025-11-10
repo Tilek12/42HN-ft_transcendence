@@ -16,10 +16,10 @@ import { renderQrcode } from './pages/2fa.js';
 export async function router() {
   const root = document.getElementById('app')!;
   const route = location.hash || '#/';
-  const navbar = document.getElementById('navbar');
+  const navigation = document.getElementById('navigation');
   const isLoggedIn = await validateLogin();
-  if (navbar && navbar.classList.contains("hidden"))
-    navbar.classList.remove("hidden")
+  if (navigation && navigation.classList.contains("hidden"))
+    navigation.classList.remove("hidden")
   changeLoginButton(!isLoggedIn)
 
 
