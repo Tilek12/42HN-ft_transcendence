@@ -12,4 +12,4 @@
 | **website Security** | website is secure. |❌|❌| missing redirect HTTP → HTTPS
 |	| TLS available. |✅| ✅|llacsivy@2-F-6 ~ % curl -vk https://10.12.6.6:8080/<br>* SSL connection using TLSv1.2 / ECDHE-RSA-AES128-GCM-SHA256ECDHE-RSA-AES128-GCM-SHA256
 |	| in database, passwords are hashed. |✅| ✅|	|
-|	| Check the server for server-side validation/sanitization on any user inputs and forms. |||**validation**<br>email: test4@@x.com invalid <br>password: 12345678 -> "statusCode": 400 <br>very long username (10 000 chars) ->  "limit": 30, "statusCode": 400 <br>**sanitization**<br>right click on website->inspect->Network|
+|	| Check validation and sanitization on any user inputs and forms. |||**validation**<br>email: test4@@x.com invalid <br>password: 12345678 -> "statusCode": 400 <br>very long username (10 000 chars) ->  "limit": 30, "statusCode": 400 <br>**sanitization**<br>right click on website->inspect->Network|
