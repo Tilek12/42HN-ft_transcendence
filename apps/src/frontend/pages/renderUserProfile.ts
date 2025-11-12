@@ -19,8 +19,7 @@ let lastPresence: string[] | undefined =[];
 
 
 
-export const profile_ids = (
-	profile : Profile_details) =>
+export const profile_ids = (profile : Profile_details) =>
 	{
 		let logged_in = document.getElementById(profile.logged_in_id);
 		let username = document.getElementById(profile.username_id);
@@ -54,7 +53,7 @@ export const profile_ids = (
 			trophies.innerHTML = ` ${profile.data_async.profile.trophies}`;
 			created_at.innerHTML += ` ${new Date(profile.data_async.user.created_at).toLocaleString()}`;
 
-			profile_pic.src = profile.data_async.profile.image_blob ? `data:image/webp;base64,${profile.data_async.profile.image_blob}` : `${profile.backend_url}/profile_pics/${profile.data_async.profile.image_path}`;
+			profile_pic.src = profile.data_async.profile.image_blob ? `data:image/webp;base64,${profile.data_async.profile.image_blob}` : `/images/default.png`;
 
 		}
 	};
