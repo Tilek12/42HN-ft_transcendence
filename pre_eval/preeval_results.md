@@ -16,10 +16,13 @@
 |	| security measures implemented and tested|✅|✅| profile pic upload .js, .php, .jpeg, .png, .pdf,.jpg, .gif -> as expected only .jpeg, .png, .jpg are accepted, rest is rejected (not possible to upload)
 | **local game** | play on one computer on keyboard|✅|✅|| click play alone button -> game works
 |	| Initiate a tournament, and the tournament should offer a matchmaking system to connect local players. | ❌|❌|I can initiate tournament, and join, but no tournament is started after 4 players joined
-| **online gameplay**	| playable game like original Pong game |❌|❌| very often when the paddle hits the ball, the game reacts if I did not hit the ball and the ball starts from the middle of the game 
+| **online gameplay**	| playable game like original Pong game |❌|❌| click play online button-> very often when the paddle hits the ball, the game reacts if I did not hit the ball and the ball starts from the middle of the game 
 |	| Controls explained below game |✅|✅| appearing: "Online mode: Use W/S for left paddle, ↑/↓ for right paddle"
 |	| when game over, there is a end-game screen |❌|❌| always showing "🏁 Game over! ❌ Unknown wins!" even though linda1 won
 | **lags (=Verzögerungen) and disconnects**	| no crash when user is experiencing lags or is disconnected
+|	| pause the game|||paused only stops game object updates (ball, paddles), not network or input handling. do not use sleep(), do not only freeze the program.
+|	| Disconnected users can reconnect.|||
+|	| Lagging users can catch up to the match. |||
 
 
 
