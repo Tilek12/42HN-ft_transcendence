@@ -1,6 +1,5 @@
 import { renderNav } from './nav.js'
 import { renderBackgroundTop } from '../utils/layout.js'
-import { initLang } from './nav.js';
 export function renderNotFound(root: HTMLElement) {
   root.innerHTML = renderBackgroundTop(`
     <div class="pt-24 max-w-xl mx-auto text-center text-red-600">
@@ -8,5 +7,5 @@ export function renderNotFound(root: HTMLElement) {
       <p>Page not found.</p>
     </div>
   `);
-	initLang();
+
 }

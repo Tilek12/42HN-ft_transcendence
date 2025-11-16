@@ -1,6 +1,7 @@
 export function renderBackgroundFull(content: string): string {
-	return `
-	  <div class="fixed inset-0 bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900">
+	return ( 
+	/*html*/
+	`<div class="flex-col h-screen inset-0 bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900">
 		<!-- Animated background elements -->
 		<div class="fixed inset-0 opacity-20 pointer-events-none">
 		  <div class="absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
@@ -12,12 +13,13 @@ export function renderBackgroundFull(content: string): string {
 		  ${content}
 		</div>
 	  </div>
-	`;
+	`);
 }
 
 export function renderBackgroundTop(content: string): string {
-	return `
-	  <div class="fixed inset-0 bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900">
+	return (
+		/*html*/
+		`<div class="inset-0 bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900">
 		<!-- Animated background elements -->
 		<div class="fixed inset-0 opacity-20 pointer-events-none">
 		  <div class="absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
@@ -29,5 +31,5 @@ export function renderBackgroundTop(content: string): string {
 		  ${content}
 		</div>
 	  </div>
-	`;
+	`);
   }

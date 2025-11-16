@@ -1,6 +1,5 @@
 
 import { renderBackgroundFull } from '../utils/layout.js';
-import { initLang } from './nav.js';
 import { languageStore, translations_register_page, transelate_per_id } from './languages.js';
 import { saveToken } from '../utils/auth.js';
 
@@ -64,7 +63,6 @@ export function renderRegister(root: HTMLElement) {
     transelate_per_id(translations_register_page, "sign_in", lang, "sign_in_link");
 
   });
-  initLang();
   const form = document.getElementById('register_form') as HTMLFormElement;
   const error = document.getElementById('register_error')!;
   const navigation = document.getElementById('navigation');

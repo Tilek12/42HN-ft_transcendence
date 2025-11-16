@@ -1,20 +1,100 @@
 import { Language, PlaceholderElement, TranslationSet } from '../types.js'
 
 
-export function transelate_per_id(tr_array: TranslationSet, tr_key_string: string, lang: Language, element_id: string) {
-	let headerEl = document.getElementById(element_id) as PlaceholderElement;
-	if (headerEl)
-	{
-		let placeholder = tr_array[lang][tr_key_string];
-		if (placeholder && tr_key_string.includes("placeholder"))
-		{
-			headerEl.placeholder = placeholder;
-			headerEl.innerHTML = placeholder;
+
+class LanguageStore {
+	private _language: Language = 'EN';
+	private _listeners: ((lang: Language) => void)[] = [];
+	private _langSelect: HTMLSelectElement | undefined;
+
+	contructor(){
+		this._langSelect = undefined;
+	}
+
+	set language(lang: Language) {
+		if (this._langSelect){
+			this._langSelect.value = lang;
+		}
+		localStorage.setItem('PongLanguage', lang);
+		this._language = lang;
+		this._listeners.forEach(cb => cb(lang));
+	}
+
+	get language() {
+		return this._language;
+	}
+
+	subscribe(cb: (lang: Language) => void) {
+		this._listeners.push(cb);
+	}
+
+	initLang() {
+		const langSelect = document.getElementById('language-select') as HTMLSelectElement;
+		if (langSelect){
+			this._langSelect = langSelect;
+			langSelect.addEventListener('change', () => {
+				console.log('clicked');
+				const selected = langSelect.value as Language;
+				languageStore.language = selected;
+			})
 		}
 	}
 }
 
 
+export function transelate_per_id(tr_set: TranslationSet, key: string, lang: Language, element_id: string) {
+	let headerEl = document.getElementById(element_id);
+	if (headerEl) {
+		let value = tr_set[lang][key];
+		if (value) {
+			if (key.includes("placeholder") && (headerEl instanceof HTMLInputElement || headerEl instanceof HTMLTextAreaElement)) {
+				headerEl.placeholder = value;
+			}
+			else
+				headerEl.innerHTML = value;
+		}
+	}
+}
+
+
+
+export const languageStore = new LanguageStore();
+export const translations_nav: TranslationSet =
+{
+	EN: {
+		game: 'Game',
+		tournament: 'Tournament',
+		leaderboard: 'Leaderboard',
+		friends: 'Friends',
+		profile: 'Profile',
+		settings: 'Settings',
+		online_users: 'Online Users',
+		login: 'Login',
+		logout: 'Logout',
+	},
+	DE: {
+		game: 'Spiel',
+		tournament: 'Turnier',
+		leaderboard: 'Bestenliste',
+		friends: 'Freunde',
+		profile: 'Profil',
+		settings: 'Einstellungen',
+		online_users: 'Online Benutzer',
+		login: 'Anmelden',
+		logout: 'Abmelden',
+	},
+	GR: {
+		game: 'Παιχνίδι',
+		tournament: 'Τουρνουά',
+		leaderboard: 'Κατάταξη',
+		friends: 'Φίλοι',
+		profile: 'Προφίλ',
+		settings: 'Ρυθμίσεις',
+		online_users: 'Ενεργοί',
+		login: 'Σύνδεση',
+		logout: 'Αποσύνδεση',
+	}
+};
 
 export const translations_profile: TranslationSet =
 {
@@ -122,7 +202,7 @@ export const translations_register_page: TranslationSet = {
 		username_placeholder: 'Enter your username',
 		email_placeholder: 'Enter your email',
 		password_placeholder: 'Enter your password',
-		qrcode_label:  'Enable 2 Factor Authentification by scanning this QR code with an authenticator app',
+		qrcode_label: 'Enable 2 Factor Authentification by scanning this QR code with an authenticator app',
 		tfa_label: 'Enable 2FA',
 		tfa_placeholder: '6 digit code',
 		register_btn: 'Register',
@@ -367,28 +447,3 @@ export const translations_errors: TranslationSet = {
 	},
 };
 
-class LanguageStore {
-	private _language: Language = 'EN';
-	private listeners: ((lang: Language) => void)[] = [];
-	private _clicked: number = 0;
-
-	set language(lang: Language) {
-		this._language = lang;
-		this.listeners.forEach(cb => cb(lang));
-	}
-
-	get language() {
-		return this._language;
-	}
-	set clicked(cl: number) {
-		this._clicked = cl;
-	}
-	get clicked() {
-		return this._clicked;
-	}
-	subscribe(cb: (lang: Language) => void) {
-		this.listeners.push(cb);
-	}
-}
-
-export const languageStore = new LanguageStore();

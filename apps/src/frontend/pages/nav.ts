@@ -1,217 +1,183 @@
 import { wsManager } from '../websocket/ws-manager.js';
-import { languageStore } from './languages.js';
-import type { Language } from '../types.js';
+import { languageStore, transelate_per_id, translations_nav } from './languages.js';
 import { validateLogin } from '../utils/auth.js';
 import { getToken, clearToken } from '../utils/auth.js'
 
 
 let presenceUnsub: (() => void) | null = null;
 
-export const translations_nav: Record<Language, { [key: string]: string }> = {
-  EN: {
-    game: 'Game',
-    tournament: 'Tournament',
-    leaderboard: 'Leaderboard',
-    friends: 'Friends',
-    profile: 'Profile',
-    settings: 'Settings',
-    online_users: 'Online Users',
-    login: 'Login',
-    logout: 'Logout',
-  },
-  DE: {
-    game: 'Spiel',
-    tournament: 'Turnier',
-    leaderboard: 'Bestenliste',
-    friends: 'Freunde',
-    profile: 'Profil',
-    settings: 'Einstellungen',
-    online_users: 'Online Benutzer',
-    login: 'Anmelden',
-    logout: 'Abmelden',
-  },
-  GR: {
-    game: 'Παιχνίδι',
-    tournament: 'Τουρνουά',
-    leaderboard: 'Κατάταξη',
-    friends: 'Φίλοι',
-    profile: 'Προφίλ',
-    settings: 'Ρυθμίσεις',
-    online_users: 'Ενεργοί',
-    login: 'Σύνδεση',
-    logout: 'Αποσύνδεση',
-  }
-};
-
-export function initLang() {
-  const langSelect = document.getElementById('language-select') as HTMLSelectElement;
-
-  // if(!langSelect) console.log('The langSelect is not Existing');
-  langSelect?.addEventListener('change', () => {
-    console.log('clicked');
-    languageStore.clicked++;
-    const selected = langSelect.value as 'EN' | 'DE' | 'GR';
-    languageStore.language = selected;
-  })
-  languageStore.subscribe(lang => {
-    langSelect.value = lang;
-    console.log('the value changed', langSelect.value);
-  })
-
-}
 
 export async function initNav() {
-  const btn = document.getElementById('login-btn');
-  if (btn)
-    btn.addEventListener('click', toggleLogin);
-  changeLoginButton(!await validateLogin());
+	const loginButton = document.getElementById('login-btn');
+	const logoutButton = document.getElementById('logout-btn');
+	if (loginButton)
+		loginButton.addEventListener('click', ()=>{location.hash = '/login'});
+	if (logoutButton)
+		logoutButton.addEventListener('click', listenerLogoutBtn);
+	changeLoginButton(!await validateLogin());
 };
 
 async function updateOnlineUsers() {
-  const count = wsManager.onlineUserCount;
-  const users = wsManager.presenceUserList;
-  const badge = document.getElementById('active-users-count');
-  const list = document.getElementById('active-users-list');
+	const count = wsManager.onlineUserCount;
+	const users = wsManager.presenceUserList;
+	const badge = document.getElementById('active-users-count');
+	const list = document.getElementById('active-users-list');
 
-  if (badge) badge.textContent = `Online Users: ${count}`;
-  if (list) list.innerHTML = users.map(u => `<li>${u.name || u.id}</li>`).join('');
+	if (badge) badge.textContent = `Online Users: ${count}`;
+	if (list) list.innerHTML = users.map(u => `<li>${u.name || u.id}</li>`).join('');
 };
 
 export function changeLoginButton(login: boolean) {
-  const button = document.getElementById('login-btn');
-  const userlist = document.getElementById('user_list');
-  const language = document.getElementById('user_list');
+	const loginButton = document.getElementById('login-btn');
+	const logoutButton = document.getElementById('logout-btn');
 
-  if (button && userlist && language)
-  {
-    if (!login ) {
-      const logoutText = translations_nav[languageStore.language]?.logout ?? 'Logout';
-      button.innerHTML = logoutText;
-      button.classList.remove("from-blue-600", "to-purple-600", "hover:from-blue-700", "hover:to-purple-70");
-      button.classList.add("from-blue-600", "to-purple-600", "hover:from-red-700", "hover:to-red-700");
-      userlist.classList.remove("hidden");
-      
-    }
-    else {
-      const logoutText = translations_nav[languageStore.language]?.login ?? 'Login';
-      button.innerHTML = logoutText;
-      button.classList.remove("from-blue-600", "to-purple-600", "hover:from-red-700", "hover:to-red-700")
-      button.classList.add("from-blue-600", "to-purple-600", "hover:from-blue-700", "hover:to-purple-70");
-      userlist.classList.add("hidden");
-      
-    }
-  }
+	const userlist = document.getElementById('user_list');
+
+
+	if (logoutButton && loginButton &&userlist) {
+		if (!login) {
+			logoutButton.classList.remove("hidden");
+			loginButton.classList.add("hidden");
+			userlist.classList.remove("hidden");
+
+		}
+		else {
+			loginButton.classList.remove("hidden")
+			logoutButton.classList.add("hidden");
+			userlist.classList.add("hidden");
+		}
+	}
 }
 
-export async function toggleLogin() {
-
-  if (await validateLogin()) {
-    // console.log("logging out");
-
-    const token = getToken();
-    await fetch('/api/logout',
-      {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-    clearToken();
-    wsManager.disconnectAllSockets();
-    wsManager.clearPresenceData();
-    changeLoginButton(true);
-    location.hash = '#/';
-  }
-  else
-  {
-    location.hash = '#/login';
-  }
-
+const listenerLogoutBtn = async (e : any) =>
+{
+	e.preventDefault();
+	{
+		const token = getToken();
+			const resp = await fetch('/api/private/logout',
+				{
+					method: 'POST',
+					headers: {'Authorization': `Bearer ${token}`},
+				});
+			console.log(resp);
+			wsManager.disconnectAllSockets();
+			wsManager.clearPresenceData();
+			clearToken();
+			location.hash = '#/';
+	}
 }
+
+
 
 export function renderNav() {
-  const users = wsManager.presenceUserList;
+	const nav = document.getElementById("navbar");
+	const users = wsManager.presenceUserList;
   const count = wsManager.onlineUserCount;
 
-  // Subscribe ONCE to presence updates and re-render
-  if (!presenceUnsub) {
-    presenceUnsub = wsManager.subscribeToPresence(() => {
-      requestAnimationFrame(updateOnlineUsers);
-    });
-  }
+	// Subscribe ONCE to presence updates and re-render
+	if (!presenceUnsub) {
+		presenceUnsub = wsManager.subscribeToPresence(() => {
+			requestAnimationFrame(updateOnlineUsers);
+		});
+	}
+	// Detect when DOM has been updated and patch content into it
+	requestAnimationFrame(() => updateOnlineUsers());
+	if (nav) {
+		nav.innerHTML =
+			/*html*/
+			`
+			<!-- HAMBURGER button for mobile just in -->
+				<button id="menu-btn"
+					class="md:hidden flex flex-col gap-1.5 p-3 rounded-lg bg-white/10 hover:bg-white/20 transition">
+					<span class="w-6 h-0.5 bg-white"></span>
+					<span class="w-6 h-0.5 bg-white"></span>
+					<span class="w-6 h-0.5 bg-white"></span>
+				</button>
+			<!-- Logo -->
+				<div class="flex border items-center left-0">
+						<div class="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-lg">
+							<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+							</svg>
+						</div>
+							<a href="#/" class="text-white font-bold text-xl hover:underline rounded">Transcendence</a>
+					</div>
+			<!--div class="flex items-center justify-between h-16 border-2 border-red-500 border-dashed"-->	
+				<nav id="navigation" class=" flex flex-wrap justify-center gap-4 gap-2 border-2 border-white/20 shadow-xl p-2 absolute md:static top-16 left-0 w-full md:w-auto z-50 border-t">
 
-  // Detect when DOM has been updated and patch content into it
-  requestAnimationFrame(() => updateOnlineUsers());
+					<!-- Navigation Links -->
+					<div class="flex flex-wrap gap-2 border">
+						<a id="nav_game" href="#/game" class=" flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
+						<span class="relative z-10"></span>
+						</a>
 
+						<a id="nav_tournament" href="#/tournament" class=" flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
+						<span class="relative z-10"></span>
+						</a>
 
-  return `
-    <nav id="navigation" class="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/10 border-b border-white/20 shadow-2xl">
-      <div class="max-w-7xl mx-auto px-8">
-        <div class="flex items-center justify-between h-16">
-        
-        
-        <!-- Logo -->
-          <div class="flex items-center space-x-4">
+						<a id="nav_leaderboard" href="#/leaderboard" class="flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
+						<span class="relative z-10"></span>
+						</a>
 
-                <div class="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-lg">
-                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                  </svg>
-                </div>
+						<a id="nav_friends" href="#/friends" class="flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
+						<span class="relative z-10"></span>
+						</a>
 
-              <a href="#/" class="text-white font-bold text-xl hover:underline focus:outline-none focus:ring-2 focus:ring-white/50 rounded">
-                Transcendence
-              </a>
-              
-          </div>
+						<a id="nav_profile" href="#/profile" class="flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
+						<span class="relative z-10"></span>
+						</a>
 
-          <!-- Navigation Links -->
-          <div class="flex items-center space-x-1">
-              ${[
-                ['nav_game', '#/game', translations_nav[languageStore.language]!.game],
-                ['nav_tournament', '#/tournament', translations_nav[languageStore.language]!.tournament],
-                ['nav_leaderboard', '#/leaderboard', translations_nav[languageStore.language]!.leaderboard],
-                ['nav_friends', '#/friends', translations_nav[languageStore.language]!.friends],
-                ['nav_profile', '#/profile', translations_nav[languageStore.language]!.profile],
-                //['nav_settings','#/settings', translations_nav[languageStore.language]!.settings],
-                ]
-                  .map(
-                    ([id, href, label]) => `
-                            <a id = "${id}"href="${href}" class="group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
-                              <span class="relative z-10">${label}</span>
-                              <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            </a>
-                          `
-                  )
-                  .join('')}
-            </div>
+						<a id="nav_settings" href="#/settings" class="flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10 ">
+						<span class="relative z-10"></span>
+						</a>
+					</div>
 
-            <!-- Online Users -->
-            <div id="user_list" class="relative group text-white cursor-pointer hidden">
-                <div class="flex items-center gap-1">
-                    <div class="w-3 h-3 rounded-full bg-green-400 animate-pulse"></div>
-                        <span id="active-users-count" class="text-sm">${translations_nav[languageStore.language]!.online_users}: ${count}</span>
-                    </div>
-                    <ul id="active-users-list" class="absolute right-0 mt-2 hidden group-hover:block bg-white/90 text-black text-sm rounded-lg shadow-lg p-2 max-h-64 overflow-y-auto w-48 z-50">
-                    ${users.map(u => `<li>${u.name || u.id}</li>`).join('')}
-                     </ul>
-                  </div>
-
-                  <!-- Login Button -->
-                 <button type="button" id="login-btn" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"></button>
-            </div>
-
-      </div>
-    </nav>
-
-
-    <!-- Language Selector -->
-    <div id="language_selector" class="fixed top-3 right-10 z-[60] items-center h-16 ">
-			<label for="language-select" class="text-white font-medium"></label>
-			<select id="language-select" 
-					class="bg-gray-800 text-white px-3 py-2 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-				<option value="EN">EN</option>
-				<option value="DE">DE</option>
-				<option value="GR">ΕΛ</option>
-			</select>
-    </div>
-  `;
+					<!-- Online Users -->
+					<div id="user_list" class="group text-white cursor-pointer border items-center justify-center flex space-x-1">
+						<div class="w-3 h-3 rounded-full bg-green-400 animate-pulse">
+						</div>
+						<span id="active-users-count" class="text-sm">${count}</span>
+						<ul id="active-users-list" class="absolute hidden group-hover:block bg-white/90 text-black text-sm rounded-lg p-2 max-h-64 overflow-y-auto z-50">
+						${users.map(u => `<li>${u.name}</li>`)}
+						</ul>
+						
+					</div>
+						<!-- Login Button -->
+						<button type="button" id="login-btn" class="border bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"></button>
+						<button type="button" id="logout-btn" class="hidden border bg-gradient-to-r from-blue-600 to-purple-600 hover:from-red-700 hover:to-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"></button>
+					</nav>
+					<!--/div-->
+			
+				<!-- Language Selector -->
+				<div id="language_selector" class="flex relative border items-center justify-center flex-shrink-0">
+					<label for="language-select" class="text-white font-medium"></label>
+					<select id="language-select" class="bg-blue-900 text-white rounded-lg border border-gray-600 ">
+						<option value="EN">EN</option>
+						<option value="DE">DE</option>
+						<option value="GR">ΕΛ</option>
+					</select>
+				</div>
+				`;
+	}
+	languageStore.subscribe((lang) => {
+		console.log("language callback")
+		transelate_per_id(translations_nav, "game", lang, "nav_game");
+		transelate_per_id(translations_nav, "tournament", lang, "nav_tournament");
+		transelate_per_id(translations_nav, "leaderboard", lang, "nav_leaderboard");
+		transelate_per_id(translations_nav, "friends", lang, "nav_friends");
+		transelate_per_id(translations_nav, "profile", lang, "nav_profile");
+		transelate_per_id(translations_nav, "settings", lang, "nav_settings");
+		transelate_per_id(translations_nav, "online_users", lang, "active-users-list");
+		transelate_per_id(translations_nav, "login", lang, "login-btn");
+		transelate_per_id(translations_nav, "logout", lang, "logout-btn");
+	})
+	const menu_btn = document.getElementById('menu-btn');
+	if (menu_btn)
+	{
+		menu_btn.addEventListener('click', () => {
+		const nav = document.getElementById('navigation');
+		nav?.classList.toggle('hidden');
+});
+	}
+	
 }

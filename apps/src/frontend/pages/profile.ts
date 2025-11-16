@@ -4,7 +4,7 @@ import { renderProfilesList } from './renderProfiles.js';
 import { renderUserProfile, profile_ids, update_langauge_headers_user_profile } from './renderUserProfile.js';
 import type { Profile_details } from './renderUserProfile.js';
 import { listenerFriendAndBlock } from './ListenerProfileList.js';
-import { listenerDeletePicture, listenerLogoutBtn, listenerUploadPicture } from './listenerUploadAndDeletePicture.js';
+import { listenerDeletePicture, listenerUploadPicture } from './listenerUploadAndDeletePicture.js';
 import { listenerPasswordCancel, listenerPasswordEdit, listenerPasswordUpdate } from './listenerUpdatePasswordAndUsername.js';
 import { listenerUsernameUpdate, listenerUsernameCancel, listenerUsernameEdit } from './listenerUpdatePasswordAndUsername.js';
 import { wsManager } from '../websocket/ws-manager.js';
@@ -88,7 +88,7 @@ export async function renderProfile(root: HTMLElement) {
 			};
 
 			root.innerHTML = renderUserProfile(data, languageStore.language);
-			// initLang();
+
 
 
 			let profile_details: Profile_details =
@@ -103,22 +103,7 @@ export async function renderProfile(root: HTMLElement) {
 				trophies_id: `trophies`,
 				created_at_id: `created_at`
 			}
-			languageStore.subscribe((lang) => {
-				i++;
-				// console.log("i is:", i);
-				// console.log("languageStore is:", languageStore.clicked);
-				// if (languageStore.clicked == i)
-				// {
-				console.log("#######================the languge change==========================");
-				console.log("SubsCRIBE the render is being called");
-				setTimeout(() => update_langauge_headers_user_profile(languageStore.language), 0);
-				// renderProfile(root);
-				// }
-
-				// console.log("Dataa: ", data);
-				// initLang();
-			}
-			);
+			languageStore.subscribe((lang) => update_langauge_headers_user_profile(lang));
 			//---------------Password Related Variables------------------------------------
 			const password_old_check = document.getElementById('password-old-check') as HTMLInputElement;
 			const password_new = document.getElementById('password-new') as HTMLInputElement;
@@ -211,8 +196,6 @@ export async function renderProfile(root: HTMLElement) {
 				('submit', async (e) => listenerUploadPicture(e));
 			document.getElementById('delete-pic-btn')?.addEventListener
 				('click', async (e) => listenerDeletePicture(e));
-			document.getElementById('logout-btn')?.addEventListener
-				('click', async (e) => listenerLogoutBtn(e));
 
 			//==================Linda's code==========================
 			fetch('/api/private/match/user', {
