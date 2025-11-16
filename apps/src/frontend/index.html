@@ -6,6 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="./output.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' }
+              },
+              slideIn: {
+                '0%': { opacity: '0', transform: 'translateX(100%)' },
+                '100%': { opacity: '1', transform: 'translateX(0)' }
+              },
+              slideOut: {
+                '0%': { opacity: '1', transform: 'translateX(0)' },
+                '100%': { opacity: '0', transform: 'translateX(100%)' }
+              }
+            }
+          }
+        }
+      }
+    </script>
     <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
