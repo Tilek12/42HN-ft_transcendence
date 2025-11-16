@@ -34,6 +34,7 @@ export interface TournamentState {
 export type TournamentMessage =
   | TournamentJoinedMessage
   | TournamentLeftMessage
+  | CreateLocalTournamentMessage
   | MatchStartMessage
   | MatchEndMessage
   | TournamentEndMessage
@@ -99,6 +100,13 @@ export interface PlayerReadyMessage {
 // User quits tournament
 export interface QuitTournamentMessage {
   type: 'quitTournament';
+}
+
+// Create local tournament with participants
+export interface CreateLocalTournamentMessage {
+  type: 'createLocalTournament';
+  size: 4 | 8;
+  participants: TournamentParticipant[];
 }
 
 // Error message

@@ -27,20 +27,27 @@ class TournamentManager {
 		host: Participant,
 		size: TournamentSize,
 		localCtrlSocket?: WebSocket,
-		extraNames: string[] = []
+		extraNames: string[] = [],
+		participants?: Participant[]
 	) {
 		const id = `t-${this.nextTid++}`;
-		const participants: Participant[] = [];
+		let tournamentParticipants: Participant[] = [];
 		if (mode === 'online') {
-			participants.push(host);
+			tournamentParticipants.push(host);
 		} else if (mode === 'local') {
-			for (const name of extraNames) {
-				participants.push({
-					id: `local-${this.nextUid++}`,
-					name
-				});
+			if (participants && participants.length > 0) {
+				// Use provided participants array for local tournaments
+				tournamentParticipants = participants;
+			} else {
+				// Fallback to old extraNames method for backward compatibility
+				for (const name of extraNames) {
+					tournamentParticipants.push({
+						id: `local-${this.nextUid++}`,
+						name
+					});
+				}
+				this.nextUid = 2; // reset for next local tournament
 			}
-			this.nextUid = 2; // reset for next local tournament
 		}
 
 		const tournament: TournamentState = {
@@ -49,7 +56,7 @@ class TournamentManager {
 			size,
 			hostId: host.id,
 			status: 'waiting',
-			participants,
+			participants: tournamentParticipants,
 			rounds: [],
 			createdAt: Date.now()
 		};
