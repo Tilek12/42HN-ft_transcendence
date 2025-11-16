@@ -1,0 +1,129 @@
+=========================================================
+		Tournament Implementation Issues Report
+=========================================================
+
+---------------------------------------------------------
+1. WebSocket Message Schema Inconsistencies
+---------------------------------------------------------
+
+Problem: Local and online tournaments use different message structures,
+causing confusion and potential failures.
+
+Evidence:
+
+Local tournaments send: { p1: {id, name}, p2: {id, name} }
+Online tournaments send: { player1: id, player2: id }
+Impact: Frontend can't reliably parse messages from both modes.
+
+Fix: Define strict TypeScript interfaces for all message types and standardize schemas.
+
+---------------------------------------------------------
+2. Player Readiness Signaling Issues
+---------------------------------------------------------
+
+Problem: The complex polling-based readiness system in tournament-manager.ts is unreliable.
+
+Evidence: waitForAllPlayersReady() and waitForPlayerSockets() use 100ms polling with timeouts
+that may miss signals or timeout prematurely.
+
+Impact: Tournament matches may fail to start or start with missing players.
+
+Fix: Replace polling with promise-based event signaling.
+
+---------------------------------------------------------
+3. Tournament State Broadcasting Problems
+---------------------------------------------------------
+
+Problem: Tournament updates aren't consistently sent to all relevant clients.
+
+Evidence: broadcastTournamentUpdate() only sends to participants, ignoring spectators and
+potential race conditions.
+
+Impact: UI may not update properly for all users.
+
+Fix: Ensure all connected tournament clients receive state updates.
+
+---------------------------------------------------------
+4. Local Tournament Control Socket Issues
+---------------------------------------------------------
+
+Problem: Local tournaments use a single control socket but message handling is inconsistent.
+
+Evidence: Frontend sends different message structures for local vs online, but backend expects
+unified handling.
+
+Impact: Local tournament controls may not work properly.
+
+Fix: Unify message handling logic for both modes.
+
+---------------------------------------------------------
+5. Database Relationship Issues
+---------------------------------------------------------
+
+Problem: Tournament matches aren't properly linked to tournaments in the database.
+
+Evidence: linkMatchToTournament() exists but is commented out in matchmaking.ts.
+
+Impact: Tournament history and statistics are incomplete.
+
+Fix: Properly link matches to tournaments and ensure data consistency.
+
+---------------------------------------------------------
+6. Frontend State Management Complexity
+---------------------------------------------------------
+
+Problem: Multiple global variables in tournament.ts lead to inconsistent state.
+
+Evidence: Variables like currentTournamentId, isLocalTournament, currentMatch can become desynchronized.
+
+Impact: UI bugs and race conditions.
+
+Fix: Implement proper state management (e.g., using a store pattern).
+
+---------------------------------------------------------
+7. Error Handling and Recovery Deficiencies
+---------------------------------------------------------
+
+Problem: Poor error handling when WebSocket connections fail.
+
+Evidence: Many handlers lack recovery logic, leaving tournaments in broken states.
+
+Impact: System becomes unstable after network issues.
+
+Fix: Add comprehensive error handling and automatic recovery.
+
+---------------------------------------------------------
+8. Resource Cleanup Issues
+---------------------------------------------------------
+
+Problem: Tournament resources aren't properly cleaned up.
+
+Evidence: quitTournament() removes participants but doesn't handle ongoing games or sockets properly.
+
+Impact: Memory leaks and zombie connections.
+
+Fix: Implement proper cleanup in all exit paths.
+
+---------------------------------------------------------
+9. Concurrency and Race Conditions
+---------------------------------------------------------
+
+Problem: No synchronization for concurrent tournament state updates.
+
+Evidence: Multiple operations can modify tournament state simultaneously without locks.
+
+Impact: Data corruption and inconsistent behavior.
+
+Fix: Add proper synchronization mechanisms.
+
+---------------------------------------------------------
+10. Message Type Safety Issues
+---------------------------------------------------------
+
+Problem: Loose typing allows invalid messages to pass through.
+
+Evidence: Many message handlers use any types and don't validate structure.
+
+Impact: Runtime errors from malformed messages.
+
+Fix: Define strict interfaces and validate all messages.
