@@ -86,15 +86,8 @@ export function renderNav() {
 		nav.innerHTML =
 			/*html*/
 			`
-			<!-- HAMBURGER button for mobile just in -->
-				<button id="menu-btn"
-					class="md:hidden flex flex-col gap-1.5 p-3 rounded-lg bg-white/10 hover:bg-white/20 transition">
-					<span class="w-6 h-0.5 bg-white"></span>
-					<span class="w-6 h-0.5 bg-white"></span>
-					<span class="w-6 h-0.5 bg-white"></span>
-				</button>
 			<!-- Logo -->
-				<div class="flex border items-center left-0">
+				<div class="flex items-center ml-5 space-x-1">
 						<div class="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-lg">
 							<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
@@ -102,11 +95,11 @@ export function renderNav() {
 						</div>
 							<a href="#/" class="text-white font-bold text-xl hover:underline rounded">Transcendence</a>
 					</div>
-			<!--div class="flex items-center justify-between h-16 border-2 border-red-500 border-dashed"-->	
-				<nav id="navigation" class=" flex flex-wrap justify-center gap-4 gap-2 border-2 border-white/20 shadow-xl p-2 absolute md:static top-16 left-0 w-full md:w-auto z-50 border-t">
+			<!--div class="flex items-center justify-between h-16 2 red-500 dashed"-->	
+				<nav id="navigation" class="flex flex-wrap justify-center gap-4 white/20 p-2 z-50 ">
 
 					<!-- Navigation Links -->
-					<div class="flex flex-wrap gap-2 border">
+					<div class="flex flex-wrap gap-2 >
 						<a id="nav_game" href="#/game" class=" flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
 						<span class="relative z-10"></span>
 						</a>
@@ -133,25 +126,24 @@ export function renderNav() {
 					</div>
 
 					<!-- Online Users -->
-					<div id="user_list" class="group text-white cursor-pointer border items-center justify-center flex space-x-1">
+					<div id="user_list" class="group relative text-white cursor-pointer items-center justify-center flex space-x-1">
 						<div class="w-3 h-3 rounded-full bg-green-400 animate-pulse">
 						</div>
 						<span id="active-users-count" class="text-sm">${count}</span>
-						<ul id="active-users-list" class="absolute hidden group-hover:block bg-white/90 text-black text-sm rounded-lg p-2 max-h-64 overflow-y-auto z-50">
+						<ul id="active-users-list" class="absolute top-full mt-1 hidden group-hover:block bg-white/90 text-black text-sm rounded-lg p-2 max-h-64 overflow-y-auto z-50">
 						${users.map(u => `<li>${u.name}</li>`)}
 						</ul>
-						
 					</div>
 						<!-- Login Button -->
-						<button type="button" id="login-btn" class="border bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"></button>
-						<button type="button" id="logout-btn" class="hidden border bg-gradient-to-r from-blue-600 to-purple-600 hover:from-red-700 hover:to-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"></button>
+						<button type="button" id="login-btn" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"></button>
+						<button type="button" id="logout-btn" class="hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-red-700 hover:to-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"></button>
 					</nav>
 					<!--/div-->
 			
 				<!-- Language Selector -->
-				<div id="language_selector" class="flex relative border items-center justify-center flex-shrink-0">
+				<div id="language_selector" class="flex relative mr-5 items-center justify-center">
 					<label for="language-select" class="text-white font-medium"></label>
-					<select id="language-select" class="bg-blue-900 text-white rounded-lg border border-gray-600 ">
+					<select id="language-select" class="bg-gray-800 text-white rounded ">
 						<option value="EN">EN</option>
 						<option value="DE">DE</option>
 						<option value="GR">ΕΛ</option>
