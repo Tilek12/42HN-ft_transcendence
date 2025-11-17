@@ -99,7 +99,7 @@ export function renderNav() {
 				<nav id="navigation" class="flex flex-wrap justify-center gap-4 white/20 p-2 z-50 ">
 
 					<!-- Navigation Links -->
-					<div class="flex flex-wrap gap-2 >
+					<div class="flex flex-wrap gap-2" >
 						<a id="nav_game" href="#/game" class=" flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
 						<span class="relative z-10"></span>
 						</a>
@@ -141,9 +141,8 @@ export function renderNav() {
 					<!--/div-->
 			
 				<!-- Language Selector -->
-				<div id="language_selector" class="flex relative mr-5 items-center justify-center">
-					<label for="language-select" class="text-white font-medium"></label>
-					<select id="language-select" class="bg-gray-800 text-white rounded ">
+				<div id="language_selector" class="flex mr-5 items-center justify-center ">
+					<select id="language-select" class="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-2 text-white rounded ">
 						<option value="EN">EN</option>
 						<option value="DE">DE</option>
 						<option value="GR">ΕΛ</option>

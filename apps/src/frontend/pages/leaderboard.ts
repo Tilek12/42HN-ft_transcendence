@@ -1,5 +1,5 @@
 
-import { renderBackgroundFull, renderBackgroundTop } from '../utils/layout.js'
+import { renderBackgroundFull } from '../utils/layout.js'
 import {languageStore, translations_leaderboards, transelate_per_id} from './languages.js';
 
 

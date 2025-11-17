@@ -1,4 +1,4 @@
-import { renderBackgroundTop } from '../utils/layout.js';
+import { renderBackgroundFull } from '../utils/layout.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import type { Language } from '../types.js';
 import { languageStore, translations_profile, transelate_per_id } from './languages.js'
@@ -99,15 +99,17 @@ export function renderUserProfile(data: any, lang = 'EN')
 	// - All sections use glass-morphism (bg-white/10 + backdrop-blur-md)
 	// - Increased all sizes: profile pic (224px), fonts (text-base to text-4xl), padding (p-8)
 	// - Added hover animations (scale-105) and enhanced shadows
-	let res : string = renderBackgroundTop(`
-        <div class="min-h-screen pt-24 pb-8 px-6">
-			<div class="max-w-[95%] mx-auto h-full">
+	let res : string = renderBackgroundFull(
+		/*html*/
+		`
+		<div class="min-h-screen">
+			<div class="max-w m-8">
 				<!-- DESIGN: 3-column responsive grid using Tailwind's 12-column system -->
-				<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+				<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 ">
 					
 					<!-- ========== LEFT COLUMN: Profile Picture + Stats + Logout ========== -->
 					<!-- DESIGN: Takes 3/12 columns (25% width) -->
-					<div class="lg:col-span-3">
+					<div class="lg:col-span-3 ">
 						<!-- DESIGN: Glass-morphism card with hover shadow effect -->
 						<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
 							
@@ -149,9 +151,7 @@ export function renderUserProfile(data: any, lang = 'EN')
 
 							<!-- Logout Button Section -->
 							<!-- DESIGN: Gradient button (red) with hover scale effect -->
-							<button id="logout-btn" class="w-full px-6 py-4 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl text-lg font-bold transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-2xl">
-								<span id="logout_header"></span>
-							</button>
+							
 						</div>
 					</div>
 

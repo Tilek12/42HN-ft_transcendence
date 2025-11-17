@@ -1,4 +1,4 @@
-import { renderBackgroundFull, renderBackgroundTop } from '../utils/layout.js';
+import { renderBackgroundFull } from '../utils/layout.js';
 import { getToken } from '../utils/auth.js'
 import { renderFriendsList } from './renderFriends.js';
 import { renderFriendRequestsList } from './renderFriendRequestList.js';
