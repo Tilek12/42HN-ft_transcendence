@@ -1,4 +1,4 @@
-import { renderBackgroundTop } from '../utils/layout.js';
+import { renderBackgroundFull, renderBackgroundTop } from '../utils/layout.js';
 import { getToken } from '../utils/auth.js'
 import { renderFriendsList } from './renderFriends.js';
 import { renderFriendRequestsList } from './renderFriendRequestList.js';
@@ -10,7 +10,7 @@ export async function renderFriends(root: HTMLElement) {
 
 //   <button id="more-friends-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
 //   <button id="more-friend-requests-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
-	  root.innerHTML = renderBackgroundTop(`
+	  root.innerHTML = renderBackgroundFull(`
 		<div class="pt-24 max-w-xl mx-auto text-black p-6">
 		  <div id="friends-list"></div>
 		  <div id="friend-requests-list"></div>

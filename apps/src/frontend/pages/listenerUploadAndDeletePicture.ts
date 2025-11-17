@@ -93,20 +93,3 @@ export const listenerDeletePicture = async (e : any) =>
 		alert(data.message || 'Failed to delete profile picture')
 }
 
-export const listenerLogoutBtn = async (e : any) =>
-{
-	e.preventDefault();
-	{
-		const token = getToken();
-			const resp = await fetch('/api/private/logout',
-				{
-					method: 'POST',
-					headers: {'Authorization': `Bearer ${token}`},
-				});
-			console.log(resp);
-			wsManager.disconnectAllSockets();
-			wsManager.clearPresenceData();
-			clearToken();
-			location.hash = '#/login';
-	}
-}
