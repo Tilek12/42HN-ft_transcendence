@@ -9,6 +9,9 @@ export function transelate_per_id(tr_array: TranslationSet, tr_key_string: strin
 		if (placeholder && tr_key_string.includes("placeholder"))
 		{
 			headerEl.placeholder = placeholder;
+		}
+		if (placeholder)
+		{
 			headerEl.innerHTML = placeholder;
 		}
 	}
