@@ -19,10 +19,10 @@
 | **online gameplay**	| playable game like original Pong game |❌|❌| click play online button-> very often when the paddle hits the ball, the game reacts if I did not hit the ball and the ball starts from the middle of the game 
 |	| Controls explained below game |✅|✅| appearing: "Online mode: Use W/S for left paddle, ↑/↓ for right paddle"
 |	| when game over, there is a end-game screen |❌|❌| always showing "🏁 Game over! ❌ Unknown wins!" even though linda1 won
-| **lags (=Verzögerungen) and disconnects**	| no crash when user is experiencing lags or is disconnected
-|	| pause the game|||paused only stops game object updates (ball, paddles), not network or input handling. do not use sleep(), do not only freeze the program.
-|	| Disconnected users can reconnect.|||
-|	| Lagging users can catch up to the match. |||
+| **lags (=Verzögerungen) and disconnects**	|  pause the game|❌|❌|paused only stops game object updates (ball, paddles), not network or input handling. do not use sleep(), do not only freeze the program.
+|	| Disconnected users can reconnect to a game.|❌|❌|
+|	| after a lag, the player must instantly see the current match state — not old delayed state — and be fully synced with the server.|✅|✅| simulate a lag: right click Inspect -> Network -> No throttling -> Regular 3G (Firefox), Slow 4G (Chrome) -> Play the game for ~10 seconds -> switch back to No throttling. the paddles do not move anymore after lag
+|	| no crash when user is experiencing lags or is disconnected|||
 
 
 
