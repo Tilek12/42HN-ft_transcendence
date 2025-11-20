@@ -11,7 +11,8 @@ import { validateLogin } from './utils/auth.js';
 import { changeLoginButton } from './pages/nav.js';
 import { wsManager } from './websocket/ws-manager.js';
 import { renderQrcode } from './pages/2fa.js';
-import { renderSettings } from './pages/settings.js'
+import { renderSettings } from './pages/settings.js';
+import { initGlobalLanguageSelector } from './utils/globalLanguageSelector.js';
 
 const protectedRoutes = ['#/profile', '#/friends', '#/game', '#/settings', '#/tournament','settings'];
 export async function router() 
@@ -19,10 +20,18 @@ export async function router()
 	const root = document.getElementById('app')!;
 	let route = location.hash || '#/';
 	const navigation = document.getElementById('navigation');
+	const navbar = document.getElementById('navbar');
 	const isLoggedIn = await validateLogin();
 
-	if (navigation && navigation.classList.contains("hidden"))
-		navigation.classList.remove("hidden")
+	// Show/hide navbar and navigation based on route
+	if (route === '#/login' || route === '#/register') {
+		if (navbar) navbar.classList.add("hidden");
+		if (navigation) navigation.classList.add("hidden");
+	} else {
+		if (navbar) navbar.classList.remove("hidden");
+		if (navigation) navigation.classList.remove("hidden");
+	}
+	
 	changeLoginButton(!isLoggedIn)
 
 	console.log("router to:", route, " isLoggedIn: ", isLoggedIn?"true":"false");
@@ -34,13 +43,27 @@ export async function router()
 		{
 			console.log("first switch");
 			switch (route) {
-				case '#/tournament': return renderTournament(root);
-				case '#/game': return renderGame(root);
-				case '#/profile': return renderProfile(root);
-				case '#/friends': return renderFriends(root);
-				case '#/leaderboard': return renderLeaderboard(root);
-				case '#/settings': return renderSettings(root);
+				case '#/tournament': 
+					renderTournament(root);
+					break;
+				case '#/game': 
+					renderGame(root);
+					break;
+				case '#/profile': 
+					renderProfile(root);
+					break;
+				case '#/friends': 
+					renderFriends(root);
+					break;
+				case '#/leaderboard': 
+					renderLeaderboard(root);
+					break;
+				case '#/settings': 
+					renderSettings(root);
+					break;
 			}
+			// Initialize global language selector after rendering
+			initGlobalLanguageSelector();
 		}
 		else
 			location.hash = '/login';
@@ -50,12 +73,22 @@ export async function router()
 		console.log("second switch");
 		switch(route)
 		{
-			case '#/login': return renderLogin(root);
-			case '#/register': return renderRegister(root);
+			case '#/login': 
+				renderLogin(root);
+				break;
+			case '#/register': 
+				renderRegister(root);
+				break;
 			case '#/':
-			case '': return renderMainPage(root);
-			default: return renderNotFound(root);
+			case '': 
+				renderMainPage(root);
+				break;
+			default: 
+				renderNotFound(root);
+				break;
 		}
+		// Initialize global language selector after rendering
+		initGlobalLanguageSelector();
 	}
 
 
