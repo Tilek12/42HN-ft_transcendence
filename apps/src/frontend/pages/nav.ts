@@ -74,6 +74,10 @@ export function renderNav() {
 	const users = wsManager.presenceUserList;
   const count = wsManager.onlineUserCount;
 
+	// DESIGN change: Removed language selector from navbar header to implement global floating language toggle
+	// The language selector was relocated to a floating button (bottom-right corner) available on all pages
+	// for consistent UX. This declutters the navigation header and provides language switching everywhere.
+
 	// Subscribe ONCE to presence updates and re-render
 	if (!presenceUnsub) {
 		presenceUnsub = wsManager.subscribeToPresence(() => {

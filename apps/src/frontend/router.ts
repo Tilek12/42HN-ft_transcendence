@@ -12,6 +12,7 @@ import { changeLoginButton } from './pages/nav.js';
 import { wsManager } from './websocket/ws-manager.js';
 import { renderQrcode } from './pages/2fa.js';
 import { renderSettings } from './pages/settings.js';
+// DESIGN change: Import global language selector initializer to enable floating language toggle on all pages
 import { initGlobalLanguageSelector } from './utils/globalLanguageSelector.js';
 
 const protectedRoutes = ['#/profile', '#/friends', '#/game', '#/settings', '#/tournament','settings'];
@@ -23,6 +24,7 @@ export async function router()
 	const navbar = document.getElementById('navbar');
 	const isLoggedIn = await validateLogin();
 
+	// DESIGN change: Hide navbar and navigation on login/register pages to provide clean authentication UI without header distractions
 	// Show/hide navbar and navigation based on route
 	if (route === '#/login' || route === '#/register') {
 		if (navbar) navbar.classList.add("hidden");
@@ -62,7 +64,8 @@ export async function router()
 					renderSettings(root);
 					break;
 			}
-			// Initialize global language selector after rendering
+			// DESIGN change: Initialize global language selector after each page render to ensure floating toggle works
+			// across all protected routes. The selector needs re-initialization after DOM updates to attach event listeners properly.
 			initGlobalLanguageSelector();
 		}
 		else
@@ -87,7 +90,8 @@ export async function router()
 				renderNotFound(root);
 				break;
 		}
-		// Initialize global language selector after rendering
+		// DESIGN change: Initialize global language selector for public routes (login, register, main page)
+		// ensuring consistent language toggle availability throughout the entire application
 		initGlobalLanguageSelector();
 	}
 

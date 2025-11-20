@@ -6,6 +6,10 @@ import { languageStore, translations_login_page, transelate_per_id, translations
 import type { Language } from '../types.js';
 
 
+// DESIGN change: Unified login/register page with tab switching instead of separate pages
+// - Removed floating language selector (now global in layout.ts)
+// - Added tab switcher for smooth form transitions
+// - Implemented card resize animations when switching forms
 export function renderLogin(root: HTMLElement) {
 	const t = translations_login_page[languageStore.language];
 	const error_trans = translations_errors[languageStore.language];
@@ -18,12 +22,16 @@ export function renderLogin(root: HTMLElement) {
         <div class="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-3xl blur-2xl opacity-20"></div>
         
         <!-- Main card -->
+        <!-- DESIGN change: Added transition-all duration-500 for smooth card resizing when switching between login/register -->
         <div id="main-card" class="relative bg-gray-900/40 backdrop-blur-2xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl transition-all duration-500 ease-in-out">
           <!-- Animated gradient border -->
           <div class="absolute inset-0 bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-blue-500/20 opacity-50"></div>
           
+          <!-- DESIGN change: Card content wrapper with transition for smooth height changes -->
           <div class="relative p-10 transition-all duration-500 ease-in-out" id="card-content">
             <!-- Tab Switcher -->
+            <!-- DESIGN change: Added modern tab interface for login/register switching -->
+            <!-- Active tab has gradient background, inactive tab is gray with hover effect -->
             <div class="flex gap-2 mb-8 p-1 bg-white/5 rounded-2xl backdrop-blur-sm">
               <button 
                 id="tab-login" 
@@ -40,9 +48,11 @@ export function renderLogin(root: HTMLElement) {
             </div>
 
             <!-- Logo/Icon -->
+            <!-- DESIGN change: Icon container with rotation/scale animation during tab switches -->
             <div class="flex justify-center mb-8">
               <div class="relative">
                 <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur-xl opacity-50"></div>
+                <!-- DESIGN change: transition-all duration-500 for smooth icon rotation and scaling -->
                 <div id="form-icon" class="relative bg-gradient-to-r from-purple-500 to-blue-500 p-4 rounded-2xl transition-all duration-500">
                   <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -52,6 +62,7 @@ export function renderLogin(root: HTMLElement) {
             </div>
 
             <!-- Title -->
+            <!-- DESIGN change: Title container with fade transition during tab switches -->
             <div class="text-center mb-10 transition-all duration-500" id="form-title-container">
               <h1 id="login_header" class="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent mb-3">
                 ${t.login_header}
@@ -239,7 +250,11 @@ export function renderLogin(root: HTMLElement) {
 	if (navigation)
 		navigation.classList.add("hidden");
 
-	// Tab switching functionality
+	// DESIGN change: Tab switching logic with smooth animations
+	// - Forms fade out with horizontal slide (±20px)
+	// - Icon rotates and scales during transition
+	// - Title fades out and updates
+	// - Forms fade back in with coordinated timing (300ms)
 	const tabLogin = document.getElementById('tab-login') as HTMLButtonElement;
 	const tabRegister = document.getElementById('tab-register') as HTMLButtonElement;
 	const loginFormContainer = document.getElementById('login-form-container') as HTMLDivElement;
@@ -252,13 +267,13 @@ export function renderLogin(root: HTMLElement) {
 	const cardContent = document.getElementById('card-content') as HTMLDivElement;
 
 	const switchToLogin = () => {
-		// Update tab styles
+		// DESIGN change: Update tab button styles - active tab gets gradient background
 		tabLogin.classList.add('bg-gradient-to-r', 'from-purple-600', 'to-blue-600', 'text-white');
 		tabLogin.classList.remove('text-gray-400');
 		tabRegister.classList.remove('bg-gradient-to-r', 'from-purple-600', 'to-blue-600', 'text-white');
 		tabRegister.classList.add('text-gray-400');
 
-		// Fade out and shrink
+		// DESIGN change: Fade out register form with slide-right and icon rotation
 		registerFormContainer.style.opacity = '0';
 		registerFormContainer.style.transform = 'translateX(20px)';
 		formTitleContainer.style.opacity = '0';
@@ -268,19 +283,20 @@ export function renderLogin(root: HTMLElement) {
 			registerFormContainer.classList.add('hidden');
 			loginFormContainer.classList.remove('hidden');
 			
-			// Update icon with rotation
+			// DESIGN change: Switch icon to lock symbol for login
 			formIcon.innerHTML = `
 				<svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
 				</svg>
 			`;
 
-			// Update title
+			// DESIGN change: Update title text for login context
 			const t = translations_login_page[languageStore.language];
 			loginHeader.textContent = t.login_header || "Welcome Back";
 			loginSubtitle.textContent = t.login_subtitle || "Sign in to continue";
 			
-			// Fade in and scale back
+			// DESIGN change: Fade in login form with coordinated animations
+			// Icon scales back to normal and rotates to 0deg, form slides in from left
 			setTimeout(() => {
 				formIcon.style.transform = 'scale(1) rotate(0deg)';
 				formTitleContainer.style.opacity = '1';
@@ -328,7 +344,10 @@ export function renderLogin(root: HTMLElement) {
 		}, 300);
 	};
 
-	// Set initial styles and transitions
+	// DESIGN change: Set CSS transition properties for all animated elements
+	// - Forms: 300ms opacity and transform transitions
+	// - Icon: 500ms transform for rotation and scaling
+	// - Title: 300ms opacity fade
 	loginFormContainer.style.transition = 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out';
 	registerFormContainer.style.transition = 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out';
 	formIcon.style.transition = 'transform 0.5s ease-in-out';

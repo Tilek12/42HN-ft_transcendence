@@ -6,8 +6,13 @@ import type { Language } from '../types.js';
 
 
 export function renderRegister(root: HTMLElement) {
+  // DESIGN change: Note - This standalone register page now has a duplicate language selector.
+  // The preferred UX is the tab-based login/register in login.ts with the global floating language toggle.
+  // This page remains as fallback if accessed directly via #/register route.
+  
   const t = translations_register_page[languageStore.language];
   root.innerHTML = renderBackgroundFull(`
+    <!-- DESIGN change: Local language selector (redundant with global floating toggle, but kept for standalone access) -->
     <!-- Floating Language Selector -->
     <div class="fixed bottom-8 right-8 z-50">
       <div class="relative">

@@ -1,8 +1,14 @@
+// DESIGN change: Created global language selector initialization utility
+// - Handles event listeners for the floating language button on all pages
+// - Uses 100ms timeout to ensure DOM is ready after page render
+// - Clones button element to prevent duplicate event listeners
+// - Automatically syncs with languageStore for language changes
+// - Works with layout.ts global selector HTML
 import { languageStore } from '../pages/languages.js';
 import type { Language } from '../types.js';
 
 export function initGlobalLanguageSelector() {
-	// Use setTimeout to ensure DOM is ready
+	// DESIGN change: 100ms delay ensures DOM elements are ready after page render
 	setTimeout(() => {
 		const langToggle = document.getElementById('global-lang-toggle');
 		const langDropdown = document.getElementById('global-lang-dropdown');
@@ -20,7 +26,8 @@ export function initGlobalLanguageSelector() {
 		// Set initial language
 		currentLangSpan.textContent = languageStore.language;
 
-		// Remove any existing event listeners by cloning
+		// DESIGN change: Clone button to remove any previous event listeners
+		// This prevents duplicate listeners when navigating between pages
 		const newLangToggle = langToggle.cloneNode(true) as HTMLElement;
 		langToggle.parentNode?.replaceChild(newLangToggle, langToggle);
 
@@ -31,12 +38,14 @@ export function initGlobalLanguageSelector() {
 			if (dropdown) {
 				const isHidden = dropdown.classList.contains('hidden');
 				dropdown.classList.toggle('hidden');
+				// DESIGN change: Rotate arrow 180deg when dropdown opens
 				if (arrow) {
 					arrow.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
 				}
 			}
 		});
 
+		// DESIGN change: Close dropdown when clicking anywhere outside
 		document.addEventListener('click', () => {
 			const dropdown = document.getElementById('global-lang-dropdown');
 			const arrow = document.getElementById('global-lang-arrow');
@@ -48,7 +57,7 @@ export function initGlobalLanguageSelector() {
 			}
 		});
 
-		// Re-query langOptions after potential DOM updates
+		// DESIGN change: Re-query options to ensure we get the latest DOM state
 		const updatedLangOptions = document.querySelectorAll('.global-lang-option');
 		updatedLangOptions.forEach(option => {
 			option.addEventListener('click', (e) => {
@@ -72,7 +81,7 @@ export function initGlobalLanguageSelector() {
 			});
 		});
 
-		// Subscribe to language changes
+		// DESIGN change: Subscribe to language store changes to keep UI in sync
 		languageStore.subscribe((lang) => {
 			const currentLang = document.getElementById('global-current-lang');
 			if (currentLang) {
