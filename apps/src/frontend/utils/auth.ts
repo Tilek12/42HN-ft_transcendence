@@ -1,16 +1,18 @@
 import {payload} from '../types.js'
 
+let jwtToken: string | undefined;
+let Payload: payload | undefined;
+
 export function saveToken(token: string) {
-	sessionStorage.setItem('jwt', token);
+	jwtToken = token;
 }
 
-export function getToken(): string | null {
-	return sessionStorage.getItem('jwt');
+export function getToken(): string | undefined {
+	return jwtToken;
 }
 
 export function clearToken() {
-	sessionStorage.removeItem('jwt');
-	// disconnectPresenceSocket();
+	jwtToken = undefined;
 }
 
 export function enabled_2fa():boolean {
@@ -22,29 +24,32 @@ export function enabled_2fa():boolean {
 	return false;
 }
 
-export function getJWTPayload(): payload | null {
+export function getJWTPayload(): payload | undefined {
 
-	const token = getToken();
-	if (token){
-		const arr = token.split('.');
-		if (arr[1])
-			return JSON.parse(atob(arr[1])) as payload;
+	if (jwtToken){
+		if (!Payload)
+		{
+
+			const arr = jwtToken.split('.');
+			if (arr[1])
+				Payload =  JSON.parse(atob(arr[1]));
+		}
+		return Payload;
 	}
-	return null;
+	return undefined;
 }
 
 
 export async function validateLogin(): Promise<boolean> {
-	const token = getToken();
-	if (!token) return false;
+
+	if (!jwtToken) return false;
 	try {
 	  const res = await fetch('/api/private/me', {
-		headers: { Authorization: `Bearer ${token}` },
+		headers: { Authorization: `Bearer ${jwtToken}` },
 	  });
 	  if (!res.ok) throw new Error();
 	  return true;
 	} catch (e:any){
-	  	clearToken();
 	  return false;
 	}
 }

@@ -19,6 +19,8 @@ services:
       - ssl_cert
       - ssl_key
       - jwt_secret
+      - cookie_secret
+      - admin_password
 
 secrets:
       ssl_cert:
@@ -27,6 +29,11 @@ secrets:
         file: ./cert/key.pem
       jwt_secret:
         file: ./cert/jwt_secret.txt
+      cookie_secret:
+        file: ./cert/cookie_secret.txt
+      admin_password:
+        file: ./cert/admin_password.txt
+
 
 networks:
   pong-network:

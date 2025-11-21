@@ -76,7 +76,7 @@ const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) => 
 export async function renderProfile(root: HTMLElement) {
 	fetch('/api/private/profile', {
 		method: 'POST',
-		headers: { 'Authorization': `Bearer ${getToken()}` }
+		headers: {	'Authorization'	: `Bearer ${getToken()}`}
 	})
 		.then(res => res.json())
 		.then(data => {

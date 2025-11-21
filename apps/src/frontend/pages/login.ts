@@ -1,94 +1,94 @@
 import { renderNav, changeLoginButton } from './nav.js'
 import { renderBackgroundFull } from '../utils/layout.js';
-import { saveToken, enabled_2fa, clearToken } from '../utils/auth.js';
+import { saveToken, enabled_2fa } from '../utils/auth.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore, translations_login_page, transelate_per_id, translations_errors } from './languages.js';
-
 
 export function renderLogin(root: HTMLElement) {
 	const t = translations_login_page[languageStore.language];
 	const error_trans = translations_errors[languageStore.language];
-	root.innerHTML = renderBackgroundFull(`
-    <div class="w-full max-w-md">
-      <div class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">
-        <div class="text-center mb-8">
-          <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mb-4 shadow-lg">
+	root.innerHTML = renderBackgroundFull(
+	/*html*/
+	`<div class="w-full max-w-md">
+			<div class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">
+		<div class="text-center mb-8">
+			<div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mb-4 shadow-lg">
 					<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 							d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
 					</svg>
-          </div>
-          <h1 id="login_header" class="text-3xl font-bold text-white mb-2">${t.login_header}</h1>
-          <p id="login_subtitle" class="text-gray-300 text-sm">${t.login_subtitle}</p>
-        </div>
+			</div>
+			<h1 id="login_header" class="text-3xl font-bold text-white mb-2">${t.login_header}</h1>
+			<p id="login_subtitle" class="text-gray-300 text-sm">${t.login_subtitle}</p>
+		</div>
 
-  
-        <div class="relative my-6">
-          <div class="absolute inset-0 flex items-center">
-					<div class="w-full border-t border-white/20"></div>
-          </div>
-          <div class="relative flex justify-center text-sm">
-					<span id="or_continue" class="px-4 bg-transparent text-gray-300"></span>
-          </div>
-        </div>
+	
+		<div class="relative my-6">
+			<div class="absolute inset-0 flex items-center">
+				<div class="w-full border-t border-white/20"></div>
+			</div>
+			<div class="relative flex justify-center text-sm">
+				<span id="or_continue" class="px-4 bg-transparent text-gray-300"></span>
+			</div>
+		</div>
 
-        <form id="login-form" class="space-y-6">
-          <div class="space-y-1">
+		<form id="login-form" class="space-y-6">
+			<div class="space-y-1">
 					<label id="username_label" for="username" class="block text-sm font-medium text-gray-200">${t.username_label}</label>
 					<div class="relative">
-					  <input type="text" id="username" placeholder="${t.username_placeholder}"
+						<input type="text" id="username" placeholder="${t.username_placeholder}"
 							class="w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-300 hover:bg-white/15"
 							required />
 					</div>
-          </div>
+			</div>
 
-          <div class="space-y-1">
+			<div class="space-y-1">
 					<label id="password_label" for="password" class="block text-sm font-medium text-gray-200">${t.password_label}</label>
 					<div class="relative">
-					  <input type="password" id="password" placeholder="${t.password_placeholder}"
+						<input type="password" id="password" placeholder="${t.password_placeholder}"
 							class="w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-300 hover:bg-white/15"
 							required />
 					</div>
-          </div>
+			</div>
 
-          <button type="submit"
+			<button type="submit"
 					class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-lg">
 					<span class="flex items-center justify-center space-x-2">
-					  <span id="sign_in_btn">${t.sign_in_btn}</span>
-					  <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor"
+						<span id="sign_in_btn">${t.sign_in_btn}</span>
+						<svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor"
 							viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-					  </svg>
+						</svg>
 					</span>
-          </button>
-        </form>
-        <form id="tfa_container"  class=" hidden flex flex-col items-center justify-center">
-          <label id="tfa_label" class="text-center text-gray-300 space-x-2 ">Please enter your TOTP code from your atuhenticator</label>
-          <input id="2fa_token" type="numeric" placeholder="${t!.tfa_placeholder}" pattern="[0-9]{6}" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class=" m-2 bg-white/10 w-40 h-10 m-1 text-center rounded placeholder-gray-400 ocus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent backdrop-blur-sm">
-          <button id="token_submit" type="submit" class="w-full mt-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-lg">Submit</button>
-        </form>
-          <div id="login-error" class="hidden">
+			</button>
+		</form>
+		<form id="tfa_container"	class=" hidden flex flex-col items-center justify-center">
+			<label id="tfa_label" class="text-center text-gray-300 space-x-2 ">Please enter your TOTP code from your atuhenticator</label>
+			<input id="2fa_token" type="numeric" placeholder="${t!.tfa_placeholder}" pattern="[0-9]{6}" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class=" m-2 bg-white/10 w-40 h-10 m-1 text-center rounded placeholder-gray-400 ocus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent backdrop-blur-sm">
+			<button id="token_submit" type="submit" class="w-full mt-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-lg">Submit</button>
+		</form>
+			<div id="login-error" class="hidden">
 					<div
-					  class="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl text-sm backdrop-blur-sm">
-					  <div class="flex items-center space-x-2">
+						class="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl text-sm backdrop-blur-sm">
+						<div class="flex items-center space-x-2">
 							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-							    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+									d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
 							</svg>
 							<span id="error_text">${t.error_message}</span>
-					  </div>
+						</div>
 					</div>
-          </div>
-        <div class="text-center mt-8 pt-6 border-t border-white/10">
-          <p id="dont_have_account" class="text-gray-300 text-sm mb-2">${t.dont_have_account}</p>
-          <a href="#/register"
+			</div>
+		<div class="text-center mt-8 pt-6 border-t border-white/10">
+			<p id="dont_have_account" class="text-gray-300 text-sm mb-2">${t.dont_have_account}</p>
+			<a href="#/register"
 					class="inline-flex items-center space-x-1 text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-200 group">
 					<span id="create_account">${t.create_account}</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  `);
+			</a>
+		</div>
+			</div>
+		</div>
+	`);
 	languageStore.subscribe((lang) => {
 		transelate_per_id(translations_login_page, "login_header", lang, "login_header");
 		transelate_per_id(translations_login_page, "google_btn", lang, "google_btn");
@@ -133,7 +133,6 @@ export function renderLogin(root: HTMLElement) {
 
 		const username = (document.getElementById('username') as HTMLInputElement).value;
 		const password = (document.getElementById('password') as HTMLInputElement).value;
-
 		try {
 			const res = await fetch('/api/login', {
 				method: 'POST',
@@ -142,7 +141,7 @@ export function renderLogin(root: HTMLElement) {
 			});
 
 			const response_data = await res.json();
-			if (!res.ok || !response_data.jwt) {
+			if (!res.ok || !response_data.jwt ) {
 				let error_message = response_data.message;
 				switch (error_message) {
 					case 'INVALID_PASSWORD': error_message = error_trans.error_invalid_password; break;
@@ -155,10 +154,9 @@ export function renderLogin(root: HTMLElement) {
 				// auto hiding
 				setTimeout(() => {
 					errorContainer.classList.add('hidden');
-				}, 5000);
+				}, 2000);
 			} else {
-				saveToken(response_data.jwt);
-				if (enabled_2fa()) {
+				if (response_data.tfa) {
 					form.classList.add('hidden');
 					const tfa_container = document.getElementById('tfa_container') as HTMLFormElement;
 					if (!tfa_container)
@@ -173,14 +171,12 @@ export function renderLogin(root: HTMLElement) {
 							method: 'POST',
 							headers: {
 								'Content-Type': 'application/json',
-								'Authorization': `Bearer ${response_data.jwt}`
+								'Authorization': `Bearer ${response_data.jwt}` //use temp jwt from /login to validate it
 							},
 							body: JSON.stringify({ tfa_token }),
 						});
-
 						const res2faverify = await res.json();
-						console.log(res2faverify)
-						if (!res2faverify.jwt) {
+						if (res.ok) {
 							let error_message = res2faverify.message;
 							switch (res2faverify.message) {
 								case "INVALID_USER": error_message = error_trans.error_invalid_user; break;
@@ -200,7 +196,8 @@ export function renderLogin(root: HTMLElement) {
 							return;
 
 						} else {
-							clearToken()
+							if (! res2faverify.jwt)
+								throw new Error("No Token supplied, something went wrong!")
 							saveToken(res2faverify.jwt);
 							button.innerHTML = 
 							/*html*/
@@ -219,6 +216,9 @@ export function renderLogin(root: HTMLElement) {
 					})
 				}
 				else {
+					if (! response_data.jwt)
+						throw new Error("No Token supplied, something went wrong!")
+					saveToken(response_data.jwt);
 					// success animation
 					submitBtn.innerHTML = 
 					/*html*/

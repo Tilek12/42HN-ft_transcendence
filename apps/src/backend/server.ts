@@ -24,8 +24,8 @@ import wsTournamentPlugin from './routes/ws/tournament-ws';
 import { Errorhandler } from './error';
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import fastifySwagger from '@fastify/swagger'
-
-
+import cookie from '@fastify/cookie'
+import csrf from '@fastify/csrf-protection'
 
 
 
@@ -35,6 +35,8 @@ dotenv.config();
 const LOCAL_IP = process.env.LOCAL_IP || '127.0.0.1';
 let PORT = Number(process.env.BACKEND_PORT || '443');
 const JWT_SECRET = fs.readFileSync('/run/secrets/jwt_secret');
+const COOKIE_SECRET = fs.readFileSync('/run/secrets/cookie_secret');
+const ADMIN_PASSWORD = fs.readFileSync('/run/secrets/admin_password');
 const APP_MODE = process.env.NODE_ENV ;
 
 if (!JWT_SECRET || !APP_MODE) {
@@ -74,6 +76,7 @@ const server = Fastify({
 		cert: fs.readFileSync('/run/secrets/ssl_cert')
 	}
 });
+
 
 const jwtOpts: FastifyJWTOptions = {
 	secret: JWT_SECRET
@@ -137,7 +140,7 @@ async function main() {
 		await protectedScope.register(protected_validate_hook);		// Middleware checking token
 		await protectedScope.register(userRoutes);					// Protected routes: /api/private/me
 		await protectedScope.register(profileRoutes);				// Protected routes: /api/private/profile
-		// await protectedScope.register(tournamentRoutes);			// Protected routes: /api/private/tournaments
+		//await protectedScope.register(tournamentRoutes);			// Protected routes: /api/private/tournaments
 		await protectedScope.register(matchRoutes);					// Protected routes: /api/private/match
 	}, { prefix: '/api/private' });
 
@@ -148,11 +151,11 @@ async function main() {
 		await websocketScope.register(wsTournamentPlugin);			// Tournament socket: /ws/tournament
 	}, { prefix: '/ws' });
 
-	// Simple health check
-	server.get('/ping', async () => {
-		server.log.warn("Ping route triggered");
-		return { pong: true, time: new Date().toISOString() };
-	});
+	// // Simple health check
+	// server.get('/ping', async () => {
+	// 	server.log.warn("Ping route triggered");
+	// 	return { pong: true, time: new Date().toISOString() };
+	// });
 
 	if (APP_MODE == 'development')
 		server.ready().then(() => {

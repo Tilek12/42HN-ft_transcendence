@@ -26,7 +26,9 @@ import { verifyPassword, hashPassword } from '../../auth/utils';
 import { JWTPayload } from '../../types';
 
 const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
-	fastify.post('/profile', async (req, res) => {
+	fastify.get('/profile', 
+		{onRequest: fastify.csrfProtection},
+		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
 			const user = await findUserById(jwt.id);
@@ -57,7 +59,9 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		}
 	});
 
-	fastify.post('/upload_pic', async (req, res) => {
+	fastify.post('/upload_pic',
+		{onRequest: fastify.csrfProtection},
+		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
 			const data = await req.file();
@@ -97,7 +101,9 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		}
 	});
 
-	fastify.post('/delete_pic', async (req, res) => {
+	fastify.post('/delete_pic',
+		{onRequest: fastify.csrfProtection},
+		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
 			const profile = await findProfileById(jwt.id);
@@ -114,7 +120,9 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		}
 	});
 
-	fastify.get('/parse-friends', async (req, res) => {
+	fastify.get('/parse-friends',
+		{onRequest: fastify.csrfProtection},
+		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
 			// console.log('Verified JWT: ', jwt);
@@ -127,7 +135,9 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		}
 	});
 
-	fastify.post('/unlink-profile', async (req, res) => {
+	fastify.post('/unlink-profile',
+		{onRequest: fastify.csrfProtection},
+		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
 			const userId = jwt.id;
@@ -139,7 +149,9 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		}
 	});
 
-	fastify.post('/block-profile', async (req, res) => {
+	fastify.post('/block-profile',
+		{onRequest: fastify.csrfProtection},
+		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
 			const userId = jwt.id;
@@ -152,7 +164,9 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		}
 	});
 
-	fastify.post('/unblock-profile', async (req, res) => {
+	fastify.post('/unblock-profile',
+		{onRequest: fastify.csrfProtection},
+		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
 			const userId = jwt.id;
@@ -164,7 +178,9 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		}
 	});
 
-	fastify.post('/link-profile', async (req, res) => {
+	fastify.post('/link-profile',
+		{onRequest: fastify.csrfProtection},
+		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
 			const userId = jwt.id;
@@ -181,7 +197,9 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		}
 	});
 
-	fastify.post('/pending-request', async (req, res) => {
+	fastify.post('/pending-request',
+		{onRequest: fastify.csrfProtection},
+		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
 			const userId = jwt.id;
@@ -193,7 +211,8 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		}
 	});
 
-	fastify.post('/answer-request', async (req, res) => {
+	fastify.post('/answer-request',{onRequest: fastify.csrfProtection},
+		async (req, res) => {
 		try {
 			// console.log("here");
 			const jwt = req.user as JWTPayload;
@@ -210,7 +229,9 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			console.log(err);
 		}
 	});
-	fastify.post('/update-username', async (req: any, res: any) => {
+	fastify.post('/update-username',
+		{onRequest: fastify.csrfProtection},
+		async (req: any, res: any) => {
 		// console.log("HERE +++++++++");
 		const jwt = req.user as JWTPayload;
 		const userId = jwt.id;
@@ -226,62 +247,69 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		res.send({ success: true, new_username: new_username });
 
 	})
-	// fastify.get('/parse-profiles', async (req, res) => {
-	// 	try {
-	// 		const jwt = req.user as JWTPayload;
-	// 		const offset = await req.query.offset as string || "0";
-	// 		const limit = await req.query.limit as string || "25";
-	// 		const profiles = await parseProfiles(jwt.id, offset, limit);
-	// 		// console.log ("backend-------------------<<<<>>>> :",profiles);
-	// 		const friends = await parseFriends(jwt.id);
-	// 		const friendsIds = new Set(friends.map((row: any) => row.id));
-
-	// 		const pendingRequests = await parseBidirectionalPendingRequests(jwt.id, jwt.id);
-	// 		const sentRequests = new Set(pendingRequests.filter((r: any) => r.sender_id === jwt.id && r.receiver_id !== jwt.id).map((r: any) => r.receiver_id));
-	// 		const receivedRequests = new Set(pendingRequests.filter((r: any) => r.receiver_id && r.sender_id !== jwt.id).map((r: any) => r.sender_id));
-
-	// 		const blockingList = await parseBlockedList(jwt.id);
-	// 		// console.log("Blocked_list:");
-	// 		// console.log(blockingList);
-	// 		const blockingListIds = new Set(blockingList.map((row: any) => row.blocked_id));
-	// 		const newProfiles = profiles
-	// 			.map((profile: any) => { if (profile.image_blob) { profile.image_blob = profile.image_blob.toString("base64"); } return profile; });
-	// 		// console.log("Here ----------->>>> New Profiles: ", newProfiles);
-	// 		const profilesWithFriendFlag = await Promise.all(newProfiles
-	// 			.map(async (profile: any) => ({
-	// 				...profile,
-	// 				image_blob_setted: profile.image_blob ? true : false,
-	// 				is_friend: friendsIds.has(profile.id),
-	// 				received_requests: Array.from(receivedRequests),
-	// 				pending_direction: sentRequests.has(profile.id) ? "sent" :
-	// 					receivedRequests.has(profile.id) ? "recieved" :
-	// 						null,
-	// 				is_blocking: blockingListIds.has(profile.id) ? 1 : 0,
-	// 				is_blocked: await userIsBlocked(jwt.id, profile.id)
-	// 			})
-	// 			));
-	// 		// console.log(' Here ----->> BackEnd : ', profilesWithFriendFlag);
-	// 		res.send({ profiles: profilesWithFriendFlag });
-	// 		// console.log(profilesWithFriendFlag);
-	// 	} catch (err) {
-	// 		res.status(401).send({ message: 'Unauthorized parse_profiles' });
-	// 		console.log(err);
-	// 	}
-	// })
-	// fastify.post('/check-given-old-password', async (req, res) => {
-	// 	const jwt = req.user as JWTPayload;
-	// 	const id = await jwt.id;
-	// 	const user = await findUserById(id);
-	// 	const password = await req.body.password;
-	// 	const is_password_verified = await verifyPassword(password, user.password);
-	// 	res.send({ answer: is_password_verified });
-	// })
-
-	fastify.post('/update-password', async (req: any, res: any) => {
+	fastify.get('/parse-profiles',
+		{onRequest: fastify.csrfProtection},
+		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
-			const id = await jwt.id;
-			const password = await req.body.password;
+			const offset = await req.query.offset as string || "0";
+			const limit = await req.query.limit as string || "25";
+			const profiles = await parseProfiles(jwt.id, offset, limit);
+			// console.log ("backend-------------------<<<<>>>> :",profiles);
+			const friends = await parseFriends(jwt.id);
+			const friendsIds = new Set(friends.map((row: any) => row.id));
+
+			const pendingRequests = await parseBidirectionalPendingRequests(jwt.id, jwt.id);
+			const sentRequests = new Set(pendingRequests.filter((r: any) => r.sender_id === jwt.id && r.receiver_id !== jwt.id).map((r: any) => r.receiver_id));
+			const receivedRequests = new Set(pendingRequests.filter((r: any) => r.receiver_id && r.sender_id !== jwt.id).map((r: any) => r.sender_id));
+
+			const blockingList = await parseBlockedList(jwt.id);
+			// console.log("Blocked_list:");
+			// console.log(blockingList);
+			const blockingListIds = new Set(blockingList.map((row: any) => row.blocked_id));
+			const newProfiles = profiles
+				.map((profile: any) => { if (profile.image_blob) { profile.image_blob = profile.image_blob.toString("base64"); } return profile; });
+			// console.log("Here ----------->>>> New Profiles: ", newProfiles);
+			const profilesWithFriendFlag = await Promise.all(newProfiles
+				.map(async (profile: any) => ({
+					...profile,
+					image_blob_setted: profile.image_blob ? true : false,
+					is_friend: friendsIds.has(profile.id),
+					received_requests: Array.from(receivedRequests),
+					pending_direction: sentRequests.has(profile.id) ? "sent" :
+						receivedRequests.has(profile.id) ? "recieved" :
+							null,
+					is_blocking: blockingListIds.has(profile.id) ? 1 : 0,
+					is_blocked: await userIsBlocked(jwt.id, profile.id)
+				})
+				));
+			// console.log(' Here ----->> BackEnd : ', profilesWithFriendFlag);
+			res.send({ profiles: profilesWithFriendFlag });
+			// console.log(profilesWithFriendFlag);
+		} catch (err) {
+			res.status(401).send({ message: 'Unauthorized parse_profiles' });
+			console.log(err);
+		}
+	})
+
+	fastify.post('/check-given-old-password',
+		{onRequest: fastify.csrfProtection},
+		async (req, res) => {
+		const jwt = req.user as JWTPayload;
+		const id = await jwt.id;
+		const user = await findUserById(id);
+		const password = await req.body.password;
+		const is_password_verified = await verifyPassword(password, user.password);
+		res.send({ answer: is_password_verified });
+	})
+
+	fastify.post('/update-password',
+		{onRequest: fastify.csrfProtection},
+		async (req: any, res: any) => {
+		try {
+			const jwt = req.user as JWTPayload;
+			const id = jwt.id;
+			const password = req.body.password;
 			const hashed = await hashPassword(password);
 			await updatePasswordById(id, hashed);
 			res.send({ message: 'User successfully updated his password!' });

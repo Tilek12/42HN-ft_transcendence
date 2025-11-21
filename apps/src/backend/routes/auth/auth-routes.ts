@@ -3,12 +3,7 @@ import { hashPassword, verifyPassword } from '../../auth/utils';
 import { LoginBody, loginSchema, logoutSchema, registerBody, registerSchema } from '../../auth/schemas';
 import type { JWTPayload } from '../../types';
 import { Jwt_type } from '../../types';
-import {
-	findUserByUsername,
-	findUserByEmail,
-	createUser
-} from '../../database/user';
-
+import { findUserByUsername, findUserByEmail, createUser } from '../../database/user';
 import { updateProfileLogInState, createProfile } from '../../database/profile';
 import { userManager } from '../../service-managers/user-manager';
 
@@ -19,7 +14,6 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		if (await findUserByUsername(username)) {
 			return res.status(400).send({ message: 'USERNAME_TAKEN' });
 		}
-
 		if (await findUserByEmail(email)) {
 			return res.status(400).send({ message: 'EMAIL_TAKEN' });
 		}
@@ -34,21 +28,20 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		let token: string;
 		if (user.tfa) {
 			payload.type = Jwt_type.tmp;
-			token = fastify.jwt.sign(payload, { expiresIn: '10min' });
+			token = fastify.jwt.sign(payload, { expiresIn: '5min' });
 		}
 		else
 		{
 			await updateProfileLogInState(user.id, true);
 			token = fastify.jwt.sign(payload, { expiresIn: '2h' });
 		}
-		res.send({ jwt: token });
+		res.send({ jwt: token, csrf: res.generateCsrf()});
 	});
 
 	// Login
 	fastify.post<{ Body: LoginBody }>('/login', { schema: loginSchema }, async (req, res) => {
 		const { username, password } = req.body;
 		const user = await findUserByUsername(username);
-		// console.log(user);
 		if (!user || !(await verifyPassword(password, user.password)) || user.username !== username) {
 			return res.status(401).send({ message: 'Invalid credentials' });
 		}
@@ -70,13 +63,13 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		let token: string;
 		if (user.tfa) {
 			payload.type = Jwt_type.tmp;
-			token = fastify.jwt.sign(payload, { expiresIn: '10min' });
+			token = fastify.jwt.sign(payload, { expiresIn: '5min' });
 		}
 		else {
 			await updateProfileLogInState(user.id, true);
-			token = fastify.jwt.sign(payload, { expiresIn: '2h' });
+			token  = fastify.jwt.sign(payload, { expiresIn: '2h' });
 		}
-		res.send({ jwt: token });
+		res.send({ jwt: token, tfa:user.tfa});
 	});
 
 	// Logout

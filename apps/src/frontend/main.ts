@@ -22,3 +22,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // SPA page changes
 window.addEventListener('hashchange', router);
+

@@ -77,7 +77,7 @@ export const loginSchema = {
 	response: {
 		200: {
 			type: 'object',
-			properties: { jwt: { type: 'string' } }
+			properties: { jwt: { type: 'string' }, tfa: {type: 'boolean'} }
 		}
 	}
 } as const;

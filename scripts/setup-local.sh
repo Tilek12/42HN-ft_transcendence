@@ -124,6 +124,22 @@ else
   exit 1;
 fi
 
+COOKIE_SECRET="$CERT_DIR/cookie_secret.txt"
+if openssl rand -base64 -out $COOKIE_SECRET 64; then
+  echo ✅ COOKIE_SECRET generated at $COOKIE_SECRET;
+else
+  echo "❌ openssl not able to generate jwt secret";
+  exit 1;
+fi
+
+ADMIN_PASSWORD="$CERT_DIR/admin_password.txt"
+if openssl rand -base64 -out $ADMIN_PASSWORD 64; then
+  echo ✅ ADMIN_PASSWORD generated at $ADMIN_PASSWORD;
+else
+  echo "❌ openssl not able to generate jwt secret";
+  exit 1;
+fi
+
 
 
 # 6. Output usage info
