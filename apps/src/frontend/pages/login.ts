@@ -1,4 +1,4 @@
-import { renderNav, changeLoginButton } from './nav.js'
+import { renderNav, changeLoginButton, hideNav } from './nav.js'
 import { renderBackgroundFull } from '../utils/layout.js';
 import { saveToken, enabled_2fa } from '../utils/auth.js';
 import { wsManager } from '../websocket/ws-manager.js';
@@ -9,7 +9,7 @@ export function renderLogin(root: HTMLElement) {
 	const error_trans = translations_errors[languageStore.language];
 	root.innerHTML = renderBackgroundFull(
 	/*html*/
-	`<div class="w-full max-w-md">
+	`<div class="w-full max-w-md items-center justify-center pt-20 ">
 			<div class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">
 		<div class="text-center mb-8">
 			<div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mb-4 shadow-lg">
@@ -108,10 +108,7 @@ export function renderLogin(root: HTMLElement) {
 	const form = document.getElementById('login-form') as HTMLFormElement;
 	const errorContainer = document.getElementById('login-error')!;
 	const errorText = document.getElementById('error_text')!;
-	const navigation = document.getElementById('navigation');
-
-	if (navigation)
-		navigation.classList.add("md:hidden");
+	hideNav();
 
 	form.addEventListener('submit', async (e) => {
 		e.preventDefault();

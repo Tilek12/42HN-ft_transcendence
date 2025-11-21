@@ -58,7 +58,6 @@ async function logout_all_users() {
 
 async function isUsername(new_username: string) {
 	const result = await db.get('SELECT id FROM users WHERE username = ? ', new_username);
-	// console.log(`result ------->>> ${result}`)
 	return result !== undefined ? true : false;
 }
 

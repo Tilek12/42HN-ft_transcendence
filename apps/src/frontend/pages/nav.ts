@@ -67,6 +67,23 @@ const listenerLogoutBtn = async (e : any) =>
 	}
 }
 
+export function hideNav()
+{
+	const navigation = document.getElementById("navigation");
+	if (navigation)
+	{
+		navigation.classList.add('hidden');
+	}
+}
+
+export function unhideNav()
+{
+		const navigation = document.getElementById("navigation");
+	if (navigation)
+	{
+		navigation.classList.remove('hidden');
+	}
+}
 
 
 export function renderNav() {

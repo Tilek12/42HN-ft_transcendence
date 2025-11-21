@@ -25,16 +25,15 @@ export async function connectToDB() {
   //--------------profile table-----------------
   await db.exec(`
     CREATE TABLE IF NOT EXISTS profiles (
-      id INTEGER PRIMARY KEY, -- same as user.id
-	  image_path TEXT DEFAULT 'default_pic.webp',
+    id INTEGER PRIMARY KEY, -- same as user.id
 	  image_blob BLOB,
-	  logged_in BOOLEAN DEFAULT FALSE,
 	  wins INTEGER DEFAULT 0,
 	  losses INTEGER DEFAULT 0,
 	  trophies INTEGER DEFAULT 0,
-      FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
     );
   `);
+  
   await db.exec(`
     CREATE TABLE IF NOT EXISTS matches (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

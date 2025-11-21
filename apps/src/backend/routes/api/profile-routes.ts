@@ -3,10 +3,7 @@ import sharp from 'sharp';
 import path from 'path';
 
 import { FastifyInstance, FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
-import {
-	findUserById, isUsername,
-	updateUsername, updatePasswordById
-} from '../../database/user';
+import { findUserById, isUsername, updateUsername, updatePasswordById } from '../../database/user';
 import {
 	findProfileById,
 	updatePicturePath,
@@ -24,10 +21,19 @@ import {
 } from '../../database/profile';
 import { verifyPassword, hashPassword } from '../../auth/utils';
 import { JWTPayload } from '../../types';
+import type {	PasswordChangeBody, 
+				parseProfilesQuery,
+				UsernameChangeBody,
+
+ 			} from '../../auth/schemas'
+
+import {	PasswordChangeSchema,
+			parseProfilesSchema,
+			UsernameChangeSchema
+  		} from '../../auth/schemas'
 
 const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 	fastify.get('/profile', 
-		{onRequest: fastify.csrfProtection},
 		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
@@ -39,7 +45,6 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			res.send({
 				profile:
 				{
-					image_path: profile.image_path,
 					image_blob: profile.image_blob?.toString("base64"),
 					image_blob_setted: profile.image_blob ? true : false,
 					logged_in: profile.logged_in,
@@ -60,7 +65,6 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 	});
 
 	fastify.post('/upload_pic',
-		{onRequest: fastify.csrfProtection},
 		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
@@ -72,12 +76,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			const allowed = ['.png', '.jpg', '.jpeg'];
 			if (!allowed.includes(ext.toLowerCase()))
 				return res.status(400).send({ message: 'Invalid file type' });
-			const __dirname = "/app/src/backend";
-			const dir = path.join(__dirname, 'assets', 'profile_pics');
-			if (!fs.existsSync(dir))
-				fs.mkdirSync(dir, { recursive: true });
-			const fileName = `user_${jwt.id}_${Date.now()}.webp`;
-			const uploadPath = path.join(__dirname, 'assets', 'profile_pics', fileName);
+
 			//-----resizing-----------
 			const chunks: Buffer[] = [];
 			for await (const chunk of data.file)
@@ -90,11 +89,10 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 				.toBuffer();
 			// console.log("=====>>Compresed", compressed);
 			//----uploading-------------
-			const relativePath = `${fileName}`;
 			await updatePicturePath(jwt.id, '', compressed);
 			const profile = await findProfileById(jwt.id);
 			// console.log(profile);
-			res.send({ message: 'Profile picture updated and resized', path: relativePath, blob: profile.image_blob.toString("base64") });
+			res.send({ message: 'Profile picture updated and resized', blob: profile.image_blob.toString("base64") });
 		} catch (err) {
 			console.error(err);
 			res.status(500).send({ message: 'Upload failed' });
@@ -102,7 +100,6 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 	});
 
 	fastify.post('/delete_pic',
-		{onRequest: fastify.csrfProtection},
 		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
@@ -121,7 +118,6 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 	});
 
 	fastify.get('/parse-friends',
-		{onRequest: fastify.csrfProtection},
 		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
@@ -136,7 +132,6 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 	});
 
 	fastify.post('/unlink-profile',
-		{onRequest: fastify.csrfProtection},
 		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
@@ -150,7 +145,6 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 	});
 
 	fastify.post('/block-profile',
-		{onRequest: fastify.csrfProtection},
 		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
@@ -165,7 +159,6 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 	});
 
 	fastify.post('/unblock-profile',
-		{onRequest: fastify.csrfProtection},
 		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
@@ -178,19 +171,18 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		}
 	});
 
-	fastify.post('/link-profile',
-		{onRequest: fastify.csrfProtection},
+	fastify.post<{Body:{profileId:string}}>('/link-profile',
 		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
 			const userId = jwt.id;
-			const { profileId } = req.body as any;
+			const { profileId } = req.body;
 			// console.log('userid====>',userId);
 			// console.log(profileId);
-			const is_blocking = await userIsBlocked(profileId, userId);
+			const is_blocking = await userIsBlocked(Number(profileId), userId);
 			if (is_blocking)
-				await DeleteFromBlockedList(userId, profileId);
-			await addFriendRequest(userId, profileId);
+				await DeleteFromBlockedList(userId, Number(profileId));
+			await addFriendRequest(userId, Number(profileId));
 		} catch (err) {
 			res.status(401).send({ message: 'Unauthorized link_profile' });
 			console.log(err);
@@ -198,7 +190,6 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 	});
 
 	fastify.post('/pending-request',
-		{onRequest: fastify.csrfProtection},
 		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
@@ -211,49 +202,48 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		}
 	});
 
-	fastify.post('/answer-request',{onRequest: fastify.csrfProtection},
-		async (req, res) => {
+	fastify.post<{Body:{profileId:string, profileAnswer:string}}>
+
+		('/answer-request', async (req, res) => {
 		try {
-			// console.log("here");
 			const jwt = req.user as JWTPayload;
 			const userId = jwt.id;
-			const { profileId, profileAnswer } = req.body as any;
-			// console.log("profileId and profileAnswer");
-			// console.log(req.body);
+			const { profileId, profileAnswer } = req.body;
 			if (profileAnswer === 'accept')
-				await bidirectionalAddAFriend(userId, profileId);
-			await deleteFriendRequest(profileId, userId);
-			await deleteFriendRequest(userId, profileAnswer);
+				await bidirectionalAddAFriend(userId, Number(profileId));
+			await deleteFriendRequest(Number(profileId), userId);
+			await deleteFriendRequest(userId, Number(profileAnswer));
 		} catch (err) {
 			res.status(401).send({ message: 'Unauthorized answer_request' });
 			console.log(err);
 		}
 	});
-	fastify.post('/update-username',
-		{onRequest: fastify.csrfProtection},
-		async (req: any, res: any) => {
-		// console.log("HERE +++++++++");
+
+
+	fastify.post<{Body: UsernameChangeBody}>
+				('/update-username',
+				{ schema: UsernameChangeSchema },
+		async (req, res ) => {
 		const jwt = req.user as JWTPayload;
 		const userId = jwt.id;
-		const new_username = req.body.username;
-		// console.log(`REQUEST==========>> ${new_username} and USERID ${userId}`);
-		// console.log("HERE +++++++++");
-		const exists = await isUsername(new_username);
-		// console.log(`EXISTS =====> ${exists}`);
-		if (exists)
-			return res.status(400).json({ error: 'Username already taken. ' });
-		await updateUsername(userId, new_username);
-		// console.log("HERE +++++++++ after UPDATE  ======?????");
-		res.send({ success: true, new_username: new_username });
+		const new_username = req.body.newUsername;
 
-	})
-	fastify.get('/parse-profiles',
-		{onRequest: fastify.csrfProtection},
+		const exists = await isUsername(new_username);
+		if (exists)
+			return res.status(400).send({ error: 'USERNAME_TAKEN ' });
+		await updateUsername(userId, new_username);
+		res.status(200).send({ success: true, new_username: new_username });
+	});
+
+
+	fastify.get	<{Querystring: parseProfilesQuery }>
+				('/parse-profiles',
+				{ schema: parseProfilesSchema },
 		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
-			const offset = await req.query.offset as string || "0";
-			const limit = await req.query.limit as string || "25";
+			const offset = await req.query.offset || undefined;
+			const limit = await req.query.limit || undefined;
 			const profiles = await parseProfiles(jwt.id, offset, limit);
 			// console.log ("backend-------------------<<<<>>>> :",profiles);
 			const friends = await parseFriends(jwt.id);
@@ -292,30 +282,27 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		}
 	})
 
-	fastify.post('/check-given-old-password',
-		{onRequest: fastify.csrfProtection},
-		async (req, res) => {
-		const jwt = req.user as JWTPayload;
-		const id = await jwt.id;
-		const user = await findUserById(id);
-		const password = await req.body.password;
-		const is_password_verified = await verifyPassword(password, user.password);
-		res.send({ answer: is_password_verified });
-	})
 
-	fastify.post('/update-password',
-		{onRequest: fastify.csrfProtection},
-		async (req: any, res: any) => {
+	fastify.post<{Body: PasswordChangeBody }>
+				('/update-password',
+				{ schema: PasswordChangeSchema },
+		async (req, res) => {
 		try {
 			const jwt = req.user as JWTPayload;
 			const id = jwt.id;
-			const password = req.body.password;
-			const hashed = await hashPassword(password);
-			await updatePasswordById(id, hashed);
-			res.send({ message: 'User successfully updated his password!' });
+			const user = await findUserById(id);
+			if (user)
+			{
+				const is_password_verified = await verifyPassword(req.body.oldpassword, user.password);
+				if (!is_password_verified)
+					throw new Error("INVALID_PASSWORD");
+				const hashed = await hashPassword(req.body.newpassword);
+				await updatePasswordById(id, hashed);
+				res.status(200).send({ message: 'User successfully updated his password!' });
+			}
 
 		} catch (e) {
-			res.send({ message: e });
+			res.status(401).send({ message: e });
 			console.log(e);
 		}
 

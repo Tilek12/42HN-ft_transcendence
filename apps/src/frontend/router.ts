@@ -7,8 +7,8 @@ import { renderRegister } from './pages/register.js';
 import { renderFriends } from './pages/friends.js';
 import { renderLeaderboard } from './pages/leaderboard.js';
 import { renderNotFound } from './pages/not-found.js';
-import { validateLogin } from './utils/auth.js';
-import { changeLoginButton } from './pages/nav.js';
+import { getToken, validateLogin } from './utils/auth.js';
+import { changeLoginButton, unhideNav } from './pages/nav.js';
 import { wsManager } from './websocket/ws-manager.js';
 import { renderQrcode } from './pages/2fa.js';
 import { renderSettings } from './pages/settings.js'
@@ -16,16 +16,13 @@ import { renderSettings } from './pages/settings.js'
 const protectedRoutes = ['#/profile', '#/friends', '#/game', '#/settings', '#/tournament','settings'];
 export async function router() 
 {
-	const root = document.getElementById('app')!;
-	let route = location.hash || '#/';
-	const navigation = document.getElementById('navigation');
-	const isLoggedIn = await validateLogin();
+	const	root = document.getElementById('app')!;
+	let		route = location.hash || '#/';
+	const	isLoggedIn = getToken() !== undefined;
 
-	if (navigation && navigation.classList.contains("hidden"))
-		navigation.classList.remove("hidden")
-	changeLoginButton(!isLoggedIn)
+	unhideNav();
 
-	console.log("router to:", route, " isLoggedIn: ", isLoggedIn?"true":"false");
+	// console.log("router to:", route, " isLoggedIn: ", isLoggedIn?"true":"false");
 	if (isLoggedIn)
 		wsManager.connectPresenceSocket();
 

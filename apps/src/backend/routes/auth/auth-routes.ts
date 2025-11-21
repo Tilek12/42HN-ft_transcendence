@@ -1,4 +1,4 @@
-import { FastifyInstance, FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
+import { FastifyInstance, FastifyPluginAsync } from 'fastify';
 import { hashPassword, verifyPassword } from '../../auth/utils';
 import { LoginBody, loginSchema, logoutSchema, registerBody, registerSchema } from '../../auth/schemas';
 import type { JWTPayload } from '../../types';
@@ -9,7 +9,10 @@ import { userManager } from '../../service-managers/user-manager';
 
 const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 	// Register
-	fastify.post<{ Body: registerBody }>('/register', { schema: registerSchema }, async (req, res) => {
+	fastify.post<{Body: registerBody}>
+				('/register',
+				{ schema: registerSchema },
+				async (req, res) => {
 		const { username, email, password, tfa } = req.body;
 		if (await findUserByUsername(username)) {
 			return res.status(400).send({ message: 'USERNAME_TAKEN' });
@@ -35,11 +38,13 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			await updateProfileLogInState(user.id, true);
 			token = fastify.jwt.sign(payload, { expiresIn: '2h' });
 		}
-		res.send({ jwt: token, csrf: res.generateCsrf()});
+		res.send({ jwt: token, tfa:user.tfa});
 	});
 
 	// Login
-	fastify.post<{ Body: LoginBody }>('/login', { schema: loginSchema }, async (req, res) => {
+	fastify.post<{ Body: LoginBody }>
+				('/login', { schema: loginSchema },
+				async (req, res) => {
 		const { username, password } = req.body;
 		const user = await findUserByUsername(username);
 		if (!user || !(await verifyPassword(password, user.password)) || user.username !== username) {
@@ -73,7 +78,9 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 	});
 
 	// Logout
-	fastify.post('/logout', { schema: logoutSchema, }, async (req: any, res: any) => {
+	fastify.post('/logout',
+				{ schema: logoutSchema, },
+				async (req: any, res: any) => {
 		try {
 			await req.jwtVerify()
 		} catch (err) {
