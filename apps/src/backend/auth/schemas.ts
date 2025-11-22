@@ -11,8 +11,6 @@ export type Email = FromSchema<typeof EmailSchema>;
 
 const StringSchema = {
 	type: 'string',
-	minLength: 1,
-	maxLength: 255,
 } as const;
 // export type StringSchema = FromSchema<typeof StringSchema>;
 
@@ -61,55 +59,97 @@ const AuthHeader =
 {
 	type: 'object',
 	properties: {
-		Authorization: BearerSchema
+		Cookie: StringSchema
 	},
-	required: ['Authorization']
+	required: ['Cookie']
 };
 
 
 /*====================== PROFILE_ROUTES ================================*/
-export const profileSchema = { //not used anywhere yet??
-	description: 'profileSchema',
-	tags: ['user'],
-	summary: 'getting profile information',
-	hidden: false,
-	params: {
-		type: 'object',
-		properties: {
-			id: {
-				type: 'string',
-				description: 'user id'
-			}
-		}
-	},
-	// querystring: false,
-	body: {
-		type: 'object',
-		required: ['logged_in', 'username', 'password'],
-		properties: {
-			logged_in: { type: 'boolean' },
-			username: { type: 'string' },
-			password: { type: 'string' },
-			wins: { type: 'integer', minimum: 0 },
-			losses: { type: 'integer', minimum: 0 },
-			trophies: { type: 'integer', minimum: 0 }
-		},
-	},
-} as const;
-export type profileBody = FromSchema<typeof profileSchema>;
 
-
-export const AnswerRequestSchema = 
+export const ProfileSchema = 
 {
-description: 'UsernameChangeSchema',
+description: 'ProfileSchema',
 	tags: ['profile'],
-	summary: 'UsernameChangeSchema',
+	summary: 'ProfileSchema',
+	hidden: false,
+	header: AuthHeader,
+	//body
+	body: {}
+} as const;
+export type ProfileBody = FromSchema<typeof ProfileSchema.body>;
+
+
+export const UploadPicSchema = 
+{
+description: 'UploadPicSchema',
+	tags: ['profile'],
+	summary: 'UploadPicSchema',
+	hidden: false,
+	header: AuthHeader,
+	//body
+	body: {}
+} as const;
+export type UploadPicBody = FromSchema<typeof UploadPicSchema.body>;
+
+
+export const DeletePicSchema = 
+{
+description: 'DeletePicSchema',
+	tags: ['profile'],
+	summary: 'DeletePicSchema',
+	hidden: false,
+	header: AuthHeader,
+	//body
+	body: {}
+} as const;
+export type DeletePicBody = FromSchema<typeof DeletePicSchema.body>;
+
+
+
+export const ParseFriendsSchema = 
+{
+description: 'ParseFriendsSchema',
+	tags: ['profile'],
+	summary: 'ParseFriendsSchema',
+	hidden: false,
+	header: AuthHeader,
+
+} as const;
+
+
+
+export const ProfileIdSchema = 
+{
+description: 'ProfileIdSchema',
+	tags: ['profile'],
+	summary: 'ProfileIdSchema',
 	hidden: false,
 	header: AuthHeader,
 	//body
 	body: {
 		type: 'object',
-		required: ['newUsername', 'profileAnswer'],
+		required: ['profileId'],
+		properties: {
+			profileId: {type: 'string', pattern: '^[0-9]+$ ', minLength:1 },
+		},
+	}
+} as const;
+export type ProfileIdBody = FromSchema<typeof ProfileIdSchema.body>;
+
+
+
+export const AnswerRequestSchema = 
+{
+description: 'AnswerRequestSchema',
+	tags: ['profile'],
+	summary: 'AnswerRequestSchema',
+	hidden: false,
+	header: AuthHeader,
+	//body
+	body: {
+		type: 'object',
+		required: ['profileId', 'profileAnswer'],
 		properties: {
 			profileId: {type: 'string', pattern: '^[0-9]+$ ', minLength:1 },
 			profileAnswer: {type: 'string', pattern: '^[0-9]+$ ', minLength:1 }
@@ -166,6 +206,7 @@ export const parseProfilesSchema = {
 } as const;
 export type parseProfilesQuery = FromSchema<typeof parseProfilesSchema.params>;
 
+
 export const PasswordChangeSchema = 
 {
 description: 'PasswordChangeSchema',
@@ -197,6 +238,7 @@ export type PasswordChangeBody = FromSchema<typeof PasswordChangeSchema.body>;
 
 
 /*====================== AUTH_ROUTES ================================*/
+
 export const loginSchema = {
 	//swagger
 	description: 'loginSchema',
@@ -204,7 +246,7 @@ export const loginSchema = {
 	summary: 'login',
 	hidden: false,
 	//query
-	// querystring: false,
+	// params: false,
 	//body
 	body: {
 		type: 'object',
@@ -270,6 +312,12 @@ export type registerBody = FromSchema<typeof registerSchema.body>;
 
 
 
+
+
+
+
+/*====================== 2FA_ROUTES ================================*/
+
 export const enable_TFA_Schema = {
 	description: 'post request enable 2fa',
 	tags: ['2FA'],
@@ -320,13 +368,12 @@ export const disable_TFA_Schema = {
 } as const;
 export type disable_TFA_body = FromSchema<typeof disable_TFA_Schema.body>;
 
-export const verify_TFA_Schema = {
+export const verifyTFASchema = {
 	description: 'post request to verify 2fa token, needs a tmp jwt or real jwt, issues a new jwt',
 	tags: ['2FA'],
 	summary: 'verify 2fa token',
 	hidden: false,
 	headers: AuthHeader,
-	params:false,
 	body: {
 		type: 'object',
 		properties: {
@@ -349,7 +396,7 @@ export const verify_TFA_Schema = {
 		},
 	}
 } as const;
-export type verify_TFA_body = FromSchema<typeof verify_TFA_Schema.body>;
+export type verifyTFAbody = FromSchema<typeof verifyTFASchema.body>;
 
 
 

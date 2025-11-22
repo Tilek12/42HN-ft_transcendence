@@ -117,19 +117,23 @@ fi
 
 # CHECK for JWT SECRET and generate in case not there
 JWT_SECRET="$CERT_DIR/jwt_secret.txt"
-if openssl rand -base64 -out $JWT_SECRET 64; then
-  echo ✅ JWT SECRET generated at $JWT_SECRET;
-else
-  echo "❌ openssl not able to generate jwt secret";
-  exit 1;
+if [ ! -f "$JWT_SECRET" ]; then
+  if openssl rand -base64 -out $JWT_SECRET 64; then
+    echo ✅ JWT SECRET generated at $JWT_SECRET;
+  else
+    echo "❌ openssl not able to generate jwt secret";
+    exit 1;
+  fi
 fi
 
 COOKIE_SECRET="$CERT_DIR/cookie_secret.txt"
-if openssl rand -base64 -out $COOKIE_SECRET 64; then
-  echo ✅ COOKIE_SECRET generated at $COOKIE_SECRET;
-else
-  echo "❌ openssl not able to generate jwt secret";
-  exit 1;
+if [ ! -f "$COOKIE_SECRET" ]; then
+  if openssl rand -base64 -out $COOKIE_SECRET 64; then
+    echo ✅ COOKIE_SECRET generated at $COOKIE_SECRET;
+  else
+    echo "❌ openssl not able to generate jwt secret";
+    exit 1;
+  fi
 fi
 
 ADMIN_PASSWORD="$CERT_DIR/admin_password.txt"

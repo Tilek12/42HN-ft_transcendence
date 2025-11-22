@@ -1,4 +1,5 @@
-import { getToken, clearToken} from '../utils/auth.js'
+import { getUser} from '../utils/auth.js'
+import { defaultPicture } from '../utils/constants.js';
 import { wsManager } from '../websocket/ws-manager.js';
 
 
@@ -48,9 +49,7 @@ export const listenerUploadPicture = async (e : any) =>
 		const res = await fetch('/api/private/upload_pic',
 			{
 				method: 'POST',
-				headers: {
-					'Authorization': `Bearer ${getToken()}`,
-				},
+				credentials: 'include',
 				body: formData,
 			});
 
@@ -71,22 +70,18 @@ export const listenerUploadPicture = async (e : any) =>
 export const listenerDeletePicture = async (e : any) =>
 {
 	e.preventDefault();
-	console.log("what is going on");
 	const res = await fetch(`/api/private/delete_pic`,
 		
 		{
 			method: 'POST',
-			headers:
-			{
-				Authorization: `Bearer ${getToken()}`,
-			}
+			credentials: 'include',
 		}
 	)
 	const data = await res.json();
 	if (res.ok)
 	{
 		const img  = document.getElementById('profile_pic') as HTMLImageElement;
-		img.src = `/profile_pics/default_pic.webp`;
+		img.src = defaultPicture;
 
 	}
 	else

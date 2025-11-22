@@ -7,7 +7,7 @@ import { renderRegister } from './pages/register.js';
 import { renderFriends } from './pages/friends.js';
 import { renderLeaderboard } from './pages/leaderboard.js';
 import { renderNotFound } from './pages/not-found.js';
-import { getToken, validateLogin } from './utils/auth.js';
+import { getUser, validateLogin } from './utils/auth.js';
 import { changeLoginButton, unhideNav } from './pages/nav.js';
 import { wsManager } from './websocket/ws-manager.js';
 import { renderQrcode } from './pages/2fa.js';
@@ -18,11 +18,10 @@ export async function router()
 {
 	const	root = document.getElementById('app')!;
 	let		route = location.hash || '#/';
-	const	isLoggedIn = getToken() !== undefined;
+	const	isLoggedIn = getUser() !== undefined || await validateLogin();
 
 	unhideNav();
 
-	// console.log("router to:", route, " isLoggedIn: ", isLoggedIn?"true":"false");
 	if (isLoggedIn)
 		wsManager.connectPresenceSocket();
 
@@ -44,16 +43,30 @@ export async function router()
 	}
 	else
 	{
-		console.log("second switch");
-		switch(route)
+		console.log("second switch login : ", isLoggedIn);
+		if (isLoggedIn)
 		{
-			case '#/login': return renderLogin(root);
-			case '#/register': return renderRegister(root);
-			case '#/':
-			case '': return renderMainPage(root);
-			default: return renderNotFound(root);
+			console.log("isLoggedIn");
+			switch(route)
+			{
+				case '#/login':
+				case '#/register':
+				default: location.hash = '/profile';
+			}
 		}
-	}
+		else{
+			console.log("else switch");
+			
+			switch(route)
+			{
+				case '#/login': return renderLogin(root);
+				case '#/register': return renderRegister(root);
+				case '#/':
+					case '': return renderMainPage(root);
+					default: return renderNotFound(root);
+				}
+			}
+		}
 
 
 

@@ -1,6 +1,6 @@
 import { renderNav, changeLoginButton, hideNav } from './nav.js'
 import { renderBackgroundFull } from '../utils/layout.js';
-import { saveToken, enabled_2fa } from '../utils/auth.js';
+import { getUser } from '../utils/auth.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore, translations_login_page, transelate_per_id, translations_errors } from './languages.js';
 
@@ -135,10 +135,11 @@ export function renderLogin(root: HTMLElement) {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ username, password }),
+				credentials:'include',
 			});
 
 			const response_data = await res.json();
-			if (!res.ok || !response_data.jwt ) {
+			if (!res.ok) {
 				let error_message = response_data.message;
 				switch (error_message) {
 					case 'INVALID_PASSWORD': error_message = error_trans.error_invalid_password; break;
@@ -168,12 +169,13 @@ export function renderLogin(root: HTMLElement) {
 							method: 'POST',
 							headers: {
 								'Content-Type': 'application/json',
-								'Authorization': `Bearer ${response_data.jwt}` //use temp jwt from /login to validate it
+								'Authorization': `${response_data.jwt}` //use temp jwt from /login to validate it. Bearer needed?
 							},
-							body: JSON.stringify({ tfa_token }),
+							credentials:'include',
+							body: JSON.stringify({ tfa_token:tfa_token }),
 						});
 						const res2faverify = await res.json();
-						if (res.ok) {
+						if (!res.ok) {
 							let error_message = res2faverify.message;
 							switch (res2faverify.message) {
 								case "INVALID_USER": error_message = error_trans.error_invalid_user; break;
@@ -193,9 +195,6 @@ export function renderLogin(root: HTMLElement) {
 							return;
 
 						} else {
-							if (! res2faverify.jwt)
-								throw new Error("No Token supplied, something went wrong!")
-							saveToken(res2faverify.jwt);
 							button.innerHTML = 
 							/*html*/
 							`<div class="flex items-center justify-center space-x-2">
@@ -213,9 +212,6 @@ export function renderLogin(root: HTMLElement) {
 					})
 				}
 				else {
-					if (! response_data.jwt)
-						throw new Error("No Token supplied, something went wrong!")
-					saveToken(response_data.jwt);
 					// success animation
 					submitBtn.innerHTML = 
 					/*html*/

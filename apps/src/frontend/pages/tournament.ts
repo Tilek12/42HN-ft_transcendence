@@ -1,6 +1,6 @@
 
 import { renderBackgroundFull } from '../utils/layout.js';
-import { getToken, getJWTPayload } from '../utils/auth.js';
+import { getUser } from '../utils/auth.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { COLORS } from '../constants/colors.js';
 import { languageStore, translations_tournament_render, transelate_per_id } from './languages.js';
@@ -78,7 +78,8 @@ export async function renderTournament(root: HTMLElement) {
 	// Mode switch
 	const onlineBtn = document.getElementById('online-btn')!;
 	const localBtn = document.getElementById('local-btn')!;
-
+	const user = getUser();
+	const userId = user?.id;
 	function setMode(mode: 'online' | 'local') {
 		if (mode === 'online') {
 			onlineBtn.classList.remove('bg-gray-600', 'hover:bg-gray-700');
@@ -189,7 +190,6 @@ export async function renderTournament(root: HTMLElement) {
 		}
 
 		if (msg.type === 'matchStart') {
-			const userId = getJWTPayload()?.id;
 
 			if (msg.player1 === userId || msg.player2 === userId) {
 				// 🎯 Player is part of this match – handle on tournament page
@@ -224,7 +224,7 @@ export async function renderTournament(root: HTMLElement) {
 		} else if (msg.type === 'tournamentEnd') {
 			// Show winner announcement in tournament lobby for all players
 
-			const userId = getJWTPayload()?.id;
+			
 			const isWinner = msg.winner.id === userId;
 
 			const announcementEl = document.getElementById('winner-announcement')!;
@@ -288,7 +288,6 @@ export async function renderTournament(root: HTMLElement) {
 		list.innerHTML = '';
 
 		const tournaments = wsManager.onlineTournaments;
-		const userId = getJWTPayload()?.id;
 
 		const userTournament = tournaments.find(t => t.playerIds.includes(userId));
 		currentTournamentId = userTournament ? userTournament.id : null;
@@ -711,8 +710,6 @@ export async function renderTournament(root: HTMLElement) {
 		const paddleHeight = PADDLE_HEIGHT * scaleY;
 		const paddleWidth = 10;
 		const ids = Object.keys(gameState.paddles);
-
-		const userId = getJWTPayload()?.id;
 
 		ids.forEach((id, index) => {
 			const y = gameState.paddles[id] * scaleY;

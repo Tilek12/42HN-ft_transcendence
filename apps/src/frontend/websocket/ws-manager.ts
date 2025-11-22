@@ -1,4 +1,4 @@
-import { getToken } from '../utils/auth.js';
+import { getUser } from '../utils/auth.js';
 import { GameMode, PresenceUser, PresenceCallback } from '../types.js';
 
 class WebSocketManager {
@@ -29,8 +29,8 @@ class WebSocketManager {
       return this.gameSocket;
     }
 
-    const token = getToken();
-    if (!token) return null;
+    const user = getUser();
+    if (!user) return null;
 
     let url = `/ws/game?mode=${mode}`;
   
@@ -39,7 +39,6 @@ class WebSocketManager {
     this.gameSocket = socket;
 
     socket.onopen = () => {
-      socket.send(token);
       console.log('🕹️ [Game WS] Connected');
     }
 
@@ -78,8 +77,8 @@ class WebSocketManager {
   connectPresenceSocket(onUpdate?: (msg: any) => void) {
     if (this.presenceSocket) return;
 
-    const token = getToken();
-    if (!token) return;
+    const user = getUser();
+    if (!user) return;
 
     const url = `/ws/presence`;
     const socket = new WebSocket(url);
@@ -87,7 +86,6 @@ class WebSocketManager {
 
     socket.onopen = () => {
       console.log('👥 [Presence WS] Opening websocket..');
-      socket.send(token);
       this.retryAttempts = 0;
     };
 
@@ -118,7 +116,7 @@ class WebSocketManager {
       this.presenceSocket = null;
       this.disconnectGameSocket();
       this.disconnectTournamentSocket();
-      if (e.code === 4003 || !getToken()) return;
+      if (e.code === 4003) return;
 
       this.retryAttempts++;
       if (this.retryAttempts <= this.MAX_RETRY) {
@@ -176,10 +174,10 @@ class WebSocketManager {
   ): WebSocket | null {
     if (this.tournamentSocket) this.disconnectTournamentSocket();
 
-    const token = getToken();
-    if (!token) return null;
+    const user = getUser();
+    if (!user) return null;
 
-    let url = `/ws/tournament?action=${action}&size=${size}&token=${token}`;
+    let url = `/ws/tournament?action=${action}&size=${size}`;
     if (action === 'join' && id) url += `&id=${id}`;
     if (names && names.length > 0) url += `&names=${encodeURIComponent(JSON.stringify(names))}`;
 
@@ -187,7 +185,6 @@ class WebSocketManager {
     this.tournamentSocket = socket;
 
     socket.onopen = () => {
-      socket.send(token)
       console.log('🎯 [Tournament WS] Connected:', url);
     }
 

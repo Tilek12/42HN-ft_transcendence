@@ -1,4 +1,4 @@
-import {getToken} from '../utils/auth.js'
+import {getUser} from '../utils/auth.js'
 
 // DESIGN CHANGE: Added modern toast notification system with animations and gradient backgrounds
 // Replaces basic alert() messages with sleek notifications
@@ -74,11 +74,8 @@ const listenerPasswordCancel = (
 	let res = await fetch('/api/private/check-given-old-password',
 		{
 			method: 'POST',
-			headers:
-			{
-				'Authorization': `Bearer ${getToken()}`,
-				'Content-Type': 'application/json',
-			},
+			headers:{'Content-Type': 'application/json'},
+			credentials:'include',
 			body: JSON.stringify({password: old_value}),
 		},
 	);
@@ -110,11 +107,8 @@ const listenerPasswordCancel = (
 		res = await fetch('/api/private/update-password',
 		{
 			method: 'POST',
-			headers:
-			{
-				'Authorization': `Bearer ${getToken()}`,
-				'Content-Type': 'application/json',
-			},
+			headers:{'Content-Type': 'application/json'},
+			credentials:'include',
 			body: JSON.stringify({password: new_value}),
 		},
 		);
@@ -194,10 +188,8 @@ const listenerUsernameUpdate = async (
 		const res = await fetch('/api/private/update-username',
 			{
 				method: 'POST',
-				headers: {
-							'Authorization': `Bearer ${getToken()}`,
-							'Content-Type': 'application/json',
-						},
+				headers: {'Content-Type': 'application/json'},
+				credentials:'include',
 				body: JSON.stringify({username: new_username}),
 			},
 		)

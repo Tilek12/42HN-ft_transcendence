@@ -1,4 +1,4 @@
-import { getToken} from '../utils/auth.js'
+import { getUser} from '../utils/auth.js'
 import { wsManager } from '../websocket/ws-manager.js';
 import {languageStore, translations_friends_render} from './languages.js';
 
@@ -10,9 +10,9 @@ export async function renderFriendsList(container_id : string, load?: boolean, a
 	try
 	{
 		const res = await fetch(
-			'/api/private/parse-friends', 
-			{
-				headers: {Authorization: `Bearer ${getToken()}`},
+			'/api/private/parse-friends', {
+				method:'GET',
+				credentials:'include',
 			});
 	const data = await res.json();
 	// let data_friends_len = data.friends.length;

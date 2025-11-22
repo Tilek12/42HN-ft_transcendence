@@ -1,4 +1,4 @@
-import { getToken} from '../utils/auth.js'
+import { getUser} from '../utils/auth.js'
 
 import { wsManager } from '../websocket/ws-manager.js';
 import {languageStore, translations_friends} from './languages.js';
@@ -64,13 +64,16 @@ const block_action = (is_blocking : number, other_profile_id: number) => {
 	return res
 }
 
-const remove_load_btn = async (offset_pr: number, limit_pr: number, token_async: any, res_async : any, remove_reload_button ?:boolean) : Promise<boolean>=>
+const remove_load_btn = async (offset_pr: number, limit_pr: number, res_async : any, remove_reload_button ?:boolean) : Promise<boolean>=>
 {
 	offset_pr+=limit_pr;
 	// console.log("im Hereeeeeeeeeee: ");
 	// console.log("offset: ", offset_pr);
 	// console.log("limit_pr: ", limit_pr);
-	res_async = await fetch(`/api/private/parse-profiles?offset=${offset_pr}&limit=${limit_pr}`,{headers: {Authorization: `Bearer ${token_async}`}});
+	res_async = await fetch(`/api/private/parse-profiles?offset=${offset_pr}&limit=${limit_pr}`,{
+							method: 'GET',
+							credentials: 'include',
+							});
 	let newProfiles : {profiles : any[]} = await res_async.json();
 	return newProfiles.profiles.length === 0
 }
@@ -134,18 +137,19 @@ export async function renderProfilesList (
 	//profiles-list
 	let return_res : AllProfileWithLimitAndOffset;
 	const container  = document.getElementById(element_id);
-	// const BACKEND_URL = getEnvVariable('VITE_BACKEND_URL'); //this is nuts how do you think there is env access in the frontend
+	
 	let remove_load_button = false;
 	let old_limit = limit;
 	let old_offset = offset;
 	let res : any;
-	// languageStore.subscribe( async ()=>
-	// {
-	// 	res = await renderProfilesList(element_id, load, allProfiles, offset, limit);
-	// 	allProfiles = res.AllProfiles;
-	// })
-	if (!container) return;
-		const token = getToken();
+	languageStore.subscribe( async ()=>
+	{
+		res = await renderProfilesList(element_id, load, allProfiles, offset, limit);
+		allProfiles = res.AllProfiles;
+	})
+	if (!container)
+		return;
+	const user = getUser();
 	try
 	{
 		if(!load && !already_parsed)
@@ -159,7 +163,10 @@ export async function renderProfilesList (
 		// console.log(`offset: ${offset} and limit: ${limit}`);
 		if (!already_parsed || load)
 		{
-			res = await fetch(`/api/private/parse-profiles?offset=${offset}&limit=${limit}`,{headers: {Authorization: `Bearer ${token}`}});
+			res = await fetch(`/api/private/parse-profiles?offset=${offset}&limit=${limit}`,{
+							method:'GET',
+							credentials:'include',				
+						});
 			already_parsed = true;
 		}
 		if (actionBtn == true)
@@ -174,7 +181,7 @@ export async function renderProfilesList (
 			if (!load)
 				already_parsed = true;
 		// console.log("allProfiles after concat: ",allProfiles);
-		remove_load_button = await remove_load_btn(offset, limit,token, res);
+		remove_load_button = await remove_load_btn(offset, limit, res);
 		if (remove_load_button) document.getElementById('more-profiles-btn')?.remove();
 		let html = ``;
 		// console.log("All Profiles are existing : " allProfiles ? )

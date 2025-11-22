@@ -53,9 +53,8 @@ export async function parseProfiles(prof_id : number, offset_param?: number, lim
 		  p.wins,
 		  p.losses,
 		  p.trophies,
-		  p.image_path,
 		  p.logged_in,
-		  p.image_blob
+		  p.image_blob,
 		FROM users u
 		JOIN profiles p ON u.id = p.id
 		WHERE u.id != ?`;

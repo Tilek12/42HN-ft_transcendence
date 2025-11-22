@@ -8,7 +8,10 @@ export async function renderLeaderboard(root: HTMLElement) {
 
 	try {
 	const tournamentId = 1;
-	const res = await fetch(`/api/tournament/${tournamentId}/leaderboard`);
+	const res = await fetch(`/api/tournament/${tournamentId}/leaderboard`, {
+						method: 'GET',
+						credentials: 'include'
+					});
 
 	if (!res.ok) {
 		throw new Error(`Server error: ${res.status}`);

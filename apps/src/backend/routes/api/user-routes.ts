@@ -2,19 +2,20 @@ import { FastifyPluginAsync } from 'fastify';
 import { findUserById } from '../../database/user';
 // import { userManager } from '../../service-managers/user-manager';
 import type { JWTPayload } from '../../types';
+import { userManager } from '../../service-managers/user-manager';
 
 
 const userRoutes: FastifyPluginAsync = async (fastify) => {
+
 	fastify.get('/me', async (req, res) => {
 		const payload = req.user as JWTPayload;
 		const user = await findUserById(payload.id);
 		console.log(user);
-		if (!user || !user.is_logged_in)
+		if (!user)
 			return res.status(400).send({ message: 'User not found' });
-		
-		// i cant believe we were sending all userdata except password over??
-
-		// const { password, ...safeUser } = user;
+		else if ( userManager.getUser(payload.id))
+			return res.status(400).send({ message: 'User already logged in' });
+			
 	});
 
 	//unused...

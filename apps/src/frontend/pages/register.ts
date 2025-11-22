@@ -1,7 +1,6 @@
 
 import { renderBackgroundFull } from '../utils/layout.js';
 import { languageStore, translations_register_page, transelate_per_id } from './languages.js';
-import { saveToken } from '../utils/auth.js';
 
 
 export function renderRegister(root: HTMLElement) {
@@ -139,7 +138,6 @@ export function renderRegister(root: HTMLElement) {
         else
         {
           console.log("Verified")
-          saveToken(res2faverify.jwt);
           location.hash = '#/profile';
         }
       })
@@ -147,7 +145,6 @@ export function renderRegister(root: HTMLElement) {
     else
     {
       console.log(data.jwt);
-      saveToken(data.jwt);
       location.hash = '#/profile';
     }
     

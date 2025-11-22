@@ -3,7 +3,7 @@ export async function renderQrcode(root: HTMLElement) {
 
 	const res = await fetch('api/qr', {
 		method: 'POST',
-		body: '',
+		credentials: 'include'
 	});
 	const {qr} = await res.json();
 

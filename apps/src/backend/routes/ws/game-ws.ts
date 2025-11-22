@@ -52,13 +52,14 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify: any) => {
 		let 	authenticated = false;
 		let		closed = false;
 		let		user: User | undefined = undefined;
-		let decoded: JWTPayload;
+		let decoded = req.user as JWTPayload;
+
 
 		socket.on('message', async (raw: any) => {
 			try {
 				if (!authenticated)
 				{
-					decoded = fastify.jwt.verify(raw) as JWTPayload;
+					// decoded = fastify.jwt.verify(raw) as JWTPayload;
 					user = userManager.getUser(decoded.id);
 					if (!user)
 						throw new Error("User not present");
@@ -95,10 +96,6 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify: any) => {
 			fastify.log.info(`❌ [Game WS] Disconnected: ${user?user.id:'unauthenticated user'}`);
 		});
 		socket.on('error', (err: any) => fastify.log.warn('🔴 [Game WS] socket error', err));
-
-
-
-
 
 	});
 

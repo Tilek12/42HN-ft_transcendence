@@ -1,6 +1,7 @@
 import { renderBackgroundFull } from '../utils/layout.js';
 import { wsManager } from '../websocket/ws-manager.js';
-import type { Language } from '../types.js';
+import type { Language, User } from '../types.js';
+import { defaultPicture } from '../utils/constants.js';
 import { languageStore, translations_profile, transelate_per_id } from './languages.js'
 
 export type Profile_details = {
@@ -20,37 +21,36 @@ let lastPresence: string[] | undefined = [];
 
 
 
-export const profile_ids = (profile: Profile_details) => {
-	let logged_in = document.getElementById(profile.logged_in_id);
-	let username = document.getElementById(profile.username_id);
-	let email = document.getElementById(profile.email_id);
-	let wins = document.getElementById(profile.wins_id);
-	let losses = document.getElementById(profile.losses_id);
-	let trophies = document.getElementById(profile.trophies_id);
-	let created_at = document.getElementById(profile.created_at_id);
-	let profile_pic = document.getElementById(profile.profile_pic_id) as HTMLImageElement;
-	if (logged_in && username && email && wins && losses && trophies && created_at && profile_pic) {
-		function render() {
-			const listUsers: any[] | undefined = wsManager.presenceUserList.map((u) => u.name);
-			let logged_in = document.getElementById(profile.logged_in_id);
-			if (logged_in) {
-				if (JSON.stringify(listUsers) !== JSON.stringify(lastPresence)) {
-					lastPresence = [...listUsers];
-					// logged_in.innerHTML = ` ${listUsers.includes(profile.data_async.user.username) ? 'yes' : 'no'}`;
-				}
-			}
-			setTimeout(render, 500);
-			// console.log("LAST PRESENCEEEEEE++>>", lastPresence);
-		}
-		render();
-		username.innerHTML = ` ${profile.data_async.user.username}`;
-		email.innerHTML = ` ${profile.data_async.user.email}`;
-		wins.innerHTML = ` ${profile.data_async.profile.wins}`;
-		losses.innerHTML = ` ${profile.data_async.profile.losses}`;
-		trophies.innerHTML = ` ${profile.data_async.profile.trophies}`;
-		created_at.innerHTML += ` ${new Date(profile.data_async.user.created_at).toLocaleString()}`;
+export const profile_ids = (user: User) => {
 
-		profile_pic.src = profile.data_async.profile.image_blob ? `data:image/webp;base64,${profile.data_async.profile.image_blob}` : `/images/default.png`;
+	let username 	= document.getElementById('username');
+	let wins 		= document.getElementById('wins');
+	let losses 		= document.getElementById('losses');
+	let trophies 	= document.getElementById('trophies');
+	let created_at 	= document.getElementById('created_at');
+	let profile_pic = document.getElementById('profile_pic') as HTMLImageElement;
+
+	if (username && wins && losses && trophies && created_at && profile_pic) {
+		// function render() {
+		// 	const listUsers: User[] | undefined = wsManager.presenceUserList.map((u) => u.name);
+		// 	let logged_in = document.getElementById();
+		// 	if (logged_in) {
+		// 		if (JSON.stringify(listUsers) !== JSON.stringify(lastPresence)) {
+		// 			lastPresence = [...listUsers];
+		// 			// logged_in.innerHTML = ` ${listUsers.includes(profile.data_async.user.username) ? 'yes' : 'no'}`;
+		// 		}
+		// 	}
+		// 	// setTimeout(render, 500);
+		// 	// console.log("LAST PRESENCEEEEEE++>>", lastPresence);
+		// }
+		// render();
+		username.innerText = ` ${user.username}`;
+		wins.innerText = ` ${user.wins}`;
+		losses.innerText = ` ${user.losses}`;
+		trophies.innerText = ` ${user.trophies}`;
+		created_at.innerText = ` ${new Date(user.created_at).toLocaleString()}`;
+
+		profile_pic.src = user.image_blob ? `data:image/webp;base64,${user.image_blob}` : defaultPicture;
 
 	}
 };
@@ -188,13 +188,13 @@ export function renderUserProfile(data: any, lang = 'EN')
 							<!-- Email & Join Date Display Section -->
 							<!-- DESIGN: Read-only fields with SVG icons and border animation on hover -->
 							<div class="space-y-4">
-								<div class="flex items-center bg-white/5 rounded-xl p-5 border-l-4 border-transparent hover:border-purple-500 transition-all duration-300">
+								<!--div class="flex items-center bg-white/5 rounded-xl p-5 border-l-4 border-transparent hover:border-purple-500 transition-all duration-300">
 									<svg class="w-6 h-6 mr-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
 									</svg>
 									<span class="text-gray-300 text-base font-medium" id="email_header"></span>
 									<span class="text-white text-base ml-3" id="email"></span>
-								</div>
+								</div-->
 								<div class="flex items-center bg-white/5 rounded-xl p-5 border-l-4 border-transparent hover:border-pink-500 transition-all duration-300">
 									<svg class="w-6 h-6 mr-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>

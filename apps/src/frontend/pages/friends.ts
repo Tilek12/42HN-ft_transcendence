@@ -1,5 +1,5 @@
 import { renderBackgroundFull } from '../utils/layout.js';
-import { getToken } from '../utils/auth.js'
+import { getUser } from '../utils/auth.js'
 import { renderFriendsList } from './renderFriends.js';
 import { renderFriendRequestsList } from './renderFriendRequestList.js';
 import {languageStore, translations_friends_render, transelate_per_id} from './languages.js';
@@ -48,11 +48,8 @@ export async function renderFriends(root: HTMLElement) {
 				res = await fetch(`/api/private/answer-request`,
 					{
 						method: 'POST',
-						headers:
-						{
-							'Content-Type': 'application/json',
-							Authorization : `Bearer ${getToken()}`,
-						},
+						credentials: 'include',
+						headers:{ 'Content-Type': 'application/json'},
 						body: JSON.stringify({profileId, profileAnswer}),
 					}
 				)

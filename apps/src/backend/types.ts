@@ -1,5 +1,5 @@
 import WebSocket from 'ws'
-
+import type  fastifyJwt from '@fastify/jwt'
 
 // BACKEND TYPES DEFINED HERE
 
@@ -49,6 +49,6 @@ export type JWTPayload = {
     user: JWTPayload, // user type is return type of `request.user` object
   }
 
-interface FastifyRequest {
-	user: JWTPayload
-}
+// interface FastifyRequest {
+// 	user: JWTPayload
+// }

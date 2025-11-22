@@ -1,7 +1,6 @@
 import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore, transelate_per_id, translations_nav } from './languages.js';
-import { validateLogin } from '../utils/auth.js';
-import { getToken, clearToken } from '../utils/auth.js'
+import { getUser, clearUser} from '../utils/auth.js'
 
 
 let presenceUnsub: (() => void) | null = null;
@@ -14,7 +13,7 @@ export async function initNav() {
 		loginButton.addEventListener('click', ()=>{location.hash = '/login'});
 	if (logoutButton)
 		logoutButton.addEventListener('click', listenerLogoutBtn);
-	changeLoginButton(!await validateLogin());
+	changeLoginButton(true);
 };
 
 async function updateOnlineUsers() {
@@ -53,17 +52,18 @@ const listenerLogoutBtn = async (e : any) =>
 {
 	e.preventDefault();
 	{
-		const token = getToken();
-			const resp = await fetch('/api/private/logout',
+		if (!getUser())
+			return;
+		const resp = await fetch('/api/logout',
 				{
 					method: 'POST',
-					headers: {'Authorization': `Bearer ${token}`},
+					credentials:'include',
 				});
-			console.log(resp);
-			wsManager.disconnectAllSockets();
-			wsManager.clearPresenceData();
-			clearToken();
-			location.hash = '#/';
+		console.log(resp);
+		wsManager.disconnectAllSockets();
+		wsManager.clearPresenceData();
+		clearUser();
+		location.hash = '#/';
 	}
 }
 

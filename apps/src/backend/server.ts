@@ -79,18 +79,25 @@ const server = Fastify({
 
 
 const jwtOpts: FastifyJWTOptions = {
-	secret: JWT_SECRET
+	secret: JWT_SECRET,
+	  cookie: {
+    	cookieName: 'token',
+    	signed: false
+  	}
 }
 
 // App setup
 async function main() {
 
-	server.withTypeProvider<JsonSchemaToTsProvider>();	// Support to make Types out of schemas
-	await connectToDB();								// Init DB table
-	await server.register(fastifyJwt, jwtOpts);			// Create JWT
-	await server.register(websocket);					// Add WebSocket support
-	await server.register(multipart);					// file supposrt for fastify
-	server.register(helmet);							// adds http headers for security
+	//plugins
+	server.withTypeProvider<JsonSchemaToTsProvider>();			// Support to make Types out of schemas
+	await connectToDB();										// Init DB table
+	await server.register(cookie, {secret: COOKIE_SECRET });	//cookies
+	await server.register(csrf, { cookieOpts: { signed: true }})//crsf Protection						
+	await server.register(fastifyJwt, jwtOpts);					// Create JWT
+	await server.register(websocket);							// Add WebSocket support
+	await server.register(multipart);							// file supposrt for fastify
+	server.register(helmet);									// adds http headers for security
 
 
 	await server.register(fastifySwagger, {
@@ -117,11 +124,13 @@ async function main() {
 		}
 	});
 
+	// Static serving of files in produciton mode
 	if (APP_MODE == "production") {
 		server.log.info("Setting up fastify static");
 		server.register(fastifyStatic, {
 			root: '/app/dist/frontend',
 			serve: true,
+			cacheControl: false,
 		});
 	}
 
@@ -131,9 +140,9 @@ async function main() {
 
 	// 2FA Routes
 	await server.register(async (tfa_Scope: any) => {
-		await server.register(tfa_validate_hook);					// 2fa validation
-		await server.register(tfa_Routes, { prefix: '/2fa' });		// 2fa routes: /2fa/...
-	});
+		await tfa_Scope.register(tfa_validate_hook);				// 2fa validation
+		await tfa_Scope.register(tfa_Routes);						// 2fa routes: /2fa/...
+	}, { prefix: '/2fa' });
 
 	// Protected routes
 	await server.register(async (protectedScope: any) => {
@@ -146,6 +155,7 @@ async function main() {
 
 	// WebSocket routes
 	await server.register(async (websocketScope: any) => {
+		await websocketScope.register(protected_validate_hook);
 		await websocketScope.register(wsGamePlugin);				// Game-only socket:  /ws/game
 		await websocketScope.register(wsPresencePlugin);			// Persistent socket: /ws/presence
 		await websocketScope.register(wsTournamentPlugin);			// Tournament socket: /ws/tournament

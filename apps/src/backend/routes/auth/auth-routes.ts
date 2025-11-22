@@ -32,34 +32,41 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		if (user.tfa) {
 			payload.type = Jwt_type.tmp;
 			token = fastify.jwt.sign(payload, { expiresIn: '5min' });
+			return res.send({ jwt: token, tfa:user.tfa});
 		}
 		else
 		{
 			await updateProfileLogInState(user.id, true);
 			token = fastify.jwt.sign(payload, { expiresIn: '2h' });
+			res.setCookie("token", token, {	path:'/',
+													maxAge:7200, //2h
+													sameSite:'strict',
+													secure:true,
+													httpOnly:true,
+												} );
+			return res.send({ tfa:user.tfa});
 		}
-		res.send({ jwt: token, tfa:user.tfa});
 	});
 
 	// Login
 	fastify.post<{ Body: LoginBody }>
-				('/login', { schema: loginSchema },
+				('/login', 
+				{ schema: loginSchema },
 				async (req, res) => {
 		const { username, password } = req.body;
 		const user = await findUserByUsername(username);
-		if (!user || !(await verifyPassword(password, user.password)) || user.username !== username) {
+		if (!user || !(await verifyPassword(password, user.password)) || user.username !== username) 
 			return res.status(401).send({ message: 'Invalid credentials' });
-		}
-		if (user.username !== username) {
+		
+		if (user.username !== username) 
 			return res.status(401).send({ message: 'Invalid username' });
-		}
-		if (!(await verifyPassword(password, user.password))) {
+		
+		if (!(await verifyPassword(password, user.password))) 
 			return res.status(401).send({ message: 'Invalid password' });
-		}
+
 		if (user && userManager.getUser(user.id))
-		{
 			return res.status(410).send({message: 'User already logged in'})
-		}
+		
 		let payload: JWTPayload = { id: user.id,
 									username: user.username,
 									tfa: user.tfa,
@@ -69,12 +76,19 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		if (user.tfa) {
 			payload.type = Jwt_type.tmp;
 			token = fastify.jwt.sign(payload, { expiresIn: '5min' });
+			res.status(200).send({ jwt: token, tfa:user.tfa});
 		}
 		else {
 			await updateProfileLogInState(user.id, true);
 			token  = fastify.jwt.sign(payload, { expiresIn: '2h' });
+			res.setCookie("token", token, {	path:'/',
+													maxAge:7200, //2h
+													sameSite:'strict',
+													secure:true,
+													httpOnly:true,
+												} );
+			res.status(200).send({ tfa:user.tfa});
 		}
-		res.send({ jwt: token, tfa:user.tfa});
 	});
 
 	// Logout
@@ -89,6 +103,20 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		const payload = req.user as JWTPayload;
 
 		await updateProfileLogInState(payload.id, false);
+		res.setCookie('token','', {
+				path:'/',
+				maxAge:0,
+				sameSite:'strict',
+				secure:true,
+				httpOnly:true,
+		})
+		// res.setCookie('refreshtoken','', {
+		// 		path:'/',
+		// 		maxAge:0,
+		// 		sameSite:'strict',
+		// 		secure:true,
+		// 		httpOnly:true,
+		// })
 		res.send({ message: 'Logged out successfully' });
 	});
 }

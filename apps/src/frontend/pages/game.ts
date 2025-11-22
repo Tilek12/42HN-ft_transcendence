@@ -1,7 +1,7 @@
 
 import { renderBackgroundFull } from '../utils/layout.js';
 import { wsManager } from '../websocket/ws-manager.js';
-import { getToken } from '../utils/auth.js';
+import { getUser } from '../utils/auth.js';
 import { COLORS } from '../constants/colors.js';
 import { languageStore, translations_game_render, transelate_per_id } from './languages.js';
 
@@ -47,7 +47,7 @@ export async function renderGame(root: HTMLElement) {
 
 	let socket: WebSocket | null = null;
 	let gameState: any = null;
-	let moveInterval: number | null = null;
+	let moveInterval: any = null;
 	let playerNames: Record<string, string> = {};
 
 	const heldKeys: Record<string, boolean> = {};
@@ -57,7 +57,6 @@ export async function renderGame(root: HTMLElement) {
 		document.removeEventListener('keyup', keyUpHandler);
 		if (moveInterval !== null) {
 			clearInterval(moveInterval);
-			moveInterval = null;
 		}
 	};
 
@@ -76,7 +75,7 @@ export async function renderGame(root: HTMLElement) {
 	});
 
 	function startGame(mode: 'solo' | 'duel') {
-		const token = getToken();
+		const token = getUser();
 		if (!token) {
 			alert('❌ You must be logged in to play');
 			location.hash = '#/login';

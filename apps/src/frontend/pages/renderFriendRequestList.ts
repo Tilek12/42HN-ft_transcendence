@@ -1,4 +1,4 @@
-import { getToken} from '../utils/auth.js'
+import { getUser } from '../utils/auth.js'
 import { wsManager } from '../websocket/ws-manager.js';
 import {languageStore, translations_friends_render} from './languages.js';
 
@@ -12,11 +12,11 @@ export async function renderFriendRequestsList ()
 
 	const container = document.getElementById('friend-requests-list');
 	if (!container) return;
-	const token = getToken();
 	try
 	{
-		const res = await fetch('/api/private/parse-profiles',
-			{headers: {Authorization: `Bearer ${token}`}
+		const res = await fetch('/api/private/parse-profiles',{
+				method:'GET',
+				credentials: 'include'
 		});
 	// I need a logic only if they are friends or not if they are friends I need to show a button send friend request or an friend icon
 	const data = await res.json();
