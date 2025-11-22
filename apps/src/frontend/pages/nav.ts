@@ -63,6 +63,7 @@ const listenerLogoutBtn = async (e : any) =>
 		wsManager.disconnectAllSockets();
 		wsManager.clearPresenceData();
 		clearUser();
+		changeLoginButton(true);
 		location.hash = '#/';
 	}
 }
@@ -178,14 +179,8 @@ export function renderNav() {
 		transelate_per_id(translations_nav, "online_users", lang, "active-users-list");
 		transelate_per_id(translations_nav, "login", lang, "login-btn");
 		transelate_per_id(translations_nav, "logout", lang, "logout-btn");
-	})
-	const menu_btn = document.getElementById('menu-btn');
-	if (menu_btn)
-	{
-		menu_btn.addEventListener('click', () => {
-		const nav = document.getElementById('navigation');
-		nav?.classList.toggle('hidden');
-});
-	}
+	});
+
+
 	
 }
