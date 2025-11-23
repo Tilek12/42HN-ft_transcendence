@@ -62,7 +62,7 @@ export async function router()
 				case '#/login': return renderLogin(root);
 				case '#/register': return renderRegister(root);
 				case '#/':
-					case '': return renderMainPage(root);
+				case '': return renderMainPage(root);
 					default: return renderNotFound(root);
 				}
 			}

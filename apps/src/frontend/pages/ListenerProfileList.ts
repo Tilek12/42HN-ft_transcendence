@@ -4,6 +4,7 @@ import { getUser} from '../utils/auth.js'
 
 const asyncFriendRequestHandler = async (endpoint: string, profile_id:string ) =>
 {
+	try {
 	let res : any;
 	// console.log(`clicked ${attributes.testing_attribute}`)
 	res = await fetch(`/api/private/${endpoint}`, {
@@ -13,6 +14,9 @@ const asyncFriendRequestHandler = async (endpoint: string, profile_id:string ) =
 			body: JSON.stringify({ profileId: profile_id }), // ✅ correct shape
 	});
 	return res;
+	}
+	catch(e:any)
+	{}
 }
 export const listenerFriendAndBlock = async (event : any, element_id : string, load: boolean = false,  allProfiles: {profiles: any[]}[] | undefined, offset:number, limit:number) : Promise<any[] | undefined>=>
 {

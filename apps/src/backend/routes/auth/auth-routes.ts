@@ -3,8 +3,8 @@ import { hashPassword, verifyPassword } from '../../auth/utils';
 import { LoginBody, loginSchema, logoutSchema, registerBody, registerSchema } from '../../auth/schemas';
 import type { JWTPayload } from '../../types';
 import { Jwt_type } from '../../types';
-import { findUserByUsername, findUserByEmail, createUser } from '../../database/user';
-import { updateProfileLogInState, createProfile } from '../../database/profile';
+import { findUserByUsername, createUser, log_in, log_out } from '../../database/user';
+import { createProfile } from '../../database/profile';
 import { userManager } from '../../service-managers/user-manager';
 
 const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
@@ -13,20 +13,17 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 				('/register',
 				{ schema: registerSchema },
 				async (req, res) => {
-		const { username, email, password, tfa } = req.body;
+		const { username, password, tfa } = req.body;
 		if (await findUserByUsername(username)) {
 			return res.status(400).send({ message: 'USERNAME_TAKEN' });
 		}
-		if (await findUserByEmail(email)) {
-			return res.status(400).send({ message: 'EMAIL_TAKEN' });
-		}
 		const hashed = await hashPassword(password);
 
-		await createUser(username, email, hashed, tfa ? true : false);
+		await createUser(username, hashed, tfa ? true : false);
 		const user = await findUserByUsername(username);
 		await createProfile(username);
 		if (!user)
-			return res.status(500).send({ message: "database error" });
+			return res.status(500).send({ message: "DATABASE_ERROR" });
 		let payload: JWTPayload = { id: user.id, username: user.username, tfa: user.tfa, role: user.role, type: Jwt_type.normal };
 		let token: string;
 		if (user.tfa) {
@@ -36,7 +33,6 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		}
 		else
 		{
-			await updateProfileLogInState(user.id, true);
 			token = fastify.jwt.sign(payload, { expiresIn: '2h' });
 			res.setCookie("token", token, {	path:'/',
 													maxAge:7200, //2h
@@ -44,7 +40,8 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 													secure:true,
 													httpOnly:true,
 												} );
-			return res.send({ tfa:user.tfa});
+			await log_in(user.id, token);
+			return res.status(200).send({ tfa:user.tfa});
 		}
 	});
 
@@ -79,7 +76,6 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			res.status(200).send({ jwt: token, tfa:user.tfa});
 		}
 		else {
-			await updateProfileLogInState(user.id, true);
 			token  = fastify.jwt.sign(payload, { expiresIn: '2h' });
 			res.setCookie("token", token, {	path:'/',
 													maxAge:7200, //2h
@@ -87,6 +83,7 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 													secure:true,
 													httpOnly:true,
 												} );
+			await log_in(user.id, token);
 			res.status(200).send({ tfa:user.tfa});
 		}
 	});
@@ -102,7 +99,7 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		}
 		const payload = req.user as JWTPayload;
 
-		await updateProfileLogInState(payload.id, false);
+			await log_out(payload.id);
 		res.setCookie('token','', {
 				path:'/',
 				maxAge:0,

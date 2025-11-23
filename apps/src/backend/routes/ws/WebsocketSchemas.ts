@@ -1,5 +1,6 @@
 import { FromSchema } from 'json-schema-to-ts';
 
+import { AuthHeader } from '../../auth/schemas'
 
 export const PresenceWebsocketSchema = {
 	//swagger
@@ -7,15 +8,8 @@ export const PresenceWebsocketSchema = {
 	tags: ['websocket'],
 	summary: 'presence ws',
 	hidden: false,
-	//query
-	// querystring: false,
-	// headers: {
-	// 	type: 'object',
-	// 	properties: {
-	// 		Authorization: BearerSchema // add only when updating logic with cookies
-	// 	},
-	// 	required: ['Authorization']
-	// },
+	headers: AuthHeader
+
 } as const;
 
 export const GameWebsocketSchema = {
@@ -24,27 +18,21 @@ export const GameWebsocketSchema = {
 	tags: ['websocket'],
 	summary: 'game ws',
 	hidden: false,
+	headers: AuthHeader,
 	// query
-		querystring: {
+	params: {
 		type: 'object',
+		required: ['mode'],
 		properties: {
 			mode:	{ type: 'string', pattern: '^[a-z]{4,10}$' }, // gamemode = "solo" | "duel" | "tournament"
 			// size:	{ type: 'integer', minimum: 4, maximum: 8 }, // size only 4 or 8
 			// id:		{ type: 'integer'},
+			}
 		},
-		required: ['mode']
-	// },
-	// headers: {
-	// 	type: 'object',
-	// 	properties: {
-	// 		Authorization: BearerSchema // add only when updating logic with cookies
-	// 	},
-	// 	required: ['Authorization']
-	},
 
 } as const;
 
-export type GameWebsocketQuery = FromSchema<typeof GameWebsocketSchema.querystring>;
+export type GameWebsocketQuery = FromSchema<typeof GameWebsocketSchema.params>;
 
 export const TournamentWebsocketSchema = {
 	//swagger
@@ -52,23 +40,14 @@ export const TournamentWebsocketSchema = {
 	tags: ['websocket'],
 	summary: 'game ws',
 	hidden: false,
-	// query
-		querystring: {
+	headers: AuthHeader,
+	params: {
 		type: 'object',
-		properties: {
-
-		},
+		properties: {		},
 		required: ['']
-	// },
-	// headers: {
-	// 	type: 'object',
-	// 	properties: {
-	// 		Authorization: BearerSchema // add only when updating logic with cookies
-	// 	},
-	// 	required: ['Authorization']
 	},
 
 } as const;
 
-export type TournamentWebsocketQuery = FromSchema<typeof TournamentWebsocketSchema.querystring>;
+export type TournamentWebsocketQuery = FromSchema<typeof TournamentWebsocketSchema.params>;
 

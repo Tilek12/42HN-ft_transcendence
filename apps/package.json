@@ -1,7 +1,7 @@
 {
 	"name": "transcendence",
 	"scripts": {
-		"dev": "concurrently \"vite --config /app/vite.config.mts\" \"tsx watch /app/src/backend/server.ts --watch /src/backend\"",
+		"dev": "concurrently \"vite --config /app/vite.config.mts\" \"tsx watch /app/src/backend/server.ts \"",
 		"delete_dist": "rm -rf /app/dist/",
 		"frontend": " tsc -p tsconfig.frontend.json",
 		"backend": " tsc -p tsconfig.backend.json",

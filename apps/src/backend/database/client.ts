@@ -13,9 +13,8 @@ export async function connectToDB() {
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL,
-      email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
-      is_logged_in BOOLEAN DEFAULT FALSE,
+      is_logged_in TEXT DEFAULT NULL,
       role TEXT NOT NULL CHECK(role IN ('admin', 'user')),
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       tfa BOOLEAN DEFAULT FALSE,

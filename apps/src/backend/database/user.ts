@@ -1,17 +1,6 @@
 import { db } from './client';
 import { User } from '../types'
 
-// export type User = {
-//   id: number, 
-//   username: string,
-//   email:string,
-//   password: string,
-//   role: string,
-//   is_logged_in: boolean,
-//   tfa: boolean,
-//   tfa_secret:string,
-// }
-
 
 async function findUserByUsername(username: string): Promise<User | null> {
 	
@@ -21,12 +10,6 @@ async function findUserByUsername(username: string): Promise<User | null> {
 	return ret as User;
 }
 
-async function findUserByEmail(email: string): Promise<User | null> {
-	const ret = await db.get('SELECT * FROM users WHERE email = ?', email);
-	if (!ret)
-		return null;
-	return ret as User;
-}
 
 async function findUserById(id: number): Promise<User | null> {
 	const ret = await db.get('SELECT * FROM users WHERE id = ?', id);
@@ -35,25 +18,30 @@ async function findUserById(id: number): Promise<User | null> {
 	return ret as User;
 }
 
-async function createUser(username: string, email: string, hashedPassword: string, tfa:boolean) {
+async function createUser(username: string, hashedPassword: string, tfa:boolean) {
 	return await db.run(
-		'INSERT INTO users (username, email, password, tfa, role) VALUES (?, ?, ?, ?, ?)',
+		'INSERT INTO users (username, password, tfa, role) VALUES (?, ?, ?, ?)',
 		username,
-		email,
 		hashedPassword,
 		tfa,
 		"user"
 	);
 }
-async function log_in(user: User) {
-	return await db.run('UPDATE users SET is_logged_in = ? WHERE id = ?', [true, user.id]);
+async function log_in(id:  number, token: string) {
+	return await db.run('UPDATE users SET is_logged_in = ? WHERE id = ?', [token, id]);
 }
-async function log_out(user: User) {
-	return await db.run('UPDATE users SET is_logged_in = ? WHERE id = ?', [false, user.id]);
+async function log_out(id:  number) {
+	return await db.run('UPDATE users SET is_logged_in = ? WHERE id = ?', [null, id]);
 }
 
+async function get_login_token(id: number)
+{
+	return await db.run('SELECT is_logged_in FROM users WHERE id = ?', [id]);
+
+} 
+
 async function logout_all_users() {
-	return await db.run('UPDATE users SET is_logged_in = false')
+	return await db.run('UPDATE users SET is_logged_in = NULL')
 }
 
 async function isUsername(new_username: string) {
@@ -74,4 +62,4 @@ async function getUsernameById(id: number): Promise<string | null> {
 	return row?.username || null;
 }
 
-export { findUserByUsername, findUserById, findUserByEmail, createUser, log_in, log_out, logout_all_users, isUsername, updateUsername, updatePasswordById, getUsernameById };
+export { findUserByUsername, findUserById, createUser, log_in, log_out, get_login_token, logout_all_users, isUsername, updateUsername, updatePasswordById, getUsernameById };

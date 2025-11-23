@@ -10,6 +10,7 @@ import { listenerUsernameUpdate, listenerUsernameCancel, listenerUsernameEdit } 
 import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore } from './languages.js';
 import { Match, User } from '../types.js';
+import { renderConnectionErrorPage } from './error.js';
 
 let i = 0;
 
@@ -245,7 +246,7 @@ export async function renderProfile(root: HTMLElement) {
 				});
 			//==============Linda's code=================================
 		})
-		.catch(() => {
-			root.innerHTML = `<p class="text-red-400">❌ Failed to fetch profile.</p>`;
+		.catch(() => {		
+			renderConnectionErrorPage();
 		})
 }

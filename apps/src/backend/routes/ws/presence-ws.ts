@@ -1,6 +1,6 @@
 import { FastifyPluginAsync, FastifyRequest, FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
-import WebSocket from 'ws'
+// import {  WebSocket } from '@fastify/websocket'
 import { userManager } from '../../service-managers/user-manager';
 import { tournamentManager } from '../../service-managers/tournament-manager';
 import { findUserById, getUsernameById } from '../../database/user';
@@ -9,6 +9,8 @@ import { PresenceWebsocketSchema } from './WebsocketSchemas'
 import { JWTPayload } from '../../types';
 import { verifyUserJWT } from '../../auth/utils';
 import { Jwt_type, User } from '../../types';
+import { JWT } from '@fastify/jwt';
+import { error } from 'console';
 
 export const sendPresenceUpdate = () => {
 	const users = userManager.getOnlineUsers();
@@ -43,22 +45,30 @@ export const sendTournamentUpdate = () => {
 
 const wsPresencePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 	// WebSocket route
-	fastify.get('/presence', { schema: PresenceWebsocketSchema, websocket: true }, (socket, req) => {
+	fastify.get('/presence',
+		{	schema: PresenceWebsocketSchema,
+			websocket: true },
+			(socket, req) => {
 		let authenticated = false;
+		let decoded = req.user as JWTPayload;
 		let user: User | null;
-		let decoded: JWTPayload;
+		
+		console.log("presence endpoint triggered for id: ", decoded.id);
 		// Sync attach to prevent dropped messages
-		socket.on('message', async (msg: any) => {
-			// console.log("presence ws message handler");
+
+
+		socket.on('open', async (msg: any) => {
+			console.log("presence ws message handler");
 			try {
 				if (!authenticated) {
-					decoded = fastify.jwt.verify(msg) as JWTPayload;
-
+					user = await findUserById(decoded.id);
+					if ((fastify.jwt.verify(msg) as JWTPayload).id !== decoded.id )
+						throw new Error("Message token does not match header token!")
+					// console.log(user)
 					if (userManager.getUser(decoded.id))
 						throw new Error(` Duplicate connection rejected for: ${decoded.id}`);
-					user = await findUserById(decoded.id);
 					if (user) {
-						// console.log(`presence ws authenticated user ${user.id}`);
+						console.log(`presence ws authenticated user ${user.id}`);
 						userManager.createUser(user, socket);
 						userManager.setAlive(user.id);
 						authenticated = true;
@@ -70,12 +80,8 @@ const wsPresencePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) =>
 						throw new Error(`Couldnt find ${decoded.username} in db`);
 				}
 				else {
-					// If already authenticated, we only expect pongs
-					const message = msg.toString();
-					if (message === 'pong' && user)
-					{
-							 userManager.setAlive(user.id);
-					}
+					console.log("lol");
+					
 				}
 			}
 			catch (err) {
@@ -85,9 +91,29 @@ const wsPresencePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) =>
 			}
 			
 		});
+		socket.on('message', (msg:any) => {
+			try {
+			if (authenticated)
+			{
+				const message = msg.toString();
+				if (message === 'pong' && user)
+				{
+					userManager.setAlive(user.id);
+				}
+				else
+					throw new Error('message is not "pong"');
+			}
+			else
+				throw new Error('not authenticated user sent message!');
+			}
+			catch (e: any){
+				fastify.log.warn('💀 [Presence WS]', e.message);
+				socket.close();
+			}
+		})
 
 		socket.on('close', () => {
-			// console.log("presence ws close handler");
+			console.log("presence ws close handler");
 			if (user)
 			{
 				userManager.removeUser(user.id);
@@ -105,6 +131,7 @@ const wsPresencePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) =>
 
 	// single heartbeat/ping system (pings presence, game and tournament sockets through userManager)
 	setInterval(() => {
+		console.log("current present users: ", userManager.getOnlineUsers())
 		try {
 			userManager.checkHeartbeats(); // implementation updated to ping all socket-types
 		} catch (err) {

@@ -7,7 +7,6 @@ import { generateqrcode, generateSecret, validate_2fa_token } from '../../2FA/2f
 import { JWTPayload, Jwt_type } from '../../types';
 import { findUserById } from '../../database/user';
 import { store2faKey, delete2faKey } from '../../database/2fa';
-import { updateProfileLogInState } from '../../database/profile';
 
 
 const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
@@ -70,7 +69,7 @@ const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		const payload = req.user as JWTPayload;
 		const { tfa_token } = req.body;
 		const user = await findUserById(payload.id);
-		console.log(user);
+		// console.log(user);
 		if (!user){
 			return res.status(401).send({ message: "INVALID_USER" });
 		}
@@ -86,7 +85,7 @@ const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 
 		payload.type = Jwt_type.normal;
 		const jwt = fastify.jwt.sign(payload, { expiresIn: '2h' });
-		await updateProfileLogInState(user.id, true);
+		// await updateProfileLogInState(user.id, true);
 		res.setCookie('Authorisation', jwt, {	path:'/',
 												maxAge:7200, //2h
 												sameSite:'strict',

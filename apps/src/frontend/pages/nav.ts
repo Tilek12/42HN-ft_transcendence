@@ -1,6 +1,7 @@
 import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore, transelate_per_id, translations_nav } from './languages.js';
 import { getUser, clearUser} from '../utils/auth.js'
+import { renderConnectionErrorPage } from './error.js';
 
 
 let presenceUnsub: (() => void) | null = null;
@@ -51,7 +52,7 @@ export function changeLoginButton(login: boolean) {
 const listenerLogoutBtn = async (e : any) =>
 {
 	e.preventDefault();
-	{
+	{try {
 		if (!getUser())
 			return;
 		const resp = await fetch('/api/logout',
@@ -65,6 +66,9 @@ const listenerLogoutBtn = async (e : any) =>
 		clearUser();
 		changeLoginButton(true);
 		location.hash = '#/';
+		}catch(e:any){
+				renderConnectionErrorPage();
+		}
 	}
 }
 

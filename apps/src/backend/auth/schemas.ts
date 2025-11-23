@@ -55,7 +55,7 @@ const TFA_token_schema = {
 // export type StringSchema = FromSchema<typeof StringSchema>;
 
 
-const AuthHeader = 
+export const AuthHeader = 
 {
 	type: 'object',
 	properties: {
@@ -290,10 +290,9 @@ export const registerSchema = {
 	// querystring: false,
 	body: {
 		type: 'object',
-		required: ['username', 'email', 'password'],
+		required: ['username', 'password'],
 		properties: {
 			username: UsernameSchema,
-			email: EmailSchema,
 			password: PasswordSchema,
 		},
 	},

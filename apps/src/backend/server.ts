@@ -134,7 +134,6 @@ async function main() {
 		});
 	}
 
-
 	// Public routes
 	await server.register(authRoutes, { prefix: '/api' });			// Public routes (login/register)
 
@@ -173,8 +172,8 @@ async function main() {
 		});
 
 
-	// server.setErrorHandler(Errorhandler);
-
+		
+		// server.setErrorHandler(Errorhandler);
 	// Start listening
 	try {
 		await server.listen({ port: PORT, host: '0.0.0.0' });

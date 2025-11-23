@@ -10,7 +10,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
 	fastify.get('/me', async (req, res) => {
 		const payload = req.user as JWTPayload;
 		const user = await findUserById(payload.id);
-		console.log(user);
+		// console.log(user);
 		if (!user)
 			return res.status(400).send({ message: 'User not found' });
 		else if ( userManager.getUser(payload.id))

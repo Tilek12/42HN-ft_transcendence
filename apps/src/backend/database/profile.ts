@@ -10,10 +10,6 @@ export async function findProfileByUsername(username: string)
 	return await db.get('SELECT * FROM profiles WHERE username = ?', username);
 }
 
-export async function findProfileByEmail(email: string)
-{
-	return await db.get('SELECT * FROM profiles WHERE email = ?', email);
-}
 
 export async function findProfileById(id: number)
 {
@@ -26,25 +22,13 @@ export async function createProfile(username: string)
 	if (!user)
 		return;
 	await db.run(
-		'INSERT INTO profiles (id, wins, losses, trophies) VALUES (?,?,?,?,?)',
+		'INSERT INTO profiles (id, wins, losses, trophies) VALUES (?,?,?,?)',
 		user.id, 0, 0, 0
 	);
 	//-----------
 
 }
-export async function updateProfileLogInState(id: number, status: boolean)
-{
-	await db.run(
-		'UPDATE profiles SET logged_in = ? WHERE id = ?',
-		status,
-		id
-	);
-	await db.run(
-		'UPDATE users SET is_logged_in = ? WHERE id = ?',
-		status,
-		id
-	);
-}
+
 export async function parseProfiles(prof_id : number, offset_param?: number, limit_param?: number) : Promise<any[]>
 {
 	let sqliteString = `SELECT
@@ -53,8 +37,7 @@ export async function parseProfiles(prof_id : number, offset_param?: number, lim
 		  p.wins,
 		  p.losses,
 		  p.trophies,
-		  p.logged_in,
-		  p.image_blob,
+		  p.image_blob
 		FROM users u
 		JOIN profiles p ON u.id = p.id
 		WHERE u.id != ?`;
