@@ -1,6 +1,7 @@
 import { GameRoom } from '../game/game-room';
 import { Player, GameMode } from '../game/game-types';
-import { tournamentManager } from './tournament-manager';
+import { onlineTournamentManager } from './online-tournament-manager';
+import { localTournamentManager } from './local-tournament-manager';
 import { userManager } from './user-manager';
 
 class GameManager {

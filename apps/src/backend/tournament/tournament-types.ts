@@ -1,10 +1,9 @@
-export type TournamentMode = 'local' | 'online';
 export type TournamentSize = 4 | 8;
 export type TournamentStatus = 'waiting' | 'active' | 'finished';
 
 export type MatchStatus = 'scheduled' | 'waiting_for_sockets' | 'running' | 'finished';
 
-export interface Participant { id: string; name: string; } // online: userId; local: ephemeral id
+export interface Participant { id: string; name: string; }
 
 export interface Match {
 	id: string;
@@ -21,13 +20,13 @@ export interface Match {
 
 export interface TournamentState {
 	id: string;
-	mode: TournamentMode;			// 'local' or 'online'
 	size: TournamentSize;
-	hostId: string;					// creator
+	hostId: string;					// creator's id
+  // hostSocket: WebSocket;	// creator's control socket
 	status: TournamentStatus;
 	participants: Participant[];	// length = size
 	rounds: Match[][];				// rounds[0] = quarter/semi etc
-	createdAt: number;
+	createdAt?: number;
 }
 
 // Tournament WebSocket Message Types (Backend)
