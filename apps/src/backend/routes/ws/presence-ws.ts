@@ -46,88 +46,78 @@ export const sendTournamentUpdate = () => {
 const wsPresencePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 	// WebSocket route
 	fastify.get('/presence',
-		{	schema: PresenceWebsocketSchema,
-			websocket: true },
-			(socket, req) => {
-		let authenticated = false;
-		let decoded = req.user as JWTPayload;
-		let user: User | null;
-		
-		console.log("presence endpoint triggered for id: ", decoded.id);
-		// Sync attach to prevent dropped messages
+		{
+			schema: PresenceWebsocketSchema,
+			websocket: true
+		},
+		(socket, req) => {
+			let authenticated = false;
+			let decoded = req.user as JWTPayload;
+			let user: User | null;
+
+			console.log("presence endpoint triggered for id: ", decoded.id);
+			// Sync attach to prevent dropped messages
 
 
-		socket.on('open', async (msg: any) => {
-			console.log("presence ws message handler");
-			try {
-				if (!authenticated) {
-					user = await findUserById(decoded.id);
-					if ((fastify.jwt.verify(msg) as JWTPayload).id !== decoded.id )
-						throw new Error("Message token does not match header token!")
-					// console.log(user)
-					if (userManager.getUser(decoded.id))
-						throw new Error(` Duplicate connection rejected for: ${decoded.id}`);
-					if (user) {
-						console.log(`presence ws authenticated user ${user.id}`);
-						userManager.createUser(user, socket);
-						userManager.setAlive(user.id);
-						authenticated = true;
-						fastify.log.info(`🟢 [Presence WS] Connected: ${user.username}`);
-						sendTournamentUpdate();
-						sendPresenceUpdate();
+			socket.on('mesage', async (msg: any) => {
+				console.log("presence ws message handler");
+				try {
+					if (!authenticated) {
+						user = await findUserById(decoded.id);
+						if (!user)
+							throw new Error(`User not found ID: ${decoded.id}`);
+
+						if ((fastify.jwt.verify(msg) as JWTPayload).id !== decoded.id)
+							throw new Error("Message token does not match header token!")
+						
+						if (userManager.getUser(decoded.id))
+							throw new Error(` Duplicate connection rejected for: ${decoded.id}`);
+
+						if (user) {
+							console.log(`presence ws authenticated user ${user.id}`);
+							userManager.createUser(user, socket);
+							userManager.setAlive(user.id);
+							authenticated = true;
+							fastify.log.info(`🟢 [Presence WS] Connected: ${user.username}`);
+							sendTournamentUpdate();
+							sendPresenceUpdate();
+						}
+						else
+							throw new Error(`Couldnt find ${decoded.username} in db`);
 					}
-					else 
-						throw new Error(`Couldnt find ${decoded.username} in db`);
+					else {
+						const message = msg.toString();
+						if (message === 'pong' && user) {
+							userManager.setAlive(user.id);
+						}
+						else
+							throw new Error('message is not "pong"');
+
+					}
 				}
-				else {
-					console.log("lol");
-					
-				}
-			}
-			catch (err) {
-				fastify.log.warn(`🔴 [Presence WS] Error: ${err}`);
-				socket.close(4001, 'Unauthorized')
+				catch (err) {
+					fastify.log.warn(`🔴 [Presence WS] Error: ${err}`);
+					socket.close(4001, 'Unauthorized')
 					return;
-			}
+				}
+
+			});
 			
-		});
-		socket.on('message', (msg:any) => {
-			try {
-			if (authenticated)
-			{
-				const message = msg.toString();
-				if (message === 'pong' && user)
-				{
-					userManager.setAlive(user.id);
+			socket.on('close', () => {
+				console.log("presence ws close handler");
+				if (user) {
+					userManager.removeUser(user.id);
+					fastify.log.info(`🔴 [Presence WS] Disconnected: ${user.id}`);
+					sendPresenceUpdate();
 				}
 				else
-					throw new Error('message is not "pong"');
-			}
-			else
-				throw new Error('not authenticated user sent message!');
-			}
-			catch (e: any){
-				fastify.log.warn('💀 [Presence WS]', e.message);
-				socket.close();
-			}
-		})
+					fastify.log.warn("[Presence WS] no user to remove");
 
-		socket.on('close', () => {
-			console.log("presence ws close handler");
-			if (user)
-			{
-				userManager.removeUser(user.id);
-				fastify.log.info(`🔴 [Presence WS] Disconnected: ${user.id}`);
-				sendPresenceUpdate();
-			}
-			else
-				fastify.log.warn("[Presence WS] no user to remove");
-
+			});
+			socket.on('error', (err) => {
+				fastify.log.warn({ err }, '[Presence WS] socket error');
+			});
 		});
-		socket.on('error', (err) => {
-			fastify.log.warn({ err }, '[Presence WS] socket error');
-		});
-	});
 
 	// single heartbeat/ping system (pings presence, game and tournament sockets through userManager)
 	setInterval(() => {
