@@ -1,30 +1,29 @@
 import { changeLoginButton } from '../pages/nav.js';
 import { payload, User } from '../types.js'
 
-let user: User | undefined;
-let csrfToken: string | undefined;
+let user: User | null;
+let csrfToken: string | null;
 
-
-export function getUser() {
+export function getUser():User | null {
 	return user;
 }
-export function setUser(newUser: User) {
+export function setUser(newUser: User|null) {
 	user = newUser;
 }
 export function clearUser() {
-	user = undefined
+	user = null
 }
 
 export function saveCsrfToken(token: string) {
 	csrfToken = token;
 }
 
-export function getcsrfToken(): string | undefined {
+export function getcsrfToken(): string | null {
 	return csrfToken;
 }
 
 export function clearscrfToken() {
-	csrfToken = undefined;
+	csrfToken = null;
 }
 
 export async function validateLogin(): Promise<boolean> {
@@ -37,6 +36,9 @@ export async function validateLogin(): Promise<boolean> {
 		if (!res.ok)
 			throw new Error();
 		changeLoginButton(false);
+		const data = await res.json();
+		if (data.user)
+			setUser(data.user);
 		return true;
 	} catch (e: any) {
 		return false;

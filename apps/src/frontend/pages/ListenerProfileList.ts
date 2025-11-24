@@ -51,8 +51,7 @@ export const listenerFriendAndBlock = async (event : any, element_id : string, l
 	if (res) {
 		let data;
 		try {
-			const text = await res.text();
-			data = text ? JSON.parse(text) : {};
+			data = await res.json();
 		} catch (err) {
 			console.error("Failed to parse JSON:", err);
 			data = {};

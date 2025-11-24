@@ -1,4 +1,4 @@
-import { FastifyPluginAsync, FastifyRequest, FastifyInstance } from 'fastify';
+import { FastifyPluginAsync, FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 // import {  WebSocket } from '@fastify/websocket'
 import { userManager } from '../../service-managers/user-manager';
@@ -52,29 +52,23 @@ const wsPresencePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) =>
 		},
 		(socket, req) => {
 			let authenticated = false;
-			let decoded = req.user as JWTPayload;
-			let user: User | null;
+			const decoded = req.user as JWTPayload;
+			const userPromise = findUserById(decoded.id); //start async search and store it in promise
+			let user : User | null;
+			user = null;
 
-			console.log("presence endpoint triggered for id: ", decoded.id);
-			// Sync attach to prevent dropped messages
-
-
-			socket.on('mesage', async (msg: any) => {
-				console.log("presence ws message handler");
+			// Synconously attach to prevent dropped messages
+			socket.on('message', async (msg: any) => {
 				try {
 					if (!authenticated) {
-						user = await findUserById(decoded.id);
+						user = await userPromise;// wait for the promise in the handler
 						if (!user)
 							throw new Error(`User not found ID: ${decoded.id}`);
 
-						if ((fastify.jwt.verify(msg) as JWTPayload).id !== decoded.id)
-							throw new Error("Message token does not match header token!")
-						
 						if (userManager.getUser(decoded.id))
 							throw new Error(` Duplicate connection rejected for: ${decoded.id}`);
 
 						if (user) {
-							console.log(`presence ws authenticated user ${user.id}`);
 							userManager.createUser(user, socket);
 							userManager.setAlive(user.id);
 							authenticated = true;
@@ -95,7 +89,7 @@ const wsPresencePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) =>
 
 					}
 				}
-				catch (err) {
+				catch (err:any) {
 					fastify.log.warn(`🔴 [Presence WS] Error: ${err}`);
 					socket.close(4001, 'Unauthorized')
 					return;
@@ -121,7 +115,6 @@ const wsPresencePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) =>
 
 	// single heartbeat/ping system (pings presence, game and tournament sockets through userManager)
 	setInterval(() => {
-		console.log("current present users: ", userManager.getOnlineUsers())
 		try {
 			userManager.checkHeartbeats(); // implementation updated to ping all socket-types
 		} catch (err) {

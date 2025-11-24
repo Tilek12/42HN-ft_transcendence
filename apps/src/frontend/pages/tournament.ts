@@ -431,7 +431,7 @@ export async function renderTournament(root: HTMLElement) {
 				wsManager.disconnectTournamentSocket();
 				renderTournamentList();
 			}
-		});
+		}, );
 
 		if (!socket) alert('Failed to create tournament');
 	}

@@ -12,7 +12,7 @@ export interface PresenceUser {
 
 export interface User {
   id:number;
-  username:   string,
+  username: string,
   created_at: string,
   image_blob:string | undefined;
   wins:number,

@@ -13,13 +13,14 @@ import { wsManager } from './websocket/ws-manager.js';
 import { renderQrcode } from './pages/2fa.js';
 import { renderSettings } from './pages/settings.js'
 
-const protectedRoutes = ['#/profile', '#/friends', '#/game', '#/settings', '#/tournament','settings'];
+const protectedRoutes = ['#/profile', '#/friends', '#/game', '#/settings', '#/tournament','#/settings', '#/leaderboard'];
 export async function router() 
 {
 	const	root = document.getElementById('app')!;
 	let		route = location.hash || '#/';
-	const	isLoggedIn = getUser() !== undefined || await validateLogin();
-
+	const	isLoggedIn = getUser() !== null || await validateLogin();
+	console.log("getUser() !== null:",getUser() !== null )
+	changeLoginButton(!isLoggedIn);
 	unhideNav();
 
 	if (isLoggedIn)
@@ -39,7 +40,7 @@ export async function router()
 			}
 		}
 		else
-			location.hash = '/login';
+			return location.hash = '/login';
 	}
 	else
 	{
@@ -51,7 +52,7 @@ export async function router()
 			{
 				case '#/login':
 				case '#/register':
-				default: location.hash = '/profile';
+				default: return location.hash = '/profile';
 			}
 		}
 		else{

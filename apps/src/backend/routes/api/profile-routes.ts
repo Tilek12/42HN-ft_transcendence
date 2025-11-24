@@ -5,7 +5,7 @@ import { FastifyInstance, FastifyPluginAsync } from 'fastify';
 import { findUserById, isUsername, updateUsername, updatePasswordById } from '../../database/user';
 import {
 	findProfileById,
-	updatePicturePath,
+	updatePicture,
 	parseFriends,
 	bidirectionalAddAFriend,
 	parseProfiles,
@@ -91,13 +91,13 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 				.toBuffer();
 			// console.log("=====>>Compresed", compressed);
 			//----uploading-------------
-			await updatePicturePath(jwt.id, '', compressed);
+			await updatePicture(jwt.id, compressed);
 			const profile = await findProfileById(jwt.id);
 			// console.log(profile);
 			res.status(200).send({ message: 'Profile picture updated and resized', blob: profile.image_blob.toString("base64") });
 		} catch (err) {
 			console.error(err);
-			res.status(500).send({ message: 'Upload failed' });
+			res.status(500).send({ message: `Upload failed: ${err}` });
 		}
 	});
 
@@ -108,7 +108,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		try {
 			const jwt = req.user as JWTPayload;
 			const profile = await findProfileById(jwt.id);
-			await updatePicturePath(jwt.id,'', null);
+			await updatePicture(jwt.id, null);
 			res.send({ message: 'Profile picture deleted and reset to default' });
 		} catch (err) {
 			res.status(401).send({ message: 'Unauthorized or error delete_pic' });

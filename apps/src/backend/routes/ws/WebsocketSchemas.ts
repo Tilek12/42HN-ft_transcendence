@@ -20,7 +20,7 @@ export const GameWebsocketSchema = {
 	hidden: false,
 	headers: AuthHeader,
 	// query
-	params: {
+	querystring: {
 		type: 'object',
 		required: ['mode'],
 		properties: {
@@ -32,7 +32,7 @@ export const GameWebsocketSchema = {
 
 } as const;
 
-export type GameWebsocketQuery = FromSchema<typeof GameWebsocketSchema.params>;
+export type GameWebsocketQuery = FromSchema<typeof GameWebsocketSchema.querystring>;
 
 export const TournamentWebsocketSchema = {
 	//swagger
@@ -41,13 +41,18 @@ export const TournamentWebsocketSchema = {
 	summary: 'game ws',
 	hidden: false,
 	headers: AuthHeader,
-	params: {
+	querystring: {
 		type: 'object',
-		properties: {		},
-		required: ['']
+		required: ['action', 'mode'],
+		properties: {
+			action:	{ type: 'string', enum:['create', 'join']},
+			id:		{ type: 'string'},
+			size:	{ type: 'number', enum: [4, 8]},
+			mode:	{ type: 'string', enum:['local','online']},
+			names:	{ type: 'array', items:{type:'string'}},
+		},
 	},
-
 } as const;
 
-export type TournamentWebsocketQuery = FromSchema<typeof TournamentWebsocketSchema.params>;
+export type TournamentWebsocketQuery = FromSchema<typeof TournamentWebsocketSchema.querystring>;
 

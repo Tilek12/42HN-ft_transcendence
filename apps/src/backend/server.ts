@@ -16,7 +16,7 @@ import authRoutes from './routes/auth/auth-routes';
 import tfa_Routes from './routes/auth/2fa-routes';
 import userRoutes from './routes/api/user-routes';
 import profileRoutes from './routes/api/profile-routes';
-import matchRoutes from './routes/api/match-routes';
+// import matchRoutes from './routes/api/match-routes';
 
 import wsGamePlugin from './routes/ws/game-ws';
 import wsPresencePlugin from './routes/ws/presence-ws';
@@ -95,7 +95,7 @@ async function main() {
 	await server.register(cookie, {secret: COOKIE_SECRET });	//cookies
 	await server.register(csrf, { cookieOpts: { signed: true }})//crsf Protection						
 	await server.register(fastifyJwt, jwtOpts);					// Create JWT
-	await server.register(websocket);							// Add WebSocket support
+	await server.register(websocket, {options:{maxPayload: 1048576,backlog:10}});							// Add WebSocket support
 	await server.register(multipart);							// file supposrt for fastify
 	server.register(helmet);									// adds http headers for security
 
@@ -149,7 +149,7 @@ async function main() {
 		await protectedScope.register(userRoutes);					// Protected routes: /api/private/me
 		await protectedScope.register(profileRoutes);				// Protected routes: /api/private/profile
 		//await protectedScope.register(tournamentRoutes);			// Protected routes: /api/private/tournaments
-		await protectedScope.register(matchRoutes);					// Protected routes: /api/private/match
+		// await protectedScope.register(matchRoutes);					// Protected routes: /api/private/match
 	}, { prefix: '/api/private' });
 
 	// WebSocket routes
@@ -191,8 +191,8 @@ async function main() {
 		if (isShuttingDown) return; // guard the shutdown as concurrently sends two sigints to process when running in dev mode
 		isShuttingDown = true;
 		console.log(`\n🛑 [PID ${process.pid}] Gracefully shutting down...`);
-		await logout_all_users();
-		console.log("❎ All Users logged out.");
+		// await logout_all_users();
+		// console.log("❎ All Users logged out.");
 		try {
 			await server.close();
 			console.log('❎ Server closed');

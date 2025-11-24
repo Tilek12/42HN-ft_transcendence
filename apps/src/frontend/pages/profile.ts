@@ -1,5 +1,5 @@
 
-import { getUser, clearUser, setUser, validateLogin } from '../utils/auth.js'
+import { getUser, clearUser, setUser } from '../utils/auth.js'
 import { renderProfilesList } from './renderProfiles.js';
 import { renderUserProfile, profile_ids, update_langauge_headers_user_profile } from './renderUserProfile.js';
 import type { Profile_details } from './renderUserProfile.js';

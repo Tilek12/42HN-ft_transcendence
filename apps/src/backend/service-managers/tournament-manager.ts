@@ -60,7 +60,7 @@ class TournamentManager {
 		}
 
 		if (mode === 'online') {
-			await createTournamentDB(`Tournament ${id}`, parseInt(host.id));
+			await createTournamentDB(`Tournament ${id}`, Number(host.id));
 		}
 		// Local tournaments are not stored in DB
 

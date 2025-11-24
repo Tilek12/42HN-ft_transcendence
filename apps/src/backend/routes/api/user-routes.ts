@@ -12,10 +12,13 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
 		const user = await findUserById(payload.id);
 		// console.log(user);
 		if (!user)
-			return res.status(400).send({ message: 'User not found' });
+			return res.status(401).send({ message: 'User not found' });
 		else if ( userManager.getUser(payload.id))
-			return res.status(400).send({ message: 'User already logged in' });
-			
+			return res.status(401).send({ message: 'User already logged in' });
+		return res.status(200).send({
+			id: user.id,
+			username: user.username,
+		});
 	});
 
 	//unused...

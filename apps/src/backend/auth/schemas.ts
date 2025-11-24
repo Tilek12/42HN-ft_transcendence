@@ -187,7 +187,7 @@ export const parseProfilesSchema = {
 	hidden: false,
 	header: AuthHeader,
 	//query
-	params: {
+	querystring: {
 		type: 'object',
 		properties: {
 			offset:	{ type: 'number'},
@@ -204,7 +204,7 @@ export const parseProfilesSchema = {
 		}
 	}
 } as const;
-export type parseProfilesQuery = FromSchema<typeof parseProfilesSchema.params>;
+export type parseProfilesQuery = FromSchema<typeof parseProfilesSchema.querystring>;
 
 
 export const PasswordChangeSchema = 
@@ -245,8 +245,6 @@ export const loginSchema = {
 	tags: ['auth'],
 	summary: 'login',
 	hidden: false,
-	//query
-	// params: false,
 	//body
 	body: {
 		type: 'object',

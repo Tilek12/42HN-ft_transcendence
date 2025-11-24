@@ -29,7 +29,7 @@ export async function createProfile(username: string)
 
 }
 
-export async function parseProfiles(prof_id : number, offset_param?: number, limit_param?: number) : Promise<any[]>
+export async function parseProfiles(prof_id : number, offset?: number, limit?: number) : Promise<any[]>
 {
 	let sqliteString = `SELECT
 		  u.id,
@@ -41,14 +41,12 @@ export async function parseProfiles(prof_id : number, offset_param?: number, lim
 		FROM users u
 		JOIN profiles p ON u.id = p.id
 		WHERE u.id != ?`;
-	if (offset_param && limit_param)
+	if (offset !== undefined && limit !== undefined)
 	{
-		const offset = offset_param;
-		const limit = limit_param;
 		sqliteString += ` LIMIT  ? OFFSET ?`;
 		return await db.all(sqliteString, [prof_id, limit, offset])
 	}
-	return await db.all(sqliteString, prof_id);
+	return await db.all(sqliteString, [prof_id]);
 
 }
 //-----Matches and tournaments-------------------------
@@ -61,10 +59,9 @@ export async function incrementWinsOrLossesOrTrophies(id: number, field: 'wins' 
 //-----Profile path or url-----------------------------
 }
 
-export async function updatePicturePath(id: number, path_or_url: string, image_blob?: any) {
+export async function updatePicture(id: number, image_blob?: any) {
 	await db.run(
-	  `UPDATE profiles SET image_path = ?, image_blob = ? WHERE id = ?`,
-	  path_or_url,
+	  `UPDATE profiles SET image_blob = ? WHERE id = ?`,
 	  image_blob,
 	  id
 	);

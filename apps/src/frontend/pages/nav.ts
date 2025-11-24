@@ -52,7 +52,8 @@ export function changeLoginButton(login: boolean) {
 const listenerLogoutBtn = async (e : any) =>
 {
 	e.preventDefault();
-	{try {
+	{
+		try {
 		if (!getUser())
 			return;
 		const resp = await fetch('/api/logout',
@@ -60,10 +61,12 @@ const listenerLogoutBtn = async (e : any) =>
 					method: 'POST',
 					credentials:'include',
 				});
+		if (!resp.ok)
+			alert('couldnt log out');
 		console.log(resp);
-		wsManager.disconnectAllSockets();
-		wsManager.clearPresenceData();
 		clearUser();
+		wsManager.clearPresenceData();
+		wsManager.disconnectAllSockets();
 		changeLoginButton(true);
 		location.hash = '#/';
 		}catch(e:any){
