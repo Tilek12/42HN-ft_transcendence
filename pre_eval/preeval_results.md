@@ -22,7 +22,8 @@
 | **lags (=Verzögerungen) and disconnects**	|  pause the game|❌|❌|paused only stops game object updates (ball, paddles), not network or input handling. do not use sleep(), do not only freeze the program.
 |	| Disconnected users can reconnect to a game.|❌|❌|
 |	| after a lag, the player must instantly see the current match state — not old delayed state — and be fully synced with the server.|✅|✅| simulate a lag: right click Inspect -> Network -> No throttling -> Regular 3G (Firefox), Slow 4G (Chrome) -> Play the game for ~10 seconds -> switch back to No throttling. the paddles do not move anymore after lag
-|	| no crash when user is experiencing lags or is disconnected|||
+|	| no crash when user is experiencing lags or is disconnected|❌|❌|not tested yet
+|	|
 
 
 
