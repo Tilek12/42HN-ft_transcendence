@@ -182,9 +182,10 @@ https://medium.com/@pdlsandesh144/a-step-by-step-guide-on-using-node-js-to-imple
 
 ### routes:
 > - POST 
+////////////////////////////////////////////////
 
+Concept:
 
-Im absoloutely stunned what amazing event you put together and made it happen. im really happy i attended it, i even took vacation for it and dont regret it at all. i love the effort you put into it and the overall vibe. i was happy that so many 42 students participated, as im at the end of my curriculum/ in internship and not at campus often anymore. so it was good to connect to the community again. 
-
-There are two major things that i disliked and i think that should be improved for the next time: 
-First: the end of the Hackathon. The Idea of splitting up the main project to incorporate a hardware workshop as a sidequest in general i think is a great idea, as it ofers an alternative for people not ready or willing to commit to a complete webapp or more interested in hardware building. But the fact that it was almost a complete second independent Event was a bit wierd. As it took also the whole hackaton time to do this project it, afterward it being a sidequest 
+add a hardened cookie is to be sent to the client in a http-only, Secure, Samesite=strict, Max-Age (=Expiry of jwt); this cookie it will persist until the browser is closed. its a random generated string of bytes.
+a sha256 hash of this string is added to the jwt.
+At authorisation handler the stored radom user context from database is hashed and compared to the jwt content

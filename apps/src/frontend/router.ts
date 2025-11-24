@@ -11,43 +11,53 @@ import { validateLogin } from './utils/auth.js';
 import { changeLoginButton } from './pages/nav.js';
 import { wsManager } from './websocket/ws-manager.js';
 import { renderQrcode } from './pages/2fa.js';
+import { renderSettings } from './pages/settings.js'
 
+const protectedRoutes = ['#/profile', '#/friends', '#/game', '#/settings', '#/tournament','settings'];
+export async function router() 
+{
+	const root = document.getElementById('app')!;
+	let route = location.hash || '#/';
+	const navigation = document.getElementById('navigation');
+	const isLoggedIn = await validateLogin();
 
-export async function router() {
-  const root = document.getElementById('app')!;
-  const route = location.hash || '#/';
-  const navbar = document.getElementById('navbar');
-  const isLoggedIn = await validateLogin();
-  if (navbar && navbar.classList.contains("hidden"))
-    navbar.classList.remove("hidden")
-  changeLoginButton(!isLoggedIn)
+	if (navigation && navigation.classList.contains("hidden"))
+		navigation.classList.remove("hidden")
+	changeLoginButton(!isLoggedIn)
 
+	console.log("router to:", route, " isLoggedIn: ", isLoggedIn?"true":"false");
+	if (isLoggedIn)
+		wsManager.connectPresenceSocket();
 
+	if (protectedRoutes.includes(route)) {
+		if (isLoggedIn)
+		{
+			console.log("first switch");
+			switch (route) {
+				case '#/tournament': return renderTournament(root);
+				case '#/game': return renderGame(root);
+				case '#/profile': return renderProfile(root);
+				case '#/friends': return renderFriends(root);
+				case '#/leaderboard': return renderLeaderboard(root);
+				case '#/settings': return renderSettings(root);
+			}
+		}
+		else
+			location.hash = '/login';
+	}
+	else
+	{
+		console.log("second switch");
+		switch(route)
+		{
+			case '#/login': return renderLogin(root);
+			case '#/register': return renderRegister(root);
+			case '#/':
+			case '': return renderMainPage(root);
+			default: return renderNotFound(root);
+		}
+	}
 
-
-if (isLoggedIn)
-  wsManager.connectPresenceSocket();
-
-  const protectedRoutes = ['#/profile', '#/friends', '#/game', '#/settings', '#/tournament'];
-  if (protectedRoutes.includes(route) && !isLoggedIn) {
-    location.hash = '#/login';
-    return;
-  }
-
-  switch (route) {
-    case '#/tournament': return renderTournament(root);
-    case '#/game': return renderGame(root);
-    case '#/profile': return renderProfile(root);
-    case '#/login': return renderLogin(root);
-    case '#/register': return renderRegister(root);
-    case '#/friends': return renderFriends(root);
-    case '#/leaderboard': return renderLeaderboard(root);
-    //   case '#/settings': return renderSettings(root);
-    case '#/2fa': return renderQrcode(root);
-    case '#/':
-    case '': return renderMainPage(root);
-    default: return renderNotFound(root);
-  }
 
 
 }

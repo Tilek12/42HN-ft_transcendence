@@ -1,5 +1,5 @@
 
-import { renderBackgroundTop } from '../utils/layout.js';
+import { renderBackgroundFull } from '../utils/layout.js';
 import { getToken, getJWTPayload } from '../utils/auth.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { COLORS } from '../constants/colors.js';
@@ -20,8 +20,8 @@ let isPlayerInMatch = false;
 
 export async function renderTournament(root: HTMLElement) {
 
-	root.innerHTML = renderBackgroundTop(`
-    <div class="max-w-4xl mx-auto mt-20 p-6 bg-white/10 rounded-xl shadow-lg backdrop-blur-md">
+	root.innerHTML = renderBackgroundFull(`
+    <div class="max-w-4xl mx-auto m-8 p-6 bg-white/10 rounded-xl shadow-lg backdrop-blur-md">
       <h1 id="tournament_lobby_header"class="text-3xl font-bold mb-4 text-center text-white">${translations_tournament_render[languageStore.language]!.tournament_lobby_header}</h1>
       <p id="glory_header"class="text-center text-gray-400 mb-6">${translations_tournament_render[languageStore.language]!.glory_header}</p>
       <div id="tournament-mode" class="mb-6 flex justify-center">

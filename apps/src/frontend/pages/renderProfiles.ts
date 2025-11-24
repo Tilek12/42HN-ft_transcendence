@@ -24,25 +24,43 @@ const friend_request_action = (is_friend: number, peding_direction : string, oth
 		res =` 
         <button 
             data-profile-id="${other_profile_id}" 
-            class="unlink-btn px-16 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded"
+            class="unlink-btn px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-xl transform hover:scale-110 group"
             title="Remove Friend">
-            ✖
+            <svg class="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"></path>
+			</svg>
         </button>`;
 	else
 	{
 		if (peding_direction == null)
-			res = `<button data-profile-id = "${other_profile_id}" class=" link-btn px-16 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">➕</button>`;
+			res = `<button data-profile-id = "${other_profile_id}" class="link-btn px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-xl transform hover:scale-110 group">
+				<svg class="w-5 h-5 transition-transform duration-300 group-hover:-translate-y-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+				</svg>
+			</button>`;
 		else
-			res =`<button data-profile-id = "${other_profile_id}" class=" pending-btn px-16 py-2 bg-gray-600 text-white opacity-50 rounded">⏳</button>`;
+			res =`<button data-profile-id = "${other_profile_id}" class="pending-btn px-4 py-2 bg-gray-600 text-white opacity-50 rounded-lg flex items-center cursor-not-allowed">
+				<svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+				</svg>
+			</button>`;
 	}
 	return res
 }
 const block_action = (is_blocking : number, other_profile_id: number) => {
 	let res : string = '';
 	if(!is_blocking)
-		res = `<button data-profile-id = "${other_profile_id}" class=" block-btn px-16 py-2 bg-red-600 hover:bg-red-700 text-white rounded">⛔</button>`;
+		res = `<button data-profile-id = "${other_profile_id}" class="block-btn px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-xl transform hover:scale-110 group">
+			<svg class="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+			</svg>
+		</button>`;
 	else
-		res =`<button data-profile-id = "${other_profile_id}" class=" unblock-btn px-16 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded">🔓</button>`;
+		res =`<button data-profile-id = "${other_profile_id}" class="unblock-btn px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-xl transform hover:scale-110 group">
+			<svg class="w-5 h-5 transition-transform duration-300 group-hover:-rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
+			</svg>
+		</button>`;
 	return res
 }
 
@@ -64,22 +82,43 @@ const array_to_html = (profile : any,  profiles_len?: number) : string =>
 	is_connected = listUsers.includes(profile.username);
 	
 	const profile_pic_src = profile.image_blob ? `data:image/webp;base64,${profile.image_blob}` : `/profile_pics/${profile.image_path}`;
-	return `<div class = "flex items-center bg-white p-4 rounded-xl shadow mb-2">
-				<img src= "${profile_pic_src}" class="w-12 h-12 rounded-full mr-4" />
-				<div class = "flex items-center flex-col">
-				   <div>
-						<a href="" class="text-lg font-semibold text-blue-600 ">
-							<span id="profiles-loggin-state-${profile.username}" class=" px-2 profiles-loggin-state">
-							</span>${profile.username}
-							<p class="text-sm text-gray-600"> 🏆 ${profile.trophies} | ✅ ${profile.wins} | ❌ ${profile.losses} </p>
-						</a>
-				   </div>
+	return `<div class="flex items-center justify-between bg-white/10 backdrop-blur-md p-5 rounded-xl shadow-xl mb-4 border border-white/20 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)] hover:bg-white/15 hover:border-blue-400/50 group">
+				<div class="flex items-center space-x-4">
+					<div class="relative">
+						<img src="${profile_pic_src}" class="w-16 h-16 rounded-full border-4 border-white/30 shadow-lg object-cover transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:border-blue-400" />
+						<span id="profiles-loggin-state-${profile.username}" class="absolute bottom-0 right-0 w-5 h-5 rounded-full border-2 border-white profiles-loggin-state shadow-lg transition-all duration-300"></span>
+					</div>
 					<div>
-					${friend_request_action(profile.is_friend, profile.pending_direction, profile.id)}
-					${block_action(profile.is_blocking, profile.id)}
+						<div class="flex items-center space-x-2">
+							<span class="text-xl font-bold text-white transition-all duration-300 group-hover:text-blue-400 group-hover:scale-105">${profile.username}</span>
+						</div>
+						<div class="flex items-center space-x-4 text-sm mt-2">
+							<span class="flex items-center text-yellow-400 transition-all duration-300 hover:scale-110 cursor-pointer">
+								<svg class="w-5 h-5 mr-1 transition-transform duration-300 hover:rotate-12" fill="currentColor" viewBox="0 0 20 20">
+									<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+								</svg>
+								<span class="font-semibold">${profile.trophies}</span>
+							</span>
+							<span class="flex items-center text-green-400 transition-all duration-300 hover:scale-110 cursor-pointer">
+								<svg class="w-5 h-5 mr-1 transition-transform duration-300 hover:scale-125" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span class="font-semibold">${profile.wins}</span>
+							</span>
+							<span class="flex items-center text-red-400 transition-all duration-300 hover:scale-110 cursor-pointer">
+								<svg class="w-5 h-5 mr-1 transition-transform duration-300 hover:scale-125" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+								</svg>
+								<span class="font-semibold">${profile.losses}</span>
+							</span>
+						</div>
 					</div>
 				</div>
+				<div class="flex space-x-2">
+					${friend_request_action(profile.is_friend, profile.pending_direction, profile.id)}
+					${block_action(profile.is_blocking, profile.id)}
 				</div>
+			</div>
 			`;
 }
 
@@ -146,7 +185,12 @@ export async function renderProfilesList (
 				array_to_html(profile, allProfiles?.length)).join(' '));
 			// console.log("NOW I'M HEREEEEEE is printing?", print);
 		}
-		container.innerHTML = `<h1 class="text-2xl text-black font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2">Users List</h1>` + html;
+		container.innerHTML = `<h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+			<svg class="w-6 h-6 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+			</svg>
+			Users List
+		</h2>` + html;
 		// console.log(`before the set on RENDER PROFILES LIST +++`, allProfiles)
 		allProfiles?.map((all) => all.profiles?.map((pr)=> {pr.logged_in = wsManager.presenceUserList.map((u)=> u.name).includes(pr.username); return pr;}));
 		// console.log("HERE CHECK AFTER THE SECOND MAP");
@@ -155,10 +199,14 @@ export async function renderProfilesList (
 				// console.log(`changing on profile lists ${pr.username} to ${pr.logged_in}`);
 				// console.log("===>>", document.getElementById(`profiles-loggin-state-${pr.username}`));
 				const profile_loggin_state = document.getElementById(`profiles-loggin-state-${pr.username}`) as HTMLSpanElement;
-				profile_loggin_state?.classList.add(`${pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
-				profile_loggin_state?.classList.remove(`${!pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
-				if(profile_loggin_state)
-					profile_loggin_state.innerHTML ='●';
+				if(profile_loggin_state) {
+					profile_loggin_state.classList.remove('bg-green-500', 'bg-gray-400', 'animate-pulse');
+					if (pr.logged_in) {
+						profile_loggin_state.classList.add('bg-green-500', 'animate-pulse');
+					} else {
+						profile_loggin_state.classList.add('bg-gray-400');
+					}
+				}
 		}));
 		// console.log("===================HERE CHECK AFTER THE LAST MAP=========================");
 		return_res = {AllProfiles : allProfiles, limit : limit, offset : offset, already_parsed :already_parsed};
