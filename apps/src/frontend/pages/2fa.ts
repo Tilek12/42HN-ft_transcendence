@@ -1,4 +1,5 @@
-import { renderConnectionErrorPage } from "./error";
+import { renderConnectionErrorPage } from './error.js';
+
 
 export async function renderQrcode(root: HTMLElement) {
 	try {

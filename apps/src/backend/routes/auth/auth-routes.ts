@@ -1,120 +1,148 @@
-import { FastifyInstance, FastifyPluginAsync } from 'fastify';
+import { FastifyInstance, FastifyPluginAsync, FastifyReply } from 'fastify';
 import { hashPassword, verifyPassword } from '../../auth/utils';
-import { LoginBody, loginSchema, logoutSchema, registerBody, registerSchema } from '../../auth/schemas';
-import type { JWTPayload } from '../../types';
+import { LoginBody, loginSchema, logoutSchema, refreshSchema, registerBody, registerSchema } from '../../auth/schemas';
+import type { JWTPayload, User } from '../../types';
 import { Jwt_type } from '../../types';
-import { findUserByUsername, createUser, log_in, log_out } from '../../database/user';
+import { findUserByUsername, createUser, log_in, log_out, findUserById } from '../../database/user';
 import { createProfile } from '../../database/profile';
 import { userManager } from '../../service-managers/user-manager';
+import { setRefreshCookie, setAccessCookie, deleteAccessCookie, deleteRefreshCookie } from '../../auth/cookies'
+
+
+
+
+
 
 const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
-	// Register
-	fastify.post<{Body: registerBody}>
-				('/register',
-				{ schema: registerSchema },
-				async (req, res) => {
-		const { username, password, tfa } = req.body;
-		if (await findUserByUsername(username)) {
-			return res.status(400).send({ message: 'USERNAME_TAKEN' });
-		}
-		const hashed = await hashPassword(password);
 
-		await createUser(username, hashed, tfa ? true : false);
-		const user = await findUserByUsername(username);
-		await createProfile(username);
-		if (!user)
-			return res.status(500).send({ message: "DATABASE_ERROR" });
-		let payload: JWTPayload = { id: user.id, username: user.username, tfa: user.tfa, role: user.role, type: Jwt_type.normal };
-		let token: string;
-		if (user.tfa) {
-			payload.type = Jwt_type.tmp;
-			token = fastify.jwt.sign(payload, { expiresIn: '5min' });
-			return res.send({ jwt: token, tfa:user.tfa});
-		}
-		else
-		{
-			token = fastify.jwt.sign(payload, { expiresIn: '2h' });
-			res.setCookie("token", token, {	path:'/',
-													maxAge:7200, //2h
-													sameSite:'strict',
-													secure:true,
-													httpOnly:true,
-												} );
-			await log_in(user.id, token);
-			return res.status(200).send({ tfa:user.tfa});
-		}
-	});
+
+	function generateToken(user: User, type: Jwt_type, expires: string): string {
+		let payload: JWTPayload = {
+			id: user.id,
+			username: user.username,
+			tfa: user.tfa,
+			role: user.role,
+			type: type
+		};
+		return fastify.jwt.sign(payload, { expiresIn: expires });
+	}
+
+	// Register
+	fastify.post<{ Body: registerBody }>
+		('/register',
+			{ schema: registerSchema },
+			async (req, res) => {
+				const { username, password, tfa } = req.body;
+				if (await findUserByUsername(username)) {
+					return res.status(400).send({ message: 'USERNAME_TAKEN' });
+				}
+				const hashed = await hashPassword(password);
+
+				await createUser(username, hashed, tfa ? true : false);
+				const user = await findUserByUsername(username);
+				await createProfile(username);
+				if (!user)
+					return res.status(500).send({ message: "DATABASE_ERROR" });
+				let token: string;
+				if (user.tfa) {
+					token = generateToken(user, Jwt_type.temp, '5min');
+					return res.send({ jwt: token, tfa: true });
+				}
+				else {
+					token = generateToken(user, Jwt_type.refresh, '1week');
+					setAccessCookie(generateToken(user, Jwt_type.access, '5min'), res);
+					setRefreshCookie(token, res);
+					await log_in(user.id, token);
+					return res.status(200).send({ tfa: false });
+				}
+			});
 
 	// Login
 	fastify.post<{ Body: LoginBody }>
-				('/login', 
-				{ schema: loginSchema },
-				async (req, res) => {
-		const { username, password } = req.body;
-		const user = await findUserByUsername(username);
-		if (!user || !(await verifyPassword(password, user.password)) || user.username !== username) 
-			return res.status(401).send({ message: 'Invalid credentials' });
-		
-		if (user.username !== username) 
-			return res.status(401).send({ message: 'Invalid username' });
-		
-		if (!(await verifyPassword(password, user.password))) 
-			return res.status(401).send({ message: 'Invalid password' });
+		('/login',
+			{ schema: loginSchema },
+			async (req, res) => {
+				const { username, password } = req.body;
+				const user = await findUserByUsername(username);
+				if (!user || !(await verifyPassword(password, user.password)) || user.username !== username)
+					return res.status(401).send({ message: 'Invalid credentials' });
 
-		if (user && userManager.getUser(user.id))
-			return res.status(410).send({message: 'User already logged in'})
-		
-		let payload: JWTPayload = { id: user.id,
-									username: user.username,
-									tfa: user.tfa,
-									role: user.role,
-									type: Jwt_type.normal };
-		let token: string;
-		if (user.tfa) {
-			payload.type = Jwt_type.tmp;
-			token = fastify.jwt.sign(payload, { expiresIn: '5min' });
-			res.status(200).send({ jwt: token, tfa:user.tfa});
-		}
-		else {
-			token  = fastify.jwt.sign(payload, { expiresIn: '2h' });
-			res.setCookie("token", token, {	path:'/',
-													maxAge:7200, //2h
-													sameSite:'strict',
-													secure:true,
-													httpOnly:true,
-												} );
-			await log_in(user.id, token);
-			res.status(200).send({ tfa:user.tfa});
-		}
-	});
+				if (user.username !== username)
+					return res.status(401).send({ message: 'Invalid username' });
+
+				if (!(await verifyPassword(password, user.password)))
+					return res.status(401).send({ message: 'Invalid password' });
+
+				if (user && userManager.getUser(user.id))
+					return res.status(410).send({ message: 'User already logged in' })
+
+				let token: string;
+				if (user.tfa) {
+					token = generateToken(user, Jwt_type.temp, '5min');
+					res.status(200).send({ jwt: token, tfa: true });
+				}
+				else {
+					token = generateToken(user, Jwt_type.refresh, '1week');
+					setAccessCookie(generateToken(user, Jwt_type.access, '5min'), res);
+					setRefreshCookie(token, res);
+					await log_in(user.id, token);
+					return res.status(200).send({ tfa: false });
+				}
+			});
 
 	// Logout
 	fastify.post('/logout',
-				{ schema: logoutSchema, },
-				async (req: any, res: any) => {
-		try {
-			await req.jwtVerify()
-		} catch (err) {
-			res.status(401).send({ message: "Unauthorized"});
-		}
-		const payload = req.user as JWTPayload;
+		{ schema: logoutSchema, },
+		async (req: any, res: any) => {
+			try {
+				await req.jwtVerify()
+			} catch (err) {
+				res.status(401).send({ message: "Unauthorized" });
+			}
+			const payload = req.user as JWTPayload;
 
 			await log_out(payload.id);
-		res.setCookie('token','', {
-				path:'/',
-				maxAge:0,
-				sameSite:'strict',
-				secure:true,
-				httpOnly:true,
-		})
-		// res.setCookie('refreshtoken','', {
-		// 		path:'/',
-		// 		maxAge:0,
-		// 		sameSite:'strict',
-		// 		secure:true,
-		// 		httpOnly:true,
-		// })
-		res.send({ message: 'Logged out successfully' });
+			deleteAccessCookie(res);
+			deleteRefreshCookie(res);
+			res.send({ message: 'Logged out successfully' });
+		});
+
+
+	fastify.post('/refresh',
+		{ schema: refreshSchema },
+		async (req, res) => {
+		let user: User | null;
+		let refeshCookie: string|null;
+		try {
+			const signedRefreshCookie = req.cookies['REFRESH'];
+			if (!signedRefreshCookie)
+				throw new Error('No Cookie provided!');
+			else
+			{
+				const unsignedCookie = req.unsignCookie(signedRefreshCookie);
+				if (!unsignedCookie.valid || unsignedCookie.value)
+					throw new Error('Cookie unsign error');
+				else
+					refeshCookie = unsignedCookie.value;
+			}
+			const payload = await fastify.jwt.verify(refeshCookie) as JWTPayload;
+			if (payload.type !== Jwt_type.refresh)
+				throw new Error('Invalid token type!');
+			user = await findUserById(payload.id)
+			if (!user || !user.is_logged_in)
+				throw new Error('User not Logged in');
+			else if (await fastify.jwt.verify(user.is_logged_in)as JWTPayload !== payload)
+				throw new Error('Not the same refresh token!');
+		}
+		catch (e: any) {
+			fastify.log.warn(`[ REFRESH ] : ${e}`);
+			deleteAccessCookie(res);
+			deleteRefreshCookie(res);
+			return res.status(401).send({ message: e.message });
+		};
+
+		setAccessCookie(generateToken(user, Jwt_type.access, '5min'), res);
+		res.status(200)
 	});
 }
 

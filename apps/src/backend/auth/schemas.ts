@@ -55,7 +55,7 @@ const TFA_token_schema = {
 // export type StringSchema = FromSchema<typeof StringSchema>;
 
 
-export const AuthHeader = 
+export const AuthHeader =
 {
 	type: 'object',
 	properties: {
@@ -65,117 +65,118 @@ export const AuthHeader =
 };
 
 
+
 /*====================== PROFILE_ROUTES ================================*/
 
-export const ProfileSchema = 
-{
-description: 'ProfileSchema',
-	tags: ['profile'],
-	summary: 'ProfileSchema',
-	hidden: false,
-	header: AuthHeader,
-	//body
-	body: {}
-} as const;
+export const ProfileSchema =
+	{
+		description: 'ProfileSchema',
+		tags: ['profile'],
+		summary: 'ProfileSchema',
+		hidden: false,
+		header: AuthHeader,
+		//body
+		body: {}
+	} as const;
 export type ProfileBody = FromSchema<typeof ProfileSchema.body>;
 
 
-export const UploadPicSchema = 
-{
-description: 'UploadPicSchema',
-	tags: ['profile'],
-	summary: 'UploadPicSchema',
-	hidden: false,
-	header: AuthHeader,
-	//body
-	body: {}
-} as const;
+export const UploadPicSchema =
+	{
+		description: 'UploadPicSchema',
+		tags: ['profile'],
+		summary: 'UploadPicSchema',
+		hidden: false,
+		header: AuthHeader,
+		//body
+		body: {}
+	} as const;
 export type UploadPicBody = FromSchema<typeof UploadPicSchema.body>;
 
 
-export const DeletePicSchema = 
-{
-description: 'DeletePicSchema',
-	tags: ['profile'],
-	summary: 'DeletePicSchema',
-	hidden: false,
-	header: AuthHeader,
-	//body
-	body: {}
-} as const;
+export const DeletePicSchema =
+	{
+		description: 'DeletePicSchema',
+		tags: ['profile'],
+		summary: 'DeletePicSchema',
+		hidden: false,
+		header: AuthHeader,
+		//body
+		body: {}
+	} as const;
 export type DeletePicBody = FromSchema<typeof DeletePicSchema.body>;
 
 
 
-export const ParseFriendsSchema = 
-{
-description: 'ParseFriendsSchema',
-	tags: ['profile'],
-	summary: 'ParseFriendsSchema',
-	hidden: false,
-	header: AuthHeader,
+export const ParseFriendsSchema =
+	{
+		description: 'ParseFriendsSchema',
+		tags: ['profile'],
+		summary: 'ParseFriendsSchema',
+		hidden: false,
+		header: AuthHeader,
 
-} as const;
+	} as const;
 
 
 
-export const ProfileIdSchema = 
-{
-description: 'ProfileIdSchema',
-	tags: ['profile'],
-	summary: 'ProfileIdSchema',
-	hidden: false,
-	header: AuthHeader,
-	//body
-	body: {
-		type: 'object',
-		required: ['profileId'],
-		properties: {
-			profileId: {type: 'string', pattern: '^[0-9]+$ ', minLength:1 },
-		},
-	}
-} as const;
+export const ProfileIdSchema =
+	{
+		description: 'ProfileIdSchema',
+		tags: ['profile'],
+		summary: 'ProfileIdSchema',
+		hidden: false,
+		header: AuthHeader,
+		//body
+		body: {
+			type: 'object',
+			required: ['profileId'],
+			properties: {
+				profileId: { type: 'string', pattern: '^[0-9]+$ ', minLength: 1 },
+			},
+		}
+	} as const;
 export type ProfileIdBody = FromSchema<typeof ProfileIdSchema.body>;
 
 
 
-export const AnswerRequestSchema = 
-{
-description: 'AnswerRequestSchema',
-	tags: ['profile'],
-	summary: 'AnswerRequestSchema',
-	hidden: false,
-	header: AuthHeader,
-	//body
-	body: {
-		type: 'object',
-		required: ['profileId', 'profileAnswer'],
-		properties: {
-			profileId: {type: 'string', pattern: '^[0-9]+$ ', minLength:1 },
-			profileAnswer: {type: 'string', pattern: '^[0-9]+$ ', minLength:1 }
-		},
-	}
-} as const;
+export const AnswerRequestSchema =
+	{
+		description: 'AnswerRequestSchema',
+		tags: ['profile'],
+		summary: 'AnswerRequestSchema',
+		hidden: false,
+		header: AuthHeader,
+		//body
+		body: {
+			type: 'object',
+			required: ['profileId', 'profileAnswer'],
+			properties: {
+				profileId: { type: 'string', pattern: '^[0-9]+$ ', minLength: 1 },
+				profileAnswer: { type: 'string', pattern: '^[0-9]+$ ', minLength: 1 }
+			},
+		}
+	} as const;
 export type AnswerRequestBody = FromSchema<typeof AnswerRequestSchema.body>;
 
 
 
-export const UsernameChangeSchema = 
-{
-description: 'UsernameChangeSchema',
-	tags: ['profile'],
-	summary: 'UsernameChangeSchema',
-	hidden: false,
-	header: AuthHeader,
-	//body
-	body: {
-		type: 'object',
-		required: ['newUsername'],
-		properties: {
-			newUsername: UsernameSchema,
-		},
-	}
-} as const;
+export const UsernameChangeSchema =
+	{
+		description: 'UsernameChangeSchema',
+		tags: ['profile'],
+		summary: 'UsernameChangeSchema',
+		hidden: false,
+		header: AuthHeader,
+		//body
+		body: {
+			type: 'object',
+			required: ['newUsername'],
+			properties: {
+				newUsername: UsernameSchema,
+			},
+		}
+	} as const;
 export type UsernameChangeBody = FromSchema<typeof UsernameChangeSchema.body>;
 
 
@@ -190,48 +191,55 @@ export const parseProfilesSchema = {
 	querystring: {
 		type: 'object',
 		properties: {
-			offset:	{ type: 'number'},
-			limit: 	{ type: 'number' },
+			offset: { type: 'number' },
+			limit: { type: 'number' },
 		}
 	},
 	//body
 	response: {
 		200: {
 			type: 'object',
-			properties: {	jwt: { type: 'string' },
-							tfa: { type: 'boolean' },
-						}
+			properties: {
+				jwt: { type: 'string' },
+				tfa: { type: 'boolean' },
+			}
 		}
 	}
 } as const;
 export type parseProfilesQuery = FromSchema<typeof parseProfilesSchema.querystring>;
 
 
-export const PasswordChangeSchema = 
-{
-description: 'PasswordChangeSchema',
-	tags: ['profile'],
-	summary: 'passwordchange',
-	hidden: false,
-	header: AuthHeader,
-	//body
-	body: {
-		type: 'object',
-		required: ['newpassword', 'oldpassword'],
-		properties: {
-			newpassword: PasswordSchema,
-			oldpassword: PasswordSchema,
-			tfa_token: TFA_token_schema,
-		},
-	}
-} as const;
+export const PasswordChangeSchema =
+	{
+		description: 'PasswordChangeSchema',
+		tags: ['profile'],
+		summary: 'passwordchange',
+		hidden: false,
+		header: AuthHeader,
+		//body
+		body: {
+			type: 'object',
+			required: ['newpassword', 'oldpassword'],
+			properties: {
+				newpassword: PasswordSchema,
+				oldpassword: PasswordSchema,
+				tfa_token: TFA_token_schema,
+			},
+		}
+	} as const;
 export type PasswordChangeBody = FromSchema<typeof PasswordChangeSchema.body>;
 
+/*====================== REFRESH_ROUTE ================================*/
 
 
-
-
-
+export const refreshSchema = {
+	//swagger
+	description: 'refreshSchema',
+	tags: ['auth'],
+	summary: 'refreshSchema',
+	hidden: false,
+	headers: AuthHeader
+} as const;
 
 
 
@@ -258,7 +266,7 @@ export const loginSchema = {
 	response: {
 		200: {
 			type: 'object',
-			properties: { jwt: { type: 'string' }, tfa: {type: 'boolean'} }
+			properties: { jwt: { type: 'string' }, tfa: { type: 'boolean' } }
 		}
 	}
 } as const;

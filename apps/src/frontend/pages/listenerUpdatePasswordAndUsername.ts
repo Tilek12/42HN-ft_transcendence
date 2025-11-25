@@ -1,4 +1,4 @@
-import {getUser} from '../utils/auth.js'
+import {apiFetch, getUser} from '../utils/auth.js'
 
 // DESIGN CHANGE: Added modern toast notification system with animations and gradient backgrounds
 // Replaces basic alert() messages with sleek notifications
@@ -71,7 +71,7 @@ const listenerPasswordCancel = (
 	let new_value = password_new.value;
 	let confirm_value = password_confirm.value;
 
-	let res = await fetch('/api/private/check-given-old-password',
+	let res = await apiFetch('/api/private/check-given-old-password',
 		{
 			method: 'POST',
 			headers:{'Content-Type': 'application/json'},
@@ -104,7 +104,7 @@ const listenerPasswordCancel = (
 		showToast('New password must be different from old password!', 'error');
 		return ;
 	}
-		res = await fetch('/api/private/update-password',
+		res = await apiFetch('/api/private/update-password',
 		{
 			method: 'POST',
 			headers:{'Content-Type': 'application/json'},
@@ -185,7 +185,7 @@ const listenerUsernameUpdate = async (
 	}
 	try
 	{
-		const res = await fetch('/api/private/update-username',
+		const res = await apiFetch('/api/private/update-username',
 			{
 				method: 'POST',
 				headers: {'Content-Type': 'application/json'},

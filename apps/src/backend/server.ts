@@ -10,8 +10,8 @@ import dotenv from 'dotenv';
 
 import { connectToDB, db } from './database/client';
 import { logout_all_users } from './database/user'
-import protected_validate_hook from './Scopes/protected_scope';
-import tfa_validate_hook from './Scopes/2fa_scope'
+import protected_validate_hook from './scopes/protected_scope';
+import tfa_validate_hook from './scopes/2fa_scope'
 import authRoutes from './routes/auth/auth-routes';
 import tfa_Routes from './routes/auth/2fa-routes';
 import userRoutes from './routes/api/user-routes';
@@ -37,7 +37,7 @@ let PORT = Number(process.env.BACKEND_PORT || '443');
 const JWT_SECRET = fs.readFileSync('/run/secrets/jwt_secret');
 const COOKIE_SECRET = fs.readFileSync('/run/secrets/cookie_secret');
 const ADMIN_PASSWORD = fs.readFileSync('/run/secrets/admin_password');
-const APP_MODE = process.env.NODE_ENV ;
+const APP_MODE = process.env.NODE_ENV;
 
 if (!JWT_SECRET || !APP_MODE) {
 	console.error('❌ Missing JWT_SECRET in .env');
@@ -80,10 +80,10 @@ const server = Fastify({
 
 const jwtOpts: FastifyJWTOptions = {
 	secret: JWT_SECRET,
-	  cookie: {
-    	cookieName: 'token',
-    	signed: false
-  	}
+	cookie: {
+		cookieName: 'ACCESS',
+		signed: true
+	}
 }
 
 // App setup
@@ -92,10 +92,10 @@ async function main() {
 	//plugins
 	server.withTypeProvider<JsonSchemaToTsProvider>();			// Support to make Types out of schemas
 	await connectToDB();										// Init DB table
-	await server.register(cookie, {secret: COOKIE_SECRET });	//cookies
-	await server.register(csrf, { cookieOpts: { signed: true }})//crsf Protection						
+	await server.register(cookie, { secret: COOKIE_SECRET });	//cookies
+	// await server.register(csrf, { cookieOpts: { signed: true }})//crsf Protection						
 	await server.register(fastifyJwt, jwtOpts);					// Create JWT
-	await server.register(websocket, {options:{maxPayload: 1048576,backlog:10}});							// Add WebSocket support
+	await server.register(websocket, { options: { maxPayload: 1048576, backlog: 10 } });							// Add WebSocket support
 	await server.register(multipart);							// file supposrt for fastify
 	server.register(helmet);									// adds http headers for security
 
@@ -143,13 +143,14 @@ async function main() {
 		await tfa_Scope.register(tfa_Routes);						// 2fa routes: /2fa/...
 	}, { prefix: '/2fa' });
 
+
 	// Protected routes
 	await server.register(async (protectedScope: any) => {
 		await protectedScope.register(protected_validate_hook);		// Middleware checking token
 		await protectedScope.register(userRoutes);					// Protected routes: /api/private/me
 		await protectedScope.register(profileRoutes);				// Protected routes: /api/private/profile
 		//await protectedScope.register(tournamentRoutes);			// Protected routes: /api/private/tournaments
-		// await protectedScope.register(matchRoutes);					// Protected routes: /api/private/match
+		// await protectedScope.register(matchRoutes);				// Protected routes: /api/private/match
 	}, { prefix: '/api/private' });
 
 	// WebSocket routes
@@ -172,8 +173,8 @@ async function main() {
 		});
 
 
-		
-		// server.setErrorHandler(Errorhandler);
+
+	server.setErrorHandler(Errorhandler);
 	// Start listening
 	try {
 		await server.listen({ port: PORT, host: '0.0.0.0' });

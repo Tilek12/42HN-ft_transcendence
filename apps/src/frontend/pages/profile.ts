@@ -1,5 +1,5 @@
 
-import { getUser, clearUser, setUser } from '../utils/auth.js'
+import { getUser, clearUser, setUser, apiFetch } from '../utils/auth.js'
 import { renderProfilesList } from './renderProfiles.js';
 import { renderUserProfile, profile_ids, update_langauge_headers_user_profile } from './renderUserProfile.js';
 import type { Profile_details } from './renderUserProfile.js';
@@ -64,7 +64,7 @@ const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) => 
 	// return allProfiles
 }
 export async function renderProfile(root: HTMLElement) {
-	fetch('/api/private/profile', {
+	apiFetch('/api/private/profile', {
 		method: 'GET',
 		credentials:'include'
 	})
@@ -177,7 +177,7 @@ export async function renderProfile(root: HTMLElement) {
 				('click', async (e) => listenerDeletePicture(e));
 
 			//==================Linda's code==========================
-			fetch('/api/private/match/user', {
+			apiFetch('/api/private/match/user', {
 				method: 'GET',
 				credentials:'include',
 			})

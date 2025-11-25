@@ -49,7 +49,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			const user = await findUserById(jwt.id);
 			const profile = await findProfileById(jwt.id);
 			if (!user || !profile)
-				return res.status(404).send({ message: 'User or profile not found' });
+				throw new Error('User or profile not found' );
 			res.status(200).send({
 					image_blob: profile.image_blob?.toString("base64"),
 					logged_in: profile.logged_in,
@@ -59,8 +59,8 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 					username: user.username,
 					created_at: user.created_at,
 				})
-		} catch (err) {
-			res.status(401).send({ message: 'Invalid or expired token' });
+		} catch (err:any) {
+			res.status(400).send({ message: err.message });
 		}
 	});
 
@@ -111,7 +111,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			await updatePicture(jwt.id, null);
 			res.send({ message: 'Profile picture deleted and reset to default' });
 		} catch (err) {
-			res.status(401).send({ message: 'Unauthorized or error delete_pic' });
+			res.status(400).send({ message: 'Unauthorized or error delete_pic' });
 		}
 	});
 
@@ -124,8 +124,8 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			const userId = jwt.id;
 			const rows = await parseFriends(userId);
 			res.send({ friends: rows });
-		} catch (err) {
-			res.status(401).send({ message: 'Unauthorized parse_friends' });
+		} catch (err:any) {
+			res.status(400).send({ message: err.message });
 			console.log(err);
 		}
 	});
@@ -139,8 +139,8 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			const userId = jwt.id;
 			const { profileId } = req.body;
 			await bidirectionalDeleteAFriend(userId, Number(profileId));
-		} catch (err) {
-			res.status(401).send({ message: 'Unauthorized unlink_profile' });
+		} catch (err:any) {
+			res.status(400).send({ message: err.message });
 			console.log(err);
 		}
 	});
@@ -156,8 +156,8 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			const { profileId } = req.body;
 			await AddToBlockedList(userId, Number(profileId));
 			await bidirectionalDeleteAFriend(userId, Number(profileId));
-		} catch (err) {
-			res.status(401).send({ message: 'Unauthorized block_profile' });
+		} catch (err:any) {
+			res.status(400).send({ message: err.message});
 			console.log(err);
 		}
 	});
@@ -172,8 +172,8 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			const userId = jwt.id;
 			const { profileId } = req.body as any;
 			await DeleteFromBlockedList(userId, profileId);
-		} catch (err) {
-			res.status(401).send({ message: 'Unauthorized unbock_profile' });
+		} catch (err:any) {
+			res.status(400).send({ message: err.message});
 			console.log(err);
 		}
 	});
@@ -191,8 +191,8 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			if (is_blocking)
 				await DeleteFromBlockedList(userId, Number(profileId));
 			await addFriendRequest(userId, Number(profileId));
-		} catch (err) {
-			res.status(401).send({ message: 'Unauthorized link_profile' });
+		} catch (err:any) {
+			res.status(400).send({ message: err.message});
 			console.log(err);
 		}
 	});
@@ -207,8 +207,8 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			const userId = jwt.id;
 			const { profileId } = req.body;
 			await deleteFriendRequest(userId, Number(profileId));
-		} catch (err) {
-			res.status(401).send({ message: 'Unauthorized pending_request' });
+		} catch (err:any) {
+			res.status(400).send({ message: err.message});
 			console.log(err);
 		}
 	});
@@ -226,8 +226,8 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 				await bidirectionalAddAFriend(userId, Number(profileId));
 			await deleteFriendRequest(Number(profileId), userId);
 			await deleteFriendRequest(userId, Number(profileAnswer));
-		} catch (err) {
-			res.status(401).send({ message: 'Unauthorized answer_request' });
+		} catch (err:any) {
+			res.status(400).send({ message: err.message});
 			console.log(err);
 		}
 	});
@@ -290,7 +290,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			res.send({ profiles: profilesWithFriendFlag });
 			// console.log(profilesWithFriendFlag);
 		} catch (err) {
-			res.status(401).send({ message: 'Unauthorized parse_profiles' });
+			res.status(400).send({ message: 'Unauthorized parse_profiles' });
 			console.log(err);
 		}
 	})
@@ -313,8 +313,8 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 				await updatePasswordById(id, hashed);
 				res.status(200).send({ message: 'User successfully updated his password!' });
 			}
-		} catch (e) {
-			res.status(401).send({ message: e });
+		} catch (e:any) {
+			res.status(400).send({ message: e.message });
 			console.log(e);
 		}
 

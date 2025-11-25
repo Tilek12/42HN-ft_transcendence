@@ -3,6 +3,7 @@ import { getUser } from '../utils/auth.js'
 import { renderFriendsList } from './renderFriends.js';
 import { renderFriendRequestsList } from './renderFriendRequestList.js';
 import {languageStore, translations_friends_render, transelate_per_id} from './languages.js';
+import { apiFetch } from '../utils/auth.js'
 
 
 
@@ -45,7 +46,7 @@ export async function renderFriends(root: HTMLElement) {
 			if (target.classList.contains('answer-request-btn'))
 			{
 				// console.log('answer clicked');
-				res = await fetch(`/api/private/answer-request`,
+				res = await apiFetch(`/api/private/answer-request`,
 					{
 						method: 'POST',
 						credentials: 'include',

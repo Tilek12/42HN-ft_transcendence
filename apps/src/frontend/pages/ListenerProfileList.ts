@@ -1,5 +1,5 @@
 
-import { getUser} from '../utils/auth.js'
+import { apiFetch, getUser} from '../utils/auth.js'
 
 
 const asyncFriendRequestHandler = async (endpoint: string, profile_id:string ) =>
@@ -7,7 +7,7 @@ const asyncFriendRequestHandler = async (endpoint: string, profile_id:string ) =
 	try {
 	let res : any;
 	// console.log(`clicked ${attributes.testing_attribute}`)
-	res = await fetch(`/api/private/${endpoint}`, {
+	res = await apiFetch(`/api/private/${endpoint}`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			credentials: 'include',

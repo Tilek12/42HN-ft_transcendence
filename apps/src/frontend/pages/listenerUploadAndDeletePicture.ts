@@ -1,4 +1,4 @@
-import { getUser } from '../utils/auth.js'
+import { apiFetch, getUser } from '../utils/auth.js'
 import { defaultPicture } from '../utils/constants.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { renderConnectionErrorPage } from './error.js';
@@ -45,7 +45,7 @@ export const listenerUploadPicture = async (e: any) => {
 		const formData = new FormData();
 		formData.append('profile_pic', file);
 
-		const res = await fetch('/api/private/upload_pic',
+		const res = await apiFetch('/api/private/upload_pic',
 			{
 				method: 'POST',
 				credentials: 'include',
@@ -72,7 +72,7 @@ export const listenerUploadPicture = async (e: any) => {
 export const listenerDeletePicture = async (e: any) => {
 	e.preventDefault();
 	try {
-		const res = await fetch(`/api/private/delete_pic`,
+		const res = await apiFetch(`/api/private/delete_pic`,
 
 			{
 				method: 'POST',

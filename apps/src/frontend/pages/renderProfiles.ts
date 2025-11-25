@@ -1,4 +1,4 @@
-import { getUser} from '../utils/auth.js'
+import { apiFetch, getUser} from '../utils/auth.js'
 
 import { wsManager } from '../websocket/ws-manager.js';
 import {languageStore, translations_friends} from './languages.js';
@@ -70,7 +70,7 @@ const remove_load_btn = async (offset_pr: number, limit_pr: number, res_async : 
 	// console.log("im Hereeeeeeeeeee: ");
 	// console.log("offset: ", offset_pr);
 	// console.log("limit_pr: ", limit_pr);
-	res_async = await fetch(`/api/private/parse-profiles?offset=${offset_pr}&limit=${limit_pr}`,{
+	res_async = await apiFetch(`/api/private/parse-profiles?offset=${offset_pr}&limit=${limit_pr}`,{
 							method: 'GET',
 							credentials: 'include',
 							});
@@ -163,7 +163,7 @@ export async function renderProfilesList (
 		// console.log(`offset: ${offset} and limit: ${limit}`);
 		if (!already_parsed || load)
 		{
-			res = await fetch(`/api/private/parse-profiles?offset=${offset}&limit=${limit}`,{
+			res = await apiFetch(`/api/private/parse-profiles?offset=${offset}&limit=${limit}`,{
 							method:'GET',
 							credentials:'include',				
 						});

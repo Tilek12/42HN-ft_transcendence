@@ -5,8 +5,9 @@ import { verifyPassword } from '../../auth/utils';
 
 import { generateqrcode, generateSecret, validate_2fa_token } from '../../2FA/2fa';
 import { JWTPayload, Jwt_type } from '../../types';
-import { findUserById } from '../../database/user';
+import { findUserById, log_in } from '../../database/user';
 import { store2faKey, delete2faKey } from '../../database/2fa';
+import { setAccessCookie, setRefreshCookie } from '../../auth/cookies';
 
 
 const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
@@ -32,7 +33,7 @@ const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		const secret = generateSecret();
 		store2faKey(user.id, secret);
 		const qr = await generateqrcode(secret);
-		return res.status(200).send({ qr: qr ,ok:1});
+		return res.status(200).send({ qr: qr});
 	});
 
 	//disables the 2fa auth functionality. needs username, passsowrd 2fa_token and jwt
@@ -58,7 +59,7 @@ const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		if (!validate_2fa_token(tfa_token, user.tfa_secret))
 			return res.status(401).send({ message: "INVALID_TFA_TOKEN" });
 		delete2faKey(user.id);
-		return res.status(200).send({ message: "SUCCESS" , ok:1});
+		return res.status(200).send({ message: "SUCCESS"});
 	});
 
 
@@ -83,16 +84,14 @@ const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			return res.status(401).send({message: "INVALID_TOKEN"});
 		}
 
-		payload.type = Jwt_type.normal;
-		const jwt = fastify.jwt.sign(payload, { expiresIn: '2h' });
-		// await updateProfileLogInState(user.id, true);
-		res.setCookie('Authorisation', jwt, {	path:'/',
-												maxAge:7200, //2h
-												sameSite:'strict',
-												secure:true,
-												httpOnly:true,
-												});
-		return;
+		payload.type = Jwt_type.access;
+		const accessToken = fastify.jwt.sign(payload, { expiresIn: '5min' });
+		const refreshToken = fastify.jwt.sign(payload, { expiresIn: '1week' });
+		log_in(user.id, refreshToken);
+
+		setAccessCookie(accessToken, res);
+		setRefreshCookie(refreshToken, res);
+		return res.status(200).send({ message: "SUCCESS"});
 	});
 
 }
