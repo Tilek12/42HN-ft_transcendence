@@ -121,9 +121,22 @@ class WebSocketManager {
 			if (e.code === 4003) return;
 
 			this.retryAttempts++;
-			if (getUser() && this.retryAttempts <= this.MAX_RETRY) {
+			if (getUser()) {
 				console.log(`👥 [Presence WS] Retry attempt ${this.retryAttempts}/${this.MAX_RETRY}`);
-				this.reconnectTimeout = setTimeout(() => this.connectPresenceSocket(onUpdate), 3000);
+				this.reconnectTimeout = setTimeout(() => {
+					const status_symbol = document.getElementById('status_symbol');
+					const user_list = document.getElementById('active-users-count');
+					const status2 = document.getElementById('logged_in');
+					if (status_symbol){
+						status_symbol.classList.remove('bg-green-400');						status_symbol.classList.remove('bg-green-400');
+						status_symbol.classList.add('bg-red-400');
+					}
+					if (user_list)user_list.innerText = 'Connection lost...';
+					if (status2){
+						status2.classList.remove('bg-green-400');
+						status2.classList.add('bg-red-400');
+					}
+					this.connectPresenceSocket(onUpdate)}, 3000);
 			} else {
 				console.warn(`👥 [Presence WS] Stopped trying to reconnect after ${this.MAX_RETRY} attempts.`);
 			}

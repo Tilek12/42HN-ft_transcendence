@@ -21,7 +21,7 @@ export type return_on_render = {
 const friend_request_action = (is_friend: number, peding_direction : string, other_profile_id: number) => {
 	let res : string = '';
 	if (is_friend)
-		res =` 
+		res =/*html*/` 
         <button 
             data-profile-id="${other_profile_id}" 
             class="unlink-btn px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-xl transform hover:scale-110 group"
@@ -33,13 +33,13 @@ const friend_request_action = (is_friend: number, peding_direction : string, oth
 	else
 	{
 		if (peding_direction == null)
-			res = `<button data-profile-id = "${other_profile_id}" class="link-btn px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-xl transform hover:scale-110 group">
+			res = /*html*/`<button data-profile-id = "${other_profile_id}" class="link-btn px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-xl transform hover:scale-110 group">
 				<svg class="w-5 h-5 transition-transform duration-300 group-hover:-translate-y-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
 				</svg>
 			</button>`;
 		else
-			res =`<button data-profile-id = "${other_profile_id}" class="pending-btn px-4 py-2 bg-gray-600 text-white opacity-50 rounded-lg flex items-center cursor-not-allowed">
+			res =/*html*/`<button data-profile-id = "${other_profile_id}" class="pending-btn px-4 py-2 bg-gray-600 text-white opacity-50 rounded-lg flex items-center cursor-not-allowed">
 				<svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 				</svg>
@@ -50,13 +50,13 @@ const friend_request_action = (is_friend: number, peding_direction : string, oth
 const block_action = (is_blocking : number, other_profile_id: number) => {
 	let res : string = '';
 	if(!is_blocking)
-		res = `<button data-profile-id = "${other_profile_id}" class="block-btn px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-xl transform hover:scale-110 group">
+		res = /*html*/`<button data-profile-id = "${other_profile_id}" class="block-btn px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-xl transform hover:scale-110 group">
 			<svg class="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
 			</svg>
 		</button>`;
 	else
-		res =`<button data-profile-id = "${other_profile_id}" class="unblock-btn px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-xl transform hover:scale-110 group">
+		res =/*html*/`<button data-profile-id = "${other_profile_id}" class="unblock-btn px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-xl transform hover:scale-110 group">
 			<svg class="w-5 h-5 transition-transform duration-300 group-hover:-rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
 			</svg>
@@ -85,7 +85,7 @@ const array_to_html = (profile : any,  profiles_len?: number) : string =>
 	is_connected = listUsers.includes(profile.username);
 	
 	const profile_pic_src = profile.image_blob ? `data:image/webp;base64,${profile.image_blob}` : `/profile_pics/${profile.image_path}`;
-	return `<div class="flex items-center justify-between bg-white/10 backdrop-blur-md p-5 rounded-xl shadow-xl mb-4 border border-white/20 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)] hover:bg-white/15 hover:border-blue-400/50 group">
+	return /*html*/`<div class="flex items-center justify-between bg-white/10 backdrop-blur-md p-5 rounded-xl shadow-xl mb-4 border border-white/20 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)] hover:bg-white/15 hover:border-blue-400/50 group">
 				<div class="flex items-center space-x-4">
 					<div class="relative">
 						<img src="${profile_pic_src}" class="w-16 h-16 rounded-full border-4 border-white/30 shadow-lg object-cover transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:border-blue-400" />

@@ -22,7 +22,14 @@ async function updateOnlineUsers() {
 	const users = wsManager.presenceUserList;
 	const badge = document.getElementById('active-users-count');
 	const list = document.getElementById('active-users-list');
+	const status = document.getElementById('status_symbol');
+	const status2 = document.getElementById('logged_in');
 
+	if(status) {status.classList.remove('bg-red-400');status.classList.add('bg-green-400');}
+	if (status2){
+						status2.classList.remove('bg-green-400');
+						status2.classList.add('bg-red-400');
+					}
 	if (badge) badge.textContent = `Online Users: ${count}`;
 	if (list) list.innerHTML = users.map(u => `<li>${u.name || u.id}</li>`).join('');
 };
@@ -152,7 +159,7 @@ export function renderNav() {
 
 					<!-- Online Users -->
 					<div id="user_list" class="group relative text-white cursor-pointer items-center justify-center flex space-x-1">
-						<div class="w-3 h-3 rounded-full bg-green-400 animate-pulse">
+						<div id="status_symbol"class="w-3 h-3 rounded-full bg-green-400 animate-pulse">
 						</div>
 						<span id="active-users-count" class="text-sm">${count}</span>
 						<ul id="active-users-list" class="absolute top-full mt-1 hidden group-hover:block bg-white/90 text-black text-sm rounded-lg p-2 max-h-64 overflow-y-auto z-50">

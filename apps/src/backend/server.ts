@@ -25,7 +25,7 @@ import { Errorhandler } from './error';
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import fastifySwagger from '@fastify/swagger'
 import cookie from '@fastify/cookie'
-import csrf from '@fastify/csrf-protection'
+// import csrf from '@fastify/csrf-protection'
 
 
 
@@ -60,16 +60,17 @@ const server = Fastify({
 					method: request.method,
 					url: request.url,
 					body: request.body,
-					// headers: request.headers,
+					// cookies: request.cookies,
 				};
 			},
 			res(reply) {
 				return {
 					statusCode: reply.statusCode,
-					// message: reply,
+					
 				};
 			}
-		}
+		},
+		level:'info', 
 	},
 	https: {
 		key: fs.readFileSync('/run/secrets/ssl_key'),

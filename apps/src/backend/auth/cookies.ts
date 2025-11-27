@@ -15,7 +15,7 @@ export function setRefreshCookie(token: string, res: FastifyReply) {
 		secure: true,
 		httpOnly: true,
 		signed:true,
-	})
+	});
 }
 
 
@@ -40,7 +40,7 @@ export function deleteRefreshCookie(res: FastifyReply) {
 		secure: true,
 		httpOnly: true,
 		signed:true
-	})
+	});
 }
 
 export function deleteAccessCookie(res: FastifyReply) {
@@ -51,6 +51,6 @@ export function deleteAccessCookie(res: FastifyReply) {
 		secure: true,
 		httpOnly: true,
 		signed:true
-	})
+	});
 }
 

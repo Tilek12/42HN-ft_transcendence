@@ -193,7 +193,9 @@ export async function renderProfile(root: HTMLElement) {
 						// <p>No matches found.</p>`;
 						return;
 					}
-					matchContainer.innerHTML += `
+					matchContainer.innerHTML += 
+					/*html*/
+					`
 			<div class="overflow-x-auto rounded-xl">
 				<table class="w-full text-left border-collapse">
 				<thead>
