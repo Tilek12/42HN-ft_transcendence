@@ -23,7 +23,12 @@
 |	| Disconnected users can reconnect to a game.|❌|❌|
 |	| after a lag, the player must instantly see the current match state — not old delayed state — and be fully synced with the server.|✅|✅| simulate a lag: right click Inspect -> Network -> No throttling -> Regular 3G (Firefox), Slow 4G (Chrome) -> Play the game for ~10 seconds -> switch back to No throttling. the paddles do not move anymore after lag
 |	| no crash when user is experiencing lags or is disconnected|❌|❌|not tested yet
-|	|
+|**web modules**|**major module (1): fastify framework with Node.js for backend**|✅|✅| backend->server.ts initializes a Fastify instance:<br>`import Fastify from 'fastify';`<br>`const server = Fastify({`<br>`  logger: {`
+|	| **minor module (0.5): Tailwind CSS framework and typescript for frontend** |✅|✅| src->index.html available and has tailwind class: <br>class="bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900 text-white text-center text-xl min-h-screen flex flex-col";<br><br>Verify tech stack in apps->package.json:<br>`"dependencies": {`<br>`  "tailwindcss": "^4.1.17",`<br>`  "typescript": "^5.9.3",`<br>`  "postcss": "^8.5.6",`<br>`  "autoprefixer": "^10.4.21",` <br><br> apps->tsconfig.frontend.json, tailwind.config.ts available <br><br>src->frontend->styles.css available and content:<br>@tailwind base; <br>@tailwind components; <br>@tailwind utilities;<br><br>src->frontend->main.ts, styles.css<br><br>*.ts files in frontend
+|	| **minor module (0.5): database SQLite** |✅|✅| apps->package.json:<br>"dependencies": {<br>"sqlite": "^5.1.1",<br>"sqlite3": "^5.1.7",<br><br>backend->database->client.ts:<br>import sqlite3 from 'sqlite3';<br>import { open, Database } from 'sqlite';<br>export let db: Database;<br>export async function connectToDB() {<br>db = await open({<br>filename: './database/pong.db',<br>driver: sqlite3.Database,<br>});<br><br>sqlite3 is the Native low-level driver, sqlite is a wrapper for sqlite3
+
+
+
 
 
 
