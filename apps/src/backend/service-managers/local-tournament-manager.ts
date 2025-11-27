@@ -92,9 +92,13 @@ class LocalTournamentManager {
 
 	/** Local tournaments: start matches one-by-one on the same computer */
 	private async startRoundSequentially(tournament: TournamentState, roundIdx: number) {
-		const ctrlSocket = this.localControlSockets.get(tournament.id);
+		const ctrlSocket: WebSocket | undefined = this.localControlSockets.get(tournament.id);
+		if (!ctrlSocket) {
+			console.error(`[LOCAL Tournament ${tournament.id}] No control socket found`);
+			return;
+		}
 		for (const match of tournament.rounds[roundIdx]!) {
-			await this.startOneMatch(tournament, match, ctrlSocket); // await: resolves when game ends
+			this.startOneMatch(tournament, match, ctrlSocket); // await: resolves when game ends
 		}
 	}
 
@@ -123,7 +127,7 @@ class LocalTournamentManager {
 
 		const toPlayer = (player: Participant) => {
 			// Local: both players share the same localSocket
-			if ( localSocket) {
+			if (localSocket) {
 				return { id: player.id, name: player.name, socket: localSocket } as Player;
 			}
 			const user = userManager.getUser(Number(player.id));
@@ -280,6 +284,15 @@ class LocalTournamentManager {
 			if (match) return match;
 		}
 		return undefined;
+	}
+
+	getUserTournament(userId: string): TournamentState | null {
+		for (const tournament of this.localTournaments.values()) {
+			if (tournament.participants.some(p => p.id === userId)) {
+				return tournament;
+			}
+		}
+		return null;
 	}
 
 }

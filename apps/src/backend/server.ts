@@ -20,7 +20,8 @@ import matchRoutes from './routes/api/match-routes';
 
 import wsGamePlugin from './routes/ws/game-ws';
 import wsPresencePlugin from './routes/ws/presence-ws';
-import wsTournamentPlugin from './routes/ws/tournament-ws';
+import wsOnlineTournamentPlugin from './routes/ws/online-tournament-ws';
+import wsLocalTournamentPlugin from './routes/ws/local-tournament-ws';
 import { Errorhandler } from './error';
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import fastifySwagger from '@fastify/swagger'
@@ -145,7 +146,8 @@ async function main() {
 	await server.register(async (websocketScope: any) => {
 		await websocketScope.register(wsGamePlugin);				// Game-only socket:  /ws/game
 		await websocketScope.register(wsPresencePlugin);			// Persistent socket: /ws/presence
-		await websocketScope.register(wsTournamentPlugin);			// Tournament socket: /ws/tournament
+		await websocketScope.register(wsOnlineTournamentPlugin);	// Online Tournament socket: /ws/online-tournament
+		await websocketScope.register(wsLocalTournamentPlugin);		// Local Tournament socket: /ws/local-tournament
 	}, { prefix: '/ws' });
 
 	// Simple health check
