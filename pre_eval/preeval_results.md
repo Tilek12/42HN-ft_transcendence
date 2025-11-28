@@ -16,7 +16,7 @@
 |	| security measures implemented and tested|✅|✅| profile pic upload .js, .php, .jpeg, .png, .pdf,.jpg, .gif -> as expected only .jpeg, .png, .jpg are accepted, rest is rejected (not possible to upload)
 | **local game** | play on one computer on keyboard|✅|✅|| click play alone button -> game works
 |	| Initiate a tournament, and the tournament should offer a matchmaking system to connect local players. | ❌|❌|I can initiate tournament, and join, but no tournament is started after 4 players joined
-| **online gameplay**	| playable game like original Pong game |❌|❌| click play online button-> very often when the paddle hits the ball, the game reacts if I did not hit the ball and the ball starts from the middle of the game 
+| **local gameplay**	| playable game like original Pong game |✅|✅| 
 |	| Controls explained below game |✅|✅| appearing: "Online mode: Use W/S for left paddle, ↑/↓ for right paddle"
 |	| when game over, there is a end-game screen |❌|❌| always showing "🏁 Game over! ❌ Unknown wins!" even though linda1 won
 | **lags (=Verzögerungen) and disconnects**	|  pause the game|❌|❌|paused only stops game object updates (ball, paddles), not network or input handling. do not use sleep(), do not only freeze the program.
@@ -26,6 +26,10 @@
 |**web modules**|**major module (1): fastify framework with Node.js for backend**|✅|✅| backend->server.ts initializes a Fastify instance:<br>`import Fastify from 'fastify';`<br>`const server = Fastify({`<br>`  logger: {`
 |	| **minor module (0.5): Tailwind CSS framework and typescript for frontend** |✅|✅| src->index.html available and has tailwind class: <br>class="bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900 text-white text-center text-xl min-h-screen flex flex-col";<br><br>Verify tech stack in apps->package.json:<br>`"dependencies": {`<br>`  "tailwindcss": "^4.1.17",`<br>`  "typescript": "^5.9.3",`<br>`  "postcss": "^8.5.6",`<br>`  "autoprefixer": "^10.4.21",` <br><br> apps->tsconfig.frontend.json, tailwind.config.ts available <br><br>src->frontend->styles.css available and content:<br>@tailwind base; <br>@tailwind components; <br>@tailwind utilities;<br><br>src->frontend->main.ts, styles.css<br><br>*.ts files in frontend
 |	| **minor module (0.5): database SQLite** |✅|✅| apps->package.json:<br>"dependencies": {<br>"sqlite": "^5.1.1",<br>"sqlite3": "^5.1.7",<br><br>backend->database->client.ts:<br>import sqlite3 from 'sqlite3';<br>import { open, Database } from 'sqlite';<br>export let db: Database;<br>export async function connectToDB() {<br>db = await open({<br>filename: './database/pong.db',<br>driver: sqlite3.Database,<br>});<br><br>sqlite3 is the Native low-level driver, sqlite is a wrapper for sqlite3
+|**User Management modules**|TODO
+|**Gameplay and user experience modules** | **major module (1):  2 Remote players on separate computers** |❌|❌| click play online button-> very often when the paddle hits the ball, the game reacts if I did not hit the ball and the ball starts from the middle of the game
+| **AI-Algo modules**	| **minor module (0.5): User and Game Stats Dashboards** |❌|❌| on profile page: https://10.12.6.4:8080/#/profile: number of wins, number of losses, number of trophies works, match history table is not visible
+ **Cybersecurity modules** | 
 
 
 
