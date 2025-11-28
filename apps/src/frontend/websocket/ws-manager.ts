@@ -40,6 +40,7 @@ class WebSocketManager {
 
 		socket.onopen = () => {
 			console.log('🕹️ [Game WS] Connected');
+			socket.send('pong');
 		}
 
 		socket.onmessage = (e) => {
@@ -90,7 +91,7 @@ class WebSocketManager {
 
 		socket.onopen = () => {
 			console.log('👥 [Presence WS] Opening websocket..');
-			socket.send("pong");
+			socket.send('pong');
 			this.retryAttempts = 0;
 		};
 
