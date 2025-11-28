@@ -10,7 +10,7 @@ export interface PresenceUser {
   name?: string;
 }
 
-export interface User {
+export interface fUser {
   id:number;
   username: string,
   created_at: string,

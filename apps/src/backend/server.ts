@@ -60,13 +60,13 @@ const server = Fastify({
 					method: request.method,
 					url: request.url,
 					body: request.body,
-					// cookies: request.cookies,
+					cookies: request.cookies,
 				};
 			},
 			res(reply) {
 				return {
 					statusCode: reply.statusCode,
-					
+					// cookie: reply.cookies,
 				};
 			}
 		},

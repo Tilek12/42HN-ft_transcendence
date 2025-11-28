@@ -120,7 +120,7 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			else
 			{
 				const unsignedCookie = req.unsignCookie(signedRefreshCookie);
-				if (!unsignedCookie.valid || unsignedCookie.value)
+				if (!unsignedCookie.valid || !unsignedCookie.value)
 					throw new Error('Cookie unsign error');
 				else
 					refeshCookie = unsignedCookie.value;
@@ -131,8 +131,11 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			user = await findUserById(payload.id)
 			if (!user || !user.is_logged_in)
 				throw new Error('User not Logged in');
-			else if (await fastify.jwt.verify(user.is_logged_in)as JWTPayload !== payload)
+
+			if (refeshCookie !== user.is_logged_in)
+			{
 				throw new Error('Not the same refresh token!');
+			}
 		}
 		catch (e: any) {
 			fastify.log.warn(`[ REFRESH ] : ${e}`);
@@ -144,6 +147,8 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		setAccessCookie(generateToken(user, Jwt_type.access, '5min'), res);
 		res.status(200)
 	});
+	
 }
 
 export default authRoutes;
+

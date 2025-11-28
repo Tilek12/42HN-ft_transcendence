@@ -51,6 +51,9 @@ class WebSocketManager {
 			console.log('🕹️ [Game WS] Disconnected');
 			this.gameSocket = null;
 		};
+		socket.onerror = (event:any)=>  {
+			console.log('Socket Error:', event);
+		}
 
 		return socket;
 	}
@@ -208,6 +211,7 @@ class WebSocketManager {
 
 		socket.onopen = () => {
 			console.log('🎯 [Tournament WS] Connected:', url);
+			socket.send('pong');
 		}
 
 		socket.onmessage = (e) => {

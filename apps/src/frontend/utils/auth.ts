@@ -1,14 +1,15 @@
 import { renderConnectionErrorPage } from '../pages/error.js';
-import { changeLoginButton } from '../pages/nav.js';
-import { payload, User } from '../types.js'
+import { changeLoginButton, logoutFrontend } from '../pages/nav.js';
+import { payload, fUser } from '../types.js'
 
-let user: User | null;
+
+let user: fUser | null;
 let csrfToken: string | null;
 
-export function getUser(): User | null {
+export function getUser(): fUser | null {
 	return user;
 }
-export function setUser(newUser: User | null) {
+export function setUser(newUser: fUser | null) {
 	user = newUser;
 }
 export function clearUser() {
@@ -49,16 +50,19 @@ export async function validateLogin(): Promise<boolean> {
 
 
 export async function apiFetch(url: RequestInfo, options: RequestInit): Promise<Response> {
-		let responsePromise = fetch(url, options);
-		const response = await responsePromise;
-		if (response.status === 401) {
-			const refresh = await fetch('/api/refresh', {
-				method: 'POST',
-				credentials: 'include',
-			})
-			if (refresh.status === 200)
-				return fetch(url, options);
+	let responsePromise = fetch(url, options);
+	const response = await responsePromise;
+	if (response.status === 401) {
+		const refresh = await fetch('/api/refresh', {
+			method: 'POST',
+			credentials: 'include',
+		})
+		if (refresh.status === 200)
+			return fetch(url, options);
+		else {
+			logoutFrontend();
 		}
-		return responsePromise;
+	}
+	return responsePromise;
 
 }

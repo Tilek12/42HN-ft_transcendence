@@ -9,7 +9,7 @@ import { listenerPasswordCancel, listenerPasswordEdit, listenerPasswordUpdate } 
 import { listenerUsernameUpdate, listenerUsernameCancel, listenerUsernameEdit } from './listenerUpdatePasswordAndUsername.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore } from './languages.js';
-import { Match, User } from '../types.js';
+import { Match, fUser } from '../types.js';
 import { renderConnectionErrorPage } from './error.js';
 
 let i = 0;
@@ -76,9 +76,23 @@ export async function renderProfile(root: HTMLElement) {
 				location.hash = '#/login';
 				return;
 			};
-			const user = data as User;
+			const user = data as fUser;
 			setUser(user);
 			root.innerHTML = renderUserProfile(data, languageStore.language);
+			const button = document.getElementById('refresh_button');
+			const errortext = document.getElementById('refresh_text');
+			if (button && errortext){
+				button .addEventListener('click', async ()=>{
+		
+				const resp = await fetch('/api/refresh', {
+					method:'POST',
+					credentials:'include'
+				});
+				errortext.innerText = await resp.json();
+
+				setTimeout((errortext: HTMLElement)=>{errortext.innerText = ''}, 5000);
+				})
+			}
 
 			languageStore.subscribe((lang) => update_langauge_headers_user_profile(lang));
 			//---------------Password Related Variables------------------------------------

@@ -9,7 +9,7 @@ import { languageStore, translations_game_render, transelate_per_id } from './la
 export async function renderGame(root: HTMLElement) {
 	const tr = translations_game_render[languageStore.language];
 
-	root.innerHTML = renderBackgroundFull(`
+	root.innerHTML = renderBackgroundFull(/*html*/`
     <div class="pt-24 max-w-xl mx-auto text-white text-center">
       <h1 id="pong_game_header" class="text-3xl font-bold mb-6">${tr!.pong_game_header}</h1>
       <div class="flex justify-center gap-4 mb-8">
@@ -75,8 +75,8 @@ export async function renderGame(root: HTMLElement) {
 	});
 
 	function startGame(mode: 'solo' | 'duel') {
-		const token = getUser();
-		if (!token) {
+		const user = getUser();
+		if (!user) {
 			alert('❌ You must be logged in to play');
 			location.hash = '#/login';
 			return;

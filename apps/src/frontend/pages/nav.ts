@@ -1,6 +1,6 @@
 import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore, transelate_per_id, translations_nav } from './languages.js';
-import { getUser, clearUser} from '../utils/auth.js'
+import { getUser, clearUser } from '../utils/auth.js'
 import { renderConnectionErrorPage } from './error.js';
 
 
@@ -11,7 +11,7 @@ export async function initNav() {
 	const loginButton = document.getElementById('login-btn');
 	const logoutButton = document.getElementById('logout-btn');
 	if (loginButton)
-		loginButton.addEventListener('click', ()=>{location.hash = '/login'});
+		loginButton.addEventListener('click', () => { location.hash = '/login' });
 	if (logoutButton)
 		logoutButton.addEventListener('click', listenerLogoutBtn);
 	changeLoginButton(true);
@@ -25,11 +25,11 @@ async function updateOnlineUsers() {
 	const status = document.getElementById('status_symbol');
 	const status2 = document.getElementById('logged_in');
 
-	if(status) {status.classList.remove('bg-red-400');status.classList.add('bg-green-400');}
-	if (status2){
-						status2.classList.remove('bg-green-400');
-						status2.classList.add('bg-red-400');
-					}
+	if (status) { status.classList.remove('bg-red-400'); status.classList.add('bg-green-400'); }
+	if (status2) {
+		status2.classList.remove('bg-red-400');
+		status2.classList.add('bg-green-400');
+	}
 	if (badge) badge.textContent = `Online Users: ${count}`;
 	if (list) list.innerHTML = users.map(u => `<li>${u.name || u.id}</li>`).join('');
 };
@@ -41,7 +41,7 @@ export function changeLoginButton(login: boolean) {
 	const userlist = document.getElementById('user_list');
 
 
-	if (logoutButton && loginButton &&userlist) {
+	if (logoutButton && loginButton && userlist) {
 		if (!login) {
 			logoutButton.classList.remove("hidden");
 			loginButton.classList.add("hidden");
@@ -56,46 +56,49 @@ export function changeLoginButton(login: boolean) {
 	}
 }
 
-const listenerLogoutBtn = async (e : any) =>
-{
+
+export function logoutFrontend() {
+	clearUser();
+	wsManager.clearPresenceData();
+	wsManager.disconnectAllSockets();
+	changeLoginButton(true);
+	
+}
+
+const listenerLogoutBtn = async (e: any) => {
 	e.preventDefault();
 	{
 		try {
-		if (!getUser())
-			return;
-		const resp = await fetch('/api/logout',
+			// if (!getUser())
+			// 	return;
+			const resp = await fetch('/api/logout',
 				{
 					method: 'POST',
-					credentials:'include',
+					credentials: 'include',
 				});
-		if (!resp.ok)
-			alert('couldnt log out');
-		console.log(resp);
-		clearUser();
-		wsManager.clearPresenceData();
-		wsManager.disconnectAllSockets();
-		changeLoginButton(true);
-		location.hash = '#/';
-		}catch(e:any){
-				renderConnectionErrorPage();
+			if (!resp.ok) {
+				const data = await resp.json();
+				alert(`couldnt log out! reason: ${data.message}`);
+			}
+			console.log(resp);
+			logoutFrontend();
+		} catch (e: any) {
+			renderConnectionErrorPage();
+			location.hash = '#/';
 		}
 	}
 }
 
-export function hideNav()
-{
+export function hideNav() {
 	const navigation = document.getElementById("navigation");
-	if (navigation)
-	{
+	if (navigation) {
 		navigation.classList.add('hidden');
 	}
 }
 
-export function unhideNav()
-{
-		const navigation = document.getElementById("navigation");
-	if (navigation)
-	{
+export function unhideNav() {
+	const navigation = document.getElementById("navigation");
+	if (navigation) {
 		navigation.classList.remove('hidden');
 	}
 }
@@ -104,7 +107,7 @@ export function unhideNav()
 export function renderNav() {
 	const nav = document.getElementById("navbar");
 	const users = wsManager.presenceUserList;
-  const count = wsManager.onlineUserCount;
+	const count = wsManager.onlineUserCount;
 
 	// Subscribe ONCE to presence updates and re-render
 	if (!presenceUnsub) {
@@ -196,5 +199,5 @@ export function renderNav() {
 	});
 
 
-	
+
 }

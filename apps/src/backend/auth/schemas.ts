@@ -238,7 +238,6 @@ export const refreshSchema = {
 	tags: ['auth'],
 	summary: 'refreshSchema',
 	hidden: false,
-	headers: AuthHeader
 } as const;
 
 
