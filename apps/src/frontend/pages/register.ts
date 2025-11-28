@@ -1,7 +1,6 @@
 
 import { renderBackgroundFull } from '../utils/layout.js';
-import { languageStore, translations_register_page, transelate_per_id } from './languages.js';
-import { saveToken } from '../utils/auth.js';
+import { languageStore, translations_register_page, transelate_per_id, translations_errors } from './languages.js';
 import type { Language } from '../types.js';
 
 
@@ -11,7 +10,7 @@ export function renderRegister(root: HTMLElement) {
   // This page remains as fallback if accessed directly via #/register route.
   
   const t = translations_register_page[languageStore.language];
-  root.innerHTML = renderBackgroundFull(`
+  root.innerHTML = renderBackgroundFull(/*html*/`
     <!-- DESIGN change: Local language selector (redundant with global floating toggle, but kept for standalone access) -->
     <!-- Floating Language Selector -->
     <div class="fixed bottom-8 right-8 z-50">
@@ -323,7 +322,7 @@ export function renderRegister(root: HTMLElement) {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						'Authorization': `Bearer ${data.jwt}`
+						'cookie': `Access=${data.jwt}`
 					},
 					body: JSON.stringify({ tfa_token }),
 				});

@@ -421,6 +421,7 @@ export const translations_errors: TranslationSet = {
 		error_invalid_token: 'Invalid 2fa code supplied',
 		error_username_taken: 'This username has already been taken',
 		error_username_min_len: 'Username has to be at least 3 characters long',
+		error_internal:'Internal server error',
 		error_default: "Error",
 	},
 	DE: {
@@ -432,6 +433,7 @@ export const translations_errors: TranslationSet = {
 		error_invalid_token: 'Ungültiger 2fa code',
 		error_username_taken: 'Dieser Username wird bereits benutzt',
 		error_username_min_len: 'Username muss mind. 3 Buchstaben enthalten',
+		error_internal: 'Interner Server Fehler',
 		error_default: "Fehler",
 	},
 	GR: {
@@ -443,6 +445,7 @@ export const translations_errors: TranslationSet = {
 		error_invalid_token: 'Ο κωδικός 2FA που δόθηκε δεν είναι έγκυρος',
 		error_username_taken: 'Αυτό το όνομα χρήστη χρησιμοποιείται ήδη.',
 		error_username_min_len: 'Το όνομα χρήστη πρέπει να έχει τουλάχιστον 3 χαρακτήρες.',
+		error_internal: 'Εσωτερικό σφάλμα διακομιστή',
 		error_default: "Σφάλμα",
 	},
 };

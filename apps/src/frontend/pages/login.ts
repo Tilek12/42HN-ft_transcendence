@@ -13,8 +13,8 @@ import type { Language } from '../types.js';
 export function renderLogin(root: HTMLElement) {
 	const t = translations_login_page[languageStore.language];
 	const error_trans = translations_errors[languageStore.language];
-	
-	root.innerHTML = renderBackgroundFull(`
+
+	root.innerHTML = renderBackgroundFull(/*html*/`
     <!-- Login Card -->
     <div class="w-full max-w-lg px-6">
       <div class="relative">
@@ -144,23 +144,6 @@ export function renderLogin(root: HTMLElement) {
                   </div>
                 </div>
 
-                <!-- Email Input -->
-                <div class="space-y-2">
-                  <label for="reg-email" class="block text-sm font-medium text-gray-300 ml-1">
-                    Email
-                  </label>
-                  <div class="relative group">
-                    <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl opacity-0 group-focus-within:opacity-20 blur transition-opacity duration-300"></div>
-                    <input 
-                      type="email" 
-                      id="reg-email" 
-                      placeholder="your@email.com"
-                      class="relative w-full bg-white/5 border border-white/10 text-white placeholder-gray-500 px-5 py-4 rounded-xl focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all duration-300"
-                      required 
-                    />
-                  </div>
-                </div>
-
                 <!-- Password Input -->
                 <div class="space-y-2">
                   <label for="reg-password" class="block text-sm font-medium text-gray-300 ml-1">
@@ -278,11 +261,11 @@ export function renderLogin(root: HTMLElement) {
 		registerFormContainer.style.transform = 'translateX(20px)';
 		formTitleContainer.style.opacity = '0';
 		formIcon.style.transform = 'scale(0.8) rotate(180deg)';
-		
+
 		setTimeout(() => {
 			registerFormContainer.classList.add('hidden');
 			loginFormContainer.classList.remove('hidden');
-			
+
 			// DESIGN change: Switch icon to lock symbol for login
 			formIcon.innerHTML = `
 				<svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -294,7 +277,7 @@ export function renderLogin(root: HTMLElement) {
 			const t = translations_login_page[languageStore.language];
 			loginHeader.textContent = t.login_header || "Welcome Back";
 			loginSubtitle.textContent = t.login_subtitle || "Sign in to continue";
-			
+
 			// DESIGN change: Fade in login form with coordinated animations
 			// Icon scales back to normal and rotates to 0deg, form slides in from left
 			setTimeout(() => {
@@ -318,11 +301,11 @@ export function renderLogin(root: HTMLElement) {
 		loginFormContainer.style.transform = 'translateX(-20px)';
 		formTitleContainer.style.opacity = '0';
 		formIcon.style.transform = 'scale(0.8) rotate(-180deg)';
-		
+
 		setTimeout(() => {
 			loginFormContainer.classList.add('hidden');
 			registerFormContainer.classList.remove('hidden');
-			
+
 			// Update icon with rotation
 			formIcon.innerHTML = `
 				<svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -333,7 +316,7 @@ export function renderLogin(root: HTMLElement) {
 			// Update title
 			loginHeader.textContent = "Create Account";
 			loginSubtitle.textContent = "Join us today";
-			
+
 			// Fade in and scale back
 			setTimeout(() => {
 				formIcon.style.transform = 'scale(1) rotate(0deg)';
@@ -381,7 +364,7 @@ export function renderLogin(root: HTMLElement) {
 
 		const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
 		const originalText = submitBtn.innerHTML;
-		submitBtn.innerHTML =
+		submitBtn.innerHTML =/*html*/
 			`<div class="flex items-center justify-center space-x-2">
 				<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
 					<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -399,7 +382,7 @@ export function renderLogin(root: HTMLElement) {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ username, password }),
-				credentials:'include',
+				credentials: 'include',
 			});
 
 			const response_data = await res.json();
@@ -407,7 +390,6 @@ export function renderLogin(root: HTMLElement) {
 				let error_message = response_data.message;
 				switch (error_message) {
 					case 'INVALID_PASSWORD': error_message = error_trans.error_invalid_password; break;
-					case 'INVALID_EMAIL': error_message = error_trans.error_invalid_email; break;
 					default: 'Login failed';
 				}
 				errorText.textContent = error_message;
@@ -434,8 +416,8 @@ export function renderLogin(root: HTMLElement) {
 								'Content-Type': 'application/json',
 								'Authorization': `${response_data.jwt}` //use temp jwt from /login to validate it. Bearer needed?
 							},
-							credentials:'include',
-							body: JSON.stringify({ tfa_token:tfa_token }),
+							credentials: 'include',
+							body: JSON.stringify({ tfa_token: tfa_token }),
 						});
 						const res2faverify = await res.json();
 						if (!res.ok) {
@@ -457,8 +439,8 @@ export function renderLogin(root: HTMLElement) {
 							return;
 
 						} else {
-							button.innerHTML = 
-							`<div class="flex items-center justify-center space-x-2">
+							button.innerHTML = /*html*/
+								`<div class="flex items-center justify-center space-x-2">
 								<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
 								</svg>
@@ -473,8 +455,8 @@ export function renderLogin(root: HTMLElement) {
 					})
 				}
 				else {
-					submitBtn.innerHTML = 
-					`<div class="flex items-center justify-center space-x-2">
+					submitBtn.innerHTML = /*html*/
+						`<div class="flex items-center justify-center space-x-2">
 					<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
 					</svg>
@@ -506,7 +488,7 @@ export function renderLogin(root: HTMLElement) {
 
 		const submitBtn = registerForm.querySelector('button[type="submit"]') as HTMLButtonElement;
 		const originalText = submitBtn.innerHTML;
-		submitBtn.innerHTML = `
+		submitBtn.innerHTML = /*html*/`
 			<div class="flex items-center justify-center space-x-2">
 				<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
 					<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -518,29 +500,39 @@ export function renderLogin(root: HTMLElement) {
 		submitBtn.disabled = true;
 
 		const username = (document.getElementById('reg-username') as HTMLInputElement).value;
-		const email = (document.getElementById('reg-email') as HTMLInputElement).value;
 		const password = (document.getElementById('reg-password') as HTMLInputElement).value;
 
 		try {
 			const res = await fetch('/api/register', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ username, email, password }),
+				body: JSON.stringify({ username, password }),
 			});
-
 			const response_data = await res.json();
-			
-			if (!res.ok || !response_data.jwt) {
-				let error_message = response_data.message || 'Registration failed';
-				errorText.textContent = error_message;
+			if (!res.ok) {
+				if (response_data.message == 'USERNAME_TAKEN') {
+					errorContainer.textContent = error_trans.error_username_taken!;
+				}
+				else if (response_data.message == ('DATABASE_ERROR')) {
+					errorContainer.textContent = error_trans.error_internal!;
+				}
+				else if (response_data.message.startsWith('body/password')) {
+					errorContainer.textContent = error_trans.error_invalid_password!;
+				}
+				else if (response_data.message.startsWith('body/username')) {
+					errorContainer.textContent = error_trans.error_username_min_len!;
+				}
+				else {
+					errorContainer.textContent = response_data.message;
+				}
+
 				errorContainer.classList.remove('hidden');
 
 				setTimeout(() => {
 					errorContainer.classList.add('hidden');
 				}, 5000);
 			} else {
-				saveToken(response_data.jwt);
-				submitBtn.innerHTML = `
+				submitBtn.innerHTML = /*html*/`
 					<div class="flex items-center justify-center space-x-2">
 						<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>

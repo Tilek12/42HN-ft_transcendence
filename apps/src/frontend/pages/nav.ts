@@ -82,6 +82,7 @@ const listenerLogoutBtn = async (e: any) => {
 			}
 			console.log(resp);
 			logoutFrontend();
+			location.hash = '#/';
 		} catch (e: any) {
 			renderConnectionErrorPage();
 			location.hash = '#/';
