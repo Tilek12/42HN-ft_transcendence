@@ -7,25 +7,22 @@ import { renderRegister } from './pages/register.js';
 import { renderFriends } from './pages/friends.js';
 import { renderLeaderboard } from './pages/leaderboard.js';
 import { renderNotFound } from './pages/not-found.js';
-import { validateLogin } from './utils/auth.js';
-import { changeLoginButton } from './pages/nav.js';
+import { getUser, validateLogin } from './utils/auth.js';
+import { changeLoginButton, unhideNav } from './pages/nav.js';
 import { wsManager } from './websocket/ws-manager.js';
 import { renderQrcode } from './pages/2fa.js';
 import { renderSettings } from './pages/settings.js'
 
-const protectedRoutes = ['#/profile', '#/friends', '#/game', '#/settings', '#/tournament','settings'];
+const protectedRoutes = ['#/profile', '#/friends', '#/game', '#/settings', '#/tournament','#/settings', '#/leaderboard'];
 export async function router() 
 {
-	const root = document.getElementById('app')!;
-	let route = location.hash || '#/';
-	const navigation = document.getElementById('navigation');
-	const isLoggedIn = await validateLogin();
+	const	root = document.getElementById('app')!;
+	let		route = location.hash || '#/';
+	const	isLoggedIn = getUser() !== null || await validateLogin();
+	console.log("getUser() !== null:",getUser() !== null )
+	changeLoginButton(!isLoggedIn);
+	unhideNav();
 
-	if (navigation && navigation.classList.contains("hidden"))
-		navigation.classList.remove("hidden")
-	changeLoginButton(!isLoggedIn)
-
-	console.log("router to:", route, " isLoggedIn: ", isLoggedIn?"true":"false");
 	if (isLoggedIn)
 		wsManager.connectPresenceSocket();
 
@@ -43,20 +40,34 @@ export async function router()
 			}
 		}
 		else
-			location.hash = '/login';
+			return location.hash = '/login';
 	}
 	else
 	{
-		console.log("second switch");
-		switch(route)
+		console.log("second switch login : ", isLoggedIn);
+		if (isLoggedIn)
 		{
-			case '#/login': return renderLogin(root);
-			case '#/register': return renderRegister(root);
-			case '#/':
-			case '': return renderMainPage(root);
-			default: return renderNotFound(root);
+			console.log("isLoggedIn");
+			switch(route)
+			{
+				case '#/login':
+				case '#/register':
+				default: return location.hash = '/profile';
+			}
 		}
-	}
+		else{
+			console.log("else switch");
+			
+			switch(route)
+			{
+				case '#/login': return renderLogin(root);
+				case '#/register': return renderRegister(root);
+				case '#/':
+				case '': return renderMainPage(root);
+					default: return renderNotFound(root);
+				}
+			}
+		}
 
 
 

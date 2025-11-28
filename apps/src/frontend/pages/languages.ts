@@ -197,10 +197,8 @@ export const translations_register_page: TranslationSet = {
 	EN: {
 		register_header: 'Create Account',
 		username_label: 'Username',
-		email_label: 'Email',
 		password_label: 'Password',
 		username_placeholder: 'Enter your username',
-		email_placeholder: 'Enter your email',
 		password_placeholder: 'Enter your password',
 		qrcode_label: 'Enable 2 Factor Authentification by scanning this QR code with an authenticator app',
 		tfa_label: 'Enable 2FA',
@@ -213,10 +211,8 @@ export const translations_register_page: TranslationSet = {
 	DE: {
 		register_header: 'Konto erstellen',
 		username_label: 'Benutzername',
-		email_label: 'E-Mail',
 		password_label: 'Passwort',
 		username_placeholder: 'Geben Sie Ihren Benutzernamen ein',
-		email_placeholder: 'Geben Sie Ihre E-Mail ein',
 		password_placeholder: 'Geben Sie Ihr Passwort ein',
 		qrcode_label: 'Aktiviere 2FA Authentifizierung. Scanne diesen QR Code mit einer Authenticator App',
 		tfa_label: '2FA Aktivieren',
@@ -229,10 +225,8 @@ export const translations_register_page: TranslationSet = {
 	GR: {
 		register_header: 'Δημιουργία λογαριασμού',
 		username_label: 'Όνομα χρήστη',
-		email_label: 'Email',
 		password_label: 'Κωδικός',
 		username_placeholder: 'Εισάγετε το όνομα χρήστη σας',
-		email_placeholder: 'Εισάγετε το email σας',
 		password_placeholder: 'Εισάγετε τον κωδικό σας',
 		qrcode_label: 'Ενεργοποιήστε τον έλεγχο ταυτότητας δύο παραγόντων σαρώνοντας αυτόν τον κωδικό QR με μια εφαρμογή ελέγχου ταυτότητας.',
 		tfa_label: 'Ενεργοποίηση 2FA',
@@ -425,6 +419,8 @@ export const translations_errors: TranslationSet = {
 		error_no_token: 'No 2fa token submitted',
 		error_logged_in: 'Already logged in',
 		error_invalid_token: 'Invalid 2fa code supplied',
+		error_username_taken: 'This username has already been taken',
+		error_username_min_len: 'Username has to be at least 3 characters long',
 		error_default: "Error",
 	},
 	DE: {
@@ -434,6 +430,8 @@ export const translations_errors: TranslationSet = {
 		error_no_token: 'Kein 2fa code gesendet',
 		error_logged_in: 'Bereits eingeloggt',
 		error_invalid_token: 'Ungültiger 2fa code',
+		error_username_taken: 'Dieser Username wird bereits benutzt',
+		error_username_min_len: 'Username muss mind. 3 Buchstaben enthalten',
 		error_default: "Fehler",
 	},
 	GR: {
@@ -443,6 +441,8 @@ export const translations_errors: TranslationSet = {
 		error_no_token: 'Δεν υποβλήθηκε κωδικός 2FA',
 		error_logged_in: 'Έχετε ήδη συνδεθεί',
 		error_invalid_token: 'Ο κωδικός 2FA που δόθηκε δεν είναι έγκυρος',
+		error_username_taken: 'Αυτό το όνομα χρήστη χρησιμοποιείται ήδη.',
+		error_username_min_len: 'Το όνομα χρήστη πρέπει να έχει τουλάχιστον 3 χαρακτήρες.',
 		error_default: "Σφάλμα",
 	},
 };

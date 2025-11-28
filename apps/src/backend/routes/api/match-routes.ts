@@ -35,7 +35,7 @@ const matchRoutes: FastifyPluginAsync = async (fastify: any) => {
 			await createMatch(player1Id, player2Id, player1Score, player2Score, isTournamentMatch);
 			res.send({ message: 'Match created successfully' });
 		} catch (err) {
-			res.status(401).send({ message: 'Unauthorized or error creating match' });
+			res.status(400).send({ message: 'error creating match' });
 		}
 	});
 
@@ -67,7 +67,7 @@ const matchRoutes: FastifyPluginAsync = async (fastify: any) => {
 			//  console.log (send_obj);
 			res.send(send_obj);
 		} catch (err) {
-			res.status(401).send({ message: 'Unauthorized or error retrieving matches' });
+			res.status(400).send({ message: 'or error retrieving matches' });
 		}
 	});
 

@@ -1,6 +1,7 @@
 
 import { renderBackgroundFull } from '../utils/layout.js'
 import {languageStore, translations_leaderboards, transelate_per_id} from './languages.js';
+import { apiFetch } from '../utils/auth.js'
 
 
 export async function renderLeaderboard(root: HTMLElement) {
@@ -8,7 +9,10 @@ export async function renderLeaderboard(root: HTMLElement) {
 
 	try {
 	const tournamentId = 1;
-	const res = await fetch(`/api/tournament/${tournamentId}/leaderboard`);
+	const res = await apiFetch(`/api/tournament/${tournamentId}/leaderboard`, {
+						method: 'GET',
+						credentials: 'include'
+					});
 
 	if (!res.ok) {
 		throw new Error(`Server error: ${res.status}`);

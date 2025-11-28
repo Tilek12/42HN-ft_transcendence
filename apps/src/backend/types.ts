@@ -1,5 +1,5 @@
 import WebSocket from 'ws'
-
+import type fastifyJwt from '@fastify/jwt'
 
 // BACKEND TYPES DEFINED HERE
 
@@ -8,14 +8,14 @@ import WebSocket from 'ws'
 export interface User {
 	// auth info
 	id: number;
-	username:string, //only there until tilek changes all his 'name' uses to 'username'
+	username: string, //only there until tilek changes all his 'name' uses to 'username'
 	name: string;
-	is_logged_in: boolean;
-	tfa:boolean,
-	tfa_secret:string,
-	role:string,
-	email:string,
-	password:string,
+	is_logged_in: string;
+	tfa: boolean,
+	tfa_secret: string,
+	role: string,
+	email: string,
+	password: string,
 	created_at: string,
 	//game info
 	gameSocket: WebSocket | null;
@@ -31,9 +31,9 @@ export interface User {
 
 // AUTH
 export enum Jwt_type {
-  tmp =     "tmp",
-  normal =  "normal",
-  persist = "persist" ,
+	temp = "TEMP",
+	access = "ACCESS",
+	refresh = "REFRESH",
 }
 
 export type JWTPayload = {
@@ -44,5 +44,11 @@ export type JWTPayload = {
 	type: Jwt_type,
 };
 
+interface FastifyJWT {
+	payload: { id: number } // payload type is used for signing and verifying
+	user: JWTPayload, // user type is return type of `request.user` object
+}
 
-
+// interface FastifyRequest {
+// 	user: JWTPayload
+// }

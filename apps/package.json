@@ -1,17 +1,20 @@
 {
 	"name": "transcendence",
 	"scripts": {
-		"dev": "concurrently \"vite --config /app/vite.config.mts\" \"tsx watch /app/src/backend/server.ts\"",
+		"dev": "concurrently \"vite --config /app/vite.config.mts\" \"tsx watch /app/src/backend/server.ts \"",
+		"delete_dist": "rm -rf /app/dist/",
 		"frontend": " tsc -p tsconfig.frontend.json",
 		"backend": " tsc -p tsconfig.backend.json",
-		"cp_assets":"cp -R src/frontend/images/ dist/frontend/",
-		"cp_index":"cp src/frontend/index.html dist/frontend/",
-		"tailwind":"tailwindcss -i src/frontend/styles.css -o dist/frontend/output.css",
-		"build":"npm run frontend; npm run backend; npm run cp_assets; npm run cp_index; npm run tailwind",
-		"prod": " npm run build && node dist/backend/server.js",
+		"cp_assets": "cp -R src/frontend/images/ dist/frontend/",
+		"cp_index": "cp src/frontend/index.html dist/frontend/",
+		"tailwind": "tailwindcss -i src/frontend/styles.css -o dist/frontend/output.css",
+		"build": "npm run frontend && npm run backend && npm run cp_assets && npm run cp_index && npm run tailwind",
+		"prod": "npm run delete_dist && npm run build && node dist/backend/server.js",
 		"update": "ncu -u"
 	},
 	"dependencies": {
+		"@fastify/cookie": "^11.0.2",
+		"@fastify/csrf-protection": "^7.1.0",
 		"@fastify/helmet": "^13.0.2",
 		"@fastify/jwt": "^10.0.0",
 		"@fastify/multipart": "^9.3.0",
@@ -43,8 +46,8 @@
 		"typescript": "^5.9.3"
 	},
 	"devDependencies": {
-		"vite": "^7.2.2",
+		"npm-check-updates": "^19.1.2",
 		"tsx": "^4.20.6",
-		"npm-check-updates": "^19.1.2"
+		"vite": "^7.2.4"
 	}
 }

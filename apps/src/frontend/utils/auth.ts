@@ -1,50 +1,68 @@
-import {payload} from '../types.js'
+import { renderConnectionErrorPage } from '../pages/error.js';
+import { changeLoginButton, logoutFrontend } from '../pages/nav.js';
+import { payload, fUser } from '../types.js'
 
-export function saveToken(token: string) {
-	sessionStorage.setItem('jwt', token);
+
+let user: fUser | null;
+let csrfToken: string | null;
+
+export function getUser(): fUser | null {
+	return user;
+}
+export function setUser(newUser: fUser | null) {
+	user = newUser;
+}
+export function clearUser() {
+	user = null
 }
 
-export function getToken(): string | null {
-	return sessionStorage.getItem('jwt');
+export function saveCsrfToken(token: string) {
+	csrfToken = token;
 }
 
-export function clearToken() {
-	sessionStorage.removeItem('jwt');
-	// disconnectPresenceSocket();
+export function getcsrfToken(): string | null {
+	return csrfToken;
 }
 
-export function enabled_2fa():boolean {
-	const payload = getJWTPayload();
-	if (payload)
-	{
-		return payload.tfa;
-	}
-	return false;
+export function clearscrfToken() {
+	csrfToken = null;
 }
-
-export function getJWTPayload(): payload | null {
-
-	const token = getToken();
-	if (token){
-		const arr = token.split('.');
-		if (arr[1])
-			return JSON.parse(atob(arr[1])) as payload;
-	}
-	return null;
-}
-
 
 export async function validateLogin(): Promise<boolean> {
-	const token = getToken();
-	if (!token) return false;
+
 	try {
-	  const res = await fetch('/api/private/me', {
-		headers: { Authorization: `Bearer ${token}` },
-	  });
-	  if (!res.ok) throw new Error();
-	  return true;
-	} catch (e:any){
-	  	clearToken();
-	  return false;
+		const res = await apiFetch('/api/private/me', {
+			method: "GET",
+			credentials: "include",
+		});
+		if (!res.ok)
+			throw new Error();
+		changeLoginButton(false);
+		const data = await res.json();
+		if (data.user)
+			setUser(data.user);
+		return true;
+	} catch (e: any) {
+		return false;
 	}
+}
+
+
+
+export async function apiFetch(url: RequestInfo, options: RequestInit): Promise<Response> {
+	let responsePromise = fetch(url, options);
+	const response = await responsePromise;
+	if (response.status === 401) {
+		const refresh = await fetch('/api/refresh', {
+			method: 'POST',
+			credentials: 'include',
+		})
+		if (refresh.status === 200)
+			return fetch(url, options);
+		else {
+			logoutFrontend();
+		}
+	}
+	return responsePromise;
+
 }

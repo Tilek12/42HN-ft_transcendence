@@ -1,5 +1,5 @@
 
-import { getToken, clearToken, validateLogin } from '../utils/auth.js'
+import { getUser, clearUser, setUser, apiFetch } from '../utils/auth.js'
 import { renderProfilesList } from './renderProfiles.js';
 import { renderUserProfile, profile_ids, update_langauge_headers_user_profile } from './renderUserProfile.js';
 import type { Profile_details } from './renderUserProfile.js';
@@ -9,24 +9,11 @@ import { listenerPasswordCancel, listenerPasswordEdit, listenerPasswordUpdate } 
 import { listenerUsernameUpdate, listenerUsernameCancel, listenerUsernameEdit } from './listenerUpdatePasswordAndUsername.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore } from './languages.js';
+import { Match, fUser } from '../types.js';
+import { renderConnectionErrorPage } from './error.js';
 
 let i = 0;
-type Match =
-	{
-		id: number,
-		player1_id: number,
-		player2_id: number,
-		player1_score: number,
-		player2_score: number,
-		winner_id: number,
-		is_tie: boolean,
-		is_tournament_match: boolean,
-		played_at: string,
-		player1_username: string,
-		player2_username: string,
-		total_matches?: number,
-		win_rate?: number,
-	};
+
 const ref_obj_allProfiles: { allProfiles: { profiles: any[] }[] | undefined } = { allProfiles: [] };
 // let allProfiles: {profiles : any[]}[] | undefined= [];
 let profile_offset = 0;
@@ -45,6 +32,9 @@ export const resetEventListeners = (elemnt_ids: string[]): void => {
 		// document.getElementById(id)!.innerHTML = ''
 	});
 }
+
+
+//this function renders the profiles that are online ?
 const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) => {
 
 	// console.log("ALL PROFILES ON RENDER", ref_obj_allProfiles.allProfiles)
@@ -70,57 +60,60 @@ const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) => 
 		}))
 	}
 	if (!load)
-		setTimeout(renderCheckerForProfiles, 1000);
+		setTimeout(renderCheckerForProfiles, 2000);
 	// return allProfiles
 }
 export async function renderProfile(root: HTMLElement) {
-	fetch('/api/private/profile', {
-		method: 'POST',
-		headers: { 'Authorization': `Bearer ${getToken()}` }
+	apiFetch('/api/private/profile', {
+		method: 'GET',
+		credentials:'include'
 	})
 		.then(res => res.json())
 		.then(data => {
 			if (data.message === 'User or profile not found' ||
 				data.message === 'Invalid or expired token') {
-				clearToken();
+				clearUser();
 				location.hash = '#/login';
 				return;
 			};
-
+			const user = data as fUser;
+			setUser(user);
 			root.innerHTML = renderUserProfile(data, languageStore.language);
+			const button = document.getElementById('refresh_button');
+			const errortext = document.getElementById('refresh_text');
+			if (button && errortext){
+				button .addEventListener('click', async ()=>{
+		
+				const resp = await fetch('/api/refresh', {
+					method:'POST',
+					credentials:'include'
+				});
+				errortext.innerText = await resp.json();
 
-
-
-			let profile_details: Profile_details =
-			{
-				data_async: data,
-				profile_pic_id: `profile_pic`,
-				logged_in_id: `logged_in`,
-				username_id: `username`,
-				email_id: `email`,
-				wins_id: `wins`,
-				losses_id: `losses`,
-				trophies_id: `trophies`,
-				created_at_id: `created_at`
+				setTimeout((errortext: HTMLElement)=>{errortext.innerText = ''}, 5000);
+				})
 			}
+
 			languageStore.subscribe((lang) => update_langauge_headers_user_profile(lang));
 			//---------------Password Related Variables------------------------------------
-			const password_old_check = document.getElementById('password-old-check') as HTMLInputElement;
-			const password_new = document.getElementById('password-new') as HTMLInputElement;
-			const password_confirm = document.getElementById('password-confirm') as HTMLInputElement;
-			const password_edit_btn = document.getElementById('password-edit-btn') as HTMLButtonElement;
-			const password_update_btn = document.getElementById('password-update-btn') as HTMLButtonElement;
-			const password_cancel_btn = document.getElementById('password-cancel-btn') as HTMLButtonElement;
+			const password_old_check 	= document.getElementById('password-old-check') 	as HTMLInputElement;
+			const password_new 			= document.getElementById('password-new') 			as HTMLInputElement;
+			const password_confirm		= document.getElementById('password-confirm') 		as HTMLInputElement;
+			const password_edit_btn 	= document.getElementById('password-edit-btn') 		as HTMLButtonElement;
+			const password_update_btn 	= document.getElementById('password-update-btn') 	as HTMLButtonElement;
+			const password_cancel_btn 	= document.getElementById('password-cancel-btn') 	as HTMLButtonElement;
 			//--------------Username Related Variables-------------------------------------
-			const username_update_btn = document.getElementById('username-update-btn') as HTMLButtonElement;
-			const username_cancel_btn = document.getElementById('username-cancel-btn') as HTMLButtonElement;
-			const username_edit_btn = document.getElementById('username-edit-btn') as HTMLButtonElement;
+			const username_update_btn 	= document.getElementById('username-update-btn') 	as HTMLButtonElement;
+			const username_cancel_btn 	= document.getElementById('username-cancel-btn') 	as HTMLButtonElement;
+			const username_edit_btn 	= document.getElementById('username-edit-btn') 		as HTMLButtonElement;
 
-			const username_par_el = document.getElementById('username') as HTMLParagraphElement;
-			const username_input_el = document.getElementById('username-input') as HTMLInputElement;
+			const username_par_el 		= document.getElementById('username') 				as HTMLParagraphElement;
+			const username_input_el 	= document.getElementById('username-input') 		as HTMLInputElement;
 
-			setTimeout(() => profile_ids(profile_details), 0);
-			setTimeout(() => update_langauge_headers_user_profile(languageStore.language), 0);
+			profile_ids(user);
+			update_langauge_headers_user_profile(languageStore.language);
+
+
 			document.getElementById('nav_profile')?.addEventListener('click', () => { nav_profile_clicked = true; });
 			(async () => {
 				const r_on_r = await renderProfilesList('profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit, already_parsed);
@@ -198,10 +191,9 @@ export async function renderProfile(root: HTMLElement) {
 				('click', async (e) => listenerDeletePicture(e));
 
 			//==================Linda's code==========================
-			fetch('/api/private/match/user', {
-				headers: {
-					'Authorization': `Bearer ${getToken()}`
-				}
+			apiFetch('/api/private/match/user', {
+				method: 'GET',
+				credentials:'include',
 			})
 				.then(res => res.json())
 				.then((data) => {
@@ -215,7 +207,9 @@ export async function renderProfile(root: HTMLElement) {
 						// <p>No matches found.</p>`;
 						return;
 					}
-					matchContainer.innerHTML += `
+					matchContainer.innerHTML += 
+					/*html*/
+					`
 			<div class="overflow-x-auto rounded-xl">
 				<table class="w-full text-left border-collapse">
 				<thead>
@@ -268,7 +262,7 @@ export async function renderProfile(root: HTMLElement) {
 				});
 			//==============Linda's code=================================
 		})
-		.catch(() => {
-			root.innerHTML = `<p class="text-red-400">❌ Failed to fetch profile.</p>`;
+		.catch(() => {		
+			renderConnectionErrorPage();
 		})
 }

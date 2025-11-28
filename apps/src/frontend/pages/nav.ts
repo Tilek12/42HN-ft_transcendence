@@ -1,7 +1,7 @@
 import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore, transelate_per_id, translations_nav } from './languages.js';
-import { validateLogin } from '../utils/auth.js';
-import { getToken, clearToken } from '../utils/auth.js'
+import { getUser, clearUser } from '../utils/auth.js'
+import { renderConnectionErrorPage } from './error.js';
 
 
 let presenceUnsub: (() => void) | null = null;
@@ -11,10 +11,10 @@ export async function initNav() {
 	const loginButton = document.getElementById('login-btn');
 	const logoutButton = document.getElementById('logout-btn');
 	if (loginButton)
-		loginButton.addEventListener('click', ()=>{location.hash = '/login'});
+		loginButton.addEventListener('click', () => { location.hash = '/login' });
 	if (logoutButton)
 		logoutButton.addEventListener('click', listenerLogoutBtn);
-	changeLoginButton(!await validateLogin());
+	changeLoginButton(true);
 };
 
 async function updateOnlineUsers() {
@@ -22,7 +22,14 @@ async function updateOnlineUsers() {
 	const users = wsManager.presenceUserList;
 	const badge = document.getElementById('active-users-count');
 	const list = document.getElementById('active-users-list');
+	const status = document.getElementById('status_symbol');
+	const status2 = document.getElementById('logged_in');
 
+	if (status) { status.classList.remove('bg-red-400'); status.classList.add('bg-green-400'); }
+	if (status2) {
+		status2.classList.remove('bg-red-400');
+		status2.classList.add('bg-green-400');
+	}
 	if (badge) badge.textContent = `Online Users: ${count}`;
 	if (list) list.innerHTML = users.map(u => `<li>${u.name || u.id}</li>`).join('');
 };
@@ -34,7 +41,7 @@ export function changeLoginButton(login: boolean) {
 	const userlist = document.getElementById('user_list');
 
 
-	if (logoutButton && loginButton &&userlist) {
+	if (logoutButton && loginButton && userlist) {
 		if (!login) {
 			logoutButton.classList.remove("hidden");
 			loginButton.classList.add("hidden");
@@ -49,30 +56,58 @@ export function changeLoginButton(login: boolean) {
 	}
 }
 
-const listenerLogoutBtn = async (e : any) =>
-{
+
+export function logoutFrontend() {
+	clearUser();
+	wsManager.clearPresenceData();
+	wsManager.disconnectAllSockets();
+	changeLoginButton(true);
+	
+}
+
+const listenerLogoutBtn = async (e: any) => {
 	e.preventDefault();
 	{
-		const token = getToken();
-			const resp = await fetch('/api/private/logout',
+		try {
+			// if (!getUser())
+			// 	return;
+			const resp = await fetch('/api/logout',
 				{
 					method: 'POST',
-					headers: {'Authorization': `Bearer ${token}`},
+					credentials: 'include',
 				});
+			if (!resp.ok) {
+				const data = await resp.json();
+				alert(`couldnt log out! reason: ${data.message}`);
+			}
 			console.log(resp);
-			wsManager.disconnectAllSockets();
-			wsManager.clearPresenceData();
-			clearToken();
+			logoutFrontend();
+		} catch (e: any) {
+			renderConnectionErrorPage();
 			location.hash = '#/';
+		}
 	}
 }
 
+export function hideNav() {
+	const navigation = document.getElementById("navigation");
+	if (navigation) {
+		navigation.classList.add('hidden');
+	}
+}
+
+export function unhideNav() {
+	const navigation = document.getElementById("navigation");
+	if (navigation) {
+		navigation.classList.remove('hidden');
+	}
+}
 
 
 export function renderNav() {
 	const nav = document.getElementById("navbar");
 	const users = wsManager.presenceUserList;
-  const count = wsManager.onlineUserCount;
+	const count = wsManager.onlineUserCount;
 
 	// Subscribe ONCE to presence updates and re-render
 	if (!presenceUnsub) {
@@ -127,7 +162,7 @@ export function renderNav() {
 
 					<!-- Online Users -->
 					<div id="user_list" class="group relative text-white cursor-pointer items-center justify-center flex space-x-1">
-						<div class="w-3 h-3 rounded-full bg-green-400 animate-pulse">
+						<div id="status_symbol"class="w-3 h-3 rounded-full bg-green-400 animate-pulse">
 						</div>
 						<span id="active-users-count" class="text-sm">${count}</span>
 						<ul id="active-users-list" class="absolute top-full mt-1 hidden group-hover:block bg-white/90 text-black text-sm rounded-lg p-2 max-h-64 overflow-y-auto z-50">
@@ -161,14 +196,8 @@ export function renderNav() {
 		transelate_per_id(translations_nav, "online_users", lang, "active-users-list");
 		transelate_per_id(translations_nav, "login", lang, "login-btn");
 		transelate_per_id(translations_nav, "logout", lang, "logout-btn");
-	})
-	const menu_btn = document.getElementById('menu-btn');
-	if (menu_btn)
-	{
-		menu_btn.addEventListener('click', () => {
-		const nav = document.getElementById('navigation');
-		nav?.classList.toggle('hidden');
-});
-	}
-	
+	});
+
+
+
 }

@@ -5,17 +5,13 @@ import sharp from 'sharp';
 import path from 'path';
 
 //----------functions for profiles data base-----------
-export async function findProfileByUsername(username:string)
+export async function findProfileByUsername(username: string)
 {
 	return await db.get('SELECT * FROM profiles WHERE username = ?', username);
 }
 
-export async function findProfileByEmail(email: string)
-{
-	return await db.get('SELECT * FROM profiles WHERE email = ?', email);
-}
 
-export async function findProfileById(id:  number)
+export async function findProfileById(id: number)
 {
 	return await db.get('SELECT * FROM profiles WHERE id = ?', id);
 }
@@ -26,28 +22,14 @@ export async function createProfile(username: string)
 	if (!user)
 		return;
 	await db.run(
-		'INSERT INTO profiles (id, logged_in, wins, losses, trophies) VALUES (?,?,?,?,?)',
-		user.id, false, 0, 0, 0
+		'INSERT INTO profiles (id, wins, losses, trophies) VALUES (?,?,?,?)',
+		user.id, 0, 0, 0
 	);
 	//-----------
-	const __dirname = 'app/src/backend/'
-	console.log("=============>>>>>dirname: ", __dirname);
 
 }
-export async function updateProfileLogInState(id: number, status: boolean)
-{
-	await db.run(
-		'UPDATE profiles SET logged_in = ? WHERE id = ?',
-		status,
-		id
-	);
-	await db.run(
-		'UPDATE users SET is_logged_in = ? WHERE id = ?',
-		status,
-		id
-	);
-}
-export async function parseProfiles(prof_id : number, offset_param?: string, limit_param?: string) : Promise<any[]>
+
+export async function parseProfiles(prof_id : number, offset?: number, limit?: number) : Promise<any[]>
 {
 	let sqliteString = `SELECT
 		  u.id,
@@ -55,20 +37,16 @@ export async function parseProfiles(prof_id : number, offset_param?: string, lim
 		  p.wins,
 		  p.losses,
 		  p.trophies,
-		  p.image_path,
-		  p.logged_in,
 		  p.image_blob
 		FROM users u
 		JOIN profiles p ON u.id = p.id
 		WHERE u.id != ?`;
-	if (offset_param && limit_param)
+	if (offset !== undefined && limit !== undefined)
 	{
-		const offset = parseInt(offset_param);
-		const limit = parseInt(limit_param);
 		sqliteString += ` LIMIT  ? OFFSET ?`;
 		return await db.all(sqliteString, [prof_id, limit, offset])
 	}
-	return await db.all(sqliteString, prof_id);
+	return await db.all(sqliteString, [prof_id]);
 
 }
 //-----Matches and tournaments-------------------------
@@ -81,10 +59,9 @@ export async function incrementWinsOrLossesOrTrophies(id: number, field: 'wins' 
 //-----Profile path or url-----------------------------
 }
 
-export async function updatePicturePath(id: number, path_or_url: string, image_blob?: any) {
+export async function updatePicture(id: number, image_blob?: any) {
 	await db.run(
-	  `UPDATE profiles SET image_path = ?, image_blob = ? WHERE id = ?`,
-	  path_or_url,
+	  `UPDATE profiles SET image_blob = ? WHERE id = ?`,
 	  image_blob,
 	  id
 	);
@@ -99,25 +76,27 @@ export async function parseFriends(id: number, offset_param?: string, limit_para
 			`
 				SELECT
 				u.id, u.username, u.created_at,
-				p.wins, p.losses, p.trophies, p.image_path, p.image_blob, p.logged_in
+				p.wins, p.losses, p.trophies, p.image_path, p.image_blob,
 				FROM friends f
 				JOIN users u ON f.friend_id = u.id
 				JOIN profiles p ON u.id = p.id
 				WHERE f.user_id = ?
 				LIMIT ? OFFSET ?
-			`, [id, parseInt(limit_param), parseInt(offset_param)]);
+			`, [id, Number(limit_param), Number(offset_param)]);
 
 	}
+	else{
 	rows = await db.all(
 		`
 			SELECT
 			u.id, u.username, u.created_at,
-			p.wins, p.losses, p.trophies, p.image_path, p.image_blob, p.logged_in
+			p.wins, p.losses, p.trophies, p.image_path, p.image_blob,
 			FROM friends f
 			JOIN users u ON f.friend_id = u.id
 			JOIN profiles p ON u.id = p.id
 			WHERE f.user_id = ?
 		`, id);
+	}
 	const row_with_stringified_image_blob = rows.map((row : any) => {if (row.image_blob) row.image_blob = row.image_blob.toString("base64"); return row;})
 	return row_with_stringified_image_blob;
 }

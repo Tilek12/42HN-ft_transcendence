@@ -1,7 +1,7 @@
 
 import { renderBackgroundFull } from '../utils/layout.js';
 import { wsManager } from '../websocket/ws-manager.js';
-import { getToken } from '../utils/auth.js';
+import { getUser } from '../utils/auth.js';
 import { COLORS } from '../constants/colors.js';
 import { languageStore, translations_game_render, transelate_per_id } from './languages.js';
 
@@ -9,7 +9,7 @@ import { languageStore, translations_game_render, transelate_per_id } from './la
 export async function renderGame(root: HTMLElement) {
 	const tr = translations_game_render[languageStore.language];
 
-	root.innerHTML = renderBackgroundFull(`
+	root.innerHTML = renderBackgroundFull(/*html*/`
     <div class="pt-24 max-w-xl mx-auto text-white text-center">
       <h1 id="pong_game_header" class="text-3xl font-bold mb-6">${tr!.pong_game_header}</h1>
       <div class="flex justify-center gap-4 mb-8">
@@ -47,7 +47,7 @@ export async function renderGame(root: HTMLElement) {
 
 	let socket: WebSocket | null = null;
 	let gameState: any = null;
-	let moveInterval: number | null = null;
+	let moveInterval: any = null;
 	let playerNames: Record<string, string> = {};
 
 	const heldKeys: Record<string, boolean> = {};
@@ -57,7 +57,6 @@ export async function renderGame(root: HTMLElement) {
 		document.removeEventListener('keyup', keyUpHandler);
 		if (moveInterval !== null) {
 			clearInterval(moveInterval);
-			moveInterval = null;
 		}
 	};
 
@@ -76,8 +75,8 @@ export async function renderGame(root: HTMLElement) {
 	});
 
 	function startGame(mode: 'solo' | 'duel') {
-		const token = getToken();
-		if (!token) {
+		const user = getUser();
+		if (!user) {
 			alert('❌ You must be logged in to play');
 			location.hash = '#/login';
 			return;

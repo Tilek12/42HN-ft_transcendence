@@ -1,5 +1,5 @@
 import fp from 'fastify-plugin';
-import { FastifyPluginAsync, FastifyRequest } from 'fastify';
+import { FastifyInstance, FastifyPluginAsync } from 'fastify';
 import { WebSocket } from 'ws';
 
 import { Participant, TournamentState } from '../../tournament/tournament-types';
@@ -8,6 +8,8 @@ import { tournamentManager } from '../../service-managers/tournament-manager';
 import { gameManager } from '../../service-managers/game-manager';
 import { PING_INTERVAL_MS } from '../../constants';
 import { JWTPayload, User } from '../../types';
+import { TournamentWebsocketQuery, TournamentWebsocketSchema } from './WebsocketSchemas';
+import { findUserById } from '../../database/user';
 
 
 
@@ -40,18 +42,22 @@ function handle_message(text: string, user:User, userId:string, socket:WebSocket
 
 
 
-const wsTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
-	fastify.get('/tournament', { websocket: true }, (socket: WebSocket, req: FastifyRequest) => {
-		const params = new URLSearchParams(req.url?.split('?')[1] || '');
-		const token = params.get('token');
-		const action = params.get('action'); // "create" or "join"
-		const tournamentId = params.get('id');
-		const size = parseInt(params.get('size') || '4') as 4 | 8;
-		const mode = (params.get('mode') as 'local' | 'online') || 'online';
-		const namesRaw = params.get('names') || '';
-		const extraNames = namesRaw ? JSON.parse(namesRaw) : [];
+const wsTournamentPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 
-		if (!token || !action || (action === 'join' && !tournamentId)) {
+	fastify.get<{Querystring: TournamentWebsocketQuery}>
+		('/tournament',
+		{	schema:TournamentWebsocketSchema,
+			websocket: true
+		},
+		(socket, req) => {
+		// const params = new URLSearchParams(req.url?.split('?')[1] || '');
+		const action = req.query.action; // "create" or "join"
+		const tournamentId = req.query.id;
+		const size = req.query.size;
+		const mode = req.query.mode;
+		const names = req.query.names;
+
+		if (action === 'join' && !tournamentId) {
 			socket.close(4001, 'Missing or invalid parameters');
 			return;
 		}
@@ -59,13 +65,12 @@ const wsTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 		const buffer: any[] = [];
 		let authenticated = false;
 		let user: User | undefined;
-		let decoded: JWTPayload
+		let decoded = req.user as JWTPayload;
 		let userId: string = "unauthenticated";
 
 		socket.on('message', async (raw: any) => {
 			try {
 				if (!authenticated) {
-					decoded = fastify.jwt.verify(raw) as JWTPayload;
 					user = userManager.getUser(decoded.id)
 					if (!user)
 						throw new Error(`User not valid: ${decoded.id}`);
@@ -76,13 +81,13 @@ const wsTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 					let tournament: TournamentState | null = null;
 					const participant: Participant = { id: userId, name: user.name };
 
-					if (action === 'create') {
+					if (action === 'create' && size && names) {
 						tournament = await tournamentManager.createTournament(
 							mode,
 							participant,
 							size,
 							mode === 'local' ? socket : undefined,
-							extraNames
+							names
 						);
 						if (mode === 'local') {
 							tournamentManager.startTournament(tournament.id);
@@ -114,7 +119,7 @@ const wsTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 					buffer.push(raw.toString())
 				}
 			} catch (err) {
-				fastify.log.warn('📛 [Tournament WS] Invalid message:', err);
+				fastify.log.warn(`📛 [Tournament WS] Invalid message: ${err}`);
 				socket.close(4001, 'Unauthorized')
 				return;
 			}

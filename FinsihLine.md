@@ -41,3 +41,7 @@
 - tlek tournament
 
 - gerneral support tester
+
+
+# Issues
+when game plays, and you switch to another page it doesnt disconnect

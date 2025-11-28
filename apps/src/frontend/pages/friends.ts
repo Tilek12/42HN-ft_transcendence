@@ -1,8 +1,9 @@
 import { renderBackgroundFull } from '../utils/layout.js';
-import { getToken } from '../utils/auth.js'
+import { getUser } from '../utils/auth.js'
 import { renderFriendsList } from './renderFriends.js';
 import { renderFriendRequestsList } from './renderFriendRequestList.js';
 import {languageStore, translations_friends_render, transelate_per_id} from './languages.js';
+import { apiFetch } from '../utils/auth.js'
 
 
 
@@ -45,14 +46,11 @@ export async function renderFriends(root: HTMLElement) {
 			if (target.classList.contains('answer-request-btn'))
 			{
 				// console.log('answer clicked');
-				res = await fetch(`/api/private/answer-request`,
+				res = await apiFetch(`/api/private/answer-request`,
 					{
 						method: 'POST',
-						headers:
-						{
-							'Content-Type': 'application/json',
-							Authorization : `Bearer ${getToken()}`,
-						},
+						credentials: 'include',
+						headers:{ 'Content-Type': 'application/json'},
 						body: JSON.stringify({profileId, profileAnswer}),
 					}
 				)
@@ -60,8 +58,7 @@ export async function renderFriends(root: HTMLElement) {
 			if (res) {
 				let data;
 				try {
-					const text = await res.text();
-					data = text ? JSON.parse(text) : {};
+					data = await res.json();
 				} catch (err) {
 					console.error("Failed to parse JSON:", err);
 					data = {};

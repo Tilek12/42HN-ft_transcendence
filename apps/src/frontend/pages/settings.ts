@@ -1,6 +1,5 @@
 
 import { renderBackgroundFull } from '../utils/layout.js'
-import { validateLogin } from '../utils/auth.js'
 export async function renderSettings(root: HTMLElement) {
 
 

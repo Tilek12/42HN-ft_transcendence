@@ -1,6 +1,6 @@
 
 import { renderBackgroundFull } from '../utils/layout.js';
-import { getToken, getJWTPayload } from '../utils/auth.js';
+import { getUser } from '../utils/auth.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { COLORS } from '../constants/colors.js';
 import { languageStore, translations_tournament_render, transelate_per_id } from './languages.js';
@@ -20,51 +20,51 @@ let isPlayerInMatch = false;
 
 export async function renderTournament(root: HTMLElement) {
 
-	root.innerHTML = renderBackgroundFull(`
-    <div class="max-w-4xl mx-auto m-8 p-6 bg-white/10 rounded-xl shadow-lg backdrop-blur-md">
-      <h1 id="tournament_lobby_header"class="text-3xl font-bold mb-4 text-center text-white">${translations_tournament_render[languageStore.language]!.tournament_lobby_header}</h1>
-      <p id="glory_header"class="text-center text-gray-400 mb-6">${translations_tournament_render[languageStore.language]!.glory_header}</p>
-      <div id="tournament-mode" class="mb-6 flex justify-center">
-        <div class="bg-white/20 rounded-lg p-1 flex">
-          <button id="online-btn" class="px-6 py-3 rounded-md text-white font-semibold transition-colors bg-blue-600 hover:bg-blue-700">🌐 Online</button>
-          <button id="local-btn" class="px-6 py-3 rounded-md text-white font-semibold transition-colors bg-gray-600 hover:bg-gray-700">🏠 Local</button>
-        </div>
-      </div>
-      <div id="online-section">
-        <div id="winner-announcement" class="hidden mb-4 p-4 bg-yellow-500/20 border border-yellow-400 rounded-lg text-center text-white"></div>
-        <div id="tournament-list" class="space-y-4 text-white"></div>
-      </div>
-      <div id="local-section" class="hidden">
-        <div class="mb-4">
-          <label class="block text-white mb-2">Tournament Size:</label>
-          <select id="local-size" class="bg-white/20 text-white p-2 rounded">
-            <option value="4">4 Players</option>
-            <option value="8">8 Players</option>
-          </select>
-        </div>
-        <div id="name-inputs" class="space-y-2"></div>
-        <button id="create-local" class="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold mt-4">Create Local Tournament</button>
-      </div>
-      <div id="local-tournament" class="hidden">
-        <div id="tournament-info" class="text-center text-gray-400 mb-6"></div>
-        <div id="bracket" class="mb-6"></div>
-        <div id="countdown" class="text-6xl font-bold text-center text-white mb-6 hidden">5</div>
-        <p id="status" class="text-center text-gray-400 mb-4">Waiting for tournament to start...</p>
-        <canvas id="pong" width="600" height="400" class="mx-auto border border-white/30 bg-white/10 backdrop-blur-md rounded shadow-lg hidden"></canvas>
-        <div class="text-center mt-6">
-          <button id="quit-local" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Quit Tournament</button>
-        </div>
-      </div>
-      <div id="online-tournament-match" class="hidden">
-        <div id="online-countdown" class="text-6xl font-bold text-center text-white mb-6 hidden">5</div>
-        <p id="online-status" class="text-center text-gray-400 mb-4">Match starting...</p>
-        <canvas id="online-pong" width="600" height="400" class="mx-auto border border-white/30 bg-white/10 backdrop-blur-md rounded shadow-lg hidden"></canvas>
-        <div class="text-center mt-6">
-          <button id="quit-online-match" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Quit Match</button>
-        </div>
-      </div>
-    </div>
-  `);
+	root.innerHTML = renderBackgroundFull(/*html*/`
+	<div class="max-w-4xl mx-auto m-8 p-6 bg-white/10 rounded-xl shadow-lg backdrop-blur-md">
+		<h1 id="tournament_lobby_header"class="text-3xl font-bold mb-4 text-center text-white">${translations_tournament_render[languageStore.language]!.tournament_lobby_header}</h1>
+		<p id="glory_header"class="text-center text-gray-400 mb-6">${translations_tournament_render[languageStore.language]!.glory_header}</p>
+		<div id="tournament-mode" class="mb-6 flex justify-center">
+		<div class="bg-white/20 rounded-lg p-1 flex">
+			<button id="online-btn" class="px-6 py-3 rounded-md text-white font-semibold transition-colors bg-blue-600 hover:bg-blue-700">🌐 Online</button>
+			<button id="local-btn" class="px-6 py-3 rounded-md text-white font-semibold transition-colors bg-gray-600 hover:bg-gray-700">🏠 Local</button>
+		</div>
+		</div>
+		<div id="online-section">
+		<div id="winner-announcement" class="hidden mb-4 p-4 bg-yellow-500/20 border border-yellow-400 rounded-lg text-center text-white"></div>
+		<div id="tournament-list" class="space-y-4 text-white"></div>
+		</div>
+		<div id="local-section" class="hidden">
+		<div class="mb-4">
+			<label class="block text-white mb-2">Tournament Size:</label>
+			<select id="local-size" class="bg-white/20 text-white p-2 rounded">
+			<option value="4">4 Players</option>
+			<option value="8">8 Players</option>
+			</select>
+		</div>
+		<div id="name-inputs" class="space-y-2"></div>
+		<button id="create-local" class="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold mt-4">Create Local Tournament</button>
+		</div>
+		<div id="local-tournament" class="hidden">
+		<div id="tournament-info" class="text-center text-gray-400 mb-6"></div>
+		<div id="bracket" class="mb-6"></div>
+		<div id="countdown" class="text-6xl font-bold text-center text-white mb-6 hidden">5</div>
+		<p id="status" class="text-center text-gray-400 mb-4">Waiting for tournament to start...</p>
+		<canvas id="pong" width="600" height="400" class="mx-auto border border-white/30 bg-white/10 backdrop-blur-md rounded shadow-lg hidden"></canvas>
+		<div class="text-center mt-6">
+			<button id="quit-local" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Quit Tournament</button>
+		</div>
+		</div>
+		<div id="online-tournament-match" class="hidden">
+		<div id="online-countdown" class="text-6xl font-bold text-center text-white mb-6 hidden">5</div>
+		<p id="online-status" class="text-center text-gray-400 mb-4">Match starting...</p>
+		<canvas id="online-pong" width="600" height="400" class="mx-auto border border-white/30 bg-white/10 backdrop-blur-md rounded shadow-lg hidden"></canvas>
+		<div class="text-center mt-6">
+			<button id="quit-online-match" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Quit Match</button>
+		</div>
+		</div>
+	</div>
+	`);
 	languageStore.subscribe((lang) => {
 		transelate_per_id(translations_tournament_render, "tournament_lobby_header", lang, "tournament_lobby_header");
 		transelate_per_id(translations_tournament_render, "glory_header", lang, "glory_header");
@@ -78,7 +78,8 @@ export async function renderTournament(root: HTMLElement) {
 	// Mode switch
 	const onlineBtn = document.getElementById('online-btn')!;
 	const localBtn = document.getElementById('local-btn')!;
-
+	const user = getUser();
+	const userId = user?.id;
 	function setMode(mode: 'online' | 'local') {
 		if (mode === 'online') {
 			onlineBtn.classList.remove('bg-gray-600', 'hover:bg-gray-700');
@@ -146,9 +147,9 @@ export async function renderTournament(root: HTMLElement) {
 				const div = document.createElement('div');
 				div.className = 'flex-1';
 				div.innerHTML = `
-          <label class="block text-white mb-2">Player ${playerNum}:</label>
-          <input type="text" class="name-input bg-white/20 text-white p-2 rounded w-full" placeholder="Name">
-        `;
+			<label class="block text-white mb-2">Player ${playerNum}:</label>
+			<input type="text" class="name-input bg-white/20 text-white p-2 rounded w-full" placeholder="Name">
+		`;
 				row.appendChild(div);
 			}
 			container.appendChild(row);
@@ -189,7 +190,6 @@ export async function renderTournament(root: HTMLElement) {
 		}
 
 		if (msg.type === 'matchStart') {
-			const userId = getJWTPayload()?.id;
 
 			if (msg.player1 === userId || msg.player2 === userId) {
 				// 🎯 Player is part of this match – handle on tournament page
@@ -224,31 +224,31 @@ export async function renderTournament(root: HTMLElement) {
 		} else if (msg.type === 'tournamentEnd') {
 			// Show winner announcement in tournament lobby for all players
 
-			const userId = getJWTPayload()?.id;
+			
 			const isWinner = msg.winner.id === userId;
 
 			const announcementEl = document.getElementById('winner-announcement')!;
 
 			if (isWinner) {
 				// Winner gets special celebration
-				announcementEl.innerHTML = `
-          <div style="color: gold; font-size: 32px; font-weight: bold; text-align: center; margin: 20px 0;">
-            🏆 CONGRATULATIONS! You are the CHAMPION! 🏆
-          </div>
-          <div style="color: white; font-size: 18px; text-align: center;">
-            You won the tournament! 🎉
-          </div>
-        `;
+				announcementEl.innerHTML = /*html*/`
+			<div style="color: gold; font-size: 32px; font-weight: bold; text-align: center; margin: 20px 0;">
+			🏆 CONGRATULATIONS! You are the CHAMPION! 🏆
+			</div>
+			<div style="color: white; font-size: 18px; text-align: center;">
+			You won the tournament! 🎉
+			</div>
+		`;
 			} else {
 				// Show who won for other players
-				announcementEl.innerHTML = `
-          <div style="color: gold; font-size: 24px; font-weight: bold; text-align: center; margin: 20px 0;">
-            🏆 Tournament Complete! 🏆
-          </div>
-          <div style="color: white; font-size: 18px; text-align: center;">
-            Winner: ${msg.winner.name}
-          </div>
-        `;
+				announcementEl.innerHTML = /*html*/`
+			<div style="color: gold; font-size: 24px; font-weight: bold; text-align: center; margin: 20px 0;">
+			🏆 Tournament Complete! 🏆
+			</div>
+			<div style="color: white; font-size: 18px; text-align: center;">
+			Winner: ${msg.winner.name}
+			</div>
+		`;
 			}
 
 			announcementEl.classList.remove('hidden');
@@ -288,23 +288,24 @@ export async function renderTournament(root: HTMLElement) {
 		list.innerHTML = '';
 
 		const tournaments = wsManager.onlineTournaments;
-		const userId = getJWTPayload()?.id;
 
 		const userTournament = tournaments.find(t => t.playerIds.includes(userId));
 		currentTournamentId = userTournament ? userTournament.id : null;
 
 		if (userTournament) {
 			const infoBox = document.createElement('div');
-			infoBox.innerHTML = `
-        <div class="text-center text-green-400 mb-4">
-          ✅ You have joined Tournament <strong>${userTournament.id}</strong> (${userTournament.joined}/${userTournament.size})
-        </div>
-        <div class="text-center mb-4">
-          <button id="quit-tournament-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
-            Quit Tournament
-          </button>
-        </div>
-      `;
+			infoBox.innerHTML =
+				/*html*/
+				`
+		<div class="text-center text-green-400 mb-4">
+			✅ You have joined Tournament <strong>${userTournament.id}</strong> (${userTournament.joined}/${userTournament.size})
+		</div>
+		<div class="text-center mb-4">
+			<button id="quit-tournament-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+			Quit Tournament
+			</button>
+		</div>
+		`;
 			list.appendChild(infoBox);
 
 			infoBox.querySelector('#quit-tournament-btn')?.addEventListener('click', () => {
@@ -332,23 +333,24 @@ export async function renderTournament(root: HTMLElement) {
 
 			const div = document.createElement('div');
 			div.className =
+				/*html*/
 				'border border-white/20 p-4 rounded-lg bg-black/30 flex justify-between items-center';
 
 			div.innerHTML = `
-        <div>
-          <h2 class="font-semibold text-lg">Tournament ${t.id}</h2>
-          <p class="text-sm text-gray-300">Host: ${t.hostId}</p>
-          <p class="text-sm text-gray-300">${t.joined}/${t.size} players joined</p>
-        </div>
-        <button
-          ${isFull || userTournament ? 'disabled' : ''}
-          class="px-4 py-2 rounded bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-medium"
-          data-id="${t.id}"
-          data-size="${t.size}"
-        >
-          ${userInTournament ? 'Joined' : isFull ? 'Full' : 'Join'}
-        </button>
-      `;
+		<div>
+			<h2 class="font-semibold text-lg">Tournament ${t.id}</h2>
+			<p class="text-sm text-gray-300">Host: ${t.hostId}</p>
+			<p class="text-sm text-gray-300">${t.joined}/${t.size} players joined</p>
+		</div>
+		<button
+			${isFull || userTournament ? 'disabled' : ''}
+			class="px-4 py-2 rounded bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-medium"
+			data-id="${t.id}"
+			data-size="${t.size}"
+		>
+			${userInTournament ? 'Joined' : isFull ? 'Full' : 'Join'}
+		</button>
+		`;
 
 			const button = div.querySelector('button')!;
 			if (!isFull && !userTournament && !userInTournament) {
@@ -363,16 +365,16 @@ export async function renderTournament(root: HTMLElement) {
 		const createDiv = document.createElement('div');
 		createDiv.className = 'text-center mt-6';
 
-		createDiv.innerHTML = `
-      <button class="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold"
-        id="create-tournament-4" ${userTournament ? 'disabled' : ''}>
-        ${translations_tournament_render[languageStore.language]!.create_four_header}
-      </button>
-      <button class="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold ml-4"
-        id="create-tournament-8" ${userTournament ? 'disabled' : ''}>
-        ${translations_tournament_render[languageStore.language]!.create_eight_header}
-      </button>
-    `;
+		createDiv.innerHTML = /*html*/`
+		<button class="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold"
+		id="create-tournament-4" ${userTournament ? 'disabled' : ''}>
+		${translations_tournament_render[languageStore.language]!.create_four_header}
+		</button>
+		<button class="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold ml-4"
+		id="create-tournament-8" ${userTournament ? 'disabled' : ''}>
+		${translations_tournament_render[languageStore.language]!.create_eight_header}
+		</button>
+	`;
 
 		createDiv.querySelector('#create-tournament-4')?.addEventListener('click', () => {
 			if (!userTournament) createTournament(4);
@@ -429,7 +431,7 @@ export async function renderTournament(root: HTMLElement) {
 				wsManager.disconnectTournamentSocket();
 				renderTournamentList();
 			}
-		});
+		}, );
 
 		if (!socket) alert('Failed to create tournament');
 	}
@@ -465,7 +467,7 @@ export async function renderTournament(root: HTMLElement) {
 				}
 			};
 			document.getElementById('pong')!.classList.remove('hidden');
-			document.getElementById('status')!.innerHTML = `<div style="font-size: 24px; font-weight: bold; color: white; text-align: center; margin: 10px 0;">${currentMatch.p1.name} VS ${currentMatch.p2.name}</div>`;
+			document.getElementById('status')!.innerHTML = /*html*/`<div style="font-size: 24px; font-weight: bold; color: white; text-align: center; margin: 10px 0;">${currentMatch.p1.name} VS ${currentMatch.p2.name}</div>`;
 		} else if (msg.type === 'countdown') {
 			countdownValue = msg.value;
 		} else if (msg.type === 'start') {
@@ -479,7 +481,7 @@ export async function renderTournament(root: HTMLElement) {
 			currentMatch = null;
 			gameState = null;
 		} else if (msg.type === 'tournamentEnd') {
-			document.getElementById('status')!.innerHTML = `<span style="color: gold; font-weight: bold;">🏆 Congratulations! ${msg.winner.name} is the champion! 🏆</span>`;
+			document.getElementById('status')!.innerHTML = /*html*/`<span style="color: gold; font-weight: bold;">🏆 Congratulations! ${msg.winner.name} is the champion! 🏆</span>`;
 			document.getElementById('pong')!.classList.add('hidden');
 		}
 	}
@@ -522,7 +524,7 @@ export async function renderTournament(root: HTMLElement) {
 						document.getElementById('online-pong')!.classList.remove('hidden');
 						// Show player matchup like local tournaments
 						if (currentMatch) {
-							document.getElementById('online-status')!.innerHTML = `<div style="font-size: 24px; font-weight: bold; color: white; text-align: center; margin: 10px 0;">${currentMatch.p1.name || currentMatch.p1.id} VS ${currentMatch.p2.name || currentMatch.p2.id}</div>`;
+							document.getElementById('online-status')!.innerHTML =/*html*/ `<div style="font-size: 24px; font-weight: bold; color: white; text-align: center; margin: 10px 0;">${currentMatch.p1.name || currentMatch.p1.id} VS ${currentMatch.p2.name || currentMatch.p2.id}</div>`;
 						}
 						break;
 
@@ -535,7 +537,7 @@ export async function renderTournament(root: HTMLElement) {
 						if (gameState?.playerNames && currentMatch) {
 							const p1Name = gameState.playerNames[currentMatch.p1.id] || currentMatch.p1.name || currentMatch.p1.id;
 							const p2Name = gameState.playerNames[currentMatch.p2.id] || currentMatch.p2.name || currentMatch.p2.id;
-							document.getElementById('online-status')!.innerHTML = `<div style="font-size: 24px; font-weight: bold; color: white; text-align: center; margin: 10px 0;">${p1Name} VS ${p2Name}</div>`;
+							document.getElementById('online-status')!.innerHTML = /*html*/`<div style="font-size: 24px; font-weight: bold; color: white; text-align: center; margin: 10px 0;">${p1Name} VS ${p2Name}</div>`;
 						}
 						drawOnlineGame();
 						break;
@@ -605,11 +607,11 @@ export async function renderTournament(root: HTMLElement) {
 		for (let r = 0; r < rounds.length; r++) {
 			const roundDiv = document.createElement('div');
 			roundDiv.className = 'inline-block mx-4';
-			roundDiv.innerHTML = `<h3 class="text-white text-center mb-2">Round ${r + 1}</h3>`;
+			roundDiv.innerHTML =/*html*/ `<h3 class="text-white text-center mb-2">Round ${r + 1}</h3>`;
 			for (const match of rounds[r]) {
 				const matchDiv = document.createElement('div');
 				matchDiv.className = 'bg-white/20 p-2 rounded mb-2 text-white text-center';
-				matchDiv.innerHTML = `
+				matchDiv.innerHTML =/*html*/ `
 			<div>${match.p1.name} vs ${match.p2.name}</div>
 			<div class="text-sm text-gray-400">${match.status}</div>
 			${match.winnerId ? `<div class="text-yellow-400">Winner: ${match.winnerId === match.p1.id ? match.p1.name : match.p2.name}</div>` : ''}
@@ -708,8 +710,6 @@ export async function renderTournament(root: HTMLElement) {
 		const paddleHeight = PADDLE_HEIGHT * scaleY;
 		const paddleWidth = 10;
 		const ids = Object.keys(gameState.paddles);
-		
-		const userId = getJWTPayload()?.id;
 
 		ids.forEach((id, index) => {
 			const y = gameState.paddles[id] * scaleY;

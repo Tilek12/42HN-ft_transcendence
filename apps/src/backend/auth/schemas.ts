@@ -11,8 +11,6 @@ export type Email = FromSchema<typeof EmailSchema>;
 
 const StringSchema = {
 	type: 'string',
-	minLength: 1,
-	maxLength: 255,
 } as const;
 // export type StringSchema = FromSchema<typeof StringSchema>;
 
@@ -47,7 +45,7 @@ const PasswordSchema = {
 	minLength: 8,
 	maxLength: 64,
 } as const;
-// export type StringSchema = FromSchema<typeof StringSchema>;
+export type Password = FromSchema<typeof PasswordSchema>;
 
 const TFA_token_schema = {
 	type: 'string',
@@ -56,14 +54,204 @@ const TFA_token_schema = {
 } as const;
 // export type StringSchema = FromSchema<typeof StringSchema>;
 
+
+export const AuthHeader =
+{
+	type: 'object',
+	properties: {
+		Cookie: StringSchema
+	},
+	required: ['Cookie']
+};
+
+
+
+/*====================== PROFILE_ROUTES ================================*/
+
+export const ProfileSchema =
+	{
+		description: 'ProfileSchema',
+		tags: ['profile'],
+		summary: 'ProfileSchema',
+		hidden: false,
+		header: AuthHeader,
+		//body
+		body: {}
+	} as const;
+export type ProfileBody = FromSchema<typeof ProfileSchema.body>;
+
+
+export const UploadPicSchema =
+	{
+		description: 'UploadPicSchema',
+		tags: ['profile'],
+		summary: 'UploadPicSchema',
+		hidden: false,
+		header: AuthHeader,
+		//body
+		body: {}
+	} as const;
+export type UploadPicBody = FromSchema<typeof UploadPicSchema.body>;
+
+
+export const DeletePicSchema =
+	{
+		description: 'DeletePicSchema',
+		tags: ['profile'],
+		summary: 'DeletePicSchema',
+		hidden: false,
+		header: AuthHeader,
+		//body
+		body: {}
+	} as const;
+export type DeletePicBody = FromSchema<typeof DeletePicSchema.body>;
+
+
+
+export const ParseFriendsSchema =
+	{
+		description: 'ParseFriendsSchema',
+		tags: ['profile'],
+		summary: 'ParseFriendsSchema',
+		hidden: false,
+		header: AuthHeader,
+
+	} as const;
+
+
+
+export const ProfileIdSchema =
+	{
+		description: 'ProfileIdSchema',
+		tags: ['profile'],
+		summary: 'ProfileIdSchema',
+		hidden: false,
+		header: AuthHeader,
+		//body
+		body: {
+			type: 'object',
+			required: ['profileId'],
+			properties: {
+				profileId: { type: 'string', pattern: '^[0-9]+$ ', minLength: 1 },
+			},
+		}
+	} as const;
+export type ProfileIdBody = FromSchema<typeof ProfileIdSchema.body>;
+
+
+
+export const AnswerRequestSchema =
+	{
+		description: 'AnswerRequestSchema',
+		tags: ['profile'],
+		summary: 'AnswerRequestSchema',
+		hidden: false,
+		header: AuthHeader,
+		//body
+		body: {
+			type: 'object',
+			required: ['profileId', 'profileAnswer'],
+			properties: {
+				profileId: { type: 'string', pattern: '^[0-9]+$ ', minLength: 1 },
+				profileAnswer: { type: 'string', pattern: '^[0-9]+$ ', minLength: 1 }
+			},
+		}
+	} as const;
+export type AnswerRequestBody = FromSchema<typeof AnswerRequestSchema.body>;
+
+
+
+export const UsernameChangeSchema =
+	{
+		description: 'UsernameChangeSchema',
+		tags: ['profile'],
+		summary: 'UsernameChangeSchema',
+		hidden: false,
+		header: AuthHeader,
+		//body
+		body: {
+			type: 'object',
+			required: ['newUsername'],
+			properties: {
+				newUsername: UsernameSchema,
+			},
+		}
+	} as const;
+export type UsernameChangeBody = FromSchema<typeof UsernameChangeSchema.body>;
+
+
+export const parseProfilesSchema = {
+	//swagger
+	description: 'parseProfilesSchema',
+	tags: ['profile'],
+	summary: 'parseProfilesSchema',
+	hidden: false,
+	header: AuthHeader,
+	//query
+	querystring: {
+		type: 'object',
+		properties: {
+			offset: { type: 'number' },
+			limit: { type: 'number' },
+		}
+	},
+	//body
+	response: {
+		200: {
+			type: 'object',
+			properties: {
+				jwt: { type: 'string' },
+				tfa: { type: 'boolean' },
+			}
+		}
+	}
+} as const;
+export type parseProfilesQuery = FromSchema<typeof parseProfilesSchema.querystring>;
+
+
+export const PasswordChangeSchema =
+	{
+		description: 'PasswordChangeSchema',
+		tags: ['profile'],
+		summary: 'passwordchange',
+		hidden: false,
+		header: AuthHeader,
+		//body
+		body: {
+			type: 'object',
+			required: ['newpassword', 'oldpassword'],
+			properties: {
+				newpassword: PasswordSchema,
+				oldpassword: PasswordSchema,
+				tfa_token: TFA_token_schema,
+			},
+		}
+	} as const;
+export type PasswordChangeBody = FromSchema<typeof PasswordChangeSchema.body>;
+
+/*====================== REFRESH_ROUTE ================================*/
+
+
+export const refreshSchema = {
+	//swagger
+	description: 'refreshSchema',
+	tags: ['auth'],
+	summary: 'refreshSchema',
+	hidden: false,
+} as const;
+
+
+
+
+
+/*====================== AUTH_ROUTES ================================*/
+
 export const loginSchema = {
 	//swagger
 	description: 'loginSchema',
 	tags: ['auth'],
 	summary: 'login',
 	hidden: false,
-	//query
-	// querystring: false,
 	//body
 	body: {
 		type: 'object',
@@ -77,7 +265,7 @@ export const loginSchema = {
 	response: {
 		200: {
 			type: 'object',
-			properties: { jwt: { type: 'string' } }
+			properties: { jwt: { type: 'string' }, tfa: { type: 'boolean' } }
 		}
 	}
 } as const;
@@ -89,45 +277,9 @@ export const logoutSchema = {
 	tags: ['auth'],
 	summary: 'logout',
 	hidden: false,
-	headers: {
-		type: 'object',
-		properties: {
-			Authorization: BearerSchema
-		},
-		required: ['Authorization']
-	},
+	headers: AuthHeader
 } as const;
 
-
-export const profileSchema = { //not used anywhere yet??
-	description: 'profileSchema',
-	tags: ['user'],
-	summary: 'getting profile information',
-	hidden: false,
-	params: {
-		type: 'object',
-		properties: {
-			id: {
-				type: 'string',
-				description: 'user id'
-			}
-		}
-	},
-	// querystring: false,
-	body: {
-		type: 'object',
-		required: ['logged_in', 'username', 'password'],
-		properties: {
-			logged_in: { type: 'boolean' },
-			username: { type: 'string' },
-			password: { type: 'string' },
-			wins: { type: 'integer', minimum: 0 },
-			losses: { type: 'integer', minimum: 0 },
-			trophies: { type: 'integer', minimum: 0 }
-		},
-	},
-} as const;
-export type profileBody = FromSchema<typeof profileSchema>;
 
 export const registerSchema = {
 	description: 'register schema',
@@ -143,10 +295,9 @@ export const registerSchema = {
 	// querystring: false,
 	body: {
 		type: 'object',
-		required: ['username', 'email', 'password'],
+		required: ['username', 'password'],
 		properties: {
 			username: UsernameSchema,
-			email: EmailSchema,
 			password: PasswordSchema,
 		},
 	},
@@ -165,25 +316,19 @@ export type registerBody = FromSchema<typeof registerSchema.body>;
 
 
 
+
+
+
+
+/*====================== 2FA_ROUTES ================================*/
+
 export const enable_TFA_Schema = {
-	//swagger===========================================================
-	description: 'enable 2fa',
+	description: 'post request enable 2fa',
 	tags: ['2FA'],
 	summary: 'sends a post request to enable 2fa auth',
 	hidden: false,
-	//headers=============================================================
-	headers: {
-		type: 'object',
-		properties: {
-			Authorization: BearerSchema
-		},
-		required: ['Authorization']
-	},
-	// querystring: false,
-
-	//body===============================================================
+	headers: AuthHeader,
 	body: {},
-	//response============================================================
 	response: {
 		200: {
 			type: 'object',
@@ -193,23 +338,14 @@ export const enable_TFA_Schema = {
 } as const;
 export type enable_TFA_body = FromSchema<typeof enable_TFA_Schema.body>;
 
+
+
 export const disable_TFA_Schema = {
-	//swagger===========================================================
-	description: 'post request to disable the 2fa auth. needs jwt, password username email and token',
+	description: 'post request to disable the 2fa auth.',
 	tags: ['2FA'],
 	summary: 'disable 2fa auth',
 	hidden: false,
-	//headers=============================================================
-	headers: {
-		type: 'object',
-		properties: {
-			Authorization: BearerSchema
-		},
-		required: ['Authorization']
-	},
-	// querystring: false,
-
-	//body===============================================================
+	headers: AuthHeader,
 	body: {
 		type: 'object',
 		properties: {
@@ -219,7 +355,6 @@ export const disable_TFA_Schema = {
 		},
 		required: ['username', 'password', 'tfa_token']
 	},
-	//response============================================================
 	response: {
 		200: {
 			type: 'object',
@@ -237,24 +372,12 @@ export const disable_TFA_Schema = {
 } as const;
 export type disable_TFA_body = FromSchema<typeof disable_TFA_Schema.body>;
 
-export const verify_TFA_Schema = {
-	//swagger===========================================================
+export const verifyTFASchema = {
 	description: 'post request to verify 2fa token, needs a tmp jwt or real jwt, issues a new jwt',
 	tags: ['2FA'],
 	summary: 'verify 2fa token',
 	hidden: false,
-	// query===============================================================
-	//headers=============================================================
-	headers: {
-		type: 'object',
-		properties: {
-			Authorization: BearerSchema
-		},
-		required: ['Authorization']
-	},
-	// querystring: false,
-
-	//body===============================================================
+	headers: AuthHeader,
 	body: {
 		type: 'object',
 		properties: {
@@ -262,7 +385,6 @@ export const verify_TFA_Schema = {
 		},
 		required: ['tfa_token']
 	},
-	//response============================================================
 	response: {
 		200: {
 			type: 'object',
@@ -278,7 +400,7 @@ export const verify_TFA_Schema = {
 		},
 	}
 } as const;
-export type verify_TFA_body = FromSchema<typeof verify_TFA_Schema.body>;
+export type verifyTFAbody = FromSchema<typeof verifyTFASchema.body>;
 
 
 
@@ -286,15 +408,15 @@ export type verify_TFA_body = FromSchema<typeof verify_TFA_Schema.body>;
 
 
 // export const disable2faSchema = {
-// 	//swagger===========================================================
+// 	//swagger
 // 	description: 'TwoFA_schema',
 // 	tags: ['2FA'],
 // 	summary: '',
 // 	operationId: '12345',
 // 	hidden: false,
-// 	//query===============================================================
+// 	//query====
 // 	querystring: false,
-// 	//headers=============================================================
+// 	//headers==
 // 	headers: {
 // 		type: 'object',
 // 		properties: {
@@ -302,7 +424,7 @@ export type verify_TFA_body = FromSchema<typeof verify_TFA_Schema.body>;
 // 		},
 // 		required: ['Authorization']
 // 	},
-// 	//body===============================================================
+// 	//body====
 // 	body: {
 // 		type: 'object',
 // 		required: ['requiredKey'],
@@ -331,7 +453,7 @@ export type verify_TFA_body = FromSchema<typeof verify_TFA_Schema.body>;
 // 			}
 // 		}
 // 	},
-// 	//response============================================================
+// 	//response=
 // 	response: {
 // 		200: {
 // 			type: 'object',

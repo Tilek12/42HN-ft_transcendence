@@ -2,7 +2,8 @@ import { router } from './router.js'
 import { initNav, renderNav } from './pages/nav.js';
 import { languageStore } from './pages/languages.js'
 import { Language } from './types.js';
-
+import { setUser } from './utils/auth.js';
+setUser(null);
 renderNav();
 initNav();
 languageStore.initLang();
@@ -22,3 +23,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // SPA page changes
 window.addEventListener('hashchange', router);
+

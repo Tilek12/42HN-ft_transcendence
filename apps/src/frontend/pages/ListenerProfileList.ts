@@ -1,29 +1,22 @@
 
-import { getToken} from '../utils/auth.js'
+import { apiFetch, getUser} from '../utils/auth.js'
 
 
-
-export type friendRequestAttributes =
+const asyncFriendRequestHandler = async (endpoint: string, profile_id:string ) =>
 {
-	res_async : any;
-	testing_attribute: string;
-	api_endpoint : string;
-	token_jwt : any,
-	profile_id: string;
-}
-const asyncFriendRequestHandler = async (attributes : friendRequestAttributes) =>
-{
+	try {
 	let res : any;
 	// console.log(`clicked ${attributes.testing_attribute}`)
-	res = await fetch(`/api/private/${attributes.api_endpoint}`, {
+	res = await apiFetch(`/api/private/${endpoint}`, {
 			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${attributes.token_jwt}`,
-			},
-			body: JSON.stringify({ profileId: attributes.profile_id }), // ✅ correct shape
+			headers: { 'Content-Type': 'application/json' },
+			credentials: 'include',
+			body: JSON.stringify({ profileId: profile_id }), // ✅ correct shape
 	});
 	return res;
+	}
+	catch(e:any)
+	{}
 }
 export const listenerFriendAndBlock = async (event : any, element_id : string, load: boolean = false,  allProfiles: {profiles: any[]}[] | undefined, offset:number, limit:number) : Promise<any[] | undefined>=>
 {
@@ -33,38 +26,32 @@ export const listenerFriendAndBlock = async (event : any, element_id : string, l
 	const profileId = target.getAttribute('data-profile-id');
 	if (!profileId) return;
 	let res;
-	const token = getToken();
+	const user = getUser();
 	if(target.classList.contains('link-btn'))
 	{
-		res = await asyncFriendRequestHandler({res_async: res, testing_attribute: `link`,
-			api_endpoint: `link-profile`, token_jwt:  token, profile_id: profileId});
+		res = await asyncFriendRequestHandler(`link-profile`, profileId);
 	}
 	else if(target.classList.contains('pending-btn'))
 	{
-		res = await asyncFriendRequestHandler({res_async: res, testing_attribute: `pending`,
-			api_endpoint: `pending-request`, token_jwt:  token, profile_id: profileId});
+		res = await asyncFriendRequestHandler(`pending-request`, profileId);
 	}
 	else if(target.classList.contains('unlink-btn'))
 	{
-		res = await asyncFriendRequestHandler({res_async: res, testing_attribute: `unlink`,
-			api_endpoint: `unlink-profile`, token_jwt:  token, profile_id: profileId});
+		res = await asyncFriendRequestHandler(`unlink-profile`, profileId);
 	}
 	else if(target.classList.contains('block-btn'))
 	{
-		res = await asyncFriendRequestHandler({res_async: res, testing_attribute: `block`,
-			api_endpoint: `block-profile`, token_jwt:  token, profile_id: profileId});
+		res = await asyncFriendRequestHandler(`block-profile`, profileId);
 	}
 	else if(target.classList.contains('unblock-btn'))
 	{
-		res = await asyncFriendRequestHandler({res_async: res, testing_attribute: `unblock`,
-			api_endpoint: `unblock-profile`, token_jwt:  token, profile_id: profileId});
+		res = await asyncFriendRequestHandler(`unblock-profile`, profileId);
 		// console.log('clicked unblock');
 	}
 	if (res) {
 		let data;
 		try {
-			const text = await res.text();
-			data = text ? JSON.parse(text) : {};
+			data = await res.json();
 		} catch (err) {
 			console.error("Failed to parse JSON:", err);
 			data = {};
@@ -77,4 +64,6 @@ export const listenerFriendAndBlock = async (event : any, element_id : string, l
 			alert(data.message || 'Failed to perform the action');
 		}
 	}
-}
+} 
+/// P: WTF is this ?????
+

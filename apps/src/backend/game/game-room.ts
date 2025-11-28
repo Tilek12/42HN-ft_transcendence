@@ -75,7 +75,7 @@ export class GameRoom {
 				try {
 					m = JSON.parse(text);
 				} catch (e) {
-					console.warn(`⚠️ Invalid message from ${player.id}:`, text);
+					console.warn(`⚠️ Invalid message from ${player.id}:'${text}'`);
 					return;
 				}
 

@@ -1,5 +1,6 @@
 import { FromSchema } from 'json-schema-to-ts';
 
+import { AuthHeader } from '../../auth/schemas'
 
 export const PresenceWebsocketSchema = {
 	//swagger
@@ -7,15 +8,8 @@ export const PresenceWebsocketSchema = {
 	tags: ['websocket'],
 	summary: 'presence ws',
 	hidden: false,
-	//query
-	// querystring: false,
-	// headers: {
-	// 	type: 'object',
-	// 	properties: {
-	// 		Authorization: BearerSchema // add only when updating logic with cookies
-	// 	},
-	// 	required: ['Authorization']
-	// },
+	headers: AuthHeader
+
 } as const;
 
 export const GameWebsocketSchema = {
@@ -24,23 +18,17 @@ export const GameWebsocketSchema = {
 	tags: ['websocket'],
 	summary: 'game ws',
 	hidden: false,
+	headers: AuthHeader,
 	// query
-		querystring: {
+	querystring: {
 		type: 'object',
+		required: ['mode'],
 		properties: {
 			mode:	{ type: 'string', pattern: '^[a-z]{4,10}$' }, // gamemode = "solo" | "duel" | "tournament"
 			// size:	{ type: 'integer', minimum: 4, maximum: 8 }, // size only 4 or 8
 			// id:		{ type: 'integer'},
+			}
 		},
-		required: ['mode']
-	// },
-	// headers: {
-	// 	type: 'object',
-	// 	properties: {
-	// 		Authorization: BearerSchema // add only when updating logic with cookies
-	// 	},
-	// 	required: ['Authorization']
-	},
 
 } as const;
 
@@ -52,22 +40,18 @@ export const TournamentWebsocketSchema = {
 	tags: ['websocket'],
 	summary: 'game ws',
 	hidden: false,
-	// query
-		querystring: {
+	headers: AuthHeader,
+	querystring: {
 		type: 'object',
+		required: ['action', 'mode'],
 		properties: {
-
+			action:	{ type: 'string', enum:['create', 'join']},
+			id:		{ type: 'string'},
+			size:	{ type: 'number', enum: [4, 8]},
+			mode:	{ type: 'string', enum:['local','online']},
+			names:	{ type: 'array', items:{type:'string'}},
 		},
-		required: ['']
-	// },
-	// headers: {
-	// 	type: 'object',
-	// 	properties: {
-	// 		Authorization: BearerSchema // add only when updating logic with cookies
-	// 	},
-	// 	required: ['Authorization']
 	},
-
 } as const;
 
 export type TournamentWebsocketQuery = FromSchema<typeof TournamentWebsocketSchema.querystring>;

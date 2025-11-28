@@ -24,7 +24,7 @@ const tournamentRoutes: FastifyPluginAsync = async (fastify : any ) => {
 			await createTournamentDB(name, jwt.id);
 			res.send({ message: 'Tournament created' });
 		} catch (err) {
-			res.status(401).send({ message: 'Unauthorized or error creating tournament' });
+			res.status(400).send({ message: 'Unauthorized or error creating tournament' });
 		}
 	});
 
@@ -41,7 +41,7 @@ const tournamentRoutes: FastifyPluginAsync = async (fastify : any ) => {
 			await joinTournamentDB(tournamentId, jwt.id);
 			res.send({ message: 'Joined tournament successfully' });
 		} catch (err) {
-			res.status(401).send({ message: 'Unauthorized or error joining tournament' });
+			res.status(400).send({ message: 'Unauthorized or error joining tournament' });
 		}
 	});
 
@@ -61,7 +61,7 @@ const tournamentRoutes: FastifyPluginAsync = async (fastify : any ) => {
 			await linkMatchToTournament(tournamentId, matchId);
 			res.send({ message: 'Match linked to tournament' });
 		} catch (err) {
-			res.status(401).send({ message: 'Unauthorized or error linking match' });
+			res.status(400).send({ message: 'Unauthorized or error linking match' });
 		}
 	});
 

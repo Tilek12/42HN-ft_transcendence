@@ -10,13 +10,13 @@ import dotenv from 'dotenv';
 
 import { connectToDB, db } from './database/client';
 import { logout_all_users } from './database/user'
-import protected_validate_hook from './Scopes/protected_scope';
-import tfa_validate_hook from './Scopes/2fa_scope'
+import protected_validate_hook from './scopes/protected_scope';
+import tfa_validate_hook from './scopes/2fa_scope'
 import authRoutes from './routes/auth/auth-routes';
 import tfa_Routes from './routes/auth/2fa-routes';
 import userRoutes from './routes/api/user-routes';
 import profileRoutes from './routes/api/profile-routes';
-import matchRoutes from './routes/api/match-routes';
+// import matchRoutes from './routes/api/match-routes';
 
 import wsGamePlugin from './routes/ws/game-ws';
 import wsPresencePlugin from './routes/ws/presence-ws';
@@ -24,8 +24,8 @@ import wsTournamentPlugin from './routes/ws/tournament-ws';
 import { Errorhandler } from './error';
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import fastifySwagger from '@fastify/swagger'
-
-
+import cookie from '@fastify/cookie'
+// import csrf from '@fastify/csrf-protection'
 
 
 
@@ -35,7 +35,9 @@ dotenv.config();
 const LOCAL_IP = process.env.LOCAL_IP || '127.0.0.1';
 let PORT = Number(process.env.BACKEND_PORT || '443');
 const JWT_SECRET = fs.readFileSync('/run/secrets/jwt_secret');
-const APP_MODE = process.env.NODE_ENV ;
+const COOKIE_SECRET = fs.readFileSync('/run/secrets/cookie_secret');
+const ADMIN_PASSWORD = fs.readFileSync('/run/secrets/admin_password');
+const APP_MODE = process.env.NODE_ENV;
 
 if (!JWT_SECRET || !APP_MODE) {
 	console.error('❌ Missing JWT_SECRET in .env');
@@ -58,16 +60,17 @@ const server = Fastify({
 					method: request.method,
 					url: request.url,
 					body: request.body,
-					// headers: request.headers,
+					cookies: request.cookies,
 				};
 			},
 			res(reply) {
 				return {
 					statusCode: reply.statusCode,
-					// message: reply,
+					// cookie: reply.cookies,
 				};
 			}
-		}
+		},
+		level:'info', 
 	},
 	https: {
 		key: fs.readFileSync('/run/secrets/ssl_key'),
@@ -75,19 +78,27 @@ const server = Fastify({
 	}
 });
 
+
 const jwtOpts: FastifyJWTOptions = {
-	secret: JWT_SECRET
+	secret: JWT_SECRET,
+	cookie: {
+		cookieName: 'ACCESS',
+		signed: true
+	}
 }
 
 // App setup
 async function main() {
 
-	server.withTypeProvider<JsonSchemaToTsProvider>();	// Support to make Types out of schemas
-	await connectToDB();								// Init DB table
-	await server.register(fastifyJwt, jwtOpts);			// Create JWT
-	await server.register(websocket);					// Add WebSocket support
-	await server.register(multipart);					// file supposrt for fastify
-	server.register(helmet);							// adds http headers for security
+	//plugins
+	server.withTypeProvider<JsonSchemaToTsProvider>();			// Support to make Types out of schemas
+	await connectToDB();										// Init DB table
+	await server.register(cookie, { secret: COOKIE_SECRET });	//cookies
+	// await server.register(csrf, { cookieOpts: { signed: true }})//crsf Protection						
+	await server.register(fastifyJwt, jwtOpts);					// Create JWT
+	await server.register(websocket, { options: { maxPayload: 1048576, backlog: 10 } });							// Add WebSocket support
+	await server.register(multipart);							// file supposrt for fastify
+	server.register(helmet);									// adds http headers for security
 
 
 	await server.register(fastifySwagger, {
@@ -114,45 +125,48 @@ async function main() {
 		}
 	});
 
+	// Static serving of files in produciton mode
 	if (APP_MODE == "production") {
 		server.log.info("Setting up fastify static");
 		server.register(fastifyStatic, {
 			root: '/app/dist/frontend',
 			serve: true,
+			cacheControl: false,
 		});
 	}
-
 
 	// Public routes
 	await server.register(authRoutes, { prefix: '/api' });			// Public routes (login/register)
 
 	// 2FA Routes
 	await server.register(async (tfa_Scope: any) => {
-		await server.register(tfa_validate_hook);					// 2fa validation
-		await server.register(tfa_Routes, { prefix: '/2fa' });		// 2fa routes: /2fa/...
-	});
+		await tfa_Scope.register(tfa_validate_hook);				// 2fa validation
+		await tfa_Scope.register(tfa_Routes);						// 2fa routes: /2fa/...
+	}, { prefix: '/2fa' });
+
 
 	// Protected routes
 	await server.register(async (protectedScope: any) => {
 		await protectedScope.register(protected_validate_hook);		// Middleware checking token
 		await protectedScope.register(userRoutes);					// Protected routes: /api/private/me
 		await protectedScope.register(profileRoutes);				// Protected routes: /api/private/profile
-		// await protectedScope.register(tournamentRoutes);			// Protected routes: /api/private/tournaments
-		await protectedScope.register(matchRoutes);					// Protected routes: /api/private/match
+		//await protectedScope.register(tournamentRoutes);			// Protected routes: /api/private/tournaments
+		// await protectedScope.register(matchRoutes);				// Protected routes: /api/private/match
 	}, { prefix: '/api/private' });
 
 	// WebSocket routes
 	await server.register(async (websocketScope: any) => {
+		await websocketScope.register(protected_validate_hook);
 		await websocketScope.register(wsGamePlugin);				// Game-only socket:  /ws/game
 		await websocketScope.register(wsPresencePlugin);			// Persistent socket: /ws/presence
 		await websocketScope.register(wsTournamentPlugin);			// Tournament socket: /ws/tournament
 	}, { prefix: '/ws' });
 
-	// Simple health check
-	server.get('/ping', async () => {
-		server.log.warn("Ping route triggered");
-		return { pong: true, time: new Date().toISOString() };
-	});
+	// // Simple health check
+	// server.get('/ping', async () => {
+	// 	server.log.warn("Ping route triggered");
+	// 	return { pong: true, time: new Date().toISOString() };
+	// });
 
 	if (APP_MODE == 'development')
 		server.ready().then(() => {
@@ -160,8 +174,8 @@ async function main() {
 		});
 
 
-	// server.setErrorHandler(Errorhandler);
 
+	server.setErrorHandler(Errorhandler);
 	// Start listening
 	try {
 		await server.listen({ port: PORT, host: '0.0.0.0' });
@@ -179,8 +193,8 @@ async function main() {
 		if (isShuttingDown) return; // guard the shutdown as concurrently sends two sigints to process when running in dev mode
 		isShuttingDown = true;
 		console.log(`\n🛑 [PID ${process.pid}] Gracefully shutting down...`);
-		await logout_all_users();
-		console.log("❎ All Users logged out.");
+		// await logout_all_users();
+		// console.log("❎ All Users logged out.");
 		try {
 			await server.close();
 			console.log('❎ Server closed');

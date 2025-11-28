@@ -13,9 +13,8 @@ export async function connectToDB() {
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL,
-      email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
-      is_logged_in BOOLEAN DEFAULT FALSE,
+      is_logged_in TEXT DEFAULT NULL,
       role TEXT NOT NULL CHECK(role IN ('admin', 'user')),
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       tfa BOOLEAN DEFAULT FALSE,
@@ -25,16 +24,15 @@ export async function connectToDB() {
   //--------------profile table-----------------
   await db.exec(`
     CREATE TABLE IF NOT EXISTS profiles (
-      id INTEGER PRIMARY KEY, -- same as user.id
-	  image_path TEXT DEFAULT 'default_pic.webp',
+    id INTEGER PRIMARY KEY, -- same as user.id
 	  image_blob BLOB,
-	  logged_in BOOLEAN DEFAULT FALSE,
 	  wins INTEGER DEFAULT 0,
 	  losses INTEGER DEFAULT 0,
 	  trophies INTEGER DEFAULT 0,
-      FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
     );
   `);
+  
   await db.exec(`
     CREATE TABLE IF NOT EXISTS matches (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

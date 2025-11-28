@@ -1,3 +1,4 @@
+// import fastify from 'fastify';
 import { db } from './client';
 //----------functions for tournament data base-----------
 export async function createTournamentDB(name: string, createdByUserId: number) {
@@ -60,14 +61,17 @@ return db.all(
 );
 }
 
-export async function getStatsForProfile(playerId: number)
-{
-	return db.all(
-		`
-		SELE
-		`
-	)
-}
+// export async function getStatsForProfile(playerId: number)
+// {
+// 	// return db.all(
+// 	// 	`
+// 	// 	SELE
+// 	// 	`
+// 	// )
+// 	console.error("getStatsForProfile not implemented!!")
+// }
+
+
 export async function getTournamentLeaderboard(tournamentId: number) {
 	return db.all(
 	  `
