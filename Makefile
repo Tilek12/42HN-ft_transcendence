@@ -20,7 +20,7 @@ VIOLET	= \033[0;35m
 RESET	= \033[0m
 
 # Docker compose configuration
-DOCKER_COMPOSE := docker compose
+DOCKER_COMPOSE := /usr/local/bin/docker-compose
 COMPOSE_FILE := docker-compose.yml
 COMPOSE := $(DOCKER_COMPOSE) -f $(COMPOSE_FILE)
 

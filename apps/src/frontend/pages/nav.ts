@@ -109,6 +109,10 @@ export function renderNav() {
 	const users = wsManager.presenceUserList;
 	const count = wsManager.onlineUserCount;
 
+	// DESIGN change: Removed language selector from navbar header to implement global floating language toggle
+	// The language selector was relocated to a floating button (bottom-right corner) available on all pages
+	// for consistent UX. This declutters the navigation header and provides language switching everywhere.
+
 	// Subscribe ONCE to presence updates and re-render
 	if (!presenceUnsub) {
 		presenceUnsub = wsManager.subscribeToPresence(() => {
@@ -174,15 +178,6 @@ export function renderNav() {
 						<button type="button" id="logout-btn" class="hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-red-700 hover:to-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"></button>
 					</nav>
 					<!--/div-->
-			
-				<!-- Language Selector -->
-				<div id="language_selector" class="flex mr-5 items-center justify-center ">
-					<select id="language-select" class="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-2 text-white rounded ">
-						<option value="EN">EN</option>
-						<option value="DE">DE</option>
-						<option value="GR">ΕΛ</option>
-					</select>
-				</div>
 				`;
 	}
 	languageStore.subscribe((lang) => {

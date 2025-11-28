@@ -11,7 +11,9 @@ import { getUser, validateLogin } from './utils/auth.js';
 import { changeLoginButton, unhideNav } from './pages/nav.js';
 import { wsManager } from './websocket/ws-manager.js';
 import { renderQrcode } from './pages/2fa.js';
-import { renderSettings } from './pages/settings.js'
+import { renderSettings } from './pages/settings.js';
+// DESIGN change: Import global language selector initializer to enable floating language toggle on all pages
+import { initGlobalLanguageSelector } from './utils/globalLanguageSelector.js';
 
 const protectedRoutes = ['#/profile', '#/friends', '#/game', '#/settings', '#/tournament','#/settings', '#/leaderboard'];
 export async function router() 
@@ -31,13 +33,28 @@ export async function router()
 		{
 			console.log("first switch");
 			switch (route) {
-				case '#/tournament': return renderTournament(root);
-				case '#/game': return renderGame(root);
-				case '#/profile': return renderProfile(root);
-				case '#/friends': return renderFriends(root);
-				case '#/leaderboard': return renderLeaderboard(root);
-				case '#/settings': return renderSettings(root);
+				case '#/tournament': 
+					renderTournament(root);
+					break;
+				case '#/game': 
+					renderGame(root);
+					break;
+				case '#/profile': 
+					renderProfile(root);
+					break;
+				case '#/friends': 
+					renderFriends(root);
+					break;
+				case '#/leaderboard': 
+					renderLeaderboard(root);
+					break;
+				case '#/settings': 
+					renderSettings(root);
+					break;
 			}
+			// DESIGN change: Initialize global language selector after each page render to ensure floating toggle works
+			// across all protected routes. The selector needs re-initialization after DOM updates to attach event listeners properly.
+			initGlobalLanguageSelector();
 		}
 		else
 			return location.hash = '/login';
@@ -60,14 +77,25 @@ export async function router()
 			
 			switch(route)
 			{
-				case '#/login': return renderLogin(root);
-				case '#/register': return renderRegister(root);
-				case '#/':
-				case '': return renderMainPage(root);
-					default: return renderNotFound(root);
+				case '#/login': 
+				renderLogin(root);
+					break;
+			case '#/register': 
+				renderRegister(root);
+					break;
+			case '#/':
+				case '': 
+				renderMainPage(root);
+						break;
+			default: 
+				renderNotFound(root);
 				}
-			}
+		
 		}
+			// DESIGN change: Initialize global language selector for public routes (login, register, main page)
+		// ensuring consistent language toggle availability throughout the entire application
+		initGlobalLanguageSelector();
+	}
 
 
 
