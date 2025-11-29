@@ -1,6 +1,7 @@
 import { Player, GameMode, GhostPlayer } from './game-types';
 import { gameManager } from '../service-managers/game-manager';
-import { tournamentManager } from '../service-managers/tournament-manager';
+import { onlineTournamentManager } from '../service-managers/online-tournament-manager';
+import { localTournamentManager } from '../service-managers/local-tournament-manager';
 import { incrementWinsOrLossesOrTrophies } from '../database/profile';
 import { createMatch } from '../database/match';
 
@@ -11,9 +12,11 @@ export async function startGame(player: Player, mode: GameMode, tournamentId?: s
 		return;
 	}
 
-	if (mode === 'tournament') {
-		// Tournament mode: player is joining a tournament game
+	if (mode === 'online-match' || mode === 'local-match') {
 		// The game room should already exist, just update the player's socket
+		const tournamentManager = mode === 'online-match'
+			? onlineTournamentManager
+			: localTournamentManager;
 		const game = tournamentManager.getGameForPlayer(player.id);
 		if (game) {
 			game.updateSocket(player);
@@ -50,16 +53,13 @@ export async function startGame(player: Player, mode: GameMode, tournamentId?: s
 			//------ Save to matches table -------
 			const isTournamentMatch = mode === 'duel' && !!tournamentId;
 			if (isTournamentMatch) {
-				const mode = tournamentManager.getTournamentMode(tournamentId!);
-				if (mode !== 'local') {
-					await createMatch(
-						parseInt(winner.id),
-						parseInt(loser.id),
-						winnerScore,
-						loserScore,
-						isTournamentMatch
-					);
-				}
+				await createMatch(
+					parseInt(winner.id),
+					parseInt(loser.id),
+					winnerScore,
+					loserScore,
+					isTournamentMatch
+				);
 			}
 
 			// Get last inserted match ID

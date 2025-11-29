@@ -295,6 +295,19 @@ class LocalTournamentManager {
 		return null;
 	}
 
+	getGameForPlayer(playerId: string): any {
+		const tournament = this.getTournamentParticipant(playerId);
+		if (!tournament) return null;
+
+		for (const round of tournament.rounds) {
+			for (const match of round) {
+				if (match.status === 'running' && (match.p1.id === playerId || match.p2.id === playerId)) {
+					return gameManager.getRoom(match.gameId!);
+				}
+			}
+		}
+		return null;
+	}
 }
 
 export const localTournamentManager = new LocalTournamentManager();
