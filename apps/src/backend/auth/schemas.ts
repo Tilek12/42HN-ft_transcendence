@@ -195,16 +195,7 @@ export const parseProfilesSchema = {
 			limit: { type: 'number' },
 		}
 	},
-	//body
-	response: {
-		200: {
-			type: 'object',
-			properties: {
-				jwt: { type: 'string' },
-				tfa: { type: 'boolean' },
-			}
-		}
-	}
+
 } as const;
 export type parseProfilesQuery = FromSchema<typeof parseProfilesSchema.querystring>;
 
@@ -304,7 +295,10 @@ export const registerSchema = {
 	response: {
 		200: {
 			type: 'object',
-			properties: { jwt: { type: 'string' } }
+			properties: {
+				enablejwt: { type: 'string' },
+				tfa: { type: 'boolean' }
+			}
 		},
 		401: {
 			type: 'object',
@@ -327,15 +321,23 @@ export const enable_TFA_Schema = {
 	tags: ['2FA'],
 	summary: 'sends a post request to enable 2fa auth',
 	hidden: false,
-	headers: AuthHeader,
+	headers: {
+		type: 'object',
+		properties: {
+			enablejwt: { type: 'string' }
+		}
+	},
 	body: {},
 	response: {
 		200: {
 			type: 'object',
-			properties: { qr: { type: 'string' } }
+			properties: {
+				verifyjwt: { type: 'string'},
+					qr: { type: 'string' } 
+				}
 		}
 	}
-} as const;
+} as const ;
 export type enable_TFA_body = FromSchema<typeof enable_TFA_Schema.body>;
 
 
@@ -377,7 +379,12 @@ export const verifyTFASchema = {
 	tags: ['2FA'],
 	summary: 'verify 2fa token',
 	hidden: false,
-	headers: AuthHeader,
+	headers: {
+		type: 'object',
+		properties: {
+			verifyjwt: { type: 'string' }
+		}
+	},
 	body: {
 		type: 'object',
 		properties: {
@@ -388,7 +395,7 @@ export const verifyTFASchema = {
 	response: {
 		200: {
 			type: 'object',
-			properties: { jwt: { type: 'string' } }
+			properties: { message: { type: 'string' } }
 		},
 		400: {
 			type: 'object',

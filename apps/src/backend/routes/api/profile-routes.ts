@@ -52,7 +52,6 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 				throw new Error('User or profile not found' );
 			res.status(200).send({
 					image_blob: profile.image_blob?.toString("base64"),
-					logged_in: profile.logged_in,
 					wins: profile.wins,
 					losses: profile.losses,
 					trophies: profile.trophies,
@@ -288,7 +287,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 				));
 			// console.log(' Here ----->> BackEnd : ', profilesWithFriendFlag);
 			res.send({ profiles: profilesWithFriendFlag });
-			// console.log(profilesWithFriendFlag);
+			console.log(profilesWithFriendFlag);
 		} catch (err) {
 			res.status(400).send({ message: 'Unauthorized parse_profiles' });
 			console.log(err);

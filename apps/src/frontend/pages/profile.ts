@@ -68,7 +68,8 @@ export async function renderProfile(root: HTMLElement) {
 		method: 'GET',
 		credentials:'include'
 	})
-		.then(res => res.json())
+		.then(res => res.json()
+							)
 		.then(data => {
 			if (data.message === 'User or profile not found' ||
 				data.message === 'Invalid or expired token') {
@@ -113,7 +114,6 @@ export async function renderProfile(root: HTMLElement) {
 
 			profile_ids(user);
 			update_langauge_headers_user_profile(languageStore.language);
-
 
 			document.getElementById('nav_profile')?.addEventListener('click', () => { nav_profile_clicked = true; });
 			(async () => {

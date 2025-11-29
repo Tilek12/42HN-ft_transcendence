@@ -11,7 +11,6 @@ import dotenv from 'dotenv';
 import { connectToDB, db } from './database/client';
 import { logout_all_users } from './database/user'
 import protected_validate_hook from './scopes/protected_scope';
-import tfa_validate_hook from './scopes/2fa_scope'
 import authRoutes from './routes/auth/auth-routes';
 import tfa_Routes from './routes/auth/2fa-routes';
 import userRoutes from './routes/api/user-routes';
@@ -59,14 +58,12 @@ const server = Fastify({
 				return {
 					method: request.method,
 					url: request.url,
-					body: request.body,
-					cookies: request.cookies,
+					body: request.body,					
 				};
 			},
 			res(reply) {
 				return {
 					statusCode: reply.statusCode,
-					// cookie: reply.cookies,
 				};
 			}
 		},
@@ -78,6 +75,13 @@ const server = Fastify({
 	}
 });
 
+// for testing response payload 
+// server.addHook('onSend', async (request, reply, payload) => {
+//   server.log.info({
+//     resBody: payload
+//   }, 'Response payload');
+//   return payload; 
+// });
 
 const jwtOpts: FastifyJWTOptions = {
 	secret: JWT_SECRET,
@@ -140,7 +144,6 @@ async function main() {
 
 	// 2FA Routes
 	await server.register(async (tfa_Scope: any) => {
-		await tfa_Scope.register(tfa_validate_hook);				// 2fa validation
 		await tfa_Scope.register(tfa_Routes);						// 2fa routes: /2fa/...
 	}, { prefix: '/2fa' });
 

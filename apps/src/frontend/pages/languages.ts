@@ -195,37 +195,39 @@ export const translations_friends: TranslationSet = {
 
 export const translations_register_page: TranslationSet = {
 	EN: {
+		register_tab:'Sign up',
 		register_header: 'Create Account',
+		register_subtitle: 'Join us today!',
 		username_label: 'Username',
 		password_label: 'Password',
-		username_placeholder: 'Enter your username',
-		password_placeholder: 'Enter your password',
+		username_placeholder: 'Choose a username',
+		password_placeholder: 'Choose a strong password',
 		qrcode_label: 'Enable 2 Factor Authentification by scanning this QR code with an authenticator app',
 		tfa_label: 'Enable 2FA',
 		tfa_placeholder: '6 digit code',
 		register_btn: 'Register',
-		register_error: 'Registration failed. Please check your details.',
 		already_have_account: 'Already have an account?',
-		sign_in: 'Sign In',
 		success: 'Success'
 	},
 	DE: {
+		register_tab:'Registrieren',
 		register_header: 'Konto erstellen',
+		register_subtitle: 'Kommen sie dazu!',
 		username_label: 'Benutzername',
 		password_label: 'Passwort',
-		username_placeholder: 'Geben Sie Ihren Benutzernamen ein',
-		password_placeholder: 'Geben Sie Ihr Passwort ein',
-		qrcode_label: 'Aktiviere 2FA Authentifizierung. Scanne diesen QR Code mit einer Authenticator App',
+		username_placeholder: 'Wählen Sie einen Benutzernamen',
+		password_placeholder: 'Wählen Sie ein starkes Passwort',
+		qrcode_label: 'Zum aktivieren scanne diesen QR Code mit einer Authenticator App',
 		tfa_label: '2FA Aktivieren',
 		tfa_placeholder: '6 stelliger code',
 		register_btn: 'Registrieren',
-		register_error: 'Registrierung fehlgeschlagen. Bitte überprüfen Sie Ihre Angaben.',
 		already_have_account: 'Haben Sie bereits ein Konto?',
-		sign_in: 'Anmelden',
 		success: 'Erfolgreich!'
 	},
 	GR: {
+		register_tab:'Εγγραφή',
 		register_header: 'Δημιουργία λογαριασμού',
+		register_subtitle: 'Γίνετε μέλος σήμερα!',
 		username_label: 'Όνομα χρήστη',
 		password_label: 'Κωδικός',
 		username_placeholder: 'Εισάγετε το όνομα χρήστη σας',
@@ -234,9 +236,7 @@ export const translations_register_page: TranslationSet = {
 		tfa_label: 'Ενεργοποίηση 2FA',
 		tfa_placeholder: '6ψήφιος κωδικός',
 		register_btn: 'Εγγραφή',
-		register_error: 'Η εγγραφή απέτυχε. Ελέγξτε τα στοιχεία σας.',
 		already_have_account: 'Έχετε ήδη λογαριασμό;',
-		sign_in: 'Σύνδεση',
 		success: 'επιτυχία'
 	}
 };
@@ -261,6 +261,7 @@ export const translations_main_page: TranslationSet = {
 
 export const translations_login_page: TranslationSet = {
 	EN: {
+		login_tab:'Log in',
 		login_header: 'Welcome Back',
 		login_subtitle: 'Sign in to continue to your account',
 		google_btn: 'Continue with Google',
@@ -275,9 +276,11 @@ export const translations_login_page: TranslationSet = {
 		tfa_placeholder: '6 digit code',
 		dont_have_account: "Don't have an account?",
 		create_account: 'Create account',
-		error_message: 'Invalid username or password'
+		signing_in: 'Signing in...',
+		tfa_label:'Please enter your TOTP code from your authenticator',
 	},
 	DE: {
+		login_tab:'Anmelden',
 		login_header: 'Willkommen zurück',
 		login_subtitle: 'Melden Sie sich an, um fortzufahren',
 		google_btn: 'Mit Google fortfahren',
@@ -292,9 +295,11 @@ export const translations_login_page: TranslationSet = {
 		tfa_placeholder: '6 stelliger code',
 		dont_have_account: 'Sie haben kein Konto?',
 		create_account: 'Konto erstellen',
-		error_message: 'Ungültiger Benutzername oder Passwort'
+		signing_in: 'Anmelden ...',
+		tfa_label:'Bitte geben sie den Code aus ihrem TOTP Authenticator ein',
 	},
 	GR: {
+		login_tab:'Σύνδεση',
 		login_header: 'Καλώς ήρθες ξανά',
 		login_subtitle: 'Συνδεθείτε για να συνεχίσετε',
 		google_btn: 'Συνέχεια με Google',
@@ -309,7 +314,8 @@ export const translations_login_page: TranslationSet = {
 		tfa_placeholder: '6ψήφιος κωδικός',
 		dont_have_account: 'Δεν έχετε λογαριασμό;',
 		create_account: 'Δημιουργία λογαριασμού',
-		error_message: 'Λανθασμένο όνομα χρήστη ή κωδικός'
+		signing_in: 'Γίνεται σύνδεση...',
+		tfa_label:'Παρακαλώ εισάγετε τον κωδικό TOTP από την εφαρμογή αυθεντικοποίησης',
 	}
 };
 
@@ -425,10 +431,12 @@ export const translations_errors: TranslationSet = {
 		error_username_taken: 'This username has already been taken',
 		error_username_min_len: 'Username has to be at least 3 characters long',
 		error_internal:'Internal server error',
+		error_2fa_enable:'Enabling 2FA went wrong',
+		error_2fa_verify:'Wrong 2fa Code',
 		error_default: "Error",
 	},
 	DE: {
-		error_invalid_password: 'Password muss 8-64 Zeichen und mindestens einen Großbuchstaben, einen Kleinbuchstaben, ene Zahl und einen Spezialzeichen enthalten',
+		error_invalid_password: 'Password muss 8-64 Zeichen und mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und einen Spezialzeichen enthalten',
 		error_invalid_email: 'Email nicht korrekt',
 		error_invalid_user: 'Benutzer existiert nicht',
 		error_no_token: 'Kein 2fa code gesendet',
@@ -437,6 +445,8 @@ export const translations_errors: TranslationSet = {
 		error_username_taken: 'Dieser Username wird bereits benutzt',
 		error_username_min_len: 'Username muss mind. 3 Buchstaben enthalten',
 		error_internal: 'Interner Server Fehler',
+		error_2fa_enable:'Fehler beim 2Fa erstellen',
+		error_2fa_verify:'Falscher 2FA Code',
 		error_default: "Fehler",
 	},
 	GR: {
@@ -449,6 +459,8 @@ export const translations_errors: TranslationSet = {
 		error_username_taken: 'Αυτό το όνομα χρήστη χρησιμοποιείται ήδη.',
 		error_username_min_len: 'Το όνομα χρήστη πρέπει να έχει τουλάχιστον 3 χαρακτήρες.',
 		error_internal: 'Εσωτερικό σφάλμα διακομιστή',
+		error_2fa_enable:'Η ενεργοποίηση του 2FA απέτυχε',
+		error_2fa_verify:'Λάθος κωδικός 2FA',
 		error_default: "Σφάλμα",
 	},
 };

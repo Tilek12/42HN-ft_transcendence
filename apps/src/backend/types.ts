@@ -31,7 +31,8 @@ export interface User {
 
 // AUTH
 export enum Jwt_type {
-	temp = "TEMP",
+	enable = "ENABLE",
+	verify = "VERIFY",
 	access = "ACCESS",
 	refresh = "REFRESH",
 }

@@ -11,8 +11,9 @@ import type { Language } from '../types.js';
 // - Added tab switcher for smooth form transitions
 // - Implemented card resize animations when switching forms
 export function renderLogin(root: HTMLElement) {
-	const t = translations_login_page[languageStore.language];
-	const error_trans = translations_errors[languageStore.language];
+	let login_translation = translations_login_page[languageStore.language];
+	let register_translation = translations_register_page[languageStore.language];
+	let error_trans = translations_errors[languageStore.language];
 
 	root.innerHTML = renderBackgroundFull(/*html*/`
     <!-- Login Card -->
@@ -37,19 +38,19 @@ export function renderLogin(root: HTMLElement) {
                 id="tab-login" 
                 class="flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 text-white bg-gradient-to-r from-purple-600 to-blue-600"
               >
-                Login
+                ${login_translation.login_tab}
               </button>
               <button 
                 id="tab-register" 
                 class="flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 text-gray-400 hover:text-white"
               >
-                Sign Up
+                ${register_translation.register_tab}
               </button>
             </div>
 
             <!-- Logo/Icon -->
             <!-- DESIGN change: Icon container with rotation/scale animation during tab switches -->
-            <div class="flex justify-center mb-8">
+            <div id="logo" class="flex justify-center mb-8">
               <div class="relative">
                 <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur-xl opacity-50"></div>
                 <!-- DESIGN change: transition-all duration-500 for smooth icon rotation and scaling -->
@@ -61,13 +62,20 @@ export function renderLogin(root: HTMLElement) {
               </div>
             </div>
 
-            <!-- Title -->
+            <!-- Login Title -->
             <!-- DESIGN change: Title container with fade transition during tab switches -->
-            <div class="text-center mb-10 transition-all duration-500" id="form-title-container">
+            <div class="text-center mb-10 transition-all duration-500" id="form-title-login-container">
               <h1 id="login_header" class="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent mb-3">
-                ${t.login_header}
+                ${login_translation.login_header}
               </h1>
-              <p id="login_subtitle" class="text-gray-400">${t.login_subtitle}</p>
+              <p id="login_subtitle" class="text-gray-400">${login_translation.login_subtitle}</p>
+            </div>
+			<!--register Title-->
+			 <div class="hidden text-center mb-10 transition-all duration-500" id="form-title-register-container">
+              <h1 id="register_header" class="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent mb-3">
+                ${register_translation.register_header}
+              </h1>
+              <p id="register_subtitle" class="text-gray-400">${register_translation.register_subtitle}</p>
             </div>
 
             <!-- Login Form -->
@@ -76,14 +84,14 @@ export function renderLogin(root: HTMLElement) {
                 <!-- Username Input -->
                 <div class="space-y-2">
                   <label id="username_label" for="username" class="block text-sm font-medium text-gray-300 ml-1">
-                    ${t.username_label}
+                    ${login_translation.username_label}
                   </label>
                   <div class="relative group">
                     <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl opacity-0 group-focus-within:opacity-20 blur transition-opacity duration-300"></div>
                     <input 
                       type="text" 
                       id="username" 
-                      placeholder="${t.username_placeholder}"
+                      placeholder="${login_translation.username_placeholder}"
                       class="relative w-full bg-white/5 border border-white/10 text-white placeholder-gray-500 px-5 py-4 rounded-xl focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all duration-300"
                       required 
                     />
@@ -93,14 +101,14 @@ export function renderLogin(root: HTMLElement) {
                 <!-- Password Input -->
                 <div class="space-y-2">
                   <label id="password_label" for="password" class="block text-sm font-medium text-gray-300 ml-1">
-                    ${t.password_label}
+                    ${login_translation.password_label}
                   </label>
                   <div class="relative group">
                     <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl opacity-0 group-focus-within:opacity-20 blur transition-opacity duration-300"></div>
                     <input 
                       type="password" 
                       id="password" 
-                      placeholder="${t.password_placeholder}"
+                      placeholder="${login_translation.password_placeholder}"
                       class="relative w-full bg-white/5 border border-white/10 text-white placeholder-gray-500 px-5 py-4 rounded-xl focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all duration-300"
                       required 
                     />
@@ -115,7 +123,7 @@ export function renderLogin(root: HTMLElement) {
                   <div class="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 transition-transform duration-300 group-hover:scale-105"></div>
                   <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <span class="relative flex items-center justify-center px-6 py-4 text-white font-semibold text-lg">
-                    <span id="sign_in_btn">${t.sign_in_btn}</span>
+                    <span id="sign_in_btn">${login_translation.sign_in_btn}</span>
                     <svg class="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                     </svg>
@@ -129,15 +137,13 @@ export function renderLogin(root: HTMLElement) {
               <form id="register-form" class="space-y-6">
                 <!-- Username Input -->
                 <div class="space-y-2">
-                  <label for="reg-username" class="block text-sm font-medium text-gray-300 ml-1">
-                    Username
-                  </label>
+                  <label for="reg-username" class="block text-sm font-medium text-gray-300 ml-1">${register_translation.username_label}</label>
                   <div class="relative group">
                     <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl opacity-0 group-focus-within:opacity-20 blur transition-opacity duration-300"></div>
                     <input 
                       type="text" 
                       id="reg-username" 
-                      placeholder="Choose a username"
+                      placeholder="${register_translation.username_placeholder}"
                       class="relative w-full bg-white/5 border border-white/10 text-white placeholder-gray-500 px-5 py-4 rounded-xl focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all duration-300"
                       required 
                     />
@@ -147,39 +153,39 @@ export function renderLogin(root: HTMLElement) {
                 <!-- Password Input -->
                 <div class="space-y-2">
                   <label for="reg-password" class="block text-sm font-medium text-gray-300 ml-1">
-                    Password
+                    ${register_translation.password_label}
                   </label>
                   <div class="relative group">
                     <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl opacity-0 group-focus-within:opacity-20 blur transition-opacity duration-300"></div>
                     <input 
                       type="password" 
                       id="reg-password" 
-                      placeholder="Create a strong password"
+                      placeholder="${register_translation.password_placeholder}"
                       class="relative w-full bg-white/5 border border-white/10 text-white placeholder-gray-500 px-5 py-4 rounded-xl focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all duration-300"
                       required 
                     />
                   </div>
                 </div>
-             <!-- 2FA Checkbox -->
-              <div class="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300">
-                <input 
-                  id="2fa_checkbox" 
-                  type="checkbox" 
-                  class="w-5 h-5 rounded border-2 border-white/30 bg-white/10 text-purple-500 focus:ring-2 focus:ring-purple-500/50 focus:ring-offset-0 cursor-pointer transition-all duration-300" 
-                />
-                <label for="2fa_checkbox" class="text-sm font-medium text-gray-300 cursor-pointer">
-                  ${t!.tfa_label}
-                </label>
-              </div>
+             	<!-- 2FA Checkbox -->
+             	 <div class="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300">
+              	  <input 
+              	    id="2fa_checkbox" 
+               	   	type="checkbox"
+              	  	class="w-5 h-5 rounded border-2 border-white/30 bg-white/10 text-purple-500 focus:ring-2 focus:ring-purple-500/50 focus:ring-offset-0 cursor-pointer transition-all duration-300" 
+             	  	/>
+              	 	<label for="2fa_checkbox" id="2fa_checkbox_label" class="text-sm font-medium text-gray-300 cursor-pointer">
+            	    ${register_translation.tfa_label}
+            	    </label>
+             	 </div>
                 <!-- Submit Button -->
-                <button 
+                <button id="register_button"
                   type="submit"
                   class="relative w-full mt-8 group overflow-hidden rounded-xl"
                 >
                   <div class="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 transition-transform duration-300 group-hover:scale-105"></div>
                   <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <span class="relative flex items-center justify-center px-6 py-4 text-white font-semibold text-lg">
-                    <span>Create Account</span>
+                    <span>${register_translation.register_btn}</span>
                     <svg class="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                     </svg>
@@ -196,14 +202,18 @@ export function renderLogin(root: HTMLElement) {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                   </svg>
                 </div>
-                <label id="tfa_label" class="block text-gray-300 text-sm">
-                  Please enter your TOTP code from your authenticator
-                </label>
-              </div>
+                	<label id="tfa_label" class="block text-gray-300 text-sm">${login_translation.tfa_label}</label>
+				</div>
+				<!-- qrcode for registration -->
+				<div id="qr_container" class="hidden justify-center">
+					<label id="qrcode_label" class="">${register_translation.qrcode_label}</label>
+					<img id="qr_code" class="rounded-xl">
+				</div>
+				<!-- TOTP Input-->
               <input 
                 id="2fa_token" 
                 type="text" 
-                placeholder="${t!.tfa_placeholder}" 
+                placeholder="${login_translation.tfa_placeholder}" 
                 pattern="[0-9]{6}" 
                 maxlength="6" 
                 oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
@@ -216,7 +226,7 @@ export function renderLogin(root: HTMLElement) {
               >
                 <div class="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600"></div>
                 <span class="relative flex items-center justify-center px-6 py-4 text-white font-semibold">
-                  Submit
+                  ${login_translation.sign_in_btn}
                 </span>
               </button>
             </form>
@@ -228,7 +238,7 @@ export function renderLogin(root: HTMLElement) {
                   <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                   </svg>
-                  <span id="error_text" class="text-sm">${t.error_message}</span>
+                  <span id="error_text" class="text-sm"></span>
                 </div>
               </div>
             </div>
@@ -253,11 +263,12 @@ export function renderLogin(root: HTMLElement) {
 	const loginFormContainer = document.getElementById('login-form-container') as HTMLDivElement;
 	const registerFormContainer = document.getElementById('register-form-container') as HTMLDivElement;
 	const formIcon = document.getElementById('form-icon') as HTMLDivElement;
-	const formTitleContainer = document.getElementById('form-title-container') as HTMLDivElement;
+	const formTitleLoginContainer = document.getElementById('form-title-login-container') as HTMLDivElement;
+	const formTitleRegisterContainer = document.getElementById('form-title-register-container') as HTMLDivElement;
 	const loginHeader = document.getElementById('login_header') as HTMLHeadingElement;
 	const loginSubtitle = document.getElementById('login_subtitle') as HTMLParagraphElement;
-	const mainCard = document.getElementById('main-card') as HTMLDivElement;
-	const cardContent = document.getElementById('card-content') as HTMLDivElement;
+	// const mainCard = document.getElementById('main-card') as HTMLDivElement;
+	// const cardContent = document.getElementById('card-content') as HTMLDivElement;
 
 	const switchToLogin = () => {
 		// DESIGN change: Update tab button styles - active tab gets gradient background
@@ -269,15 +280,18 @@ export function renderLogin(root: HTMLElement) {
 		// DESIGN change: Fade out register form with slide-right and icon rotation
 		registerFormContainer.style.opacity = '0';
 		registerFormContainer.style.transform = 'translateX(20px)';
-		formTitleContainer.style.opacity = '0';
+		formTitleLoginContainer.style.opacity = '0';
+		formTitleRegisterContainer.style.opacity = '0';
 		formIcon.style.transform = 'scale(0.8) rotate(180deg)';
 
 		setTimeout(() => {
+			formTitleLoginContainer.classList.remove('hidden');
+			formTitleRegisterContainer.classList.add('hidden');
 			registerFormContainer.classList.add('hidden');
 			loginFormContainer.classList.remove('hidden');
 
 			// DESIGN change: Switch icon to lock symbol for login
-			formIcon.innerHTML = `
+			formIcon.innerHTML = /*html*/`
 				<svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
 				</svg>
@@ -292,7 +306,8 @@ export function renderLogin(root: HTMLElement) {
 			// Icon scales back to normal and rotates to 0deg, form slides in from left
 			setTimeout(() => {
 				formIcon.style.transform = 'scale(1) rotate(0deg)';
-				formTitleContainer.style.opacity = '1';
+				formTitleLoginContainer.style.opacity = '1';
+				formTitleRegisterContainer.style.opacity = '1';
 				loginFormContainer.style.opacity = '1';
 				loginFormContainer.style.transform = 'translateX(0)';
 			}, 50);
@@ -309,28 +324,32 @@ export function renderLogin(root: HTMLElement) {
 		// Fade out and shrink
 		loginFormContainer.style.opacity = '0';
 		loginFormContainer.style.transform = 'translateX(-20px)';
-		formTitleContainer.style.opacity = '0';
+		formTitleLoginContainer.style.opacity = '0';
+		formTitleRegisterContainer.style.opacity = '0';
 		formIcon.style.transform = 'scale(0.8) rotate(-180deg)';
 
 		setTimeout(() => {
+			formTitleLoginContainer.classList.add('hidden');
+			formTitleRegisterContainer.classList.remove('hidden');
 			loginFormContainer.classList.add('hidden');
 			registerFormContainer.classList.remove('hidden');
 
 			// Update icon with rotation
-			formIcon.innerHTML = `
+			formIcon.innerHTML = /*html*/`
 				<svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
 				</svg>
 			`;
 
 			// Update title
-			loginHeader.textContent = "Create Account";
-			loginSubtitle.textContent = "Join us today";
+			loginHeader.textContent = register_translation.register_header!;
+			loginSubtitle.textContent = register_translation.register_header!;
 
 			// Fade in and scale back
 			setTimeout(() => {
 				formIcon.style.transform = 'scale(1) rotate(0deg)';
-				formTitleContainer.style.opacity = '1';
+				formTitleLoginContainer.style.opacity = '1';
+				formTitleRegisterContainer.style.opacity = '1';
 				registerFormContainer.style.opacity = '1';
 				registerFormContainer.style.transform = 'translateX(0)';
 			}, 50);
@@ -344,7 +363,8 @@ export function renderLogin(root: HTMLElement) {
 	loginFormContainer.style.transition = 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out';
 	registerFormContainer.style.transition = 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out';
 	formIcon.style.transition = 'transform 0.5s ease-in-out';
-	formTitleContainer.style.transition = 'opacity 0.3s ease-in-out';
+	formTitleLoginContainer.style.transition = 'opacity 0.3s ease-in-out';
+	formTitleRegisterContainer.style.transition = 'opacity 0.3s ease-in-out';
 	loginFormContainer.style.opacity = '1';
 	loginFormContainer.style.transform = 'translateX(0)';
 
@@ -353,6 +373,9 @@ export function renderLogin(root: HTMLElement) {
 
 	// Translation updates
 	languageStore.subscribe((lang) => {
+		// loginform
+
+		transelate_per_id(translations_login_page, "login_tab", lang, "tab-login");
 		transelate_per_id(translations_login_page, "login_header", lang, "login_header");
 		transelate_per_id(translations_login_page, "login_subtitle", lang, "login_subtitle");
 		transelate_per_id(translations_login_page, "username_label", lang, "username_label");
@@ -362,7 +385,27 @@ export function renderLogin(root: HTMLElement) {
 		transelate_per_id(translations_login_page, "sign_in_btn", lang, "sign_in_btn");
 		transelate_per_id(translations_login_page, "dont_have_account", lang, "dont_have_account");
 		transelate_per_id(translations_login_page, "create_account", lang, "create_account");
-		transelate_per_id(translations_errors, "error_message", lang, "error_text");
+		transelate_per_id(translations_errors, "error_default", lang, "error_text");
+		// registerform
+		transelate_per_id(translations_register_page, "register_tab", lang, "tab-register");
+		transelate_per_id(translations_register_page, "register_header", lang, "register_header");
+		transelate_per_id(translations_register_page, "register_subtitle", lang, "register_subtitle");
+		transelate_per_id(translations_register_page, "username_label", lang, "reg-username");
+		transelate_per_id(translations_register_page, "username_placeholder", lang, "reg-username");
+		transelate_per_id(translations_register_page, "password_label", lang, "reg-password");
+		transelate_per_id(translations_register_page, "password_placeholder", lang, "reg-password");
+		transelate_per_id(translations_register_page, "tfa_label", lang, "2fa_checkbox_label");
+		transelate_per_id(translations_register_page, "register_btn", lang, "register_button");
+
+
+		// 2FA form
+		transelate_per_id(translations_register_page, "qrcode_label", lang, "qrcode_label");
+		transelate_per_id(translations_register_page, "tfa_placeholder", lang, "2fa_token");
+		// transelate_per_id(translations_register_page, "", lang, "");
+		// transelate_per_id(translations_register_page, "", lang, "");
+		login_translation = translations_login_page[lang];
+		register_translation = translations_register_page[lang];
+		error_trans = translations_errors[lang];
 	});
 
 	const form = document.getElementById('login-form') as HTMLFormElement;
@@ -380,7 +423,7 @@ export function renderLogin(root: HTMLElement) {
 					<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
 					<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
 				</svg>
-				<span>Signing in...</span>
+				<span>${login_translation.signing_in}</span>
 			</div>
 		`;
 		submitBtn.disabled = true;
@@ -424,9 +467,8 @@ export function renderLogin(root: HTMLElement) {
 							method: 'POST',
 							headers: {
 								'Content-Type': 'application/json',
-								'Authorization': `${response_data.jwt}` //use temp jwt from /login to validate it. Bearer needed?
+								'Cookie': `ACCESS=${response_data.jwt}` //use temp jwt from /login to validate it. Bearer needed?
 							},
-							credentials: 'include',
 							body: JSON.stringify({ tfa_token: tfa_token }),
 						});
 						const res2faverify = await res.json();
@@ -454,9 +496,10 @@ export function renderLogin(root: HTMLElement) {
 								<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
 								</svg>
-								<span>Success!</span>
+								<span>${register_translation.success}</span>
 							</div>
 							`;
+
 							setTimeout(() => {
 								location.hash = '#/profile';
 							}, 1000);
@@ -470,7 +513,7 @@ export function renderLogin(root: HTMLElement) {
 					<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
 					</svg>
-					<span>Success!</span>
+					<span>${register_translation.success}</span>
 					</div>
 					`;
 					setTimeout(() => {
@@ -504,7 +547,6 @@ export function renderLogin(root: HTMLElement) {
 					<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
 					<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
 				</svg>
-				<span>Creating account...</span>
 			</div>
 		`;
 		submitBtn.disabled = true;
@@ -519,38 +561,48 @@ export function renderLogin(root: HTMLElement) {
 				body: JSON.stringify({ username, password, tfa }),
 			});
 			const response_data = await res.json();
-			if (!res.ok) {
+			if (!res.ok ) {
 				throw new Error(response_data.message);
 			} else {
 				if (tfa) {
+					if (!response_data.enablejwt){
+						console.log(response_data);
+						throw new Error('NO_ENABLE_JWT');
+					}
+
 					const res = await fetch('/2fa/enable', {
 						method: 'POST',
 						headers: {
 							'Content-Type': 'application/json',
-							'token': response_data.jwt,
+							'enablejwt': `${response_data.enablejwt}`,
 						},
 						body: JSON.stringify({})
 					});
-					const data2fa = await res.json();
 					if (!res.ok) {
 						throw new Error("2FA_ENABLE_FAILED")
 					}
+					const data2fa = await res.json();
+					if (!data2fa.verifyjwt)
+						throw new Error('NO_JWT_RECIEVED');
+					if (!data2fa.qr)
+						throw new Error("NO_QR_REVCEIVED");
 					const qr = data2fa.qr;
-					form.classList.add('hidden');
+
+					//hide all unnecessary stuff
 					const tfa_container = document.getElementById('tfa_container') as HTMLFormElement;
-					const jwt = data2fa.jwt;
-					if (!data2fa.jwt)
-						throw new Error("NO_TOKEN_REVCEIVED")
-					tfa_container.innerHTML =
-						/*html*/`
-						<label id="qrcode_label" class="">${t!.qrcode_label}</label>
-						<img src="${qr}" class="rounded m-3">
-						<div id="token_input" class="flex flex-row">
-							<input id="2fa_token" type="numeric" placeholder="${t!.tfa_placeholder}" pattern="[0-9]{6}" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class=" m-2 bg-white/10 w-40 h-10 m-1 text-center rounded placeholder-gray-400 ocus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent backdrop-blur-sm">
-						</div>
-						<button id="token_submit" type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-lg">Submit</button>
-						`
-					tfa_container.classList.remove("hidden");
+					const qr_container = document.getElementById('qr_container');
+					const qrcode_image = document.getElementById('qr_code') as HTMLImageElement;
+					const tfa_label = document.getElementById('tfa_label');
+					const titel = document.getElementById('form-title-register-container');
+
+					registerForm.classList.add('hidden');
+					qrcode_image.src = qr;
+					titel?.classList.add('hidden');
+					tfa_label?.classList.add('hidden');
+					tfa_container.classList.remove('hidden');
+					qr_container?.classList.remove('hidden');
+
+					//===============verify EventHandler==============
 					tfa_container.addEventListener('submit', async (e) => {
 						e.preventDefault();
 						const tfa_token = (document.getElementById('2fa_token') as HTMLInputElement).value;
@@ -558,53 +610,73 @@ export function renderLogin(root: HTMLElement) {
 							method: 'POST',
 							headers: {
 								'Content-Type': 'application/json',
-								'Cookie': `Access=${data2fa.jwt}`
+								'verifyjwt': `${data2fa.verifyjwt}`,
 							},
 							body: JSON.stringify({ tfa_token }),
 						});
 						if (!res.ok)
 							throw new Error("2FA_VERIFY_FAILED")
+						else {
+							submitBtn.innerHTML = /*html*/`
+								<div class="flex items-center justify-center space-x-2">
+									<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+									</svg>
+									<span>${register_translation.success}</span>
+								</div>
+							`;
+							setTimeout(() => {
+								location.hash = '#/profile';
+							}, 1000);
+							changeLoginButton(false);
+						}
 					})
 				}
-				submitBtn.innerHTML = /*html*/`
+				else {
+					submitBtn.innerHTML = /*html*/`
 					<div class="flex items-center justify-center space-x-2">
 						<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
 						</svg>
-						<span id="success"></span>
+						<span>${register_translation.success}</span>
 					</div>
 				`;
-				const success = document.getElementById('success')
-				if (success)
-					success.innerText = translations_register_page[languageStore.language].success;
-				setTimeout(() => {
-					location.hash = '#/profile';
-				}, 1000);
-				changeLoginButton(false);
-			}
-		} catch (error:any) {
-			if (error.message == 'USERNAME_TAKEN') {
-					errorContainer.textContent = error_trans.error_username_taken!;
-				}
-				else if (error.message == 'DATABASE_ERROR') {
-					errorContainer.textContent = error_trans.error_internal!;
-				}
-				else if (error.message.startsWith('body/password')) {
-					errorContainer.textContent = error_trans.error_invalid_password!;
-				}
-				else if (error.message.startsWith('body/username')) {
-					errorContainer.textContent = error_trans.error_username_min_len!;
-				}
-				else if (error.message == '2FA_ENABLE_FAILED'){
 
+					setTimeout(() => {
+						location.hash = '#/profile';
+					}, 1000);
+					changeLoginButton(false);
 				}
-				else {
-					errorContainer.textContent = error.message;
-				}
-			errorText.textContent = 'Registration failed. Please try again.'; // TODO implement language translation for error messages
+			}
+		} catch (error: any) {
+			if (error.message == 'USERNAME_TAKEN') {
+				errorContainer.textContent = error_trans.error_username_taken!;
+			}
+			else if (error.message == 'DATABASE_ERROR') {
+				errorContainer.textContent = error_trans.error_internal!;
+			}
+			else if (error.message.startsWith('body/password')) {
+				errorContainer.textContent = error_trans.error_invalid_password!;
+			}
+			else if (error.message.startsWith('body/username')) {
+				errorContainer.textContent = error_trans.error_username_min_len!;
+			}
+			else if (error.message == '2FA_ENABLE_FAILED') {
+				errorContainer.textContent = error_trans.error_2fa_enable!;
+			}
+			else if (error.message == 'NO_QR_REVCEIVED') {
+				errorContainer.textContent = error_trans.default!;
+			}
+			else if (error.message == '2FA_VERIFY_FAILED') {
+				errorContainer.textContent = error_trans.error_2fa_verify!;
+			}
+			else {
+				errorContainer.textContent = error.message;
+			}
 			errorContainer.classList.remove('hidden');
 		} finally {
 			setTimeout(() => {
+
 				submitBtn.innerHTML = originalText;
 				submitBtn.disabled = false;
 			}, 2000);

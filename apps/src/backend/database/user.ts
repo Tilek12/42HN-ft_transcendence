@@ -27,6 +27,14 @@ async function createUser(username: string, hashedPassword: string, tfa:boolean)
 		"user"
 	);
 }
+
+async function deleteUser(id:number)
+{
+	await db.run('DELETE FROM users WHERE id = ?', [id]);
+	await db.run('DELETE FROM profiles WHERE id = ?', [id]);
+	
+}
+
 async function log_in(id:  number, token: string) {
 	return await db.run('UPDATE users SET is_logged_in = ? WHERE id = ?', [token, id]);
 }
@@ -62,4 +70,4 @@ async function getUsernameById(id: number): Promise<string | null> {
 	return row?.username || null;
 }
 
-export { findUserByUsername, findUserById, createUser, log_in, log_out, get_login_token, logout_all_users, isUsername, updateUsername, updatePasswordById, getUsernameById };
+export { findUserByUsername, findUserById, createUser, deleteUser, log_in, log_out, get_login_token, logout_all_users, isUsername, updateUsername, updatePasswordById, getUsernameById };

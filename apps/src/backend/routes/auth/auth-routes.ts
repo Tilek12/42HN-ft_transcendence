@@ -3,7 +3,7 @@ import { hashPassword, verifyPassword } from '../../auth/utils';
 import { LoginBody, loginSchema, logoutSchema, refreshSchema, registerBody, registerSchema } from '../../auth/schemas';
 import type { JWTPayload, User } from '../../types';
 import { Jwt_type } from '../../types';
-import { findUserByUsername, createUser, log_in, log_out, findUserById } from '../../database/user';
+import { findUserByUsername, createUser, log_in, log_out, findUserById, deleteUser } from '../../database/user';
 import { createProfile } from '../../database/profile';
 import { userManager } from '../../service-managers/user-manager';
 import { setRefreshCookie, setAccessCookie, deleteAccessCookie, deleteRefreshCookie } from '../../auth/cookies'
@@ -45,16 +45,26 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 					return res.status(500).send({ message: "DATABASE_ERROR" });
 				let token: string;
 				if (user.tfa) {
-					token = generateToken(user, Jwt_type.temp, '5min');
-					return res.send({ jwt: token, tfa: true });
+					token = generateToken(user, Jwt_type.enable, '5min');
+					res.status(200).send({ enablejwt:token, tfa: true });
 				}
 				else {
 					token = generateToken(user, Jwt_type.refresh, '1week');
 					setAccessCookie(generateToken(user, Jwt_type.access, '5min'), res);
 					setRefreshCookie(token, res);
 					await log_in(user.id, token);
-					return res.status(200).send({ tfa: false });
+					res.status(200).send({ tfa: false });
 				}
+				setTimeout(() => {
+					if (user.tfa)
+					{
+						const test = findUserById(user.id);
+						fastify.log.warn('[ REGISTER ] DELETING USER: registered 2fa but didnt validate in time')
+						if (!user.is_logged_in)
+							deleteUser(user.id);
+					}
+					
+				}, 300);
 			});
 
 	// Login
@@ -78,8 +88,8 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 
 				let token: string;
 				if (user.tfa) {
-					token = generateToken(user, Jwt_type.temp, '5min');
-					res.status(200).send({ jwt: token, tfa: true });
+					token = generateToken(user, Jwt_type.verify, '5min');
+					res.status(200).send({ verifyjwt: token, tfa: true });
 				}
 				else {
 					token = generateToken(user, Jwt_type.refresh, '1week');

@@ -76,7 +76,7 @@ export async function parseFriends(id: number, offset_param?: string, limit_para
 			`
 				SELECT
 				u.id, u.username, u.created_at,
-				p.wins, p.losses, p.trophies, p.image_path, p.image_blob,
+				p.wins, p.losses, p.trophies, p.image_blob
 				FROM friends f
 				JOIN users u ON f.friend_id = u.id
 				JOIN profiles p ON u.id = p.id
@@ -90,7 +90,7 @@ export async function parseFriends(id: number, offset_param?: string, limit_para
 		`
 			SELECT
 			u.id, u.username, u.created_at,
-			p.wins, p.losses, p.trophies, p.image_path, p.image_blob,
+			p.wins, p.losses, p.trophies, p.image_blob
 			FROM friends f
 			JOIN users u ON f.friend_id = u.id
 			JOIN profiles p ON u.id = p.id

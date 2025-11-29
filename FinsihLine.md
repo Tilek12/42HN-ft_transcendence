@@ -44,4 +44,15 @@
 
 
 # Issues
-when game plays, and you switch to another page it doesnt disconnect
+GAME
+- when game plays, and you switch to another page it doesnt disconnect
+
+
+FRONTEND
+- boxes of login and register page cant show whole placeholders
+- register button on login page is not colorful when language switched 
+
+BACKEND
+
+
+USERMANAGEMENT

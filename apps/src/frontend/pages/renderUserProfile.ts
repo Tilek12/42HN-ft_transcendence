@@ -5,7 +5,6 @@ import { defaultPicture } from '../utils/constants.js';
 import { languageStore, translations_profile, transelate_per_id } from './languages.js'
 
 export type Profile_details = {
-	backend_url?: string;
 	data_async: any;
 	profile_pic_id: string;
 	logged_in_id: string;
@@ -21,7 +20,7 @@ let lastPresence: string[] | undefined = [];
 
 
 
-export const profile_ids = (user: fUser) => {
+export const fill_profile_info = (user: fUser) => {
 
 	let username 	= document.getElementById('username');
 	let wins 		= document.getElementById('wins');
@@ -31,19 +30,6 @@ export const profile_ids = (user: fUser) => {
 	let profile_pic = document.getElementById('profile_pic') as HTMLImageElement;
 
 	if (username && wins && losses && trophies && created_at && profile_pic) {
-		// function render() {
-		// 	const listUsers: User[] | undefined = wsManager.presenceUserList.map((u) => u.name);
-		// 	let logged_in = document.getElementById();
-		// 	if (logged_in) {
-		// 		if (JSON.stringify(listUsers) !== JSON.stringify(lastPresence)) {
-		// 			lastPresence = [...listUsers];
-		// 			// logged_in.innerHTML = ` ${listUsers.includes(profile.data_async.user.username) ? 'yes' : 'no'}`;
-		// 		}
-		// 	}
-		// 	// setTimeout(render, 500);
-		// 	// console.log("LAST PRESENCEEEEEE++>>", lastPresence);
-		// }
-		// render();
 		username.innerText = ` ${user.username}`;
 		wins.innerText = ` ${user.wins}`;
 		losses.innerText = ` ${user.losses}`;
@@ -51,7 +37,6 @@ export const profile_ids = (user: fUser) => {
 		created_at.innerText = ` ${new Date(user.created_at).toLocaleString()}`;
 
 		profile_pic.src = user.image_blob ? `data:image/webp;base64,${user.image_blob}` : defaultPicture;
-
 	}
 };
 
