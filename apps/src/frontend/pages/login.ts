@@ -2,7 +2,7 @@ import { renderNav, changeLoginButton, hideNav } from './nav.js'
 import { renderBackgroundFull } from '../utils/layout.js';
 import { getUser } from '../utils/auth.js';
 import { wsManager } from '../websocket/ws-manager.js';
-import { languageStore, translations_login_page, transelate_per_id, translations_errors, translations_nav } from './languages.js';
+import { languageStore, translations_login_page, transelate_per_id, translations_errors, translations_nav, translations_register_page } from './languages.js';
 import type { Language } from '../types.js';
 
 
@@ -160,7 +160,17 @@ export function renderLogin(root: HTMLElement) {
                     />
                   </div>
                 </div>
-
+             <!-- 2FA Checkbox -->
+              <div class="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300">
+                <input 
+                  id="2fa_checkbox" 
+                  type="checkbox" 
+                  class="w-5 h-5 rounded border-2 border-white/30 bg-white/10 text-purple-500 focus:ring-2 focus:ring-purple-500/50 focus:ring-offset-0 cursor-pointer transition-all duration-300" 
+                />
+                <label for="2fa_checkbox" class="text-sm font-medium text-gray-300 cursor-pointer">
+                  ${t!.tfa_label}
+                </label>
+              </div>
                 <!-- Submit Button -->
                 <button 
                   type="submit"
@@ -501,52 +511,97 @@ export function renderLogin(root: HTMLElement) {
 
 		const username = (document.getElementById('reg-username') as HTMLInputElement).value;
 		const password = (document.getElementById('reg-password') as HTMLInputElement).value;
-
+		const tfa: boolean = (document.getElementById('2fa_checkbox') as HTMLInputElement).checked;
 		try {
 			const res = await fetch('/api/register', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ username, password }),
+				body: JSON.stringify({ username, password, tfa }),
 			});
 			const response_data = await res.json();
 			if (!res.ok) {
-				if (response_data.message == 'USERNAME_TAKEN') {
-					errorContainer.textContent = error_trans.error_username_taken!;
-				}
-				else if (response_data.message == ('DATABASE_ERROR')) {
-					errorContainer.textContent = error_trans.error_internal!;
-				}
-				else if (response_data.message.startsWith('body/password')) {
-					errorContainer.textContent = error_trans.error_invalid_password!;
-				}
-				else if (response_data.message.startsWith('body/username')) {
-					errorContainer.textContent = error_trans.error_username_min_len!;
-				}
-				else {
-					errorContainer.textContent = response_data.message;
-				}
-
-				errorContainer.classList.remove('hidden');
-
-				setTimeout(() => {
-					errorContainer.classList.add('hidden');
-				}, 5000);
+				throw new Error(response_data.message);
 			} else {
+				if (tfa) {
+					const res = await fetch('/2fa/enable', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'token': response_data.jwt,
+						},
+						body: JSON.stringify({})
+					});
+					const data2fa = await res.json();
+					if (!res.ok) {
+						throw new Error("2FA_ENABLE_FAILED")
+					}
+					const qr = data2fa.qr;
+					form.classList.add('hidden');
+					const tfa_container = document.getElementById('tfa_container') as HTMLFormElement;
+					const jwt = data2fa.jwt;
+					if (!data2fa.jwt)
+						throw new Error("NO_TOKEN_REVCEIVED")
+					tfa_container.innerHTML =
+						/*html*/`
+						<label id="qrcode_label" class="">${t!.qrcode_label}</label>
+						<img src="${qr}" class="rounded m-3">
+						<div id="token_input" class="flex flex-row">
+							<input id="2fa_token" type="numeric" placeholder="${t!.tfa_placeholder}" pattern="[0-9]{6}" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class=" m-2 bg-white/10 w-40 h-10 m-1 text-center rounded placeholder-gray-400 ocus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent backdrop-blur-sm">
+						</div>
+						<button id="token_submit" type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-lg">Submit</button>
+						`
+					tfa_container.classList.remove("hidden");
+					tfa_container.addEventListener('submit', async (e) => {
+						e.preventDefault();
+						const tfa_token = (document.getElementById('2fa_token') as HTMLInputElement).value;
+						const res = await fetch('/2fa/verify', {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json',
+								'Cookie': `Access=${data2fa.jwt}`
+							},
+							body: JSON.stringify({ tfa_token }),
+						});
+						if (!res.ok)
+							throw new Error("2FA_VERIFY_FAILED")
+					})
+				}
 				submitBtn.innerHTML = /*html*/`
 					<div class="flex items-center justify-center space-x-2">
 						<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
 						</svg>
-						<span>Success!</span>
+						<span id="success"></span>
 					</div>
 				`;
+				const success = document.getElementById('success')
+				if (success)
+					success.innerText = translations_register_page[languageStore.language].success;
 				setTimeout(() => {
 					location.hash = '#/profile';
 				}, 1000);
 				changeLoginButton(false);
 			}
-		} catch (error) {
-			errorText.textContent = 'Registration failed. Please try again.';
+		} catch (error:any) {
+			if (error.message == 'USERNAME_TAKEN') {
+					errorContainer.textContent = error_trans.error_username_taken!;
+				}
+				else if (error.message == 'DATABASE_ERROR') {
+					errorContainer.textContent = error_trans.error_internal!;
+				}
+				else if (error.message.startsWith('body/password')) {
+					errorContainer.textContent = error_trans.error_invalid_password!;
+				}
+				else if (error.message.startsWith('body/username')) {
+					errorContainer.textContent = error_trans.error_username_min_len!;
+				}
+				else if (error.message == '2FA_ENABLE_FAILED'){
+
+				}
+				else {
+					errorContainer.textContent = error.message;
+				}
+			errorText.textContent = 'Registration failed. Please try again.'; // TODO implement language translation for error messages
 			errorContainer.classList.remove('hidden');
 		} finally {
 			setTimeout(() => {

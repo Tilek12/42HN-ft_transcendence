@@ -54,7 +54,7 @@ export async function router()
 			}
 			// DESIGN change: Initialize global language selector after each page render to ensure floating toggle works
 			// across all protected routes. The selector needs re-initialization after DOM updates to attach event listeners properly.
-			initGlobalLanguageSelector();
+			
 		}
 		else
 			return location.hash = '/login';
@@ -94,9 +94,9 @@ export async function router()
 		}
 			// DESIGN change: Initialize global language selector for public routes (login, register, main page)
 		// ensuring consistent language toggle availability throughout the entire application
-		initGlobalLanguageSelector();
-	}
 
+	}
+	initGlobalLanguageSelector();
 
 
 }

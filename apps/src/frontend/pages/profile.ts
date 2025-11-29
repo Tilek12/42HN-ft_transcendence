@@ -72,13 +72,14 @@ export async function renderProfile(root: HTMLElement) {
 		.then(data => {
 			if (data.message === 'User or profile not found' ||
 				data.message === 'Invalid or expired token') {
+				console.log('prfile render fail1');
 				clearUser();
 				location.hash = '#/login';
 				return;
 			};
 			const user = data as fUser;
 			setUser(user);
-			// root.innerHTML = renderUserProfile(data, languageStore.language);
+			root.innerHTML = renderUserProfile(data, languageStore.language);
 			// const button = document.getElementById('refresh_button');
 			// const errortext = document.getElementById('refresh_text');
 			// if (button && errortext){
@@ -224,7 +225,7 @@ export async function renderProfile(root: HTMLElement) {
 					</tr>
 				</thead>
 				<tbody>
-					${matches.map((match: Match, index) => `
+					${matches.map((match: Match, index) => /*html*/`
 					<tr class="border-t border-white/10 ${index % 2 === 0 ? 'bg-white/5' : 'bg-white/10'} hover:bg-white/20 transition-colors duration-200">
 						<td class="py-3 px-4 text-white font-medium">${match.player1_id === data.profile_id ? match.player2_username : match.player1_username}</td>
 						<td class="py-3 px-4 text-white font-mono">

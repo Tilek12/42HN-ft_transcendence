@@ -257,10 +257,10 @@ export function renderUserProfile(data: any, lang = 'EN')
 								<span id="load_more_header"></span>
 							</button>
 						</div>
-						<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+						<!--div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
 							<button type="button" id="refresh_button" class="w-full px-6 py-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white text-lg font-bold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-2xl">refresh cookie!</button>
 							<span id="refresh_text"></span>
-						</div>
+						</div-->
 					</div>
 				</div>
 			</div>

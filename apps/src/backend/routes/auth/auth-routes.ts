@@ -102,6 +102,7 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			const payload = req.user as JWTPayload;
 
 			await log_out(payload.id);
+			userManager.removeUser(payload.id);
 			deleteAccessCookie(res);
 			deleteRefreshCookie(res);
 			res.send({ message: 'Logged out successfully' });

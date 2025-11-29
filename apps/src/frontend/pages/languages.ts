@@ -206,7 +206,8 @@ export const translations_register_page: TranslationSet = {
 		register_btn: 'Register',
 		register_error: 'Registration failed. Please check your details.',
 		already_have_account: 'Already have an account?',
-		sign_in: 'Sign In'
+		sign_in: 'Sign In',
+		success: 'Success'
 	},
 	DE: {
 		register_header: 'Konto erstellen',
@@ -220,7 +221,8 @@ export const translations_register_page: TranslationSet = {
 		register_btn: 'Registrieren',
 		register_error: 'Registrierung fehlgeschlagen. Bitte überprüfen Sie Ihre Angaben.',
 		already_have_account: 'Haben Sie bereits ein Konto?',
-		sign_in: 'Anmelden'
+		sign_in: 'Anmelden',
+		success: 'Erfolgreich!'
 	},
 	GR: {
 		register_header: 'Δημιουργία λογαριασμού',
@@ -235,6 +237,7 @@ export const translations_register_page: TranslationSet = {
 		register_error: 'Η εγγραφή απέτυχε. Ελέγξτε τα στοιχεία σας.',
 		already_have_account: 'Έχετε ήδη λογαριασμό;',
 		sign_in: 'Σύνδεση',
+		success: 'επιτυχία'
 	}
 };
 
