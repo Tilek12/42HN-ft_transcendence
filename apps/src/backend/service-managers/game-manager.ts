@@ -22,31 +22,31 @@ class GameManager {
 		const room = new GameRoom(roomId, mode, p1, p2, tournamentId);
 		this.rooms.set(roomId, room);
 
-		// Auto-remove room when the game ends
-		room.onEndCallback((winner, loser, winnerScore, loserScore) => {
-			console.log(`🏁 [GameManager] Game ended in room ${room.id}: ${winner.name} (${winnerScore} - ${loserScore}) ${loser.name}`);
+		// // Auto-remove room when the game ends
+		// room.onEndCallback((winner, loser, winnerScore, loserScore) => {
+		// 	console.log(`🏁 [GameManager] Game ended in room ${room.id}: ${winner.name} (${winnerScore} - ${loserScore}) ${loser.name}`);
 
-			// Clean up sockets
-			userManager.removeGameSocket(Number(winner.id));
-			userManager.removeGameSocket(Number(loser.id));
+		// 	// Clean up sockets
+		// 	userManager.removeGameSocket(Number(winner.id));
+		// 	userManager.removeGameSocket(Number(loser.id));
 
-			if (isTournament && tournamentId && matchId) {
-				const tournamentManager = mode === 'online-match'
-					? onlineTournamentManager
-					: localTournamentManager;
-				tournamentManager.onMatchEnd(
-					tournamentId,
-					matchId,
-					{ id: winner.id, name: winner.name },
-					{ id: loser.id, name: loser.name },
-					winnerScore,
-					loserScore
-				);
-			}
+		// 	if (isTournament && tournamentId && matchId) {
+		// 		const tournamentManager = mode === 'online-match'
+		// 			? onlineTournamentManager
+		// 			: localTournamentManager;
+		// 		tournamentManager.onMatchEnd(
+		// 			tournamentId,
+		// 			matchId,
+		// 			{ id: winner.id, name: winner.name },
+		// 			{ id: loser.id, name: loser.name },
+		// 			winnerScore,
+		// 			loserScore
+		// 		);
+		// 	}
 
-			this.rooms.delete(room.id);
-			console.log(`🗑️ [GameManager] Removed room ${room.id}`);
-		});
+		// 	this.rooms.delete(room.id);
+		// 	console.log(`🗑️ [GameManager] Removed room ${room.id}`);
+		// });
 
 		return room;
 	}
@@ -106,6 +106,7 @@ class GameManager {
 		this.setWaitingDuelPlayer(player.id, player);
 		const players = Array.from(this.getWaitingDuel().values());
 
+		console.log("_____HERE_______");
 		if (players.length >= 2) {
 			const [p1, p2] = players;
 			this.removeWaitingDuelPlayer(p1!.id);
@@ -113,6 +114,29 @@ class GameManager {
 
 			const game = this.createGame( 'duel',p1! ,p2!, tournamentId);
 			game.onEndCallback( async(winner, loser, winnerScore, loserScore) => {
+				const room = game;
+				console.log(`🏁 [GameManager] Game ended in room ${room.id}: ${winner.name} (${winnerScore} - ${loserScore}) ${loser.name}`);
+
+				// Clean up sockets
+				// userManager.removeGameSocket(Number(winner.id));
+				// userManager.removeGameSocket(Number(loser.id));
+
+				// if (isTournament && tournamentId && matchId) {
+				// 	const tournamentManager = mode === 'online-match'
+				// 		? onlineTournamentManager
+				// 		: localTournamentManager;
+				// 	tournamentManager.onMatchEnd(
+				// 		tournamentId,
+				// 		matchId,
+				// 		{ id: winner.id, name: winner.name },
+				// 		{ id: loser.id, name: loser.name },
+				// 		winnerScore,
+				// 		loserScore
+				// 	);
+				// }
+
+				this.rooms.delete(room.id);
+				console.log(`🗑️ [GameManager] Removed room ${room.id}`);
 				//------Thomas code-------
 				if (winner)
 					await incrementWinsOrLossesOrTrophies(parseInt(winner.id), "wins");
@@ -121,7 +145,8 @@ class GameManager {
 
 				//------ Save to matches table -------
 				const isTournamentMatch = mode === 'duel' && !!tournamentId;
-				if (isTournamentMatch) {
+				// if (isTournamentMatch) {
+				console.log("---=== Before creating match ===---");
 					await createMatch(
 						parseInt(winner.id),
 						parseInt(loser.id),
@@ -129,7 +154,8 @@ class GameManager {
 						loserScore,
 						isTournamentMatch
 					);
-				}
+				console.log("###### After creating match ######");
+				// }
 
 				// Get last inserted match ID
 				//    const { id: lastMatchId } = await db.get(`SELECT last_insert_rowid() as id`);
@@ -144,7 +170,7 @@ class GameManager {
 	cancelDuelSearch(userId: string) {
 		if (this.getWaitingDuel().has(userId)) {
 			this.removeWaitingDuelPlayer(userId);
-			console.log(`🛑 [Matchmaking] Removed ${userId} from duel queue`);
+			console.log(`🛑 [GameManager] Removed ${userId} from duel queue`);
 		}
 	}
 

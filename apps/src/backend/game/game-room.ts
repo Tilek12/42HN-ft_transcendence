@@ -69,7 +69,7 @@ export class GameRoom {
 
 			(player.socket as any).on('message', (msg: any) => {
 				const text = msg.toString();
-				if (text === 'pong') return;
+				if (text === 'pong' || text === 'quit') return;
 
 				let m: any;
 				try {
@@ -216,8 +216,8 @@ export class GameRoom {
 
 		this.broadcast({
 			type: 'end',
-			winner: { id: this.winner.id, name: this.winner.name },
-			loser: { id: this.loser.id, name: this.loser.name }
+			winner: { id: this.winner.id, name: this.winner.name, score: this.winnerScore },
+			loser: { id: this.loser.id, name: this.loser.name, score: this.loserScore }
 		});
 
 		setTimeout(() => this.end(), 1000);
