@@ -64,7 +64,7 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 							deleteUser(user.id);
 					}
 					
-				}, 300);
+				}, 300000);
 			});
 
 	// Login

@@ -11,6 +11,7 @@ import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore } from './languages.js';
 import { Match, fUser } from '../types.js';
 import { renderConnectionErrorPage } from './error.js';
+import { renderFriendsList } from './renderFriends.js';
 
 let i = 0;
 
@@ -101,7 +102,11 @@ export async function renderProfile(root: HTMLElement) {
 				already_parsed = r_on_r?.already_parsed;
 			})();
 
-			//more profiles button event listener, 
+			(async()=>{renderFriendsList('friend-list');})();
+
+
+
+			//more-profiles button event listener, 
 			document.getElementById('more-profiles-btn')?.addEventListener('click', async () => {
 				profile_offset += profile_limit;
 				const r_on_r = await renderProfilesList('profiles-list', true, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit);
