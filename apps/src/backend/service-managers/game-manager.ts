@@ -1,13 +1,17 @@
 import { GameRoom } from '../game/game-room';
-import { Player, GameMode } from '../game/game-types';
-import { tournamentManager } from './tournament-manager';
+import { Player, GhostPlayer, GameMode } from '../game/game-types';
+import { onlineTournamentManager } from './online-tournament-manager';
+import { localTournamentManager } from './local-tournament-manager';
 import { userManager } from './user-manager';
+import { incrementWinsOrLossesOrTrophies } from '../database/profile';
+import { createMatch } from '../database/match';
 
 class GameManager {
 	private rooms = new Map<string, GameRoom>();
 	private waitingDuel = new Map<string, Player>();
 	private nextId = 1;
 
+	// ===== ROOM MANAGEMENT METHODS =====
 	createGame(mode: GameMode, p1: Player, p2: Player, tournamentId?: string, matchId?: string): GameRoom {
 		let isTournament: boolean = tournamentId && matchId ? true : false;
 		let roomId: string;
@@ -18,28 +22,31 @@ class GameManager {
 		const room = new GameRoom(roomId, mode, p1, p2, tournamentId);
 		this.rooms.set(roomId, room);
 
-		// Auto-remove room when the game ends
-		room.onEndCallback((winner, loser, winnerScore, loserScore) => {
-			console.log(`🏁 [GameManager] Game ended in room ${room.id}: ${winner.name} (${winnerScore} - ${loserScore}) ${loser.name}`);
+		// // Auto-remove room when the game ends
+		// room.onEndCallback((winner, loser, winnerScore, loserScore) => {
+		// 	console.log(`🏁 [GameManager] Game ended in room ${room.id}: ${winner.name} (${winnerScore} - ${loserScore}) ${loser.name}`);
 
-			// Clean up sockets
-			userManager.removeGameSocket(Number(winner.id));
-			userManager.removeGameSocket(Number(loser.id));
+		// 	// Clean up sockets
+		// 	userManager.removeGameSocket(Number(winner.id));
+		// 	userManager.removeGameSocket(Number(loser.id));
 
-			if (isTournament && tournamentId && matchId) {
-				tournamentManager.onMatchEnd(
-					tournamentId,
-					matchId,
-					{ id: winner.id, name: winner.name },
-					{ id: loser.id, name: loser.name },
-					winnerScore,
-					loserScore
-				);
-			}
+		// 	if (isTournament && tournamentId && matchId) {
+		// 		const tournamentManager = mode === 'online-match'
+		// 			? onlineTournamentManager
+		// 			: localTournamentManager;
+		// 		tournamentManager.onMatchEnd(
+		// 			tournamentId,
+		// 			matchId,
+		// 			{ id: winner.id, name: winner.name },
+		// 			{ id: loser.id, name: loser.name },
+		// 			winnerScore,
+		// 			loserScore
+		// 		);
+		// 	}
 
-			this.rooms.delete(room.id);
-			console.log(`🗑️ [GameManager] Removed room ${room.id}`);
-		});
+		// 	this.rooms.delete(room.id);
+		// 	console.log(`🗑️ [GameManager] Removed room ${room.id}`);
+		// });
 
 		return room;
 	}
@@ -67,6 +74,107 @@ class GameManager {
 		return Array.from(this.rooms.values());
 	}
 
+	// ===== MATCHMAKING METHODS =====
+	async startGame(player: Player, mode: GameMode, tournamentId?: string): Promise<void> {
+		if (mode === 'solo') {
+			this.createGame(mode, player, GhostPlayer);
+			return;
+		}
+
+		if (mode === 'online-match' || mode === 'local-match') {
+			// The game room should already exist, just update the player's socket
+			const tournamentManager = mode === 'online-match'
+				? onlineTournamentManager
+				: localTournamentManager;
+			const game = tournamentManager.getGameForPlayer(player.id);
+			if (game) {
+				game.updateSocket(player);
+			}
+			return;
+		}
+
+		if (mode !== 'duel') {
+			console.warn(`🚫 Invalid game mode: ${mode}`);
+			return;
+		}
+
+		if (this.getWaitingDuel().has(player.id)) {
+			console.warn(`🚫 Player ${player.id} already waiting for a duel`);
+			return;
+		}
+
+		this.setWaitingDuelPlayer(player.id, player);
+		const players = Array.from(this.getWaitingDuel().values());
+
+		console.log("_____HERE_______");
+		if (players.length >= 2) {
+			const [p1, p2] = players;
+			this.removeWaitingDuelPlayer(p1!.id);
+			this.removeWaitingDuelPlayer(p2!.id);
+
+			const game = this.createGame( 'duel',p1! ,p2!, tournamentId);
+			game.onEndCallback( async(winner, loser, winnerScore, loserScore) => {
+				const room = game;
+				console.log(`🏁 [GameManager] Game ended in room ${room.id}: ${winner.name} (${winnerScore} - ${loserScore}) ${loser.name}`);
+
+				// Clean up sockets
+				// userManager.removeGameSocket(Number(winner.id));
+				// userManager.removeGameSocket(Number(loser.id));
+
+				// if (isTournament && tournamentId && matchId) {
+				// 	const tournamentManager = mode === 'online-match'
+				// 		? onlineTournamentManager
+				// 		: localTournamentManager;
+				// 	tournamentManager.onMatchEnd(
+				// 		tournamentId,
+				// 		matchId,
+				// 		{ id: winner.id, name: winner.name },
+				// 		{ id: loser.id, name: loser.name },
+				// 		winnerScore,
+				// 		loserScore
+				// 	);
+				// }
+
+				this.rooms.delete(room.id);
+				console.log(`🗑️ [GameManager] Removed room ${room.id}`);
+				//------Thomas code-------
+				if (winner)
+					await incrementWinsOrLossesOrTrophies(parseInt(winner.id), "wins");
+				if (loser)
+					await incrementWinsOrLossesOrTrophies(parseInt(loser.id), "losses");
+
+				//------ Save to matches table -------
+				const isTournamentMatch = mode === 'duel' && !!tournamentId;
+				// if (isTournamentMatch) {
+				console.log("---=== Before creating match ===---");
+					await createMatch(
+						parseInt(winner.id),
+						parseInt(loser.id),
+						winnerScore,
+						loserScore,
+						isTournamentMatch
+					);
+				console.log("###### After creating match ######");
+				// }
+
+				// Get last inserted match ID
+				//    const { id: lastMatchId } = await db.get(`SELECT last_insert_rowid() as id`);
+				// Link match to tournament
+				// if (isTournamentMatch && tournamentId) {
+				//   await linkMatchToTournament(parseInt(tournamentId.split('-')[1]), lastMatchId);
+				// }
+			});
+		}
+	}
+
+	cancelDuelSearch(userId: string) {
+		if (this.getWaitingDuel().has(userId)) {
+			this.removeWaitingDuelPlayer(userId);
+			console.log(`🛑 [GameManager] Removed ${userId} from duel queue`);
+		}
+	}
+
+	// ===== QUEUE MANAGEMENT METHODS =====
 	getWaitingDuel() {
 		return this.waitingDuel;
 	}

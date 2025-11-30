@@ -2,7 +2,7 @@ import { FastifyPluginAsync, FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 // import {  WebSocket } from '@fastify/websocket'
 import { userManager } from '../../service-managers/user-manager';
-import { tournamentManager } from '../../service-managers/tournament-manager';
+import { onlineTournamentManager } from '../../service-managers/online-tournament-manager';
 import { findUserById, getUsernameById } from '../../database/user';
 import { PING_INTERVAL_MS } from '../../constants';
 import { PresenceWebsocketSchema } from './WebsocketSchemas'
@@ -31,7 +31,7 @@ export const sendTournamentUpdate = () => {
 	const users = userManager.getOnlineUsers();
 	const msg = JSON.stringify({
 		type: 'tournamentUpdate',
-		tournaments: tournamentManager.getSafeTournamentData(),
+		tournaments: onlineTournamentManager.getOnlineTournaments(),
 	});
 	for (const u of users) {
 		const socket = userManager.getUser(u.id)?.presenceSocket;

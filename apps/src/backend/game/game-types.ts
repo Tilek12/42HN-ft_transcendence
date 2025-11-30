@@ -38,7 +38,7 @@ export interface MoveMessage {
 	side?: 'left' | 'right'; // ← optional, used in solo mode
 }
 
-export type GameMode = 'solo' | 'duel' | 'match' | 'local' | 'tournament';
+export type GameMode = 'solo' | 'duel' | 'online-match' | 'local-match';
 
 export type GameMessage =
 	| { type: 'move'; direction: 'up' | 'down'; side?: 'left' | 'right' }
