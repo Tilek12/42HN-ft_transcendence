@@ -1,0 +1,190 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.initNav = initNav;
+exports.changeLoginButton = changeLoginButton;
+exports.logoutFrontend = logoutFrontend;
+exports.hideNav = hideNav;
+exports.unhideNav = unhideNav;
+exports.renderNav = renderNav;
+const ws_manager_js_1 = require("../websocket/ws-manager.js");
+const languages_js_1 = require("./languages.js");
+const auth_js_1 = require("../utils/auth.js");
+const error_js_1 = require("./error.js");
+let presenceUnsub = null;
+async function initNav() {
+    const loginButton = document.getElementById('login-btn');
+    const logoutButton = document.getElementById('logout-btn');
+    if (loginButton)
+        loginButton.addEventListener('click', () => { location.hash = '/login'; });
+    if (logoutButton)
+        logoutButton.addEventListener('click', listenerLogoutBtn);
+    changeLoginButton(true);
+}
+;
+async function updateOnlineUsers() {
+    const count = ws_manager_js_1.wsManager.onlineUserCount;
+    const users = ws_manager_js_1.wsManager.presenceUserList;
+    const badge = document.getElementById('active-users-count');
+    const list = document.getElementById('active-users-list');
+    const status = document.getElementById('status_symbol');
+    const status2 = document.getElementById('logged_in');
+    if (status) {
+        status.classList.remove('bg-red-400');
+        status.classList.add('bg-green-400');
+    }
+    if (status2) {
+        status2.classList.remove('bg-red-400');
+        status2.classList.add('bg-green-400');
+    }
+    if (badge)
+        badge.textContent = `Online Users: ${count}`;
+    if (list)
+        list.innerHTML = users.map(u => `<li>${u.name || u.id}</li>`).join('');
+}
+;
+function changeLoginButton(login) {
+    const loginButton = document.getElementById('login-btn');
+    const logoutButton = document.getElementById('logout-btn');
+    const userlist = document.getElementById('user_list');
+    if (logoutButton && loginButton && userlist) {
+        if (!login) {
+            logoutButton.classList.remove("hidden");
+            loginButton.classList.add("hidden");
+            userlist.classList.remove("hidden");
+        }
+        else {
+            loginButton.classList.remove("hidden");
+            logoutButton.classList.add("hidden");
+            userlist.classList.add("hidden");
+        }
+    }
+}
+function logoutFrontend() {
+    (0, auth_js_1.clearUser)();
+    ws_manager_js_1.wsManager.clearPresenceData();
+    ws_manager_js_1.wsManager.disconnectAllSockets();
+    changeLoginButton(true);
+}
+const listenerLogoutBtn = async (e) => {
+    e.preventDefault();
+    {
+        try {
+            // if (!getUser())
+            // 	return;
+            const resp = await fetch('/api/logout', {
+                method: 'POST',
+                credentials: 'include',
+            });
+            if (!resp.ok) {
+                const data = await resp.json();
+                alert(`couldnt log out! reason: ${data.message}`);
+            }
+            console.log(resp);
+            logoutFrontend();
+            location.hash = '#/';
+        }
+        catch (e) {
+            (0, error_js_1.renderConnectionErrorPage)();
+            location.hash = '#/';
+        }
+    }
+};
+function hideNav() {
+    const navigation = document.getElementById("navigation");
+    if (navigation) {
+        navigation.classList.add('hidden');
+    }
+}
+function unhideNav() {
+    const navigation = document.getElementById("navigation");
+    if (navigation) {
+        navigation.classList.remove('hidden');
+    }
+}
+function renderNav() {
+    const nav = document.getElementById("navbar");
+    const users = ws_manager_js_1.wsManager.presenceUserList;
+    const count = ws_manager_js_1.wsManager.onlineUserCount;
+    // DESIGN change: Removed language selector from navbar header to implement global floating language toggle
+    // The language selector was relocated to a floating button (bottom-right corner) available on all pages
+    // for consistent UX. This declutters the navigation header and provides language switching everywhere.
+    // Subscribe ONCE to presence updates and re-render
+    if (!presenceUnsub) {
+        presenceUnsub = ws_manager_js_1.wsManager.subscribeToPresence(() => {
+            requestAnimationFrame(updateOnlineUsers);
+        });
+    }
+    // Detect when DOM has been updated and patch content into it
+    requestAnimationFrame(() => updateOnlineUsers());
+    if (nav) {
+        nav.innerHTML =
+            /*html*/
+            `
+			<!-- Logo -->
+				<div class="flex items-center ml-5 space-x-1">
+						<div class="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-lg">
+							<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+							</svg>
+						</div>
+							<a href="#/" class="text-white font-bold text-xl hover:underline rounded">Transcendence</a>
+					</div>
+			<!--div class="flex items-center justify-between h-16 2 red-500 dashed"-->	
+				<nav id="navigation" class="flex flex-wrap justify-center gap-4 white/20 p-2 z-50 ">
+
+					<!-- Navigation Links -->
+					<div class="flex flex-wrap gap-2" >
+						<a id="nav_game" href="#/game" class=" flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
+						<span class="relative z-10"></span>
+						</a>
+
+						<a id="nav_tournament" href="#/tournament" class=" flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
+						<span class="relative z-10"></span>
+						</a>
+
+						<a id="nav_leaderboard" href="#/leaderboard" class="flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
+						<span class="relative z-10"></span>
+						</a>
+
+						<a id="nav_friends" href="#/friends" class="flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
+						<span class="relative z-10"></span>
+						</a>
+
+						<a id="nav_profile" href="#/profile" class="flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
+						<span class="relative z-10"></span>
+						</a>
+
+						<a id="nav_settings" href="#/settings" class="flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10 ">
+						<span class="relative z-10"></span>
+						</a>
+					</div>
+
+					<!-- Online Users -->
+					<div id="user_list" class="group relative text-white cursor-pointer items-center justify-center flex space-x-1">
+						<div id="status_symbol"class="w-3 h-3 rounded-full bg-green-400 animate-pulse">
+						</div>
+						<span id="active-users-count" class="text-sm">${count}</span>
+						<ul id="active-users-list" class="absolute top-full mt-1 hidden group-hover:block bg-white/90 text-black text-sm rounded-lg p-2 max-h-64 overflow-y-auto z-50">
+						${users.map(u => `<li>${u.name}</li>`)}
+						</ul>
+					</div>
+						<!-- Login Button -->
+						<button type="button" id="login-btn" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"></button>
+						<button type="button" id="logout-btn" class="hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-red-700 hover:to-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"></button>
+					</nav>
+					<!--/div-->
+				`;
+    }
+    languages_js_1.languageStore.subscribe((lang) => {
+        console.log("language callback");
+        (0, languages_js_1.transelate_per_id)(languages_js_1.translations_nav, "game", lang, "nav_game");
+        (0, languages_js_1.transelate_per_id)(languages_js_1.translations_nav, "tournament", lang, "nav_tournament");
+        (0, languages_js_1.transelate_per_id)(languages_js_1.translations_nav, "leaderboard", lang, "nav_leaderboard");
+        (0, languages_js_1.transelate_per_id)(languages_js_1.translations_nav, "friends", lang, "nav_friends");
+        (0, languages_js_1.transelate_per_id)(languages_js_1.translations_nav, "profile", lang, "nav_profile");
+        (0, languages_js_1.transelate_per_id)(languages_js_1.translations_nav, "settings", lang, "nav_settings");
+        (0, languages_js_1.transelate_per_id)(languages_js_1.translations_nav, "online_users", lang, "active-users-list");
+        (0, languages_js_1.transelate_per_id)(languages_js_1.translations_nav, "login", lang, "login-btn");
+        (0, languages_js_1.transelate_per_id)(languages_js_1.translations_nav, "logout", lang, "logout-btn");
+    });
+}
