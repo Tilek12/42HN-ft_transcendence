@@ -256,7 +256,7 @@ export const loginSchema = {
 	response: {
 		200: {
 			type: 'object',
-			properties: { jwt: { type: 'string' }, tfa: { type: 'boolean' } }
+			properties: { verifyjwt: { type: 'string' }, tfa: { type: 'boolean' } }
 		}
 	}
 } as const;

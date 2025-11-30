@@ -453,6 +453,8 @@ export function renderLogin(root: HTMLElement) {
 				}, 2000);
 			} else {
 				if (response_data.tfa) {
+					if (!response_data.verifyjwt)
+						alert("no verify jwt");
 					form.classList.add('hidden');
 					const tfa_container = document.getElementById('tfa_container') as HTMLFormElement;
 					if (!tfa_container)
@@ -467,7 +469,7 @@ export function renderLogin(root: HTMLElement) {
 							method: 'POST',
 							headers: {
 								'Content-Type': 'application/json',
-								'Cookie': `ACCESS=${response_data.jwt}` //use temp jwt from /login to validate it. Bearer needed?
+								'verifyjwt': response_data.verifyjwt 
 							},
 							body: JSON.stringify({ tfa_token: tfa_token }),
 						});
@@ -479,7 +481,7 @@ export function renderLogin(root: HTMLElement) {
 								case "INVALID_NO_TOKEN": error_message = error_trans.error_no_token; break;
 								case "INVALID_USER_LOGGED_IN": error_message = error_trans.error_logged_in; break;
 								case "INVALID_TOKEN": error_message = error_trans.error_invalid_token; break;
-								default: error_message = error_trans.error_default; break;
+								default: error_message = error_message; break;
 							}
 							errorText.textContent = error_message;
 							errorContainer.classList.remove('hidden');
