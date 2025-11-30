@@ -13,6 +13,7 @@ type fUser = {
   wins:number,
   losses:number,
   trophies:number,
+  tfa:boolean,
 }
 
 const userRoutes: FastifyPluginAsync = async (fastify) => {
@@ -33,6 +34,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
 			wins:0,
 			losses:0,
 			trophies:0,
+			tfa:user.tfa,
 		}
 
 		return res.status(200).send({user:fuser});

@@ -8,27 +8,26 @@ class UserManager {
 		return this.users.get(id);
 	}
 
-	createUser(newuser:User, presenceSocket: WebSocket): boolean {
+	createUser(newuser: User, presenceSocket: WebSocket): boolean {
 		if (this.users.has(newuser.id)) return false;
 
 		const user: User = newuser;
-		
-			user.name = 			newuser.username,
-			user.gameSocket =		null,
-			user.presenceSocket =	presenceSocket,
-			user.tournamentSocket =	null,
-			user.isAlive =			true,
-			user.isInGame =			false,
-			user.isInTournament =	false,
 
-		this.users.set(user.id, user);
+		user.name = newuser.username,
+			user.gameSocket = null,
+			user.presenceSocket = presenceSocket,
+			user.tournamentSocket = null,
+			user.isAlive = true,
+			user.isInGame = false,
+			user.isInTournament = false,
+
+			this.users.set(user.id, user);
 		return true;
 	}
 
 	removeUser(id: number) {
 		const user = this.getUser(id);
-		if (user)
-		{
+		if (user) {
 			// Only forcibly close sockets if this is a *true* logout or lost connection
 			if (user.presenceSocket?.readyState === WebSocket.OPEN)
 				user.presenceSocket.close();
@@ -38,16 +37,23 @@ class UserManager {
 
 			this.users.delete(id);
 		}
-		else
-		{
+		else {
 			console.log("no user to removee")
 			return;
 		}
-}
+	}
+
+	removeAllUsers()
+	{
+		 this.users.forEach((u:User)=>{this.removeUser(u.id)});
+		 console.log("❎ All Users logged out.");
+	}
+
+
 
 	setAlive(id: number) {
 		const user = this.getUser(id);
-		if (user){
+		if (user) {
 			user.isAlive = true;
 		}
 	}
@@ -57,9 +63,9 @@ class UserManager {
 		if (user) user.isInGame = value;
 	}
 
-	setInTournament(user:User, value: boolean) {
+	setInTournament(user: User, value: boolean) {
 		if (user)
-			 user.isInTournament = value;
+			user.isInTournament = value;
 	}
 
 	getOnlineUsers() {
@@ -108,8 +114,8 @@ class UserManager {
 		}
 	}
 
-	setTournamentSocket(user:User | undefined, socket: WebSocket) {
-		
+	setTournamentSocket(user: User | undefined, socket: WebSocket) {
+
 		if (!user) return;
 
 		user.tournamentSocket?.close();

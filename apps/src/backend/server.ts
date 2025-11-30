@@ -25,6 +25,8 @@ import { Errorhandler } from './error';
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import fastifySwagger from '@fastify/swagger'
 import cookie from '@fastify/cookie'
+import { wsManager } from '../frontend/websocket/ws-manager';
+import { userManager } from './service-managers/user-manager';
 // import csrf from '@fastify/csrf-protection'
 
 
@@ -79,17 +81,16 @@ const server = Fastify({
 // for testing response payload 
 // server.addHook('onSend', async (request, reply, payload) => {
 //   server.log.info({
-//     resBody: payload
+//     resBody: payload,
+// 	reqBody:request.body,
 //   }, 'Response payload');
 //   return payload; 
 // });
 
-server.addHook('preValidation', async (request, reply) => {
-  server.log.info({
-    reqBody: request.body
-  }, 'Response payload');
-  return request;   
-});
+// server.addHook('preValidation', async (request, reply) => {
+//   console.log(request);
+//   return request;   
+// });
 
 const jwtOpts: FastifyJWTOptions = {
 	secret: JWT_SECRET,
@@ -204,8 +205,7 @@ async function main() {
 		if (isShuttingDown) return; // guard the shutdown as concurrently sends two sigints to process when running in dev mode
 		isShuttingDown = true;
 		console.log(`\n🛑 [PID ${process.pid}] Gracefully shutting down...`);
-		// await logout_all_users();
-		// console.log("❎ All Users logged out.");
+		userManager.removeAllUsers();
 		try {
 			await server.close();
 			console.log('❎ Server closed');

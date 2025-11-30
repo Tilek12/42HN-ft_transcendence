@@ -1,6 +1,6 @@
 
 import { getUser, clearUser, setUser, apiFetch } from '../utils/auth.js'
-import { renderProfilesList } from './renderProfiles.js';
+import { AllProfileWithLimitAndOffset, renderProfilesList } from './renderProfiles.js';
 import { renderUserProfile, fill_profile_info, update_langauge_headers_user_profile } from './renderUserProfile.js';
 import type { Profile_details } from './renderUserProfile.js';
 import { listenerFriendAndBlock } from './ListenerProfileList.js';
@@ -15,10 +15,10 @@ import { renderConnectionErrorPage } from './error.js';
 let i = 0;
 
 const ref_obj_allProfiles: { allProfiles: { profiles: any[] }[] | undefined } = { allProfiles: [] };
-// let allProfiles: {profiles : any[]}[] | undefined= [];
+let allProfiles: { profiles: any[] }[] | undefined = [];
 let profile_offset = 0;
 let profile_limit = 3;
-// let new_all_profiles : AllProfileWithLimitAndOffset | undefined;
+let new_all_profiles: AllProfileWithLimitAndOffset | undefined;
 let nav_profile_clicked = false;
 let already_parsed: boolean | undefined = false;
 let first_profile_render = 1;
@@ -29,7 +29,7 @@ export const resetEventListeners = (elemnt_ids: string[]): void => {
 		const el = document.getElementById(id)
 		if (el)
 			el.replaceWith(el.cloneNode(true));
-		// document.getElementById(id)!.innerHTML = ''
+		document.getElementById(id)!.innerHTML = ''
 	});
 }
 
@@ -48,12 +48,12 @@ const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) => 
 		};
 		presenceList = [...listUsers];
 		// console.log("ALLLPROFILES INSIDE AUTORENDER===========>>>", ref_obj_allProfiles.allProfiles);
-		// ref_obj_allProfiles.allProfiles?.forEach((pr)=> console.log("DEFAULT BEFORE MAPPING", pr.profiles[0].logged_in));
+		ref_obj_allProfiles.allProfiles?.forEach((pr) => console.log("DEFAULT BEFORE MAPPING", pr.profiles[0].logged_in));
 		ref_obj_allProfiles.allProfiles?.map((all) => all.profiles?.map((pr) => { pr.logged_in = wsManager.presenceUserList.map((u) => u.name).includes(pr.username); return pr; }));
 		ref_obj_allProfiles.allProfiles?.map((all) => all.profiles?.forEach((pr) => {
-			// console.log(`changing on rendering of user ${pr.username}, ${pr.logged_in}`);
+			console.log(`changing on rendering of user ${pr.username}, ${pr.logged_in}`);
 			const profile_loggin_state = document.getElementById(`profiles-loggin-state-${pr.username}`) as HTMLSpanElement;
-			if(profile_loggin_state) {
+			if (profile_loggin_state) {
 				profile_loggin_state.classList.remove('bg-green-500', 'bg-gray-400');
 				profile_loggin_state.classList.add(pr.logged_in ? 'bg-green-500' : 'bg-gray-400');
 			}
@@ -66,10 +66,10 @@ const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) => 
 export async function renderProfile(root: HTMLElement) {
 	apiFetch('/api/private/profile', {
 		method: 'GET',
-		credentials:'include'
+		credentials: 'include'
 	})
 		.then(res => res.json()
-							)
+		)
 		.then(data => {
 			if (data.message === 'User or profile not found' ||
 				data.message === 'Invalid or expired token') {
@@ -78,140 +78,72 @@ export async function renderProfile(root: HTMLElement) {
 				location.hash = '#/login';
 				return;
 			};
-			const user = data as fUser;
-			setUser(user);
-			root.innerHTML = renderUserProfile(data, languageStore.language);
-			// const button = document.getElementById('refresh_button');
-			// const errortext = document.getElementById('refresh_text');
-			// if (button && errortext){
-			// 	button .addEventListener('click', async ()=>{
-		
-			// 	const resp = await fetch('/api/refresh', {
-			// 		method:'POST',
-			// 		credentials:'include'
-			// 	});
-			// 	errortext.innerText = await resp.json();
+			const { username, image_blob, wins,	losses,	trophies} = data;
+			let user = getUser();
+			root.innerHTML = renderUserProfile();
+			if (user){
+				user.username = username;
+				user.image_blob = image_blob;
+				user.wins = wins,
+				user.losses= losses,
+				user.trophies = trophies,
+				setUser(user);
+				fill_profile_info(user);
+			}
 
-			// 	setTimeout((errortext: HTMLElement)=>{errortext.innerText = ''}, 5000);
-			// 	})
-			// }
-
-			languageStore.subscribe((lang) => update_langauge_headers_user_profile(lang));
-			//---------------Password Related Variables------------------------------------
-			const password_old_check 	= document.getElementById('password-old-check') 	as HTMLInputElement;
-			const password_new 			= document.getElementById('password-new') 			as HTMLInputElement;
-			const password_confirm		= document.getElementById('password-confirm') 		as HTMLInputElement;
-			const password_edit_btn 	= document.getElementById('password-edit-btn') 		as HTMLButtonElement;
-			const password_update_btn 	= document.getElementById('password-update-btn') 	as HTMLButtonElement;
-			const password_cancel_btn 	= document.getElementById('password-cancel-btn') 	as HTMLButtonElement;
-			//--------------Username Related Variables-------------------------------------
-			const username_update_btn 	= document.getElementById('username-update-btn') 	as HTMLButtonElement;
-			const username_cancel_btn 	= document.getElementById('username-cancel-btn') 	as HTMLButtonElement;
-			const username_edit_btn 	= document.getElementById('username-edit-btn') 		as HTMLButtonElement;
-
-			const username_par_el 		= document.getElementById('username') 				as HTMLParagraphElement;
-			const username_input_el 	= document.getElementById('username-input') 		as HTMLInputElement;
-
-			fill_profile_info(user);
-			update_langauge_headers_user_profile(languageStore.language);
-
+			//enable reload of profiles on click of navbar profiles it doesnt go through router and so makes sense to add here, nice -p
 			document.getElementById('nav_profile')?.addEventListener('click', () => { nav_profile_clicked = true; });
+
+			//render the profile list asyncronously
 			(async () => {
 				const r_on_r = await renderProfilesList('profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit, already_parsed);
 				ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
-				// console.log("THE PROFILES ON LOAD+++++",ref_obj_allProfiles.allProfiles);
-				// console.log("check render what is returning: ++++ ONLOAD", renderCheckerForProfiles());
 				already_parsed = r_on_r?.already_parsed;
 			})();
 
+			//more profiles button event listener, 
 			document.getElementById('more-profiles-btn')?.addEventListener('click', async () => {
 				profile_offset += profile_limit;
 				const r_on_r = await renderProfilesList('profiles-list', true, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit);
 				ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
 				already_parsed = r_on_r?.already_parsed;
-				// console.log("THE PROFILES ON LOAD+++++",ref_obj_allProfiles.allProfiles);
-				(true) !== undefined
 				console.log("check render what is returning: ++++ ONLOAD", renderCheckerForProfiles(true));
 			})
-			document.getElementById('password-edit-btn')?.addEventListener('click', () =>
-				listenerPasswordEdit(
-					password_old_check,
-					password_new,
-					password_confirm,
-					password_update_btn,
-					password_cancel_btn,
-					password_edit_btn
-				))
-			document.getElementById('password-cancel-btn')?.addEventListener('click', () =>
-				listenerPasswordCancel(
-					password_old_check,
-					password_new,
-					password_confirm,
-					password_update_btn,
-					password_cancel_btn,
-					password_edit_btn
-				))
-			document.getElementById('password-update-btn')?.addEventListener('click', async () =>
-				listenerPasswordUpdate(
-					password_old_check,
-					password_new,
-					password_confirm,
-					password_update_btn,
-					password_cancel_btn,
-					password_edit_btn
-				));
-			document.getElementById('username-update-btn')?.addEventListener
-				('click', async () =>
-					listenerUsernameUpdate(
-						username_cancel_btn,
-						username_update_btn,
-						username_edit_btn,
-						username_input_el,
-						username_par_el
-					))
-			document.getElementById('username-cancel-btn')?.addEventListener('click', () => listenerUsernameCancel(
-				username_cancel_btn,
-				username_update_btn,
-				username_edit_btn,
-				username_input_el,
-				username_par_el
-			));
-			document.getElementById('username-edit-btn')?.addEventListener('click', () => listenerUsernameEdit(
-				username_cancel_btn,
-				username_update_btn,
-				username_edit_btn,
-				username_input_el,
-				username_par_el
-			));
+
+
 			//----------------load pagination process--------------------------------------
 			document.getElementById('profiles-list')?.addEventListener
 				('click', async (e) => {
-					ref_obj_allProfiles.allProfiles = await listenerFriendAndBlock(e, 'profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit) });
+					ref_obj_allProfiles.allProfiles = await listenerFriendAndBlock(e, 'profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit)
+				});
 			document.getElementById('upload-form')?.addEventListener
 				('submit', async (e) => listenerUploadPicture(e));
+
 			document.getElementById('delete-pic-btn')?.addEventListener
 				('click', async (e) => listenerDeletePicture(e));
 
+
+			// renders match history
 			//==================Linda's code==========================
 			apiFetch('/api/private/match/user', {
 				method: 'GET',
-				credentials:'include',
+				credentials: 'include',
 			})
 				.then(res => res.json())
 				.then((data) => {
 					const matchContainer = document.getElementById('match-history') as HTMLElement;
-					//   console.log("data: ", data);
+					console.log("data: ", data);
 					const matches = data.matches;
 					if (!matchContainer) return;
 
 					if (!Array.isArray(matches) || matches.length === 0) {
-						// matchContainer.innerHTML += `
-						// <p>No matches found.</p>`;
+						matchContainer.innerHTML += `
+						<p>No matches found.</p>`;
 						return;
 					}
-					matchContainer.innerHTML += 
-					/*html*/
-					`
+					matchContainer.innerHTML +=
+						/*html*/
+						`
 			<div class="overflow-x-auto rounded-xl">
 				<table class="w-full text-left border-collapse">
 				<thead>
@@ -231,15 +163,15 @@ export async function renderProfile(root: HTMLElement) {
 						<td class="py-3 px-4 text-white font-medium">${match.player1_id === data.profile_id ? match.player2_username : match.player1_username}</td>
 						<td class="py-3 px-4 text-white font-mono">
 						${match.player1_id === data.profile_id
-							? `<span class="font-bold text-blue-400">${match.player1_score}</span> - <span class="text-gray-300">${match.player2_score}</span>`
-							: `<span class="font-bold text-blue-400">${match.player2_score}</span> - <span class="text-gray-300">${match.player1_score}</span>`}
+								? `<span class="font-bold text-blue-400">${match.player1_score}</span> - <span class="text-gray-300">${match.player2_score}</span>`
+								: `<span class="font-bold text-blue-400">${match.player2_score}</span> - <span class="text-gray-300">${match.player1_score}</span>`}
 						</td>
 						<td class="py-3 px-4">
 						<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${match.winner_id === null
-							? 'bg-gray-500/30 text-gray-200'
-							: match.winner_id === data.profile_id 
-								? 'bg-green-500/30 text-green-300' 
-								: 'bg-red-500/30 text-red-300'}">
+								? 'bg-gray-500/30 text-gray-200'
+								: match.winner_id === data.profile_id
+									? 'bg-green-500/30 text-green-300'
+									: 'bg-red-500/30 text-red-300'}">
 							${match.winner_id === null
 								? '⚖️ Tie'
 								: match.winner_id === data.profile_id ? '🏆 Win' : '❌ Loss'}
@@ -262,9 +194,13 @@ export async function renderProfile(root: HTMLElement) {
 				.catch(err => {
 					console.error('Failed to load matches:', err);
 				});
-			//==============Linda's code=================================
+
+			// set all corect language strings
+			update_langauge_headers_user_profile(languageStore.language);
+			//make sure the language strings update on language
+			languageStore.subscribe((lang) => update_langauge_headers_user_profile(lang));
 		})
-		.catch(() => {		
+		.catch(() => {
 			renderConnectionErrorPage();
 		})
 }

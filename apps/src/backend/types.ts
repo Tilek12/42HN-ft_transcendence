@@ -53,3 +53,23 @@ interface FastifyJWT {
 // interface FastifyRequest {
 // 	user: JWTPayload
 // }
+
+export type match = {
+	matchID:number,
+	player1_id:number,
+	player2_is:number,
+	player1_score:number,
+	player2_score:number,
+	winner_id:number,
+	is_tie:boolean,
+	is_tournament_match:boolean,
+	played_at: string,
+}
+
+export type matchHistory = {
+	profile_id: number,
+	matches: match[],
+	win: number,
+	matches_count: number,
+	win_rate: number,
+}

@@ -1,6 +1,29 @@
 import { getUser } from '../utils/auth.js';
 import { GameMode, PresenceUser, PresenceCallback } from '../types.js';
 
+
+function setOnlineStatusOffline() {
+	const status_symbol_navbar = document.getElementById('status_symbol');
+	const user_list = document.getElementById('active-users-count');
+	const status_symbol_profile = document.getElementById('logged_in');
+
+	if (status_symbol_navbar) {
+		status_symbol_navbar.classList.remove('bg-green-400');
+		status_symbol_navbar.classList.add('bg-red-400');
+	}
+	if (user_list) {
+		user_list.innerText = 'Connection lost...';
+	}
+	if (status_symbol_profile) {
+		status_symbol_profile.classList.remove('bg-green-400');
+		status_symbol_profile.classList.add('bg-red-400');
+	}
+}
+
+function setOnlineStatusOnline() {
+}
+
+
 class WebSocketManager {
 	// Basic WebSocket connections
 	private gameSocket: WebSocket | null = null;
@@ -16,6 +39,7 @@ class WebSocketManager {
 	private presenceUsers: PresenceUser[] = [];
 	private presenceListeners: PresenceCallback[] = [];
 
+	private refreshCalled: boolean = false;
 	constructor() {
 	}
 
@@ -52,7 +76,7 @@ class WebSocketManager {
 			console.log('🕹️ [Game WS] Disconnected');
 			this.gameSocket = null;
 		};
-		socket.onerror = (event:any)=>  {
+		socket.onerror = (event: any) => {
 			console.log('Socket Error:', event);
 		}
 
@@ -79,8 +103,7 @@ class WebSocketManager {
 	///////////////////////////////////////
 
 	connectPresenceSocket(onUpdate?: (msg: any) => void) {
-		if (this.presenceSocket) 
-		{
+		if (this.presenceSocket) {
 			console.log('already present')
 			return;
 		}
@@ -93,6 +116,8 @@ class WebSocketManager {
 			console.log('👥 [Presence WS] Opening websocket..');
 			socket.send('pong');
 			this.retryAttempts = 0;
+			//reset the acces token regain switch
+			this.refreshCalled = false;
 		};
 
 		socket.onmessage = (e) => {
@@ -124,30 +149,32 @@ class WebSocketManager {
 			this.disconnectTournamentSocket();
 			if (e.code === 4003) return;
 
-			this.retryAttempts++;
+			setOnlineStatusOffline();
 			if (getUser()) {
-				console.log(`👥 [Presence WS] Retry attempt ${this.retryAttempts}/${this.MAX_RETRY}`);
+				console.log(`👥 [Presence WS] Retry attempt `);
 				this.reconnectTimeout = setTimeout(() => {
-					const status_symbol = document.getElementById('status_symbol');
-					const user_list = document.getElementById('active-users-count');
-					const status2 = document.getElementById('logged_in');
-					if (status_symbol){
-						status_symbol.classList.remove('bg-green-400');	
-						status_symbol.classList.add('bg-red-400');
-					}
-					if (user_list)user_list.innerText = 'Connection lost...';
-					if (status2){
-						status2.classList.remove('bg-green-400');
-						status2.classList.add('bg-red-400');
-					}
-					this.connectPresenceSocket(onUpdate)}, 3000);
+					this.connectPresenceSocket(onUpdate)
+				}, 3000);
 			} else {
-				console.warn(`👥 [Presence WS] Stopped trying to reconnect after ${this.MAX_RETRY} attempts.`);
+				console.warn(`👥 [Presence WS] Closed.`);
 			}
 		};
 
-		socket.onerror = (err) => {
+		socket.onerror = async (err) => {
 			console.error('👥 [Presence WS] Error:', err);
+			// refresh access token in case it turned invalid. check once on connect error if not ok then dont try again
+			if (!this.refreshCalled) {
+				const res = await fetch('/api/refresh', {
+					method: 'POST',
+					credentials: 'include'
+				})
+				this.refreshCalled = true;
+				if (res.ok)
+				{
+					this.connectPresenceSocket(onUpdate);
+				}
+			}
+
 		};
 	}
 
@@ -199,13 +226,12 @@ class WebSocketManager {
 
 		let url = `/ws/tournament?mode=${mode}&action=${action}&size=${size}`;
 		if (action === 'join' && id) url += `&id=${id}`;
-		while (names && names.length > 0)
-		{
+		while (names && names.length > 0) {
 			const name = names.pop();
 			if (name)
 				url += `&names=${name}`;
-			
-		} 
+
+		}
 
 		const socket = new WebSocket(url);
 		this.tournamentSocket = socket;

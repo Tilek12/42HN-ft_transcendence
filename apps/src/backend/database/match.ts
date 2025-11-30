@@ -1,4 +1,5 @@
 import { db } from './client';
+import type { match } from '../types'
 //----------functions for matches data base-----------
 export async function createMatch(
 	player1Id: number,
@@ -35,8 +36,9 @@ export async function createMatch(
 	return db.all(`SELECT * FROM matches ORDER BY played_at DESC`);
   }
 
-export async function getMatchesByUserId(userId: number) {
-	return db.all(
+export async function getMatchesByUserId(userId: number): Promise<match[]> 
+{
+	const matches =  db.all(
 	`
 	SELECT
 	m.*,
@@ -51,6 +53,7 @@ export async function getMatchesByUserId(userId: number) {
 	userId,
 	userId
 	);
+	return matches as unknown as  match[];
 }
   
 

@@ -51,12 +51,11 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			if (!user || !profile)
 				throw new Error('User or profile not found' );
 			res.status(200).send({
+					username: user.username,
 					image_blob: profile.image_blob?.toString("base64"),
 					wins: profile.wins,
 					losses: profile.losses,
 					trophies: profile.trophies,
-					username: user.username,
-					created_at: user.created_at,
 				})
 		} catch (err:any) {
 			res.status(400).send({ message: err.message });

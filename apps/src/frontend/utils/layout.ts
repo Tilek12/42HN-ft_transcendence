@@ -47,7 +47,7 @@ export function renderBackgroundFull(content: string): string {
 			</div>
 		</div>
 		
-		<div class="min-h-screen flex items-center justify-center p-4">
+		<div class="min-h-screen flex items-center justify-center p-4 w-full">
 			${content}
 		</div>
 	`);

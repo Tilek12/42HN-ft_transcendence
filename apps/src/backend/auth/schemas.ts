@@ -132,7 +132,7 @@ export const ProfileIdSchema =
 			type: 'object',
 			required: ['profileId'],
 			properties: {
-				profileId: { type: 'string', pattern: '^\d+$' },
+				profileId: { type: 'string' },
 			},
 		}
 	} as const;
@@ -152,8 +152,8 @@ export const AnswerRequestSchema =
 			type: 'object',
 			required: ['profileId', 'profileAnswer'],
 			properties: {
-				profileId: { type: 'string', pattern: '^[0-9]+$ ', minLength: 1 },
-				profileAnswer: { type: 'string', pattern: '^[0-9]+$ ', minLength: 1 }
+				profileId: { type: 'string' },
+				profileAnswer: { type: 'string'}
 			},
 		}
 	} as const;

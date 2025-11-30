@@ -1,67 +1,47 @@
-
+import { Language } from '../types.js';
+import { getUser } from '../utils/auth.js';
+import { defaultPicture } from '../utils/constants.js';
 import { renderBackgroundFull } from '../utils/layout.js'
+import { languageStore, transelate_per_id, translations_settings } from './languages.js';
+import { listenerPasswordCancel, listenerPasswordEdit, listenerPasswordUpdate, listenerUsernameCancel, listenerUsernameEdit, listenerUsernameUpdate } from './listenerUpdatePasswordAndUsername.js';
+
+
+
+
+const update_text = (lang:Language)=>{
+	transelate_per_id(translations_settings, "update", lang, "image_update_button_header");
+	transelate_per_id(translations_settings, "delete", lang, "image_delete_button_header");
+	transelate_per_id(translations_settings, "username", lang, "username_header");
+	transelate_per_id(translations_settings, "edit", lang, "edit_username_header");
+	transelate_per_id(translations_settings, "update", lang, "update_username_header");
+	transelate_per_id(translations_settings, "cancel", lang, "cancel_username_header");
+	transelate_per_id(translations_settings, "update", lang, "update_pass_header");
+	transelate_per_id(translations_settings, "cancel", lang, "cancel_pass_header");
+	transelate_per_id(translations_settings, "joined", lang, "joined_header");
+	transelate_per_id(translations_settings, "new_password_btn", lang, "password-edit-btn");
+	transelate_per_id(translations_settings, "current_password_placeholder", lang, "password-old-check");
+	transelate_per_id(translations_settings, "new_password_placeholder", lang, "password-new");
+	transelate_per_id(translations_settings, "confirm_new_password_placeholder", lang, "password-confirm");
+	transelate_per_id(translations_settings, "profile_settings_header", lang, "profile_settings_header");
+};
+
+
+
+
+
+
+
 export async function renderSettings(root: HTMLElement) {
-
-
-  root.innerHTML = renderBackgroundFull(/*html*/`
-  <div class="min-h-screen">
+	root.innerHTML = renderBackgroundFull(/*html*/`
+  <div class="min-h-screen lg:w-2/3">
 			<div class="max-w m-8">
 				<!-- DESIGN: 3-column responsive grid using Tailwind's 12-column system -->
 				<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 ">
 					
-					<!-- ========== LEFT COLUMN: Profile Picture + Stats + Logout ========== -->
-					<!-- DESIGN: Takes 3/12 columns (25% width) -->
-					<div class="lg:col-span-3 ">
-						<!-- DESIGN: Glass-morphism card with hover shadow effect -->
-						<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
-							
-							<!-- Profile Picture Section -->
-							<!-- Upload, update, and delete profile picture -->
-							<!-- DESIGN: Large circular image (224px) with online indicator -->
-							<form id="upload-form" class="mb-8">
-								<div class="relative w-56 h-56 mx-auto mb-6">
-									<img id="profile_pic" src="" alt="Profile" class="w-full h-full object-cover rounded-full border-4 border-white/30 shadow-xl transition-all duration-300 hover:scale-105">
-									<div id="logged_in" class="absolute bottom-2 right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white shadow-lg animate-pulse"></div>
-								</div>
-								<input type="file" id="profile-pic-input" accept="image/*" class="hidden"/>
-								<div class="space-y-3">
-									<label for="profile-pic-input" class="block">
-										<span id="image_update_button_header" class="block text-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-lg">Choose</span>
-									</label>
-									<button type="submit" class="w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg">Upload</button>
-									<button type="button" id="delete-pic-btn" class="w-full px-6 py-3 bg-red-600 hover:bg-red-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"><span id="image_delete_button_header">Delete</span></button>
-								</div>
-							</form>
-
-							<!-- Stats Section -->
-							<!-- Wins, Losses, Trophies display -->
-							<!-- DESIGN: Color-coded stats (green/red/yellow) with large numbers (text-4xl) -->
-							<div class="grid grid-cols-3 gap-4 mb-8">
-								<div class="bg-green-500/20 rounded-xl p-5 text-center transition-all duration-300 hover:scale-105 hover:bg-green-500/30">
-									<div class="text-4xl font-bold text-green-400" id="wins"></div>
-									<div class="text-sm text-gray-300 mt-2" id="wins_header"></div>
-								</div>
-								<div class="bg-red-500/20 rounded-xl p-5 text-center transition-all duration-300 hover:scale-105 hover:bg-red-500/30">
-									<div class="text-4xl font-bold text-red-400" id="losses"></div>
-									<div class="text-sm text-gray-300 mt-2" id="losses_header"></div>
-								</div>
-								<div class="bg-yellow-500/20 rounded-xl p-5 text-center transition-all duration-300 hover:scale-105 hover:bg-yellow-500/30">
-									<div class="text-4xl font-bold text-yellow-400" id="trophies"></div>
-									<div class="text-sm text-gray-300 mt-2" id="trophies_header"></div>
-								</div>
-							</div>
-
-							<!-- Logout Button Section -->
-							<!-- DESIGN: Gradient button (red) with hover scale effect -->
-							
-						</div>
-					</div>
-
-					<!-- ========== MIDDLE COLUMN: Profile Info + Security ========== -->
-					<!-- DESIGN: Takes 5/12 columns (42% width) - largest column for main content -->
-					<div class="lg:col-span-5 space-y-8">
-						
-						<!-- Profile Information Section -->
+					<!-- ========== LEFT COLUMN: PROFILE INFO + SECURITY + 2FA  CHANGE ========== -->
+					<!-- DESIGN: Takes 4/12 columns (33% width) -->
+					<div class="lg:col-span-4 ">
+					<!-- Profile Information Section -->
 						<!-- Username, Email, Join Date -->
 						<!-- DESIGN: Glass-morphism card with SVG icons -->
 						<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
@@ -69,7 +49,7 @@ export async function renderSettings(root: HTMLElement) {
 								<svg class="w-7 h-7 mr-3 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
 								</svg>
-								Profile Info
+								<span id="profile_settings_header"></span>
 							</h2>
 							
 							<!-- Update Username Section -->
@@ -87,16 +67,10 @@ export async function renderSettings(root: HTMLElement) {
 								</div>
 							</div>
 
-							<!-- Email & Join Date Display Section -->
+		
 							<!-- DESIGN: Read-only fields with SVG icons and border animation on hover -->
 							<div class="space-y-4">
-								<!--div class="flex items-center bg-white/5 rounded-xl p-5 border-l-4 border-transparent hover:border-purple-500 transition-all duration-300">
-									<svg class="w-6 h-6 mr-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-									</svg>
-									<span class="text-gray-300 text-base font-medium" id="email_header"></span>
-									<span class="text-white text-base ml-3" id="email"></span>
-								</div-->
+								
 								<div class="flex items-center bg-white/5 rounded-xl p-5 border-l-4 border-transparent hover:border-pink-500 transition-all duration-300">
 									<svg class="w-6 h-6 mr-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -110,7 +84,7 @@ export async function renderSettings(root: HTMLElement) {
 						<!-- Security Settings Section -->
 						<!-- Update Password functionality -->
 						<!-- DESIGN: Glass-morphism card with hidden input fields that toggle on edit -->
-						<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+						<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 mt-8 border border-white/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
 							<h2 class="text-2xl font-bold text-white mb-6 flex items-center">
 								<svg class="w-7 h-7 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
@@ -130,43 +104,136 @@ export async function renderSettings(root: HTMLElement) {
 						</div>
 					</div>
 
-					<!-- ========== RIGHT COLUMN: Match History + Users List ========== -->
-					<!-- DESIGN: Takes 4/12 columns (33% width) - scrollable sections -->
-					<div class="lg:col-span-4 space-y-8">
-						
-						<!-- Match History Section -->
-						<!-- Scrollable list of past matches -->
-						<!-- DESIGN: Sticky header, max-height 350px with scroll, populated by profile.ts -->
+					<!-- ========== RIGHT COLUMN: Profile Picture ========== -->
+					<div class="lg:col-span-8">
+							<!-- DESIGN: Glass-morphism card with hover shadow effect -->
 						<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
-							<h2 class="text-2xl font-bold text-white mb-6 flex items-center sticky top-0 bg-white/10 backdrop-blur-md pb-4 -mt-2">
-								<svg class="w-7 h-7 mr-3 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-								</svg>
-								<span id="match_history_header"></span>
-							</h2>
-							<!-- DESIGN: Scrollable container with custom scrollbar styling -->
-							<div id="match-history" class="max-h-[350px] overflow-y-auto pr-2"></div>
-						</div>
-
-						<!-- Users List Section -->
-						<!-- Load more users functionality -->
-						<!-- DESIGN: Scrollable list (320px) with gradient "Load More" button -->
-						<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
-							<!-- DESIGN: User profiles populated by renderProfiles.ts -->
-							<div id="profiles-list" class="max-h-[320px] overflow-y-auto pr-2 mb-5"></div>
-							<!-- DESIGN: Multi-color gradient button (blue-purple-pink) -->
-							<button id="more-profiles-btn" class="w-full px-6 py-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white text-lg font-bold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-2xl">
-								<span id="load_more_header"></span>
-							</button>
-						</div>
-						<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
-							<button type="button" id="refresh_button" class="w-full px-6 py-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white text-lg font-bold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-2xl">refresh cookie!</button>
-							<span id="refresh_text"></span>
+							
+							<!-- Profile Picture Section -->
+							<!-- Upload, update, and delete profile picture -->
+							<!-- DESIGN: Large circular image (224px) with online indicator -->
+							<form id="upload-form" class="mb-8 w-full">
+								<div class="relative w-80 h-80 mx-auto mb-6">
+									<img id="profile_pic" src="" alt="Profile" class="w-full h-full object-cover rounded-full border-4 border-white/30 shadow-xl transition-all duration-300 hover:scale-105">
+									<div id="logged_in" class="absolute bottom-2 right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white shadow-lg animate-pulse"></div>
+								</div>
+								<input type="file" id="profile-pic-input" accept="image/*" class="hidden"/>
+								<div class="space-y-3">
+									<label for="profile-pic-input" class="block">
+										<span id="image_update_button_header" class="block text-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-lg">Choose</span>
+									</label>
+									<button type="submit" class="w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg">Upload</button>
+									<button type="button" id="delete-pic-btn" class="w-full px-6 py-3 bg-red-600 hover:bg-red-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"><span id="image_delete_button_header">Delete</span></button>
+								</div>
+							</form>
 						</div>
 					</div>
 				</div>
 			</div>
         </div>`);
 
+	
+	//===================ADD hooks to buttons======================================
+	//---------------Password Related Variables------------------------------------
+	const password_old_check = document.getElementById('password-old-check');
+	const password_new = document.getElementById('password-new');
+	const password_confirm = document.getElementById('password-confirm');
+	const password_edit_btn = document.getElementById('password-edit-btn');
+	const password_update_btn = document.getElementById('password-update-btn');
+	const password_cancel_btn = document.getElementById('password-cancel-btn');
+	//--------------Username Related Variables-------------------------------------
+	const username_update_btn = document.getElementById('username-update-btn');
+	const username_cancel_btn = document.getElementById('username-cancel-btn');
+	const username_edit_btn = document.getElementById('username-edit-btn');
 
+	const username_par_el = document.getElementById('username');
+	const username_input_el = document.getElementById('username-input');
+
+
+
+	if (password_edit_btn && password_old_check && password_new && password_confirm && password_edit_btn && password_update_btn && password_cancel_btn && username_update_btn && username_cancel_btn && username_edit_btn) {
+		password_edit_btn.addEventListener('click', () =>
+			listenerPasswordEdit(
+				password_old_check as HTMLInputElement,
+				password_new as HTMLInputElement,
+				password_confirm as HTMLInputElement,
+				password_update_btn as HTMLButtonElement,
+				password_cancel_btn as HTMLButtonElement,
+				password_edit_btn as HTMLButtonElement
+			))
+		password_cancel_btn.addEventListener('click', () =>
+			listenerPasswordCancel(
+				password_old_check as HTMLInputElement,
+				password_new as HTMLInputElement,
+				password_confirm as HTMLInputElement,
+				password_update_btn as HTMLButtonElement,
+				password_cancel_btn as HTMLButtonElement,
+				password_edit_btn as HTMLButtonElement
+			))
+		password_update_btn.addEventListener('click', async () =>
+			listenerPasswordUpdate(
+				password_old_check as HTMLInputElement,
+				password_new as HTMLInputElement,
+				password_confirm as HTMLInputElement,
+				password_update_btn as HTMLButtonElement,
+				password_cancel_btn as HTMLButtonElement,
+				password_edit_btn as HTMLButtonElement
+			));
+		username_update_btn.addEventListener('click', async () =>
+			listenerUsernameUpdate(
+				username_cancel_btn as HTMLButtonElement,
+				username_update_btn as HTMLButtonElement,
+				username_edit_btn as HTMLButtonElement,
+				username_input_el as HTMLInputElement,
+				username_par_el as HTMLInputElement
+			))
+		username_cancel_btn.addEventListener('click', () =>
+			listenerUsernameCancel(
+				username_cancel_btn as HTMLButtonElement,
+				username_update_btn as HTMLButtonElement,
+				username_edit_btn as HTMLButtonElement,
+				username_input_el as HTMLInputElement,
+				username_par_el as HTMLInputElement
+			));
+		username_edit_btn.addEventListener('click', () =>
+			listenerUsernameEdit(
+				username_cancel_btn as HTMLButtonElement,
+				username_update_btn as HTMLButtonElement,
+				username_edit_btn as HTMLButtonElement,
+				username_input_el as HTMLInputElement,
+				username_par_el as HTMLInputElement
+			));
+	}
+
+	// user is loaded on login as the first page liked to is profile. should be fine for now, otherwise fwtch again.
+	let user = getUser();
+	if (!user)
+	{
+		alert("Oh no, no user found!");
+		location.hash = '/profile';
+	}
+	else{
+
+		const pic = document.getElementById('profile-pic');
+		if (pic){
+			(pic as HTMLImageElement).src = user.image_blob ? `data:image/webp;base64,${user.image_blob}` : defaultPicture;
+		}
+		const username = document.getElementById('username');
+		if (username){
+			username.innerText = user.username;
+		}
+		const created_at = document.getElementById('created_at');
+		if (created_at){
+			created_at.innerText = `${new Date(user.created_at).toLocaleString()}`;
+		}
+		// const username = document.getElementById('username');
+		// const username = document.getElementById('username');
+		// const username = document.getElementById('username');
+		// const username = document.getElementById('username');
+		// const username = document.getElementById('username');
+		
+	}
+	
+	document.getElementById('nav_settings')?.addEventListener('click', () => { renderSettings(root) });
+	update_text(languageStore.language);
 }

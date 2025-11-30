@@ -53,7 +53,7 @@ export const listenerUploadPicture = async (e: any) => {
 			});
 
 		const result = await res.json();
-		console.log("result ====>>> FrontEnd", result);
+		// console.log("result ====>>> FrontEnd", result);
 		if (res.ok) {
 			// profile.image_blob ? `data:image/webp;base64,${profile.image_blob}` : `${BACKEND_URL}/profile_pics/${profile.image_path}`;
 			// const BACKEND_URL = getEnvVariable('VITE_BACKEND_URL');

@@ -99,7 +99,10 @@ export const translations_nav: TranslationSet =
 export const translations_profile: TranslationSet =
 {
 	EN: {
-		your_profile: 'Your Profile',
+		your_profile: 'My Profile',
+		user_list: 'Other Users',
+		friends_list:'My friends',
+		request_list:'My friend requests',
 		update: 'Update',
 		delete: 'Delete',
 		edit: 'Edit',
@@ -120,7 +123,10 @@ export const translations_profile: TranslationSet =
 		logout: 'Logout'
 	},
 	DE: {
-		your_profile: 'Dein Profil',
+		your_profile: 'Mein Profil',
+		user_list: 'Andere Spieler',
+		friends_list:'Meine Freunde',
+		request_list:'Meine Freundschaftsanfragen',
 		update: 'Aktualisieren',
 		delete: 'Löschen',
 		edit: 'Bearbeiten',
@@ -142,6 +148,9 @@ export const translations_profile: TranslationSet =
 	},
 	GR: {
 		your_profile: 'Το προφίλ σας',
+		user_list:'Άλλοι χρήστες',
+		friends_list:'Οι φίλοι μου',
+		request_list:'Τα αιτήματα φιλίας μου',
 		update: 'Ενημέρωση',
 		delete: 'Διαγραφή',
 		edit: 'Επεξεργασία',
@@ -160,6 +169,58 @@ export const translations_profile: TranslationSet =
 		match_history: 'Ιστορικό αγώνων',
 		load_more: 'Περισσότερα Προφίλ',
 		logout: 'Αποσύνδεση'
+	}
+}
+
+export const translations_settings: TranslationSet =
+{
+	EN: {
+		update: 'Update',
+		delete: 'Delete',
+		edit: 'Edit',
+		cancel: 'Cancel',
+		username: 'Username:',
+		wins: 'wins:',
+		losses: 'losses:',
+		trophies: 'trophies:',
+		joined: 'Joined:',
+		current_password_placeholder: 'Current password',
+		new_password_placeholder: 'New Password',
+		confirm_new_password_placeholder: 'Confirm New Passsword',
+		new_password_btn: 'New Password',
+		security:'Security',
+		profile_settings_header:'Profile Settings',
+	},
+	DE: {
+		update: 'Aktualisieren',
+		delete: 'Löschen',
+		edit: 'Bearbeiten',
+		cancel: 'Abbrechen',
+		username: 'Benutzername:',
+		joined: 'Beigetreten:',
+		current_password_placeholder: 'Aktuelles Passwort',
+		new_password_placeholder: 'Neues Passwort',
+		confirm_new_password_placeholder: 'Neues Passwort bestätigen',
+		new_password_btn: 'Neues Passwort',
+		security:'Sicherheit',
+		profile_settings_header:'Profil Einstellungen',
+
+		
+	},
+	GR: {
+		update: 'Ενημέρωση',
+		delete: 'Διαγραφή',
+		edit: 'Επεξεργασία',
+		cancel: 'Ακύρωση',
+		username: 'Όνομα χρήστη:',
+		joined: 'Εγγράφηκε: ',
+		current_password_placeholder: 'Τρέχων κωδικός',
+		new_password_placeholder: 'Νέος κωδικός',
+		confirm_new_password_placeholder: 'Επιβεβαίωση νέου κωδικού',
+		new_password_btn: 'Νέος Κωδικός',
+		security:'Ασφάλεια',
+		profile_settings_header:'Ρυθμίσεις Προφίλ',
+
 	}
 }
 

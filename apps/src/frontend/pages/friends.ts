@@ -11,7 +11,7 @@ export async function renderFriends(root: HTMLElement) {
 
 //   <button id="more-friends-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
 //   <button id="more-friend-requests-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
-	  root.innerHTML = renderBackgroundFull(`
+	  root.innerHTML = renderBackgroundFull( /*html*/`
 		<div class="pt-24 max-w-xl mx-auto text-black p-6">
 		  <div id="friends-list"></div>
 		  <div id="friend-requests-list"></div>

@@ -15,7 +15,7 @@ import { renderSettings } from './pages/settings.js';
 // DESIGN change: Import global language selector initializer to enable floating language toggle on all pages
 import { initGlobalLanguageSelector } from './utils/globalLanguageSelector.js';
 
-const protectedRoutes = ['#/profile', '#/friends', '#/game', '#/settings', '#/tournament','#/settings', '#/leaderboard'];
+const protectedRoutes = ['#/profile', '#/game', '#/settings', '#/tournament','#/settings', '#/leaderboard'];
 export async function router() 
 {
 	const	root = document.getElementById('app')!;
@@ -41,9 +41,6 @@ export async function router()
 					break;
 				case '#/profile': 
 					renderProfile(root);
-					break;
-				case '#/friends': 
-					renderFriends(root);
 					break;
 				case '#/leaderboard': 
 					renderLeaderboard(root);

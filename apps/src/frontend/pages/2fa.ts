@@ -15,7 +15,8 @@ export async function renderQrcode(root: HTMLElement) {
 		}
 		console.log(res);
 
-		root.innerHTML = `<div class="flex justify-center h-screen relative">
+		root.innerHTML = /*html*/`
+						<div class="flex justify-center h-screen relative">
 						<img
 							id="qrcode"
 							src="${qr}"
