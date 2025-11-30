@@ -25,7 +25,6 @@ import { Errorhandler } from './error';
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import fastifySwagger from '@fastify/swagger'
 import cookie from '@fastify/cookie'
-import { wsManager } from '../frontend/websocket/ws-manager';
 import { userManager } from './service-managers/user-manager';
 // import csrf from '@fastify/csrf-protection'
 
