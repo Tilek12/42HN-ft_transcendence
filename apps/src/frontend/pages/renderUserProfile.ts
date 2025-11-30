@@ -45,15 +45,13 @@ export const update_langauge_headers_user_profile = (lang: Language) => {
 	transelate_per_id(translations_profile, "user_list", lang, "user_list_header");
 	transelate_per_id(translations_profile, "friends_list", lang, "friend_list_header");
 	transelate_per_id(translations_profile, "request_list", lang, "friend_requests_header");
-	
-
+	transelate_per_id(translations_profile, "joined", lang, "joined_header");
 	transelate_per_id(translations_profile, "wins", lang, "wins_header");
 	transelate_per_id(translations_profile, "losses", lang, "losses_header");
 	transelate_per_id(translations_profile, "trophies", lang, "trophies_header");
-	
 	transelate_per_id(translations_profile, "match_history", lang, "match_history_header");
-	
 	transelate_per_id(translations_profile, "load_more", lang, "load_more_header");
+	transelate_per_id(translations_profile, "username", lang, "username_header");
 
 
 }
@@ -81,10 +79,10 @@ export function renderUserProfile()
 	let res : string = renderBackgroundFull(
 		/*html*/
 		`
-		<div class="min-h-screen">
+		<div class="min-h-screen lg:w-2/3 lg:h-8/10">
 			<div class="max-w m-8">
 				<!-- DESIGN: 3-column responsive grid using Tailwind's 12-column system -->
-				<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 ">
+				<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full ">
 					
 					<!-- ========== LEFT COLUMN: Profile Picture + Stats + Logout ========== -->
 					<!-- DESIGN: Takes 3/12 columns (25% width) -->
