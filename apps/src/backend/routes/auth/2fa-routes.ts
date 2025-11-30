@@ -76,11 +76,13 @@ const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			async (req, res) => {
 				try {
 					const jwt = req.headers['verifyjwt'] as string | undefined;
+					console.log(jwt);
 					let payload: JWTPayload;
 					if (!jwt) {
 						throw new Error('NO_TOKEN')
 					} else {
 						payload = fastify.jwt.verify(jwt) as JWTPayload; //throws on invalid
+						console.log("payload: ", payload);
 						if (payload.type !== Jwt_type.verify){
 							throw new Error('INCORRECT_JWT');
 						}
@@ -111,6 +113,7 @@ const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 					}
 				}
 				catch (e: any) {
+					console.log(e);
 					return res.status(401).send({ message: e.message });
 				}
 			});
