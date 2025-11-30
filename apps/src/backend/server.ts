@@ -15,7 +15,8 @@ import authRoutes from './routes/auth/auth-routes';
 import tfa_Routes from './routes/auth/2fa-routes';
 import userRoutes from './routes/api/user-routes';
 import profileRoutes from './routes/api/profile-routes';
-// import matchRoutes from './routes/api/match-routes';
+import matchRoutes from './routes/api/match-routes';
+import tournamentRoutes from './routes/api/tournament-routes'
 
 import wsGamePlugin from './routes/ws/game-ws';
 import wsPresencePlugin from './routes/ws/presence-ws';
@@ -82,6 +83,13 @@ const server = Fastify({
 //   }, 'Response payload');
 //   return payload; 
 // });
+
+server.addHook('preValidation', async (request, reply) => {
+  server.log.info({
+    reqBody: request.body
+  }, 'Response payload');
+  return request;   
+});
 
 const jwtOpts: FastifyJWTOptions = {
 	secret: JWT_SECRET,
@@ -153,8 +161,8 @@ async function main() {
 		await protectedScope.register(protected_validate_hook);		// Middleware checking token
 		await protectedScope.register(userRoutes);					// Protected routes: /api/private/me
 		await protectedScope.register(profileRoutes);				// Protected routes: /api/private/profile
-		//await protectedScope.register(tournamentRoutes);			// Protected routes: /api/private/tournaments
-		// await protectedScope.register(matchRoutes);				// Protected routes: /api/private/match
+		await protectedScope.register(tournamentRoutes);			// Protected routes: /api/private/tournaments
+		await protectedScope.register(matchRoutes);				// Protected routes: /api/private/match
 	}, { prefix: '/api/private' });
 
 	// WebSocket routes

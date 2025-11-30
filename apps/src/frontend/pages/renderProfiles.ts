@@ -1,25 +1,25 @@
-import { apiFetch, getUser} from '../utils/auth.js'
-
+import { apiFetch, getUser } from '../utils/auth.js'
+import { defaultPicture } from '../utils/constants.js';
 import { wsManager } from '../websocket/ws-manager.js';
-import {languageStore, translations_friends} from './languages.js';
+import { languageStore, translations_friends } from './languages.js';
 
 
-let lastPresence : any[] | undefined = [];
-let all_profiles_length : number |undefined = 0;
+let lastPresence: any[] | undefined = [];
+let all_profiles_length: number | undefined = 0;
 
-export type AllProfileWithLimitAndOffset = 
-{
-	AllProfiles : any[] | undefined,
-	limit : number,
-	offset : number,
-	already_parsed ?: boolean | undefined
-};
+export type AllProfileWithLimitAndOffset =
+	{
+		AllProfiles: any[] | undefined,
+		limit: number,
+		offset: number,
+		already_parsed?: boolean | undefined
+	};
 export type return_on_render = {
-	allProfiles: {profiles: any[]}[] | undefined, 
-	already_parsed : boolean | undefined
+	allProfiles: { profiles: any[] }[] | undefined,
+	already_parsed: boolean | undefined
 }
-const friend_request_action = (is_friend: number, peding_direction : string, other_profile_id: number) => {
-	let res : string = '';
+const friend_request_action = (is_friend: number, peding_direction: string, other_profile_id: number) => {
+	let res: string = '';
 	if (is_friend)
 		res =/*html*/` 
         <button 
@@ -30,8 +30,7 @@ const friend_request_action = (is_friend: number, peding_direction : string, oth
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"></path>
 			</svg>
         </button>`;
-	else
-	{
+	else {
 		if (peding_direction == null)
 			res = /*html*/`<button data-profile-id = "${other_profile_id}" class="link-btn px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-xl transform hover:scale-110 group">
 				<svg class="w-5 h-5 transition-transform duration-300 group-hover:-translate-y-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,9 +46,9 @@ const friend_request_action = (is_friend: number, peding_direction : string, oth
 	}
 	return res
 }
-const block_action = (is_blocking : number, other_profile_id: number) => {
-	let res : string = '';
-	if(!is_blocking)
+const block_action = (is_blocking: number, other_profile_id: number) => {
+	let res: string = '';
+	if (!is_blocking)
 		res = /*html*/`<button data-profile-id = "${other_profile_id}" class="block-btn px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-xl transform hover:scale-110 group">
 			<svg class="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
@@ -64,27 +63,25 @@ const block_action = (is_blocking : number, other_profile_id: number) => {
 	return res
 }
 
-const remove_load_btn = async (offset_pr: number, limit_pr: number, res_async : any, remove_reload_button ?:boolean) : Promise<boolean>=>
-{
-	offset_pr+=limit_pr;
+const remove_load_btn = async (offset_pr: number, limit_pr: number, res_async: any, remove_reload_button?: boolean): Promise<boolean> => {
+	offset_pr += limit_pr;
 	// console.log("im Hereeeeeeeeeee: ");
 	// console.log("offset: ", offset_pr);
 	// console.log("limit_pr: ", limit_pr);
-	res_async = await apiFetch(`/api/private/parse-profiles?offset=${offset_pr}&limit=${limit_pr}`,{
-							method: 'GET',
-							credentials: 'include',
-							});
-	let newProfiles : {profiles : any[]} = await res_async.json();
+	res_async = await apiFetch(`/api/private/parse-profiles?offset=${offset_pr}&limit=${limit_pr}`, {
+		method: 'GET',
+		credentials: 'include',
+	});
+	let newProfiles: { profiles: any[] } = await res_async.json();
 	return newProfiles.profiles.length === 0
 }
 
-const array_to_html = (profile : any,  profiles_len?: number) : string =>
-{
+const array_to_html = (profile: any, profiles_len?: number): string => {
 	let is_connected;
-	const listUsers :any[] | undefined = wsManager.presenceUserList.map((u)=> u.name);
+	const listUsers: any[] | undefined = wsManager.presenceUserList.map((u) => u.name);
 	is_connected = listUsers.includes(profile.username);
-	
-	const profile_pic_src = profile.image_blob ? `data:image/webp;base64,${profile.image_blob}` : `/profile_pics/${profile.image_path}`;
+
+	const profile_pic_src = profile.image_blob ? `data:image/webp;base64,${profile.image_blob}` : `${defaultPicture}`;
 	return /*html*/`<div class="flex items-center justify-between bg-white/10 backdrop-blur-md p-5 rounded-xl shadow-xl mb-4 border border-white/20 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)] hover:bg-white/15 hover:border-blue-400/50 group">
 				<div class="flex items-center space-x-4">
 					<div class="relative">
@@ -125,35 +122,31 @@ const array_to_html = (profile : any,  profiles_len?: number) : string =>
 			`;
 }
 
-export async function renderProfilesList (
-	element_id : string, 
-	load: boolean,  
-	allProfiles: {profiles: any[]}[] | undefined,
-	offset:number, 
-	limit:number, actionBtn ?: boolean,
-	already_parsed ?: boolean | undefined)  : 
-	Promise<return_on_render | undefined>
-{
+export async function renderProfilesList(
+	element_id: string,
+	load: boolean,
+	allProfiles: { profiles: any[] }[] | undefined,
+	offset: number,
+	limit: number, actionBtn?: boolean,
+	already_parsed?: boolean | undefined):
+	Promise<return_on_render | undefined> {
 	//profiles-list
-	let return_res : AllProfileWithLimitAndOffset;
-	const container  = document.getElementById(element_id);
-	
+	let return_res: AllProfileWithLimitAndOffset;
+	const container = document.getElementById(element_id);
+
 	let remove_load_button = false;
 	let old_limit = limit;
 	let old_offset = offset;
-	let res : any;
-	languageStore.subscribe( async ()=>
-	{
+	let res: any;
+	languageStore.subscribe(async () => {
 		res = await renderProfilesList(element_id, load, allProfiles, offset, limit);
 		allProfiles = res.AllProfiles;
 	})
 	if (!container)
 		return;
-	const user = getUser();
-	try
-	{
-		if(!load && !already_parsed)
-		{
+
+	try {
+		if (!load && !already_parsed) {
 			limit = offset + limit;
 			offset = 0;
 		}
@@ -161,66 +154,63 @@ export async function renderProfilesList (
 		// offset = 0;
 		// if (limit != old_limit)
 		// console.log(`offset: ${offset} and limit: ${limit}`);
-		if (!already_parsed || load)
-		{
-			res = await apiFetch(`/api/private/parse-profiles?offset=${offset}&limit=${limit}`,{
-							method:'GET',
-							credentials:'include',				
-						});
+		if (!already_parsed || load) {
+			res = await apiFetch(`/api/private/parse-profiles?offset=${offset}&limit=${limit}`, {
+				method: 'GET',
+				credentials: 'include',
+			});
 			already_parsed = true;
 		}
 		if (actionBtn == true)
-			allProfiles =[];
-		let newProfiles : {profiles : any[]} = await res.json();
+			allProfiles = [];
+		let newProfiles: { profiles: any[] } = await res.json();
 		// console.log("newProfiles: ", newProfiles);
 		// console.log("allProfiles: ", allProfiles);
 		// if (limit != old_limit)
-			if(already_parsed && !load)
-				allProfiles = [];
-			allProfiles = allProfiles?.concat(newProfiles);
-			if (!load)
-				already_parsed = true;
+		if (already_parsed && !load)
+			allProfiles = [];
+		allProfiles = allProfiles?.concat(newProfiles);
+		if (!load)
+			already_parsed = true;
 		// console.log("allProfiles after concat: ",allProfiles);
 		remove_load_button = await remove_load_btn(offset, limit, res);
 		if (remove_load_button) document.getElementById('more-profiles-btn')?.remove();
 		let html = ``;
 		// console.log("All Profiles are existing : " allProfiles ? )
-		if (allProfiles)
-		{
+		if (allProfiles) {
 			// console.log("NOW I'M HEREEEEEE inside", allProfiles);
-			const print = allProfiles.map((pr : any) => html+= pr.profiles.filter((profile : any)=> !profile.is_blocked).map((profile: any) =>
+			const print = allProfiles.map((pr: any) => html += pr.profiles.filter((profile: any) => !profile.is_blocked).map((profile: any) =>
 				array_to_html(profile, allProfiles?.length)).join(' '));
 			// console.log("NOW I'M HEREEEEEE is printing?", print);
 		}
-		container.innerHTML = `<h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+		container.innerHTML = /*html*/`<h2 class="text-2xl font-bold text-white mb-6 flex items-center">
 			<svg class="w-6 h-6 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
 			</svg>
 			Users List
 		</h2>` + html;
 		// console.log(`before the set on RENDER PROFILES LIST +++`, allProfiles)
-		allProfiles?.map((all) => all.profiles?.map((pr)=> {pr.logged_in = wsManager.presenceUserList.map((u)=> u.name).includes(pr.username); return pr;}));
+		allProfiles?.map((all) => all.profiles?.map((pr) => { pr.logged_in = wsManager.presenceUserList.map((u) => u.name).includes(pr.username); return pr; }));
 		// console.log("HERE CHECK AFTER THE SECOND MAP");
-		allProfiles?.map((all) => all.profiles?.forEach((pr) =>
-			{
-				// console.log(`changing on profile lists ${pr.username} to ${pr.logged_in}`);
-				// console.log("===>>", document.getElementById(`profiles-loggin-state-${pr.username}`));
-				const profile_loggin_state = document.getElementById(`profiles-loggin-state-${pr.username}`) as HTMLSpanElement;
-				if(profile_loggin_state) {
-					profile_loggin_state.classList.remove('bg-green-500', 'bg-gray-400', 'animate-pulse');
-					if (pr.logged_in) {
-						profile_loggin_state.classList.add('bg-green-500', 'animate-pulse');
-					} else {
-						profile_loggin_state.classList.add('bg-gray-400');
-					}
+		allProfiles?.map((all) => all.profiles?.forEach((pr) => {
+			// console.log(`changing on profile lists ${pr.username} to ${pr.logged_in}`);
+			// console.log("===>>", document.getElementById(`profiles-loggin-state-${pr.username}`));
+			const profile_loggin_state = document.getElementById(`profiles-loggin-state-${pr.username}`) as HTMLSpanElement;
+			if (profile_loggin_state) {
+				profile_loggin_state.classList.remove('bg-green-500', 'bg-gray-400', 'animate-pulse');
+				if (pr.logged_in) {
+					profile_loggin_state.classList.add('bg-green-500', 'animate-pulse');
+				} else {
+					profile_loggin_state.classList.add('bg-gray-400');
 				}
+			}
 		}));
 		// console.log("===================HERE CHECK AFTER THE LAST MAP=========================");
-		return_res = {AllProfiles : allProfiles, limit : limit, offset : offset, already_parsed :already_parsed};
-		const r_on_r : return_on_render = {allProfiles : return_res.AllProfiles, already_parsed : return_res.already_parsed };
+		return_res = { AllProfiles: allProfiles, limit: limit, offset: offset, already_parsed: already_parsed };
+		const r_on_r: return_on_render = { allProfiles: return_res.AllProfiles, already_parsed: return_res.already_parsed };
 		// console.log("===========r_on_r for check:=========== ", r_on_r);
 		return r_on_r;
-	} catch (err){
+	} catch (err) {
 		console.error('Failed to fetch profiles: ', err);
 	}
 }

@@ -132,7 +132,7 @@ class WebSocketManager {
 					const user_list = document.getElementById('active-users-count');
 					const status2 = document.getElementById('logged_in');
 					if (status_symbol){
-						status_symbol.classList.remove('bg-green-400');						status_symbol.classList.remove('bg-green-400');
+						status_symbol.classList.remove('bg-green-400');	
 						status_symbol.classList.add('bg-red-400');
 					}
 					if (user_list)user_list.innerText = 'Connection lost...';

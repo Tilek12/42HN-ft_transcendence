@@ -1,7 +1,7 @@
 
 import { getUser, clearUser, setUser, apiFetch } from '../utils/auth.js'
 import { renderProfilesList } from './renderProfiles.js';
-import { renderUserProfile, profile_ids, update_langauge_headers_user_profile } from './renderUserProfile.js';
+import { renderUserProfile, fill_profile_info, update_langauge_headers_user_profile } from './renderUserProfile.js';
 import type { Profile_details } from './renderUserProfile.js';
 import { listenerFriendAndBlock } from './ListenerProfileList.js';
 import { listenerDeletePicture, listenerUploadPicture } from './listenerUploadAndDeletePicture.js';
@@ -112,7 +112,7 @@ export async function renderProfile(root: HTMLElement) {
 			const username_par_el 		= document.getElementById('username') 				as HTMLParagraphElement;
 			const username_input_el 	= document.getElementById('username-input') 		as HTMLInputElement;
 
-			profile_ids(user);
+			fill_profile_info(user);
 			update_langauge_headers_user_profile(languageStore.language);
 
 			document.getElementById('nav_profile')?.addEventListener('click', () => { nav_profile_clicked = true; });
@@ -120,7 +120,7 @@ export async function renderProfile(root: HTMLElement) {
 				const r_on_r = await renderProfilesList('profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit, already_parsed);
 				ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
 				// console.log("THE PROFILES ON LOAD+++++",ref_obj_allProfiles.allProfiles);
-				console.log("check render what is returning: ++++ ONLOAD", renderCheckerForProfiles());
+				// console.log("check render what is returning: ++++ ONLOAD", renderCheckerForProfiles());
 				already_parsed = r_on_r?.already_parsed;
 			})();
 
@@ -185,7 +185,8 @@ export async function renderProfile(root: HTMLElement) {
 			));
 			//----------------load pagination process--------------------------------------
 			document.getElementById('profiles-list')?.addEventListener
-				('click', async (e) => { ref_obj_allProfiles.allProfiles = await listenerFriendAndBlock(e, 'profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit) });
+				('click', async (e) => {
+					ref_obj_allProfiles.allProfiles = await listenerFriendAndBlock(e, 'profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit) });
 			document.getElementById('upload-form')?.addEventListener
 				('submit', async (e) => listenerUploadPicture(e));
 			document.getElementById('delete-pic-btn')?.addEventListener

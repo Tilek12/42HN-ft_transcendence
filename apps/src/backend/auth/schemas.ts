@@ -132,7 +132,7 @@ export const ProfileIdSchema =
 			type: 'object',
 			required: ['profileId'],
 			properties: {
-				profileId: { type: 'string', pattern: '^[0-9]+$ ', minLength: 1 },
+				profileId: { type: 'string', pattern: '^\d+$' },
 			},
 		}
 	} as const;

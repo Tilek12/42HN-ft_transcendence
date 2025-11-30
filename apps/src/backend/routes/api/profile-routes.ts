@@ -287,7 +287,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 				));
 			// console.log(' Here ----->> BackEnd : ', profilesWithFriendFlag);
 			res.send({ profiles: profilesWithFriendFlag });
-			console.log(profilesWithFriendFlag);
+			// console.log(profilesWithFriendFlag);
 		} catch (err) {
 			res.status(400).send({ message: 'Unauthorized parse_profiles' });
 			console.log(err);

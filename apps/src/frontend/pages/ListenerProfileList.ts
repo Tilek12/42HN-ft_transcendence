@@ -1,5 +1,6 @@
 
 import { apiFetch, getUser} from '../utils/auth.js'
+import { renderProfilesList } from './renderProfiles.js';
 
 
 const asyncFriendRequestHandler = async (endpoint: string, profile_id:string ) =>
@@ -59,7 +60,7 @@ export const listenerFriendAndBlock = async (event : any, element_id : string, l
 
 		if (res.ok) {
 			// I need the Id as offeset and as limit 1 and I ll replace the updated version with the all one
-			// return renderProfilesList(element_id, false, allProfiles, offset, limit, true);
+			return renderProfilesList(element_id, false, allProfiles, offset, limit, true) as any;
 		} else {
 			alert(data.message || 'Failed to perform the action');
 		}
