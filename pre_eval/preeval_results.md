@@ -29,7 +29,7 @@
 |**User Management modules**|TODO
 |**Gameplay and user experience modules** | **major module (1):  2 Remote players on separate computers** |❌|❌| click play online button-> very often when the paddle hits the ball, the game reacts if I did not hit the ball and the ball starts from the middle of the game
 | **AI-Algo modules**	| **minor module (0.5): User and Game Stats Dashboards** |❌|❌| on profile page: https://10.12.6.4:8080/#/profile: number of wins, number of losses, number of trophies works, match history table is not visible
- **Cybersecurity modules** | **major module (1): Two-Factor Authentication (2FA) and  JSON Web Tokens (JWT)** ||| 2FA: additional layer of security  with secondary verification method with "Google authenticator smartphone app"<br>Login works. But logout and login again says ""
+ **Cybersecurity modules** | **major module (1): Two-Factor Authentication (2FA) and  JSON Web Tokens (JWT)** ||| 2FA: additional layer of security  with secondary verification method with "Google authenticator smartphone app"<br>Login works. logout and login again works
  <br><br>JWT: authentication and authorization
 
 
