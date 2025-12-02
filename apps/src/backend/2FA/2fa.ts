@@ -2,13 +2,13 @@ import QRCode from 'qrcode'
 import * as OTPAuth from 'otpauth';
 
 
-const issuer:string = "Linda, Thomas, Rustam, Tilek, Philipp";
-const label:string = "Transcendence 42Heilbronn 2025";
 
-export async function generateqrcode(secret: string):Promise<string> {
+const label:string = "Transcendence 42Heilbronn 2025" as const;
+
+export async function generateqrcode(username:string, secret: string):Promise<string> {
 
 	let totp = new OTPAuth.TOTP({
-		issuer: issuer,
+		issuer: username,
 		label: label,
 		issuerInLabel: false,
 		secret: OTPAuth.Secret.fromBase32(secret),
@@ -26,8 +26,8 @@ export function generateSecret():string {
 
 export function validate_2fa_token(token:string, secret:string):boolean
 {
-	console.log("token: ", token);
-	console.log("secret: ", secret);
+	// console.log("token: ", token);
+	// console.log("secret: ", secret);
 	const totp = new OTPAuth.TOTP({secret: OTPAuth.Secret.fromBase32(secret)});
 	// console.log("token gotten:", token);
 	const delta = totp.validate({token, window: 1});

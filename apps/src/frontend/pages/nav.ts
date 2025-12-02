@@ -1,6 +1,6 @@
 import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore, transelate_per_id, translations_nav } from './languages.js';
-import { getUser, clearUser } from '../utils/auth.js'
+import { getUser, clearUser, apiFetch } from '../utils/auth.js'
 import { renderConnectionErrorPage } from './error.js';
 
 
@@ -71,7 +71,7 @@ const listenerLogoutBtn = async (e: any) => {
 		try {
 			// if (!getUser())
 			// 	return;
-			const resp = await fetch('/api/logout',
+			const resp = await apiFetch('/api/logout',
 				{
 					method: 'POST',
 					credentials: 'include',

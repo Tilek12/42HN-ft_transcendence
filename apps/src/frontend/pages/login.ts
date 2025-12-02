@@ -216,7 +216,8 @@ export function renderLogin(root: HTMLElement) {
                 placeholder="${login_translation.tfa_placeholder}" 
                 pattern="[0-9]{6}" 
 				autofocus
-                maxlength="6" 
+                maxlength="6"
+				minlentgh="6"
                 oninput="this.value = this.value.replace(/\D/g, '')" 
                 class="w-full bg-white/5 border border-white/10 text-white text-center text-3xl tracking-[0.5em] px-5 py-4 rounded-xl focus:outline-none focus:border-purple-500/50 focus:bg-white/10 placeholder-gray-600 transition-all duration-300"
               />
@@ -225,7 +226,7 @@ export function renderLogin(root: HTMLElement) {
                 type="submit" 
                 class="relative w-full group rounded-xl"
               >
-                <div class="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600"></div>
+                <div class="absolute ronded-xl inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600"></div>
                 <span class="relative flex items-center justify-center px-6 py-4 text-white font-semibold">
                   ${login_translation.sign_in_btn}
                 </span>
@@ -459,7 +460,7 @@ export function renderLogin(root: HTMLElement) {
 					form.classList.add('hidden');
 					const tfa_container = document.getElementById('tfa_container') as HTMLFormElement;
 					if (!tfa_container)
-						throw new Error("no tfa_container");
+						throw new Error('no tfa_container');
 					tfa_container.classList.remove('hidden');
 
 					tfa_container.addEventListener('submit', async (e) => {
@@ -579,7 +580,7 @@ export function renderLogin(root: HTMLElement) {
 							'Content-Type': 'application/json',
 							'enablejwt': `${response_data.enablejwt}`,
 						},
-						body: JSON.stringify({})
+						
 					});
 					if (!res.ok) {
 						throw new Error("2FA_ENABLE_FAILED")

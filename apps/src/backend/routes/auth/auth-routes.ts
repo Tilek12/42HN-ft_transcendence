@@ -38,13 +38,13 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 				}
 				const hashed = await hashPassword(password);
 
-				await createUser(username, hashed, tfa ? true : false);
+				await createUser(username, hashed, false);
 				const user = await findUserByUsername(username);
 				await createProfile(username);
 				if (!user)
 					return res.status(500).send({ message: "DATABASE_ERROR" });
 				let token: string;
-				if (user.tfa) {
+				if (tfa) {
 					token = generateToken(user, Jwt_type.enable, '5min');
 					
 					res.status(200).send({ enablejwt:token, tfa: true });
@@ -54,14 +54,14 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 					setAccessCookie(generateToken(user, Jwt_type.access, '5min'), res);
 					setRefreshCookie(token, res);
 					await log_in(user.id, token);
-					res.status(200).send({ tfa: false });
+					return res.status(200).send({ tfa: false });
 				}
-				setTimeout(() => {
+				setTimeout(async() => {
 					if (user.tfa)
 					{
-						const test = findUserById(user.id);
+						const test = await findUserById(user.id);
 						fastify.log.warn('[ REGISTER ] DELETING USER: registered 2fa but didnt validate in time')
-						if (!user.is_logged_in)
+						if (test && !test.is_logged_in)
 							deleteUser(user.id);
 					}
 					

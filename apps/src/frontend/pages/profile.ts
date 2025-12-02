@@ -124,12 +124,7 @@ export async function renderProfile(root: HTMLElement) {
 				('click', async (e) => {
 					ref_obj_allProfiles.allProfiles = await listenerFriendAndBlock(e, 'profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit)
 				});
-			document.getElementById('upload-form')?.addEventListener
-				('submit', async (e) => listenerUploadPicture(e));
-
-			document.getElementById('delete-pic-btn')?.addEventListener
-				('click', async (e) => listenerDeletePicture(e));
-
+			
 
 			// renders match history
 			//==================Linda's code==========================

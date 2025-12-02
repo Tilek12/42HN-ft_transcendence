@@ -51,7 +51,7 @@ export function transelate_per_id(tr_set: TranslationSet, key: string, lang: Lan
 				headerEl.placeholder = value;
 			}
 			else
-				headerEl.innerHTML = value;
+				headerEl.innerText = value;
 		}
 	}
 }
@@ -197,7 +197,10 @@ export const translations_settings: TranslationSet =
 		tfa_status_disabled: 'Disabled',
 		tfa_enable_header: 'Enable TOTP 2 Factor Authentification',
 		tfa_disable_header: 'Disable 2 Factor Authentifiation',
+		tfa_disable_headline: 'To disable 2FA enter your password and TOTP from authenticator',
+		tfa_enable_headline: 'To enable 2FA scan this QR code with your autheticator and enter the TOTP code',
 		tfa_token_placeholder: '6 digit code',
+		password_placeholder: 'Password',
 		tfa_submit: 'Submit',
 	},
 	DE: {
@@ -220,7 +223,10 @@ export const translations_settings: TranslationSet =
 		tfa_status_disabled: 'Deaktiviert',
 		tfa_enable_header: 'Aktiviere TOTP 2 Faktor Authentifizierung',
 		tfa_disable_header: 'Deaktiviere 2 Faktor Authentifizierung',
+		tfa_disable_headline: 'Um 2FA zu deaktivieren gib bitte dein Passwort und den TOTP Code aus dem Authenticator ein.',
+		tfa_enable_headline: 'Um 2FA zu aktivieren scanne diesen QR code mit dem Authenticator und gib den TOTP Code daraus ein.',
 		tfa_token_placeholder: '6 stelliger Code',
+		password_placeholder: 'Passwort ',
 		tfa_submit: 'Bestätigen',
 
 	},
@@ -244,7 +250,10 @@ export const translations_settings: TranslationSet =
 		tfa_status_disabled: 'Απενεργοποιημένο',
 		tfa_enable_header: 'Ενεργοποίηση επαλήθευσης δύο παραγόντων (TOTP)',
 		tfa_disable_header: 'Απενεργοποίηση επαλήθευσης δύο παραγόντων (TOTP)',
+		tfa_disable_headline: 'Για να απενεργοποιήσετε την 2FA, εισαγάγετε τον κωδικό σας και τον TOTP από την εφαρμογή επαλήθευσης.',
+		tfa_enable_headline: 'Για να ενεργοποιήσετε την 2FA, σκανάρετε αυτό το QR κώδικα με την εφαρμογή αυθεντικοποίησης σας και εισαγάγετε τον κωδικό TOTP.',
 		tfa_token_placeholder: '6ψήφιος κωδικός',
+		password_placeholder: 'Κωδικός',
 		tfa_submit: 'Υποβολή',
 	}
 }

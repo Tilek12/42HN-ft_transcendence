@@ -1,10 +1,11 @@
 import { Language } from '../types.js';
-import { apiFetch, fetchUser, getUser } from '../utils/auth.js';
+import { apiFetch, fetchUser, getUser, setUser } from '../utils/auth.js';
 import { defaultPicture } from '../utils/constants.js';
 import { renderBackgroundFull } from '../utils/layout.js'
 import { renderConnectionErrorPage } from './error.js';
-import { languageStore, transelate_per_id, translations_settings, translations_login_page } from './languages.js';
+import { languageStore, transelate_per_id, translations_settings, translations_login_page, translations_register_page } from './languages.js';
 import { listenerPasswordCancel, listenerPasswordEdit, listenerPasswordUpdate, listenerUsernameCancel, listenerUsernameEdit, listenerUsernameUpdate } from './listenerUpdatePasswordAndUsername.js';
+import { listenerDeletePicture, listenerUploadPicture } from './listenerUploadAndDeletePicture.js';
 
 
 
@@ -27,14 +28,30 @@ const update_text = (lang: Language) => {
 	transelate_per_id(translations_settings, "new_password_placeholder", lang, "password-new");
 	transelate_per_id(translations_settings, "confirm_new_password_placeholder", lang, "password-confirm");
 	transelate_per_id(translations_settings, "profile_settings_header", lang, "profile_settings_header");
-	transelate_per_id(translations_settings, "tfa_enable_header", lang, "tfa_enable_header");
-	transelate_per_id(translations_settings, "tfa_disable_header", lang, "tfa_disable_header");
-	transelate_per_id(translations_settings, "tfa_status_enabled", lang, "tfa_status_enabled");
-	transelate_per_id(translations_settings, "tfa_status_disabled", lang, "tfa_status_disabled");
-	transelate_per_id(translations_login_page, "tfa_placeholder", lang, "tfa_token_input");
-	transelate_per_id(translations_settings, "tfa_submit", lang, "tfa_submit_header");
-	transelate_per_id(translations_login_page, "tfa_label", lang, "tfa_label");
+
+
+	// general 2FA
+	transelate_per_id(translations_settings, "tfa_token_placeholder", lang, "tfa_enable_token_input");
+	transelate_per_id(translations_settings, "tfa_token_placeholder", lang, "tfa_disable_token_input");
 	transelate_per_id(translations_settings, "tfa_header", lang, "tfa_header");
+
+	//2FA BUTTON
+	transelate_per_id(translations_settings, "tfa_enable_header", lang, "tfa_enable_header"); //Button
+	transelate_per_id(translations_settings, "tfa_status_enabled", lang, "tfa_status_enabled");
+
+	transelate_per_id(translations_settings, "tfa_disable_header", lang, "tfa_disable_header");//Button
+	transelate_per_id(translations_settings, "tfa_status_disabled", lang, "tfa_status_disabled");
+
+
+	//2FA ENABLE CONTAINER
+	transelate_per_id(translations_settings, "tfa_submit", lang, "tfa_enable_submit_header");
+	transelate_per_id(translations_settings, "tfa_enable_headline", lang, "tfa_enable_container_label");
+
+	// 2FA DISABLE CONTAINER
+	transelate_per_id(translations_settings, "tfa_submit", lang, "tfa_disable_submit_header");
+	transelate_per_id(translations_settings, "tfa_disable_headline", lang, "tfa_disable_container_label");
+	transelate_per_id(translations_settings, "password_placeholder", lang, "tfa_password_input");
+
 
 
 };
@@ -128,7 +145,7 @@ export async function renderSettings(root: HTMLElement) {
 								</h2>
 								<div class="flex space-x-3">
 									<button id="tfa_enable_btn" class="flex-1 px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-md"><span id="tfa_enable_header"></span></button>
-									<button id="tfa_disable_btn" class="hidden flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-md"><span id="tfa_disable_header"></span></button>
+									<button id="tfa_disable_btn" class="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-md"><span id="tfa_disable_header"></span></button>
 								</div>
 							</div>
 						</div>
@@ -138,50 +155,90 @@ export async function renderSettings(root: HTMLElement) {
 					<!-- ========== RIGHT COLUMN: Profile Picture ========== -->
 					<div class="lg:col-span-8">
 							<!-- DESIGN: Glass-morphism card with hover shadow effect -->
-						<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+						<div class="bg-white/10 items-center backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
 							
 							<!-- Profile Picture Section -->
 							<!-- Upload, update, and delete profile picture -->
 							<!-- DESIGN: Large circular image (224px) with online indicator -->
-							<form id="upload-form" class="mb-8 w-full ">
-								<div class="relative w-80 h-80 mx-auto mb-6">
-									<img id="profile-pic" src="" alt="Profile" class="w-full h-full object-cover rounded-full border-4 border-white/30 shadow-xl transition-all duration-300 hover:scale-105">
-									<div id="logged_in" class="absolute bottom-2 right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white shadow-lg animate-pulse"></div>
-								</div >
-								<div id="profile_pic_update_container" class="" >
+							<div class="relative w-80 h-80 mx-auto mb-6">
+								<img id="profile-pic" src="" alt="Profile" class="w-full h-full object-cover rounded-full border-4 border-white/30 shadow-xl transition-all duration-300 hover:scale-105">
+								<div id="logged_in" class="absolute bottom-2 right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white shadow-lg animate-pulse"></div>
+							</div >
+							<div id="profile_pic_update_container" class="flex justify-center items-center">
+								<form id="upload-form" class="w-full flex justify-center">
 									<input type="file" id="profile-pic-input" accept="image/*" class="hidden"/>
-									<div class="space-y-3 ">
-										<label for="profile-pic-input" class="block w-1/2">
+									<div class="space-y-3 w-1/2 ">
+										<label for="profile-pic-input" class="">
 											<span id="image_choose_button_header" class="block text-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-lg"></span>
 										</label>
-										<button type="submit" class="w-1/2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"><span id="image_update_button_header"></span></button>
-										<button type="button" id="delete-pic-btn" class="w-1/2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"><span id="image_delete_button_header"></span></button>
+										<button type="submit" class="w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"><span id="image_update_button_header"></span></button>
+										<button type="button" id="delete-pic-btn" class="w-full px-6 py-3 bg-red-600 hover:bg-red-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"><span id="image_delete_button_header"></span></button>
 									</div>
+								</form>
+							</div>
+								
+								<div id="tfa_enable_container" class="justify-center hidden">
+						
+									<form id="tfa_enable_form" >
+										<h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+											<svg class="w-7 h-7 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+											</svg>
+											<span id="tfa_enable_container_label"class=""></span>
+										</h2>
+										<input
+										id="tfa_enable_token_input"
+										type="text"
+										pattern="[0-9]{6}"
+										autofocus
+										required
+										inputmode="numeric"
+										autocomplete="one-time-code"
+										maxlength="6"
+										oninput="this.value = this.value.replace(/\\D/g, '')"
+										class="w-1/2 bg-white/5 border border-white/10 text-white text-center text-2xl tracking-[0.5em] px-5 py-4 rounded-xl focus:outline-none focus:border-purple-500/50 focus:bg-white/10 placeholder-white-600 transition-all duration-300"
+										/>
+										<button id="tfa_enable_submit_btn" type="submit" class="relative w-1/2 group rounded-xl mt-2">
+											<div class="absolute rounded-xl inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600"></div>
+											<span id="tfa_enable_submit_header" class="relative flex items-center justify-center px-6 py-4 text-white font-semibold"></span>
+										</button>
+									</form>
 								</div>
-								<div id="tfa_container" class="justify-center hidden">
-									<form id="2fa_form" >
+								<div id="tfa_disable_container" class="justify-center hidden">
+									<form id="tfa_disable_form" >
 										<h2  class="text-2xl font-bold text-white mb-6 flex items-center">
 											<svg class="w-7 h-7 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
 											</svg>
-											<span id="tfa_label"></span>
+											<span id="tfa_disable_container_label"></span>
 										</h2>
-									<input
-										id="tfa_token_input"
+										<input 
+										id="tfa_password_input"
+										type="password" 
+										autofocus 
+										required
+										minlength="8"
+										class="w-1/2 bg-white/5 border mb-2 border-white/10 text-white text-center text-2xl tracking-[0.5em] px-5 py-4 rounded-xl focus:outline-none focus:border-purple-500/50 focus:bg-white/10 placeholder-white-600 transition-all duration-300"
+										/>
+										<input
+										id="tfa_disable_token_input"
 										type="text"
 										pattern="[0-9]{6}"
 										autofocus
+										required
+										inputmode="numeric"
+										autocomplete="one-time-code"
 										maxlength="6"
 										oninput="this.value = this.value.replace(/\\D/g, '')"
-										class="w-1/2 bg-white/5 border border-white/10 text-white text-center text-3xl tracking-[0.5em] px-5 py-4 rounded-xl focus:outline-none focus:border-purple-500/50 focus:bg-white/10 placeholder-white-600 transition-all duration-300"
-									/>
-									<button id="tfa_submit_btn" type="submit" class="relative w-1/2 group rounded-xl mt-2">
-										<div class="absolute rounded-xl inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600"></div>
-										<span id="tfa_submit_header" class="relative flex items-center justify-center px-6 py-4 text-white font-semibold"></span>
-									</button>
-								</form>
+										class="w-1/2 bg-white/5 border border-white/10 text-white text-center text-2xl tracking-[0.5em] px-5 py-4 rounded-xl focus:outline-none focus:border-purple-500/50 focus:bg-white/10 placeholder-white-600 transition-all duration-300"
+										/>
+										<button id="tfa_disable_submit_btn" type="submit" class="relative w-1/2 group rounded-xl mt-2">
+											<div class="absolute rounded-xl inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600"></div>
+											<span id="tfa_disable_submit_header" class="relative flex items-center justify-center px-6 py-4 text-white font-semibold"></span>
+										</button>
+									</form>
 								</div>
-							</form>
+							
 						</div>
 					</div>
 				</div>
@@ -261,6 +318,13 @@ export async function renderSettings(root: HTMLElement) {
 			));
 	}
 
+	document.getElementById('upload-form')?.addEventListener
+		('submit', async (e) => listenerUploadPicture(e));
+
+	document.getElementById('delete-pic-btn')?.addEventListener
+		('click', async (e) => listenerDeletePicture(e));
+
+
 	// user is loaded on login as the first page liked to is profile. should be fine for now, otherwise fwtch again.
 	let user = getUser();
 	if (!user) {
@@ -288,35 +352,33 @@ export async function renderSettings(root: HTMLElement) {
 		const tfaDisableBtn = document.getElementById('tfa_disable_btn');
 		const tfaStatusEnabled = document.getElementById('tfa_status_enabled');
 		const tfaStatusDisabled = document.getElementById('tfa_status_disabled');
-		if (tfaEnableBtn && tfaDisableBtn && tfaStatusEnabled && tfaStatusDisabled) {
-			if (user.tfa) {
-				tfaStatusDisabled.classList.add('hidden');
-				tfaEnableBtn.classList.add('hidden');
-				tfaDisableBtn.addEventListener('click', async () => {
-					try {
-						const res = await apiFetch('/2fa/disable', {
-							method: 'POST',
-							credentials: 'include'
-						})
-						if (res.ok) {
 
-						}
-					} catch (e: any) {
-						renderConnectionErrorPage();
-					}
-				});
-			} else {
+		if (tfaEnableBtn && tfaDisableBtn && tfaStatusEnabled && tfaStatusDisabled) {
+			if (!user.tfa) {
+				// Enabling the 2FA
 				tfaStatusEnabled.classList.add('hidden');
+				tfaStatusDisabled.classList.remove('hidden');
 				tfaDisableBtn.classList.add('hidden');
+				tfaEnableBtn.classList.remove('hidden');
 				tfaEnableBtn.addEventListener('click', async () => {
 					try {
 						const picture = document.getElementById('profile-pic') as HTMLImageElement;
-						const picInput = document.getElementById('profile_pic_update_container');
-						const logged_in = document.getElementById('logged_in');
-						logged_in?.classList.add('hidden');
-						picInput?.classList.add('hidden');
 						picture.classList.add('hidden');
 						picture.classList.remove('rounded-full')
+						picture.classList.add('rounded');
+
+						const picInput = document.getElementById('profile_pic_update_container');
+						picInput?.classList.add('hidden');
+
+						const logged_in = document.getElementById('logged_in');
+						logged_in?.classList.add('hidden');
+
+						const tfa_disable_container = document.getElementById('tfa_disable_container');
+						tfa_disable_container?.classList.add('hidden');
+
+						const tfa_enable_container = document.getElementById('tfa_enable_container');
+						tfa_enable_container?.classList.remove('hidden');
+
 
 						const res = await apiFetch('/2fa/enable', {
 							method: 'POST',
@@ -329,20 +391,103 @@ export async function renderSettings(root: HTMLElement) {
 							throw new Error("NO_VERIFY_TOKEN");
 						if (!data.qr)
 							throw new Error("NO_QRCODE");
-
 						picture.src = data.qr;
-						picture.classList.add('rounded')
 						picture.classList.remove('hidden');
-						// set
-						setTimeout(() => {
-							picture.classList.add('rounded-full')
-							picture.src = user.image_blob ? `data:image/webp;base64,${user.image_blob}` : defaultPicture;
-							picInput?.classList.remove('hidden');
-						}, 5000);
+						const tfa_enable_form = document.getElementById('tfa_enable_form');
+						if (tfa_enable_form) {
+							tfa_enable_form.addEventListener('submit', async (e: Event) => {
+								e.preventDefault();
+								const tfa_token = (document.getElementById('tfa_enable_token_input') as HTMLInputElement).value;
+								const submitBtn = document.getElementById('tfa_disable_submit_header') as HTMLButtonElement;
+								const res = await apiFetch('/2fa/verify', {
+									method: 'POST',
+									credentials: 'include',
+									headers: {
+										'Content-Type': 'application/json',
+										'verifyjwt': `${data.verifyjwt}`,
+									},
+									body: JSON.stringify({ tfa_token }),
+								})
+								const verifydata = await res.json();
+								if (!res.ok) {
+									alert(verifydata.message);
+									renderSettings(root);
+								}
+								submitBtn.innerText = translations_register_page[languageStore.language].success!;
+								setTimeout(() => {
+									renderSettings(root);
+								}, 1000);
+								;
+							});
+						}
+						else {
+							alert('no Form!')
+						}
+						update_text(languageStore.language);
+
 					} catch (e: any) {
 						alert(e.message);
+						renderSettings(root);
 					}
 				})
+			} else {
+				//Disabling the 2FA
+				tfaStatusDisabled.classList.add('hidden');
+				tfaEnableBtn.classList.add('hidden');
+				tfaDisableBtn.classList.remove('hidden');
+				tfaStatusEnabled.classList.remove('hidden');
+				tfaDisableBtn.addEventListener('click', async () => {
+					const picture = document.getElementById('profile-pic') as HTMLImageElement;
+					picture.classList.add('hidden');
+
+					const picInput = document.getElementById('profile_pic_update_container');
+					picInput?.classList.add('hidden');
+
+					const logged_in = document.getElementById('logged_in');
+					logged_in?.classList.add('hidden');
+
+					const tfa_enable_container = document.getElementById('tfa_enable_container');
+					tfa_enable_container?.classList.add('hidden');
+
+					const tfa_disable_container = document.getElementById('tfa_disable_container');
+					tfa_disable_container?.classList.remove('hidden');
+
+					const tfa_disable_form = document.getElementById('tfa_disable_form');
+					if (tfa_disable_form) {
+						tfa_disable_form.addEventListener('submit', async (e: Event) => {
+							e.preventDefault();
+							try {
+								const tfa_token = (document.getElementById('tfa_disable_token_input') as HTMLInputElement).value;
+								const password = (document.getElementById('tfa_password_input') as HTMLInputElement).value;
+								const submitBtn = document.getElementById('tfa_disable_submit_header') as HTMLButtonElement;
+								const res = await apiFetch('/2fa/disable', {
+									method: 'POST',
+									credentials: 'include',
+									body: JSON.stringify({ password, tfa_token }),
+									headers: { 'Content-Type': 'application/json' },
+								})
+								const data = await res.json();
+								if (res.ok) {
+									user.tfa = false;
+									setUser(user);
+									submitBtn.innerText = translations_register_page[languageStore.language].success!;
+									setTimeout(() => {
+										renderSettings(root);
+									}, 1000);
+									;
+								}
+								else {
+									alert(data.message);
+								}
+							} catch (e: any) {
+								renderConnectionErrorPage();
+							}
+							renderSettings(root);
+						});
+					}
+					else { alert("no form") }
+					update_text(languageStore.language);
+				});
 			}
 			// fetchUser();
 		}
