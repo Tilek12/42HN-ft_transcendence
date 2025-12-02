@@ -190,7 +190,7 @@ const listenerUsernameUpdate = async (
 				method: 'POST',
 				headers: {'Content-Type': 'application/json'},
 				credentials:'include',
-				body: JSON.stringify({username: new_username}),
+				body: JSON.stringify({newUsername: new_username}),
 			},
 		)
 		const data = await res.json();

@@ -28,8 +28,32 @@ export function clearscrfToken() {
 	csrfToken = null;
 }
 
-export async function validateLogin(): Promise<boolean> {
 
+export async function fetchUser() {
+	try {
+		const res = await apiFetch('/api/private/profile', {
+			method: 'GET',
+			credentials: 'include',
+		});
+		if (res.ok) {
+			const data = await res.json();
+			const { username, image_blob, wins,	losses,	trophies} = data;
+			if (user)
+			{
+				user.username = username;
+				user.image_blob = image_blob;
+				user.wins = wins;
+				user.losses= losses;
+				user.trophies = trophies;
+			}
+		}
+	} catch (err: any) {
+		renderConnectionErrorPage();
+	}
+}
+
+
+export async function validateLogin(): Promise<boolean> {
 	try {
 		const res = await apiFetch('/api/private/me', {
 			method: "GET",
@@ -64,5 +88,7 @@ export async function apiFetch(url: RequestInfo, options: RequestInit): Promise<
 		}
 	}
 	return responsePromise;
+
+
 
 }

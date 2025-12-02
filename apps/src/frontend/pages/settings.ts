@@ -1,14 +1,16 @@
 import { Language } from '../types.js';
-import { getUser } from '../utils/auth.js';
+import { apiFetch, fetchUser, getUser } from '../utils/auth.js';
 import { defaultPicture } from '../utils/constants.js';
 import { renderBackgroundFull } from '../utils/layout.js'
-import { languageStore, transelate_per_id, translations_settings } from './languages.js';
+import { renderConnectionErrorPage } from './error.js';
+import { languageStore, transelate_per_id, translations_settings, translations_login_page } from './languages.js';
 import { listenerPasswordCancel, listenerPasswordEdit, listenerPasswordUpdate, listenerUsernameCancel, listenerUsernameEdit, listenerUsernameUpdate } from './listenerUpdatePasswordAndUsername.js';
 
 
 
 
-const update_text = (lang:Language)=>{
+const update_text = (lang: Language) => {
+	transelate_per_id(translations_settings, "choose", lang, "image_choose_button_header");
 	transelate_per_id(translations_settings, "update", lang, "image_update_button_header");
 	transelate_per_id(translations_settings, "delete", lang, "image_delete_button_header");
 	transelate_per_id(translations_settings, "username", lang, "username_header");
@@ -18,11 +20,23 @@ const update_text = (lang:Language)=>{
 	transelate_per_id(translations_settings, "update", lang, "update_pass_header");
 	transelate_per_id(translations_settings, "cancel", lang, "cancel_pass_header");
 	transelate_per_id(translations_settings, "joined", lang, "joined_header");
+	transelate_per_id(translations_settings, "security", lang, "security_header");
+	transelate_per_id(translations_settings, "password", lang, "password_header");
 	transelate_per_id(translations_settings, "new_password_btn", lang, "password-edit-btn");
 	transelate_per_id(translations_settings, "current_password_placeholder", lang, "password-old-check");
 	transelate_per_id(translations_settings, "new_password_placeholder", lang, "password-new");
 	transelate_per_id(translations_settings, "confirm_new_password_placeholder", lang, "password-confirm");
 	transelate_per_id(translations_settings, "profile_settings_header", lang, "profile_settings_header");
+	transelate_per_id(translations_settings, "tfa_enable_header", lang, "tfa_enable_header");
+	transelate_per_id(translations_settings, "tfa_disable_header", lang, "tfa_disable_header");
+	transelate_per_id(translations_settings, "tfa_status_enabled", lang, "tfa_status_enabled");
+	transelate_per_id(translations_settings, "tfa_status_disabled", lang, "tfa_status_disabled");
+	transelate_per_id(translations_login_page, "tfa_placeholder", lang, "tfa_token_input");
+	transelate_per_id(translations_settings, "tfa_submit", lang, "tfa_submit_header");
+	transelate_per_id(translations_login_page, "tfa_label", lang, "tfa_label");
+	transelate_per_id(translations_settings, "tfa_header", lang, "tfa_header");
+
+
 };
 
 
@@ -33,12 +47,12 @@ const update_text = (lang:Language)=>{
 
 export async function renderSettings(root: HTMLElement) {
 	root.innerHTML = renderBackgroundFull(/*html*/`
-  <div class="min-h-screen lg:w-2/3">
+	<div class="min-h-screen 2xl:w-2/3 lg:w-full">
 			<div class="max-w m-8">
 				<!-- DESIGN: 3-column responsive grid using Tailwind's 12-column system -->
 				<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 ">
 					
-					<!-- ========== LEFT COLUMN: PROFILE INFO + SECURITY + 2FA  CHANGE ========== -->
+					<!-- ========== LEFT COLUMN: PROFILE INFO + SECURITY + 2FA	CHANGE ========== -->
 					<!-- DESIGN: Takes 4/12 columns (33% width) -->
 					<div class="lg:col-span-4 ">
 					<!-- Profile Information Section -->
@@ -79,9 +93,10 @@ export async function renderSettings(root: HTMLElement) {
 									<span class="text-white text-base ml-3" id="created_at"></span>
 								</div>
 							</div>
+							
 						</div>
 
-						<!-- Security Settings Section -->
+<!-- Security Settings Section -->
 						<!-- Update Password functionality -->
 						<!-- DESIGN: Glass-morphism card with hidden input fields that toggle on edit -->
 						<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 mt-8 border border-white/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
@@ -89,20 +104,36 @@ export async function renderSettings(root: HTMLElement) {
 								<svg class="w-7 h-7 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
 								</svg>
-								Security
+								<span id="security_header"></span>
 							</h2>
 							<div class="space-y-4">
+							<h2 class="text-xl text-white mb-2	mt-8 flex items-center">
+								<span id="password_header"></span> 
+								</h2>
 								<input id="password-old-check" type="password" placeholder="" class="hidden w-full bg-white/20 text-white border border-white/30 rounded-xl px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400"/>
 								<input id="password-new" type="password" placeholder="" class="hidden w-full bg-white/20 text-white border border-white/30 rounded-xl px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400"/>
 								<input id="password-confirm" type="password" placeholder="" class="hidden w-full bg-white/20 text-white border border-white/30 rounded-xl px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400"/>
 								<div class="flex space-x-3">
-									<button id="password-edit-btn" class="flex-1 px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-md"><span id="new_password_btn"></span></button>
+									<button id="password-edit-btn" class="flex-1 px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-md"><span id="new_password_header"></span></button>
 									<button id="password-update-btn" class="hidden flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-md"><span id="update_pass_header"></span></button>
 									<button id="password-cancel-btn" class="hidden flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-md"><span id="cancel_pass_header"></span></button>
 								</div>
 							</div>
+							
+							<div class="space-y-4 mt-4">
+								<h2 class="text-xl text-white mb-2 mt-8 flex items-center">
+								<span id="tfa_header"></span> 
+								<span id="tfa_status_enabled" class="ml-2 font-bold"></span>
+								<span id="tfa_status_disabled" class="ml-2 font-bold"></span>
+								</h2>
+								<div class="flex space-x-3">
+									<button id="tfa_enable_btn" class="flex-1 px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-md"><span id="tfa_enable_header"></span></button>
+									<button id="tfa_disable_btn" class="hidden flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-md"><span id="tfa_disable_header"></span></button>
+								</div>
+							</div>
 						</div>
-					</div>
+						
+<!---LEFT COL END--></div>
 
 					<!-- ========== RIGHT COLUMN: Profile Picture ========== -->
 					<div class="lg:col-span-8">
@@ -112,27 +143,52 @@ export async function renderSettings(root: HTMLElement) {
 							<!-- Profile Picture Section -->
 							<!-- Upload, update, and delete profile picture -->
 							<!-- DESIGN: Large circular image (224px) with online indicator -->
-							<form id="upload-form" class="mb-8 w-full">
+							<form id="upload-form" class="mb-8 w-full ">
 								<div class="relative w-80 h-80 mx-auto mb-6">
-									<img id="profile_pic" src="" alt="Profile" class="w-full h-full object-cover rounded-full border-4 border-white/30 shadow-xl transition-all duration-300 hover:scale-105">
+									<img id="profile-pic" src="" alt="Profile" class="w-full h-full object-cover rounded-full border-4 border-white/30 shadow-xl transition-all duration-300 hover:scale-105">
 									<div id="logged_in" class="absolute bottom-2 right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white shadow-lg animate-pulse"></div>
+								</div >
+								<div id="profile_pic_update_container" class="" >
+									<input type="file" id="profile-pic-input" accept="image/*" class="hidden"/>
+									<div class="space-y-3 ">
+										<label for="profile-pic-input" class="block w-1/2">
+											<span id="image_choose_button_header" class="block text-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-lg"></span>
+										</label>
+										<button type="submit" class="w-1/2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"><span id="image_update_button_header"></span></button>
+										<button type="button" id="delete-pic-btn" class="w-1/2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"><span id="image_delete_button_header"></span></button>
+									</div>
 								</div>
-								<input type="file" id="profile-pic-input" accept="image/*" class="hidden"/>
-								<div class="space-y-3">
-									<label for="profile-pic-input" class="block">
-										<span id="image_update_button_header" class="block text-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 shadow-lg">Choose</span>
-									</label>
-									<button type="submit" class="w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg">Upload</button>
-									<button type="button" id="delete-pic-btn" class="w-full px-6 py-3 bg-red-600 hover:bg-red-700 text-white text-base font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"><span id="image_delete_button_header">Delete</span></button>
+								<div id="tfa_container" class="justify-center hidden">
+									<form id="2fa_form" >
+										<h2  class="text-2xl font-bold text-white mb-6 flex items-center">
+											<svg class="w-7 h-7 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+											</svg>
+											<span id="tfa_label"></span>
+										</h2>
+									<input
+										id="tfa_token_input"
+										type="text"
+										pattern="[0-9]{6}"
+										autofocus
+										maxlength="6"
+										oninput="this.value = this.value.replace(/\\D/g, '')"
+										class="w-1/2 bg-white/5 border border-white/10 text-white text-center text-3xl tracking-[0.5em] px-5 py-4 rounded-xl focus:outline-none focus:border-purple-500/50 focus:bg-white/10 placeholder-white-600 transition-all duration-300"
+									/>
+									<button id="tfa_submit_btn" type="submit" class="relative w-1/2 group rounded-xl mt-2">
+										<div class="absolute rounded-xl inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600"></div>
+										<span id="tfa_submit_header" class="relative flex items-center justify-center px-6 py-4 text-white font-semibold"></span>
+									</button>
+								</form>
 								</div>
 							</form>
 						</div>
 					</div>
 				</div>
 			</div>
-        </div>`);
+		</div>`);
 
-	
+
 	//===================ADD hooks to buttons======================================
 	//---------------Password Related Variables------------------------------------
 	const password_old_check = document.getElementById('password-old-check');
@@ -207,33 +263,97 @@ export async function renderSettings(root: HTMLElement) {
 
 	// user is loaded on login as the first page liked to is profile. should be fine for now, otherwise fwtch again.
 	let user = getUser();
-	if (!user)
-	{
-		alert("Oh no, no user found!");
-		location.hash = '/profile';
+	if (!user) {
+		fetchUser();
+		user = getUser();
 	}
-	else{
-
+	if (user) {
+		// FILL CONTENT OF USER INFORMATION
 		const pic = document.getElementById('profile-pic');
-		if (pic){
+		if (pic) {
 			(pic as HTMLImageElement).src = user.image_blob ? `data:image/webp;base64,${user.image_blob}` : defaultPicture;
 		}
 		const username = document.getElementById('username');
-		if (username){
+		if (username) {
 			username.innerText = user.username;
 		}
 		const created_at = document.getElementById('created_at');
-		if (created_at){
+		if (created_at) {
 			created_at.innerText = `${new Date(user.created_at).toLocaleString()}`;
 		}
+
+
+		//everyting connected to 2FA
+		const tfaEnableBtn = document.getElementById('tfa_enable_btn');
+		const tfaDisableBtn = document.getElementById('tfa_disable_btn');
+		const tfaStatusEnabled = document.getElementById('tfa_status_enabled');
+		const tfaStatusDisabled = document.getElementById('tfa_status_disabled');
+		if (tfaEnableBtn && tfaDisableBtn && tfaStatusEnabled && tfaStatusDisabled) {
+			if (user.tfa) {
+				tfaStatusDisabled.classList.add('hidden');
+				tfaEnableBtn.classList.add('hidden');
+				tfaDisableBtn.addEventListener('click', async () => {
+					try {
+						const res = await apiFetch('/2fa/disable', {
+							method: 'POST',
+							credentials: 'include'
+						})
+						if (res.ok) {
+
+						}
+					} catch (e: any) {
+						renderConnectionErrorPage();
+					}
+				});
+			} else {
+				tfaStatusEnabled.classList.add('hidden');
+				tfaDisableBtn.classList.add('hidden');
+				tfaEnableBtn.addEventListener('click', async () => {
+					try {
+						const picture = document.getElementById('profile-pic') as HTMLImageElement;
+						const picInput = document.getElementById('profile_pic_update_container');
+						const logged_in = document.getElementById('logged_in');
+						logged_in?.classList.add('hidden');
+						picInput?.classList.add('hidden');
+						picture.classList.add('hidden');
+						picture.classList.remove('rounded-full')
+
+						const res = await apiFetch('/2fa/enable', {
+							method: 'POST',
+							credentials: 'include'
+						})
+						if (!res.ok)
+							throw new Error("2FA_ENABLE_FAILED");
+						const data = await res.json();
+						if (!data.verifyjwt)
+							throw new Error("NO_VERIFY_TOKEN");
+						if (!data.qr)
+							throw new Error("NO_QRCODE");
+
+						picture.src = data.qr;
+						picture.classList.add('rounded')
+						picture.classList.remove('hidden');
+						// set
+						setTimeout(() => {
+							picture.classList.add('rounded-full')
+							picture.src = user.image_blob ? `data:image/webp;base64,${user.image_blob}` : defaultPicture;
+							picInput?.classList.remove('hidden');
+						}, 5000);
+					} catch (e: any) {
+						alert(e.message);
+					}
+				})
+			}
+			// fetchUser();
+		}
+
 		// const username = document.getElementById('username');
 		// const username = document.getElementById('username');
 		// const username = document.getElementById('username');
-		// const username = document.getElementById('username');
-		// const username = document.getElementById('username');
-		
+
+
 	}
-	
 	document.getElementById('nav_settings')?.addEventListener('click', () => { renderSettings(root) });
 	update_text(languageStore.language);
+	languageStore.subscribe((lang: Language) => update_text(lang))
 }

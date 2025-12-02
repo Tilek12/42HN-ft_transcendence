@@ -42,6 +42,7 @@ const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 				catch (e: any) {
 					return res.status(401).send({ message: e.message });
 				}
+				
 			});
 
 	//disables the 2fa auth functionality. needs username, passsowrd 2fa_token and jwt

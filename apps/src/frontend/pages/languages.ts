@@ -7,12 +7,12 @@ class LanguageStore {
 	private _listeners: ((lang: Language) => void)[] = [];
 	private _langSelect: HTMLSelectElement | undefined;
 
-	contructor(){
+	contructor() {
 		this._langSelect = undefined;
 	}
 
 	set language(lang: Language) {
-		if (this._langSelect){
+		if (this._langSelect) {
 			this._langSelect.value = lang;
 		}
 		localStorage.setItem('PongLanguage', lang);
@@ -30,7 +30,7 @@ class LanguageStore {
 
 	initLang() {
 		const langSelect = document.getElementById('language-select') as HTMLSelectElement;
-		if (langSelect){
+		if (langSelect) {
 			this._langSelect = langSelect;
 			langSelect.addEventListener('change', () => {
 				console.log('clicked');
@@ -101,8 +101,8 @@ export const translations_profile: TranslationSet =
 	EN: {
 		your_profile: 'My Profile',
 		user_list: 'Other Users',
-		friends_list:'My friends',
-		request_list:'My friend requests',
+		friends_list: 'My friends',
+		request_list: 'My friend requests',
 		update: 'Update',
 		delete: 'Delete',
 		edit: 'Edit',
@@ -125,8 +125,8 @@ export const translations_profile: TranslationSet =
 	DE: {
 		your_profile: 'Mein Profil',
 		user_list: 'Andere Spieler',
-		friends_list:'Meine Freunde',
-		request_list:'Meine Freundschaftsanfragen',
+		friends_list: 'Meine Freunde',
+		request_list: 'Meine Freundschaftsanfragen',
 		update: 'Aktualisieren',
 		delete: 'Löschen',
 		edit: 'Bearbeiten',
@@ -148,9 +148,9 @@ export const translations_profile: TranslationSet =
 	},
 	GR: {
 		your_profile: 'Το προφίλ σας',
-		user_list:'Άλλοι χρήστες',
-		friends_list:'Οι φίλοι μου',
-		request_list:'Τα αιτήματα φιλίας μου',
+		user_list: 'Άλλοι χρήστες',
+		friends_list: 'Οι φίλοι μου',
+		request_list: 'Τα αιτήματα φιλίας μου',
 		update: 'Ενημέρωση',
 		delete: 'Διαγραφή',
 		edit: 'Επεξεργασία',
@@ -175,6 +175,9 @@ export const translations_profile: TranslationSet =
 export const translations_settings: TranslationSet =
 {
 	EN: {
+		tfa_header: '2 Factor Authentification:',
+		password: 'Password',
+		choose: 'Choose new picture',
 		update: 'Update',
 		delete: 'Delete',
 		edit: 'Edit',
@@ -188,13 +191,22 @@ export const translations_settings: TranslationSet =
 		new_password_placeholder: 'New Password',
 		confirm_new_password_placeholder: 'Confirm New Passsword',
 		new_password_btn: 'New Password',
-		security:'Security',
-		profile_settings_header:'Profile Settings',
+		security: 'Security',
+		profile_settings_header: 'Profile Settings',
+		tfa_status_enabled: 'Enabled',
+		tfa_status_disabled: 'Disabled',
+		tfa_enable_header: 'Enable TOTP 2 Factor Authentification',
+		tfa_disable_header: 'Disable 2 Factor Authentifiation',
+		tfa_token_placeholder: '6 digit code',
+		tfa_submit: 'Submit',
 	},
 	DE: {
+		tfa_header: '2 Faktor Authentifizierung:',
+		password: 'Passwort',
+		choose: 'Neues Bild Wählen',
 		update: 'Aktualisieren',
 		delete: 'Löschen',
-		edit: 'Bearbeiten',
+		edit: 'Name ändern',
 		cancel: 'Abbrechen',
 		username: 'Benutzername:',
 		joined: 'Beigetreten:',
@@ -202,12 +214,20 @@ export const translations_settings: TranslationSet =
 		new_password_placeholder: 'Neues Passwort',
 		confirm_new_password_placeholder: 'Neues Passwort bestätigen',
 		new_password_btn: 'Neues Passwort',
-		security:'Sicherheit',
-		profile_settings_header:'Profil Einstellungen',
+		security: 'Sicherheit',
+		profile_settings_header: 'Profil Einstellungen',
+		tfa_status_enabled: 'Aktiviert',
+		tfa_status_disabled: 'Deaktiviert',
+		tfa_enable_header: 'Aktiviere TOTP 2 Faktor Authentifizierung',
+		tfa_disable_header: 'Deaktiviere 2 Faktor Authentifizierung',
+		tfa_token_placeholder: '6 stelliger Code',
+		tfa_submit: 'Bestätigen',
 
-		
 	},
 	GR: {
+		tfa_header: 'Επαλήθευση δύο παραγόντων:',
+		password: 'Κωδικός',
+		choose: 'Επιλέξτε νέα εικόνα',
 		update: 'Ενημέρωση',
 		delete: 'Διαγραφή',
 		edit: 'Επεξεργασία',
@@ -218,9 +238,14 @@ export const translations_settings: TranslationSet =
 		new_password_placeholder: 'Νέος κωδικός',
 		confirm_new_password_placeholder: 'Επιβεβαίωση νέου κωδικού',
 		new_password_btn: 'Νέος Κωδικός',
-		security:'Ασφάλεια',
-		profile_settings_header:'Ρυθμίσεις Προφίλ',
-
+		security: 'Ασφάλεια',
+		profile_settings_header: 'Ρυθμίσεις Προφίλ',
+		tfa_status_enabled: 'Ενεργοποιημένο',
+		tfa_status_disabled: 'Απενεργοποιημένο',
+		tfa_enable_header: 'Ενεργοποίηση επαλήθευσης δύο παραγόντων (TOTP)',
+		tfa_disable_header: 'Απενεργοποίηση επαλήθευσης δύο παραγόντων (TOTP)',
+		tfa_token_placeholder: '6ψήφιος κωδικός',
+		tfa_submit: 'Υποβολή',
 	}
 }
 
@@ -256,7 +281,7 @@ export const translations_friends: TranslationSet = {
 
 export const translations_register_page: TranslationSet = {
 	EN: {
-		register_tab:'Sign up',
+		register_tab: 'Sign up',
 		register_header: 'Create Account',
 		register_subtitle: 'Join us today!',
 		username_label: 'Username',
@@ -271,7 +296,7 @@ export const translations_register_page: TranslationSet = {
 		success: 'Success'
 	},
 	DE: {
-		register_tab:'Registrieren',
+		register_tab: 'Registrieren',
 		register_header: 'Konto erstellen',
 		register_subtitle: 'Kommen sie dazu!',
 		username_label: 'Benutzername',
@@ -286,7 +311,7 @@ export const translations_register_page: TranslationSet = {
 		success: 'Erfolgreich!'
 	},
 	GR: {
-		register_tab:'Εγγραφή',
+		register_tab: 'Εγγραφή',
 		register_header: 'Δημιουργία λογαριασμού',
 		register_subtitle: 'Γίνετε μέλος σήμερα!',
 		username_label: 'Όνομα χρήστη',
@@ -322,7 +347,7 @@ export const translations_main_page: TranslationSet = {
 
 export const translations_login_page: TranslationSet = {
 	EN: {
-		login_tab:'Log in',
+		login_tab: 'Log in',
 		login_header: 'Welcome Back',
 		login_subtitle: 'Sign in to continue to your account',
 		google_btn: 'Continue with Google',
@@ -338,10 +363,10 @@ export const translations_login_page: TranslationSet = {
 		dont_have_account: "Don't have an account?",
 		create_account: 'Create account',
 		signing_in: 'Signing in...',
-		tfa_label:'Please enter your TOTP code from your authenticator',
+		tfa_label: 'Please enter your TOTP code from your authenticator',
 	},
 	DE: {
-		login_tab:'Anmelden',
+		login_tab: 'Anmelden',
 		login_header: 'Willkommen zurück',
 		login_subtitle: 'Melden Sie sich an, um fortzufahren',
 		google_btn: 'Mit Google fortfahren',
@@ -357,10 +382,10 @@ export const translations_login_page: TranslationSet = {
 		dont_have_account: 'Sie haben kein Konto?',
 		create_account: 'Konto erstellen',
 		signing_in: 'Anmelden ...',
-		tfa_label:'Bitte geben sie den Code aus ihrem TOTP Authenticator ein',
+		tfa_label: 'Bitte geben sie den Code aus ihrem TOTP Authenticator ein',
 	},
 	GR: {
-		login_tab:'Σύνδεση',
+		login_tab: 'Σύνδεση',
 		login_header: 'Καλώς ήρθες ξανά',
 		login_subtitle: 'Συνδεθείτε για να συνεχίσετε',
 		google_btn: 'Συνέχεια με Google',
@@ -376,7 +401,7 @@ export const translations_login_page: TranslationSet = {
 		dont_have_account: 'Δεν έχετε λογαριασμό;',
 		create_account: 'Δημιουργία λογαριασμού',
 		signing_in: 'Γίνεται σύνδεση...',
-		tfa_label:'Παρακαλώ εισάγετε τον κωδικό TOTP από την εφαρμογή αυθεντικοποίησης',
+		tfa_label: 'Παρακαλώ εισάγετε τον κωδικό TOTP από την εφαρμογή αυθεντικοποίησης',
 	}
 };
 
@@ -491,9 +516,9 @@ export const translations_errors: TranslationSet = {
 		error_invalid_token: 'Invalid 2fa code supplied',
 		error_username_taken: 'This username has already been taken',
 		error_username_min_len: 'Username has to be at least 3 characters long',
-		error_internal:'Internal server error',
-		error_2fa_enable:'Enabling 2FA went wrong',
-		error_2fa_verify:'Wrong 2fa Code',
+		error_internal: 'Internal server error',
+		error_2fa_enable: 'Enabling 2FA went wrong',
+		error_2fa_verify: 'Wrong 2fa Code',
 		error_default: "Error",
 	},
 	DE: {
@@ -506,8 +531,8 @@ export const translations_errors: TranslationSet = {
 		error_username_taken: 'Dieser Username wird bereits benutzt',
 		error_username_min_len: 'Username muss mind. 3 Buchstaben enthalten',
 		error_internal: 'Interner Server Fehler',
-		error_2fa_enable:'Fehler beim 2Fa erstellen',
-		error_2fa_verify:'Falscher 2FA Code',
+		error_2fa_enable: 'Fehler beim 2Fa erstellen',
+		error_2fa_verify: 'Falscher 2FA Code',
 		error_default: "Fehler",
 	},
 	GR: {
@@ -520,8 +545,8 @@ export const translations_errors: TranslationSet = {
 		error_username_taken: 'Αυτό το όνομα χρήστη χρησιμοποιείται ήδη.',
 		error_username_min_len: 'Το όνομα χρήστη πρέπει να έχει τουλάχιστον 3 χαρακτήρες.',
 		error_internal: 'Εσωτερικό σφάλμα διακομιστή',
-		error_2fa_enable:'Η ενεργοποίηση του 2FA απέτυχε',
-		error_2fa_verify:'Λάθος κωδικός 2FA',
+		error_2fa_enable: 'Η ενεργοποίηση του 2FA απέτυχε',
+		error_2fa_verify: 'Λάθος κωδικός 2FA',
 		error_default: "Σφάλμα",
 	},
 };
