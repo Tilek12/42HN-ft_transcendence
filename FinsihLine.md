@@ -51,6 +51,7 @@ GAME
 FRONTEND
 - boxes of login and register page cant show whole placeholders
 - register button on login page is not colorful when language switched 
+- picture buttons in settigs dont have language support
 
 BACKEND
 

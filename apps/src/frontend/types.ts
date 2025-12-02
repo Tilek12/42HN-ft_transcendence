@@ -2,7 +2,7 @@
 
 
 
-// WEBSOCKET 
+// WEBSOCKET
 export type GameMode = 'solo' | 'duel' | 'tournament';
 
 export interface PresenceUser {
@@ -40,7 +40,7 @@ export type Match =
 
 export type PresenceCallback = (users: number, tournaments: any[]) => void;
 
-// FRIENDS 
+// FRIENDS
 
 //friend type not implemented, on fritends.ts used as `let allFriends: {friends : any[]}[] | undefined= [];`
 
@@ -82,4 +82,88 @@ export type matchHistory = {
 	win: number,
 	matches_count: number,
 	win_rate: number,
+}
+// Tournament WebSocket Message Types (Frontend) - Copied from backend for consistency
+export type TournamentMessage =
+  | TournamentJoinedMessage
+  | TournamentLeftMessage
+  | CreateLocalTournamentMessage
+  | MatchStartMessage
+  | MatchEndMessage
+  | TournamentEndMessage
+  | TournamentUpdateMessage
+  | PlayerReadyMessage
+  | QuitTournamentMessage
+  | ErrorMessage;
+
+// Base participant structure (consistent for local/online)
+export interface TournamentParticipant {
+  id: string;  // User ID or local ephemeral ID
+  name: string;
+}
+
+// Tournament joined confirmation
+export interface TournamentJoinedMessage {
+  type: 'tournamentJoined';
+  id: string;  // Tournament ID
+}
+
+// User left tournament
+export interface TournamentLeftMessage {
+  type: 'tournamentLeft';
+}
+
+// Match starting (unified for local/online)
+export interface MatchStartMessage {
+  type: 'matchStart';
+  tournamentId: string;
+  matchId: string;
+  size: 4 | 8;  // Tournament size
+  participants: [TournamentParticipant, TournamentParticipant];  // Always objects, not IDs
+}
+
+// Match ended
+export interface MatchEndMessage {
+  type: 'matchEnd';
+  tournamentId: string;
+  matchId: string;
+  winner: TournamentParticipant;
+  loser: TournamentParticipant;
+}
+
+// Tournament finished
+export interface TournamentEndMessage {
+  type: 'tournamentEnd';
+  winner: TournamentParticipant;
+}
+
+// Tournament state update (for lobby/UI)
+export interface TournamentUpdateMessage {
+  type: 'tournamentUpdate';
+  state: any;  // TournamentState interface (avoid cross-imports; use any for now)
+}
+
+// Player signals readiness for match
+export interface PlayerReadyMessage {
+  type: 'playerReady';
+  tournamentId: string;
+  matchId: string;
+}
+
+// User quits tournament
+export interface QuitTournamentMessage {
+  type: 'quitTournament';
+}
+
+// Create local tournament with participants
+export interface CreateLocalTournamentMessage {
+  type: 'createLocalTournament';
+  size: 4 | 8;
+  participants: TournamentParticipant[];
+}
+
+// Error message
+export interface ErrorMessage {
+  type: 'error';
+  message: string;
 }

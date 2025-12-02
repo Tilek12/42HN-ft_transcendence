@@ -86,9 +86,9 @@ export async function renderProfile(root: HTMLElement) {
 			if (user){
 				user.username = username;
 				user.image_blob = image_blob;
-				user.wins = wins,
-				user.losses= losses,
-				user.trophies = trophies,
+				user.wins = wins;
+				user.losses= losses;
+				user.trophies = trophies;
 				setUser(user);
 				fill_profile_info(user);
 			}
