@@ -1,4 +1,5 @@
 import { apiFetch, getUser } from '../utils/auth.js'
+import { defaultPicture } from '../utils/constants.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore, translations_friends_render } from './languages.js';
 
@@ -23,13 +24,13 @@ export async function renderFriendRequestsList() {
 		const recievedRequests: number[] = data.profiles[0].received_requests;
 		// console.log('received_profiles:');
 		// console.log(data.received_requests);
-		container.innerHTML = /*html*/`<h1 class="text-2xl font-bold mb-4 bg-white p-4 rounded-xl shadow mb-2"><span id="request_list_header">${translations_friends_render[languageStore.language]!.request_list_header}</span></h1>` +
-			data.profiles.filter((r: any) => recievedRequests.includes(r.id)).map((profile: any) => {
-				const is_connected = wsManager.presenceUserList.map(u => u.name).includes(profile.username);
-				const src_img = profile.image_blob ?
-					`data:image/webp;base64,${profile.image_blob}` :
-					`/profile_pics/${profile.image_path}`;
-				return /*html*/`<div class = "flex items-center bg-white p-4 rounded-xl shadow mb-2">
+		if (recievedRequests.length > 0)
+		{
+		container.innerHTML = data.profiles.filter((r: any) => recievedRequests.includes(r.id)).map((profile: any) => {
+
+			const is_connected = wsManager.presenceUserList.map(u => u.name).includes(profile.username);
+			const src_img = profile.image_blob ? `data:image/webp;base64,${profile.image_blob}` : defaultPicture;
+			return /*html*/`<div class = "flex items-center bg-white p-4 rounded-xl shadow mb-2">
 			<img src= "${src_img}" class="w-12 h-12 rounded-full mr-4" />
 			<div>
 				<a href="" class="text-lg font-semibold text-blue-600 hover:underline">${profile.username}</a>
@@ -41,8 +42,13 @@ export async function renderFriendRequestsList() {
 			</div>
 
 		</div>`
-			}
-			).join('');
+		}
+		).join('');
+	}
+	else{
+		// container.innerHTML = /*html*/`<span class = ></span>`
+	}
+	
 	} catch (err) {
 		console.error('Failed to fetch profiles: ', err);
 		container.innerHTML = `<p class="text-red-500>Could not load request list.</p>`

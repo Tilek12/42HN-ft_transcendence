@@ -38,8 +38,6 @@ class WebSocketManager {
 	private activeTournaments: any[] = [];
 	private presenceUsers: PresenceUser[] = [];
 	private presenceListeners: PresenceCallback[] = [];
-
-	private refreshCalled: boolean = false;
 	constructor() {
 	}
 
@@ -116,8 +114,6 @@ class WebSocketManager {
 			console.log('👥 [Presence WS] Opening websocket..');
 			socket.send('pong');
 			this.retryAttempts = 0;
-			//reset the acces token regain switch
-			this.refreshCalled = false;
 		};
 
 		socket.onmessage = (e) => {
@@ -163,18 +159,16 @@ class WebSocketManager {
 		socket.onerror = async (err) => {
 			console.error('👥 [Presence WS] Error:', err);
 			// refresh access token in case it turned invalid. check once on connect error if not ok then dont try again
-			if (!this.refreshCalled) {
+			if (getUser()){
 				const res = await fetch('/api/refresh', {
 					method: 'POST',
 					credentials: 'include'
 				})
-				this.refreshCalled = true;
 				if (res.ok)
 				{
 					this.connectPresenceSocket(onUpdate);
 				}
 			}
-
 		};
 	}
 

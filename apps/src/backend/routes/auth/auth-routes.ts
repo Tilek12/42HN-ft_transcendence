@@ -46,6 +46,7 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 				let token: string;
 				if (user.tfa) {
 					token = generateToken(user, Jwt_type.enable, '5min');
+					
 					res.status(200).send({ enablejwt:token, tfa: true });
 				}
 				else {

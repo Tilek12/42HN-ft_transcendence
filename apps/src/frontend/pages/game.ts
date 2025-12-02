@@ -83,7 +83,7 @@ export async function renderGame(root: HTMLElement) {
 		}
 
 		cleanupListeners();
-		wsManager.disconnectGameSocket();
+		// wsManager.disconnectGameSocket();
 		gameState = null;
 
 		info.textContent =
@@ -112,6 +112,9 @@ export async function renderGame(root: HTMLElement) {
 			}
 
 			switch (msg.type) {
+				case 'start':
+					console.log('Game started! Good luck!');
+					break;
 				case 'countdown':
 					countdown.classList.remove('hidden');
 					countdown.textContent = msg.value;
@@ -120,14 +123,12 @@ export async function renderGame(root: HTMLElement) {
 						canvas.classList.remove('hidden');
 					}
 					break;
-
 				case 'update':
 					gameState = msg.state;
 					if (msg.state?.playerNames) {
 						playerNames = msg.state.playerNames;
 					}
 					break;
-
 				case 'end': {
 					const myId = Object.keys(gameState?.score || {})[0];
 					const winnerId = msg.winner;
@@ -143,11 +144,10 @@ export async function renderGame(root: HTMLElement) {
 					}
 
 					alert(`🏁 Game over!\n${resultMsg}`);
-					wsManager.disconnectGameSocket();
-					cleanupListeners();
+					// wsManager.disconnectGameSocket();
+					// cleanupListeners();
 					break;
 				}
-
 				case 'disconnect':
 					alert(`❌ Opponent disconnected`);
 					wsManager.disconnectGameSocket();

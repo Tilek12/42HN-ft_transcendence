@@ -75,18 +75,17 @@ export function renderUserProfile()
 	// - All sections use glass-morphism (bg-white/10 + backdrop-blur-md)
 	// - Increased all sizes: profile pic (224px), fonts (text-base to text-4xl), padding (p-8)
 	// - Added hover animations (scale-105) and enhanced shadows
-
 	let res : string = renderBackgroundFull(
 		/*html*/
 		`
-		<div class="min-h-screen lg:w-2/3 lg:h-8/10">
+		<div class="min-h-screen 2xl:w-2/3 lg:h-full lg:w-full ">
 			<div class="max-w m-8">
 				<!-- DESIGN: 3-column responsive grid using Tailwind's 12-column system -->
 				<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full ">
 					
 					<!-- ========== LEFT COLUMN: Profile Picture + Stats + Logout ========== -->
 					<!-- DESIGN: Takes 3/12 columns (25% width) -->
-					<div class="lg:col-span-3 ">
+					<div class="lg:col-span-3 md:col-span-3 ">
 						<!-- DESIGN: Glass-morphism card with hover shadow effect -->
 						<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
 							
@@ -129,10 +128,10 @@ export function renderUserProfile()
 						</div>	
 						
 					</div>
-
+					
 					<!-- ========== MIDDLE COLUMN: Profile Info + Security ========== -->
 					<!-- DESIGN: Takes 5/12 columns (42% width) - largest column for main content -->
-					<div class="lg:col-span-5 space-y-8">
+					<div class="lg:col-span-5 md:col-span-5 space-y-8">
 						
 						<!-- Profile Information Section -->
 						<!-- Username, Email, Join Date -->
@@ -181,7 +180,7 @@ export function renderUserProfile()
 
 					<!-- ========== RIGHT COLUMN: Match History + Users List ========== -->
 					<!-- DESIGN: Takes 4/12 columns (33% width) - scrollable sections -->
-					<div class="lg:col-span-4 space-y-8">
+					<div class="lg:col-span-4 md:col-span-4 space-y-8">
 						
 						<!-- Match History Section -->
 						<!-- Scrollable list of past matches -->

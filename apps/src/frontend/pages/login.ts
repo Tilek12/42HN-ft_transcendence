@@ -215,14 +215,15 @@ export function renderLogin(root: HTMLElement) {
                 type="text" 
                 placeholder="${login_translation.tfa_placeholder}" 
                 pattern="[0-9]{6}" 
+				autofocus
                 maxlength="6" 
-                oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
+                oninput="this.value = this.value.replace(/\D/g, '')" 
                 class="w-full bg-white/5 border border-white/10 text-white text-center text-3xl tracking-[0.5em] px-5 py-4 rounded-xl focus:outline-none focus:border-purple-500/50 focus:bg-white/10 placeholder-gray-600 transition-all duration-300"
               />
               <button 
                 id="token_submit" 
                 type="submit" 
-                class="relative w-full group overflow-hidden rounded-xl"
+                class="relative w-full group rounded-xl"
               >
                 <div class="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600"></div>
                 <span class="relative flex items-center justify-center px-6 py-4 text-white font-semibold">
@@ -453,6 +454,8 @@ export function renderLogin(root: HTMLElement) {
 				}, 2000);
 			} else {
 				if (response_data.tfa) {
+					if (!response_data.verifyjwt)
+						alert("no verify jwt");
 					form.classList.add('hidden');
 					const tfa_container = document.getElementById('tfa_container') as HTMLFormElement;
 					if (!tfa_container)
@@ -467,7 +470,7 @@ export function renderLogin(root: HTMLElement) {
 							method: 'POST',
 							headers: {
 								'Content-Type': 'application/json',
-								'Cookie': `ACCESS=${response_data.jwt}` //use temp jwt from /login to validate it. Bearer needed?
+								'verifyjwt': response_data.verifyjwt 
 							},
 							body: JSON.stringify({ tfa_token: tfa_token }),
 						});
@@ -479,7 +482,7 @@ export function renderLogin(root: HTMLElement) {
 								case "INVALID_NO_TOKEN": error_message = error_trans.error_no_token; break;
 								case "INVALID_USER_LOGGED_IN": error_message = error_trans.error_logged_in; break;
 								case "INVALID_TOKEN": error_message = error_trans.error_invalid_token; break;
-								default: error_message = error_trans.error_default; break;
+								default: error_message = error_message; break;
 							}
 							errorText.textContent = error_message;
 							errorContainer.classList.remove('hidden');

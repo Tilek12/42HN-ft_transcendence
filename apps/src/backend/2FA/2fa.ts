@@ -26,6 +26,8 @@ export function generateSecret():string {
 
 export function validate_2fa_token(token:string, secret:string):boolean
 {
+	console.log("token: ", token);
+	console.log("secret: ", secret);
 	const totp = new OTPAuth.TOTP({secret: OTPAuth.Secret.fromBase32(secret)});
 	// console.log("token gotten:", token);
 	const delta = totp.validate({token, window: 1});

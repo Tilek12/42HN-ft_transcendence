@@ -69,7 +69,7 @@ export class GameRoom {
 
 			(player.socket as any).on('message', (msg: any) => {
 				const text = msg.toString();
-				if (text === 'pong') return;
+				if (text === 'pong' || text === 'quit') return;
 
 				let m: any;
 				try {
@@ -84,7 +84,7 @@ export class GameRoom {
 						// one socket controls both paddles
 						const target = m.side === 'right' ? this.players[1].id : this.players[0].id;
 						this.move(target, m.direction);
-					} else if (this.mode === 'local') {
+					} else if (this.mode === 'local-match') {
 						// same socket, but use side field to choose
 						const target = m.side === 'right' ? this.players[1].id : this.players[0].id;
 						this.move(target, m.direction);
@@ -179,7 +179,7 @@ export class GameRoom {
 
 	private sendNetworkUpdate() {
 		// Don't send updates if game has ended (except for local mode to show final state)
-		if (this.gameEnded && this.mode !== 'local') return;
+		if (this.gameEnded && this.mode !== 'local-match') return;
 
 		// Only send update if no pending broadcast to prevent flooding
 		if (!this.pendingBroadcast) {
@@ -216,8 +216,8 @@ export class GameRoom {
 
 		this.broadcast({
 			type: 'end',
-			winner: { id: this.winner.id, name: this.winner.name },
-			loser: { id: this.loser.id, name: this.loser.name }
+			winner: { id: this.winner.id, name: this.winner.name, score: this.winnerScore },
+			loser: { id: this.loser.id, name: this.loser.name, score: this.loserScore }
 		});
 
 		setTimeout(() => this.end(), 1000);

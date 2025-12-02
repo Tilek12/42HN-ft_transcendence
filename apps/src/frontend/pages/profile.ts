@@ -12,6 +12,7 @@ import { languageStore } from './languages.js';
 import { Match, fUser } from '../types.js';
 import { renderConnectionErrorPage } from './error.js';
 import { renderFriendsList } from './renderFriends.js';
+import { renderFriendRequestsList } from './renderFriendRequestList.js';
 
 let i = 0;
 
@@ -85,9 +86,9 @@ export async function renderProfile(root: HTMLElement) {
 			if (user){
 				user.username = username;
 				user.image_blob = image_blob;
-				user.wins = wins,
-				user.losses= losses,
-				user.trophies = trophies,
+				user.wins = wins;
+				user.losses= losses;
+				user.trophies = trophies;
 				setUser(user);
 				fill_profile_info(user);
 			}
@@ -102,8 +103,10 @@ export async function renderProfile(root: HTMLElement) {
 				already_parsed = r_on_r?.already_parsed;
 			})();
 
+			//render friends list
 			(async()=>{renderFriendsList('friend-list');})();
-
+			//render freind request list
+			(async()=>{renderFriendRequestsList();})();
 
 
 			//more-profiles button event listener, 
