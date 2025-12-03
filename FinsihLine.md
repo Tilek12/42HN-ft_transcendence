@@ -9,6 +9,16 @@
 - last 0.5 module -> Browser support? /3d Rustam decides after subject reading
 
 
+
+
+>|Module 1| Module 2| Module 3 | Module 4| Module 5 |  Module 6 |  Module 7|
+>|--------|---------|----------|---------|----------|-----------|--------|
+>|1.0 Fasify Backend | 0.5 Frontend tailwind| 1.0 User Management| 1.0 Remote players | 1.0 2FA with JWT| 0.5 Browser Support| 1.0 Severside Pong|
+>| |0.5 Database  | | | |0.5 Language Support | |
+
+
+
+
 # Issues
 
 ### Frontend

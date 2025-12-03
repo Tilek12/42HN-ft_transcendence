@@ -119,7 +119,6 @@ export const ParseFriendsSchema =
 	} as const;
 
 
-
 export const ProfileIdSchema =
 	{
 		description: 'ProfileIdSchema',

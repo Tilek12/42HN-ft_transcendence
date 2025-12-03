@@ -74,8 +74,17 @@ class WebSocketManager {
 			console.log('🕹️ [Game WS] Disconnected');
 			this.gameSocket = null;
 		};
-		socket.onerror = (event: any) => {
-			console.log('Socket Error:', event);
+		socket.onerror = async(event: any) => {
+			if (getUser()){
+				const res = await fetch('/api/refresh', {
+					method: 'POST',
+					credentials: 'include'
+				})
+				if (res.ok)
+				{
+					this.createGameSocket(mode);
+				}
+			}
 		}
 
 		return socket;
