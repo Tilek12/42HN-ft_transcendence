@@ -51,7 +51,7 @@ export function transelate_per_id(tr_set: TranslationSet, key: string, lang: Lan
 				headerEl.placeholder = value;
 			}
 			else
-				headerEl.innerHTML = value;
+				headerEl.innerText = value;
 		}
 	}
 }
@@ -103,22 +103,15 @@ export const translations_profile: TranslationSet =
 		user_list: 'Other Users',
 		friends_list: 'My friends',
 		request_list: 'My friend requests',
-		update: 'Update',
-		delete: 'Delete',
-		edit: 'Edit',
-		cancel: 'Cancel',
 		logged_in: 'Logged in',
 		username: 'Username:',
-		email: 'Email:',
 		wins: 'wins:',
 		losses: 'losses:',
 		trophies: 'trophies:',
 		joined: 'Joined:',
-		current_password_placeholder: 'Current password',
-		new_password_placeholder: 'New Password',
-		confirm_new_password_placeholder: 'Confirm New Passsword',
-		new_password_btn: 'New Password',
 		match_history: 'Match History',
+		no_match_history: 'No Match History yet',
+		no_friend_requests: 'No Friend Requests',
 		load_more: 'Load More',
 		logout: 'Logout'
 	},
@@ -127,22 +120,15 @@ export const translations_profile: TranslationSet =
 		user_list: 'Andere Spieler',
 		friends_list: 'Meine Freunde',
 		request_list: 'Meine Freundschaftsanfragen',
-		update: 'Aktualisieren',
-		delete: 'Löschen',
-		edit: 'Bearbeiten',
-		cancel: 'Abbrechen',
 		logged_in: 'Eingeloggt',
 		username: 'Benutzername:',
-		email: 'E-Mail:',
 		wins: 'Siege:',
 		losses: 'Niederlagen:',
 		trophies: 'Trophäen:',
 		joined: 'Beigetreten:',
-		current_password_placeholder: 'Aktuelles Passwort',
-		new_password_placeholder: 'Neues Passwort',
-		confirm_new_password_placeholder: 'Neues Passwort bestätigen',
-		new_password_btn: 'Neues Passwort',
 		match_history: 'Spielverlauf',
+		no_match_history: 'Keine Spielhistorie vorhanden',
+		no_friend_requests: 'Keine Freundschaftsanfragen',
 		load_more: 'Mehr laden',
 		logout: 'Abmelden'
 	},
@@ -151,22 +137,15 @@ export const translations_profile: TranslationSet =
 		user_list: 'Άλλοι χρήστες',
 		friends_list: 'Οι φίλοι μου',
 		request_list: 'Τα αιτήματα φιλίας μου',
-		update: 'Ενημέρωση',
-		delete: 'Διαγραφή',
-		edit: 'Επεξεργασία',
-		cancel: 'Ακύρωση',
 		logged_in: 'Συνδεδεμένος',
 		username: 'Όνομα χρήστη:',
-		email: 'Ημέιλ: ',
 		wins: 'Νίκες: ',
 		losses: 'Ήττες: ',
 		trophies: 'Τρόπαια: ',
 		joined: 'Εγγράφηκε: ',
-		current_password_placeholder: 'Τρέχων κωδικός',
-		new_password_placeholder: 'Νέος κωδικός',
-		confirm_new_password_placeholder: 'Επιβεβαίωση νέου κωδικού',
-		new_password_btn: 'Νέος Κωδικός',
 		match_history: 'Ιστορικό αγώνων',
+		no_match_history: 'Δεν υπάρχει ακόμα ιστορικό αγώνων',
+		no_friend_requests: 'Δεν υπάρχουν αιτήσεις φίλων',
 		load_more: 'Περισσότερα Προφίλ',
 		logout: 'Αποσύνδεση'
 	}
@@ -197,7 +176,10 @@ export const translations_settings: TranslationSet =
 		tfa_status_disabled: 'Disabled',
 		tfa_enable_header: 'Enable TOTP 2 Factor Authentification',
 		tfa_disable_header: 'Disable 2 Factor Authentifiation',
+		tfa_disable_headline: 'To disable 2FA enter your password and TOTP from authenticator',
+		tfa_enable_headline: 'To enable 2FA scan this QR code with your autheticator and enter the TOTP code',
 		tfa_token_placeholder: '6 digit code',
+		password_placeholder: 'Password',
 		tfa_submit: 'Submit',
 	},
 	DE: {
@@ -220,7 +202,10 @@ export const translations_settings: TranslationSet =
 		tfa_status_disabled: 'Deaktiviert',
 		tfa_enable_header: 'Aktiviere TOTP 2 Faktor Authentifizierung',
 		tfa_disable_header: 'Deaktiviere 2 Faktor Authentifizierung',
+		tfa_disable_headline: 'Um 2FA zu deaktivieren gib bitte dein Passwort und den TOTP Code aus dem Authenticator ein.',
+		tfa_enable_headline: 'Um 2FA zu aktivieren scanne diesen QR code mit dem Authenticator und gib den TOTP Code daraus ein.',
 		tfa_token_placeholder: '6 stelliger Code',
+		password_placeholder: 'Passwort ',
 		tfa_submit: 'Bestätigen',
 
 	},
@@ -244,7 +229,10 @@ export const translations_settings: TranslationSet =
 		tfa_status_disabled: 'Απενεργοποιημένο',
 		tfa_enable_header: 'Ενεργοποίηση επαλήθευσης δύο παραγόντων (TOTP)',
 		tfa_disable_header: 'Απενεργοποίηση επαλήθευσης δύο παραγόντων (TOTP)',
+		tfa_disable_headline: 'Για να απενεργοποιήσετε την 2FA, εισαγάγετε τον κωδικό σας και τον TOTP από την εφαρμογή επαλήθευσης.',
+		tfa_enable_headline: 'Για να ενεργοποιήσετε την 2FA, σκανάρετε αυτό το QR κώδικα με την εφαρμογή αυθεντικοποίησης σας και εισαγάγετε τον κωδικό TOTP.',
 		tfa_token_placeholder: '6ψήφιος κωδικός',
+		password_placeholder: 'Κωδικός',
 		tfa_submit: 'Υποβολή',
 	}
 }

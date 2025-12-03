@@ -128,6 +128,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		}
 	});
 
+
 	fastify.post<{ Body: ProfileIdBody}>
 				('/unlink-profile',
 				{ schema: ProfileIdSchema },
@@ -143,7 +144,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		}
 	});
 
-
+	//Blocks a User
 	fastify.post<{ Body: ProfileIdBody }>
 				('/block-profile',
 				 { schema: ProfileIdSchema },
@@ -160,7 +161,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		}
 	});
 
-
+	// Unblocks a User 
 	fastify.post<{Body: ProfileIdBody}>
 				('/unblock-profile',
 				{ schema: ProfileIdSchema},
@@ -176,7 +177,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		}
 	});
 
-
+	// Sends a Firend Request, if the user was blocked before, its now unblocked
 	fastify.post<{Body:ProfileIdBody}>
 				('/link-profile',
 				{schema: ProfileIdSchema},
@@ -195,7 +196,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 		}
 	});
 
-
+	// Deletes a FriendRequest while its still pending
 	fastify.post<{Body: ProfileIdBody}>
 				('/pending-request',
 				{ schema: ProfileIdSchema },
@@ -210,6 +211,13 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			console.log(err);
 		}
 	});
+
+
+	// fastify.get('/requests',
+	// 		{ schema: ParseFriendsSchema },
+	// 		async(req, res)=>{
+
+	// });
 
 
 	fastify.post<{Body:{profileId:string, profileAnswer:string}}>

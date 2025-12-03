@@ -119,7 +119,6 @@ export const ParseFriendsSchema =
 	} as const;
 
 
-
 export const ProfileIdSchema =
 	{
 		description: 'ProfileIdSchema',
@@ -351,11 +350,10 @@ export const disable_TFA_Schema = {
 	body: {
 		type: 'object',
 		properties: {
-			username: UsernameSchema,
 			password: PasswordSchema,
 			tfa_token: TFA_token_schema,
 		},
-		required: ['username', 'password', 'tfa_token']
+		required: ['password', 'tfa_token']
 	},
 	response: {
 		200: {

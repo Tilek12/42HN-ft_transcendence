@@ -6,37 +6,58 @@ import { verifyPassword } from '../../auth/utils';
 import { generateqrcode, generateSecret, validate_2fa_token } from '../../2FA/2fa';
 import { JWTPayload, Jwt_type } from '../../types';
 import { findUserById, log_in } from '../../database/user';
-import { store2faKey, delete2faKey } from '../../database/2fa';
+import { store2faKey, delete2faKey, update2faStatus } from '../../database/2fa';
 import { setAccessCookie, setRefreshCookie } from '../../auth/cookies';
+import { userManager } from '../../service-managers/user-manager';
 
 
 const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 
 	//enables the 2fa auth logic, needs a valid jwt token sends out the 2fa secret as qrcode.
 	fastify.post<{ Body: enable_TFA_body }>
-		('/enable', { schema: enable_TFA_Schema },
+		('/enable', { schema: enable_TFA_Schema,
+			// onSend:function(req, res,payload, done){
+			// 	fastify.log.info(payload);
+			// 	done();
+			// }
+		 },
 			async (req, res) => {
 				try {
 					let jwt = req.headers['enablejwt'] as string | undefined;
 					if (!jwt)
-						jwt = req.cookies['ACCESS'];
+					{
+						const result = fastify.unsignCookie(req.cookies.ACCESS || "");
+						if (result.valid && result.value){
+							jwt = result.value;
+						}
+
+					}
 					if (!jwt) {
-						return res.status(400).send({ message: 'NO_TOKEN_OR_ACCESS_COOKIE' });
+						throw new Error('NO_TOKEN_OR_ACCESS_COOKIE');
 					}
 					else {
 						const payload = fastify.jwt.verify(jwt) as JWTPayload;
 						if (payload.type !== Jwt_type.enable && payload.type !== Jwt_type.access) {
-							return res.status(401).send({ message: 'WRONG_TOKEN' });
+							throw new Error('WRONG_TOKEN');
 						}
 						const user = await findUserById(payload.id);
-						if (!user || user.is_logged_in || !user.tfa)
-							return res.status(401).send({ message: 'INVALID_USER' });
+						if (!user )
+							throw new Error('INVALID_USER');
+						else if ( user.tfa)
+							throw new Error('TFA_ALREADY_ENABLED');
 						const secret = generateSecret();
 						store2faKey(user.id, secret);
-						const qr = await generateqrcode(secret);
+
+						const qr = await generateqrcode(user.username,secret);
 						payload.type = Jwt_type.verify;
+						payload.tfa = true;
 						const verifyToken = fastify.jwt.sign(payload, { expiresIn: '5min' })
-						return res.status(201).send({ verifyjwt: verifyToken, qr: qr });
+						res.status(201).send({ verifyjwt: verifyToken, qr: qr });
+						setTimeout(async ()=>{
+							const check = await findUserById(user.id);
+							if (check && !check.tfa)
+								delete2faKey(user.id);
+						}, 300000)
 					}
 				}
 				catch (e: any) {
@@ -58,15 +79,16 @@ const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 				const payload = req.user as JWTPayload;
 				if (payload.type !== Jwt_type.access)
 					return res.status(401).send({ message: 'INVALID_ACCESS_TOKEN' })
-				const { username, password, tfa_token } = req.body;
+				const { password, tfa_token } = req.body;
 
 				const user = await findUserById(payload.id);
-				if (!user || !(await verifyPassword(password, user.password)) || username !== user.username) {
-					return res.status(401).send({ message: 'Invalid credentials' });
+				if (!user || !(await verifyPassword(password, user.password))) {
+					return res.status(401).send({ message: 'INVALID_CREDENTIALS' });
 				}
 				if (!validate_2fa_token(tfa_token, user.tfa_secret))
 					return res.status(401).send({ message: "INVALID_TFA_TOKEN" });
 				delete2faKey(user.id);
+				update2faStatus(user.id, false);
 				return res.status(200).send({ message: "SUCCESS" });
 			});
 
@@ -77,13 +99,13 @@ const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			async (req, res) => {
 				try {
 					const jwt = req.headers['verifyjwt'] as string | undefined;
-					console.log(jwt);
+					// console.log(jwt);
 					let payload: JWTPayload;
 					if (!jwt) {
 						throw new Error('NO_TOKEN')
 					} else {
 						payload = fastify.jwt.verify(jwt) as JWTPayload; //throws on invalid
-						console.log("payload: ", payload);
+						// console.log("payload: ", payload);
 						if (payload.type !== Jwt_type.verify){
 							throw new Error('INCORRECT_JWT');
 						}
@@ -95,9 +117,9 @@ const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 						if (!tfa_token) {
 							throw new Error('INVALID_NO_TOKEN')
 						}
-						if (user.is_logged_in) {
-							throw new Error('INVALID_USER_LOGGED_IN');
-						}
+						// if (user.is_logged_in) {
+						// 	throw new Error('INVALID_USER_LOGGED_IN');
+						// }
 						if (!validate_2fa_token(tfa_token, user.tfa_secret)) {
 							throw new Error('INVALID_TOKEN');
 						}
@@ -107,7 +129,7 @@ const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 						payload.type = Jwt_type.refresh;
 						const refreshToken = fastify.jwt.sign(payload, { expiresIn: '1week' });
 						log_in(user.id, refreshToken);
-
+						update2faStatus(user.id, true);
 						setAccessCookie(accessToken, res);
 						setRefreshCookie(refreshToken, res);
 						return res.status(200).send({ message: "SUCCESS" });

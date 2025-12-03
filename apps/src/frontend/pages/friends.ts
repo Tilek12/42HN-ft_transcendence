@@ -7,30 +7,9 @@ import { apiFetch } from '../utils/auth.js'
 
 
 
-export async function renderFriends(root: HTMLElement) {
+export async function friendsRequestListener() {
 
-//   <button id="more-friends-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
-//   <button id="more-friend-requests-btn" class="bg-blue-600 text-white px-4 py-2 rounded">Load More</button>
-	  root.innerHTML = renderBackgroundFull( /*html*/`
-		<div class="pt-24 max-w-xl mx-auto text-black p-6">
-		  <div id="friends-list"></div>
-		  <div id="friend-requests-list"></div>
-		</div>
-	  `);
-	//----------------load for friends list----------------------------------------
-	let allFriends: {friends : any[]}[] | undefined= [];
-	let friends_offset = 0;
-	let friends_limit = 1;
 
-	renderFriendsList('friends-list');
-
-	renderFriendRequestsList();
-	languageStore.subscribe((lang)=>{
-
-		transelate_per_id(translations_friends_render, "friends_list_header", lang, "friends_list_header");
-		transelate_per_id(translations_friends_render, "request_list_header", lang, "request_list_header");
-	}
-		)
 	document.getElementById('friend-requests-list')?.addEventListener(
 
 		'click', async (e) =>
