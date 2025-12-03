@@ -29,8 +29,7 @@
 |**User Management modules**|TODO
 |**Gameplay and user experience modules** | **major module (1):  2 Remote players on separate computers** |❌|❌| click play online button-> very often when the paddle hits the ball, the game reacts if I did not hit the ball and the ball starts from the middle of the game
 | **AI-Algo modules**	| **minor module (0.5): User and Game Stats Dashboards** |❌|❌| on profile page: https://10.12.6.4:8080/#/profile: number of wins, number of losses, number of trophies works, match history table is not visible
- **Cybersecurity modules** | **major module (1): Two-Factor Authentication (2FA) and  JSON Web Tokens (JWT)** ||| 2FA: additional layer of security  with secondary verification method with "Google authenticator smartphone app"<br>Login works. logout and login again works
- <br><br>JWT: authentication and authorization
+ **Cybersecurity modules** | **major module (1): Two-Factor Authentication (2FA) and  JSON Web Tokens (JWT)** ||| 2FA: additional layer of security  with secondary verification method with "Google authenticator smartphone app"<br>Login works. logout and login again works<br><br>JWT: authentication and authorization<br>login->rightclick inspect->network->200 POST login->response cookies:ACCESS token, value:eyJhbGciOiJIUzI1NiIsI...<br>200 GET me ->request cookies: ACCESS	"eyJhbGciOiJIUzI1NiIsI..." ->response: user data => JWT authentication is working.
 
 
 
@@ -40,3 +39,4 @@
 **More Issues:**
 - after changing profile pic, nav bar is not showing, I can not leave the profile page, I can not play the game -> refresh the page make the nav bar appearing again
 - after registering a new user, nav bar is not showing, I can not leave the profile page, I can not play the game -> refresh the page make the nav bar appearing again
+- move QR Code in sign up into the middle of the card, atm it is left
