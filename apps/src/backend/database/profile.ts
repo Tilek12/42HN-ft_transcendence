@@ -16,6 +16,7 @@ export async function findProfileById(id: number)
 	return await db.get('SELECT * FROM profiles WHERE id = ?', id);
 }
 
+
 export async function createProfile(username: string)
 {
 	let user = await findUserByUsername(username);
@@ -28,6 +29,7 @@ export async function createProfile(username: string)
 	//-----------
 
 }
+
 
 export async function parseProfiles(prof_id : number, offset?: number, limit?: number) : Promise<any[]>
 {
@@ -49,6 +51,8 @@ export async function parseProfiles(prof_id : number, offset?: number, limit?: n
 	return await db.all(sqliteString, [prof_id]);
 
 }
+
+
 //-----Matches and tournaments-------------------------
 export async function incrementWinsOrLossesOrTrophies(id: number, field: 'wins' | 'losses' | 'trophies')
 {
@@ -56,6 +60,8 @@ export async function incrementWinsOrLossesOrTrophies(id: number, field: 'wins' 
 		`UPDATE profiles SET ${field} = ${field} + 1 WHERE id = ?`,
 		id
 	);
+
+
 //-----Profile path or url-----------------------------
 }
 
@@ -66,6 +72,8 @@ export async function updatePicture(id: number, image_blob?: any) {
 	  id
 	);
 }
+
+
 //-----Friends list-------------------------------------
 export async function parseFriends(id: number, offset_param?: string, limit_param?: string)
 {
@@ -101,6 +109,7 @@ export async function parseFriends(id: number, offset_param?: string, limit_para
 	return row_with_stringified_image_blob;
 }
 
+
 export async function bidirectionalAddAFriend(id_user: number, id_of_invited_user: number)
 {
 	if (id_user !== id_of_invited_user)
@@ -109,6 +118,8 @@ export async function bidirectionalAddAFriend(id_user: number, id_of_invited_use
 		await db.run( `INSERT OR IGNORE INTO friends (user_id, friend_id) VALUES (?, ?)`, [id_of_invited_user, id_user]);
 	}
 }
+
+
 export async function bidirectionalDeleteAFriend(id_user: number, id_of_invited_user: number)
 {
 	if (id_user !== id_of_invited_user)
@@ -117,6 +128,7 @@ export async function bidirectionalDeleteAFriend(id_user: number, id_of_invited_
 		await db.run( `DELETE FROM friends WHERE user_id = ? AND friend_id = ?`, [id_of_invited_user, id_user]);
 	}
 }
+
 //-----------Blocked list-----------------------------------
 export async function AddToBlockedList(id_user: number, id_of_blocked_user: number)
 {
@@ -129,6 +141,8 @@ export async function AddToBlockedList(id_user: number, id_of_blocked_user: numb
 		await db.run(`INSERT OR IGNORE INTO blocked_list (user_id, blocked_id) VALUES (?, ?)`, [id_user, id_of_blocked_user]);
 	}
 }
+
+
 export async function userIsBlocked(user_id: number, profile_id: number) : Promise<any>
 {
 	let res : any;
@@ -136,41 +150,51 @@ export async function userIsBlocked(user_id: number, profile_id: number) : Promi
 		res = await db.get(`SELECT 1 FROM blocked_list WHERE (user_id = ? AND blocked_id = ?)`, [profile_id, user_id]);
 	return !!res;
 }
+
+
 export async function DeleteFromBlockedList(id_user:number, id_of_blocked_user: number)
 {
 	if (id_user !== id_of_blocked_user)
 			await db.run(`DELETE FROM blocked_list WHERE user_id = ? AND blocked_id =
 		?`, [id_user, id_of_blocked_user])
 }
+
+
 export async function parseBlockedList(user_id: number) : Promise<any[]>
 {
 	return await db.all('SELECT user_id, blocked_id FROM blocked_list WHERE user_id = ?', user_id);
 }
+
+
 //-------Friend request List--------------------------------
 export async function isExistsFriendRequest(senderId : number, recieverId: number)
 {
 	return await db.get(
-		`SELECT 1 FROM friends_requests
-		WHERE (sender_id = ? AND receiver_id = ?)`,
-		[senderId, recieverId]
+		`SELECT 1 FROM friends_requests WHERE (sender_id = ? AND receiver_id = ?)`, [senderId, recieverId]
 	)
 }
+
+
+
+
 export async function addFriendRequest(senderId: number, receiverId: number)
 {
 
 	const existing= await (isExistsFriendRequest(senderId, receiverId) || isExistsFriendRequest(receiverId,senderId));
 	if ((senderId ===  receiverId) || existing)
 		return ;
-	await db.run(`
-		INSERT OR IGNORE INTO friends_requests (sender_id, receiver_id)
-		VALUES (?, ?)`, [senderId, receiverId]);
+	await db.run(`INSERT OR IGNORE INTO friends_requests (sender_id, receiver_id) VALUES (?, ?)`, [senderId, receiverId]);
 }
+
+
 export async function deleteFriendRequest(senderId: number, receiverId: number)
 {
 	if (senderId ===  receiverId)
 		return ;
 	await db.run(`DELETE FROM friends_requests WHERE sender_id = ?  AND receiver_id = ?`, [senderId, receiverId]);
 }
+
+
 export async function parsePendingRequests(userId: number, offset_param?: string, limit_param?: string ) : Promise<any[]>
 {
 	let res : any;
@@ -179,6 +203,7 @@ export async function parsePendingRequests(userId: number, offset_param?: string
 	res =  await db.all(`SELECT sender_id, receiver_id sent_at FROM friends_requests WHERE receiver_id = ?`,[userId]);
 	return res;
 }
+
 
 export async function parseBidirectionalPendingRequests(userId: number, profileId: number) : Promise<any[]>
 {

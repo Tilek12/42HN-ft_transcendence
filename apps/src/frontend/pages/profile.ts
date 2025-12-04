@@ -13,6 +13,7 @@ import { Match, fUser } from '../types.js';
 import { renderConnectionErrorPage } from './error.js';
 import { renderFriendsList } from './renderFriends.js';
 import { renderFriendRequestsList } from './renderFriendRequestList.js';
+import { friendsRequestListener } from './friends.js';
 
 let i = 0;
 
@@ -80,9 +81,11 @@ export async function renderProfile(root: HTMLElement) {
 				location.hash = '#/login';
 				return;
 			};
+
+			// Get Data from request and insert it
 			const { username, image_blob, wins,	losses,	trophies} = data;
 			let user = getUser();
-			root.innerHTML = renderUserProfile();
+			root.innerHTML = renderUserProfile(); //main html content
 			if (user){
 				user.username = username;
 				user.image_blob = image_blob;
@@ -107,7 +110,8 @@ export async function renderProfile(root: HTMLElement) {
 			(async()=>{renderFriendsList('friend-list');})();
 			//render freind request list
 			(async()=>{renderFriendRequestsList();})();
-
+			friendsRequestListener();
+			
 
 			//more-profiles button event listener, 
 			document.getElementById('more-profiles-btn')?.addEventListener('click', async () => {
@@ -124,12 +128,7 @@ export async function renderProfile(root: HTMLElement) {
 				('click', async (e) => {
 					ref_obj_allProfiles.allProfiles = await listenerFriendAndBlock(e, 'profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit)
 				});
-			document.getElementById('upload-form')?.addEventListener
-				('submit', async (e) => listenerUploadPicture(e));
-
-			document.getElementById('delete-pic-btn')?.addEventListener
-				('click', async (e) => listenerDeletePicture(e));
-
+			
 
 			// renders match history
 			//==================Linda's code==========================
@@ -145,10 +144,9 @@ export async function renderProfile(root: HTMLElement) {
 					if (!matchContainer) return;
 
 					if (!Array.isArray(matches) || matches.length === 0) {
-						matchContainer.innerHTML += `
-						<p>No matches found.</p>`;
 						return;
 					}
+					document.getElementById('match_history_label')?.classList.add('hidden');
 					matchContainer.innerHTML +=
 						/*html*/
 						`
@@ -202,8 +200,10 @@ export async function renderProfile(root: HTMLElement) {
 				.catch(err => {
 					console.error('Failed to load matches:', err);
 				});
-
-			// set all corect language strings
+			
+			// trigger reload
+			document.getElementById('nav_profile')?.addEventListener('click', () => { renderProfile(root) });
+			// set all correct language strings
 			update_langauge_headers_user_profile(languageStore.language);
 			//make sure the language strings update on language
 			languageStore.subscribe((lang) => update_langauge_headers_user_profile(lang));

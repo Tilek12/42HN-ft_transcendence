@@ -1,7 +1,8 @@
-import { apiFetch, getUser } from '../utils/auth.js'
+import { apiFetch, getUser, setUser } from '../utils/auth.js'
 import { defaultPicture } from '../utils/constants.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { renderConnectionErrorPage } from './error.js';
+import { showSettingsError, showSettingsSuccess } from './settings.js';
 
 
 export const compressFile = async (file: File): Promise<File> => {
@@ -30,7 +31,7 @@ export const compressFile = async (file: File): Promise<File> => {
 	})
 }
 
-export const listenerUploadPicture = async (e: any) => {
+export const listenerUploadPicture = async (root:HTMLElement, e: any) => {
 	e.preventDefault();
 	try {
 		const fileInput: any = document.getElementById('profile-pic-input');
@@ -57,19 +58,25 @@ export const listenerUploadPicture = async (e: any) => {
 		if (res.ok) {
 			// profile.image_blob ? `data:image/webp;base64,${profile.image_blob}` : `${BACKEND_URL}/profile_pics/${profile.image_path}`;
 			// const BACKEND_URL = getEnvVariable('VITE_BACKEND_URL');
-			const img = document.getElementById("profile_pic") as HTMLImageElement;
-			img.src = `data:image/webp;base64, ${result.blob}`;
+			
+			const user = getUser();
+			if (user){
+				user.image_blob = result.blob;
+				setUser(user);
+				showSettingsSuccess(root);
+			}
 			// location.reload();
+			
 		}
 		else
-			alert(result.message || 'Failed to upload profile picture');
+			showSettingsError(root, res);
 	}
 	catch (e: any) {
 		renderConnectionErrorPage();
 	}
 }
 
-export const listenerDeletePicture = async (e: any) => {
+export const listenerDeletePicture = async (root:HTMLElement, e: any) => {
 	e.preventDefault();
 	try {
 		const res = await apiFetch(`/api/private/delete_pic`,
@@ -81,12 +88,17 @@ export const listenerDeletePicture = async (e: any) => {
 		)
 		const data = await res.json();
 		if (res.ok) {
-			const img = document.getElementById('profile_pic') as HTMLImageElement;
-			img.src = defaultPicture;
+			const user = getUser();
+			if (user)
+			{
+				user.image_blob = undefined;
+				setUser(user);
+				showSettingsSuccess(root);
+			}
 
 		}
 		else
-			alert(data.message || 'Failed to delete profile picture')
+			showSettingsError(root, res);
 	} catch (e: any) {
 		renderConnectionErrorPage();
 	}

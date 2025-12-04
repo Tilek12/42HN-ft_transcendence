@@ -52,6 +52,7 @@ export const update_langauge_headers_user_profile = (lang: Language) => {
 	transelate_per_id(translations_profile, "match_history", lang, "match_history_header");
 	transelate_per_id(translations_profile, "load_more", lang, "load_more_header");
 	transelate_per_id(translations_profile, "username", lang, "username_header");
+	transelate_per_id(translations_profile, "no_match_history", lang, "match_history_label");
 
 
 }
@@ -118,7 +119,7 @@ export function renderUserProfile()
 						</div>
 						<!--Friend request list-->
 						<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] mt-8">
-		  					<h2 class="text-2xl font-bold text-white mb-6 flex items-center sticky top-0 bg-white/10 backdrop-blur-md pb-4 -mt-2">
+		  					<h2 class="text-2xl font-bold text-white mb-6 flex items-center sticky top-0 pb-4 -mt-2">
 								<svg class="w-6 h-6 mr-2 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
 									</svg>
@@ -167,8 +168,8 @@ export function renderUserProfile()
 
 						
 						<!-- Friends List -->
-						<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
-							<h2 class="text-2xl font-bold text-white mb-6 flex items-center sticky top-0 bg-white/10 backdrop-blur-md pb-4 -mt-2">
+						<div class="bg-white/10 rounded-2xl shadow-2xl p-8 border border-white/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+							<h2 class="text-2xl font-bold text-white mb-6 flex items-center sticky top-0 pb-4 -mt-2">
 								<svg class="w-6 h-6 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
 									</svg>
@@ -186,14 +187,16 @@ export function renderUserProfile()
 						<!-- Scrollable list of past matches -->
 						<!-- DESIGN: Sticky header, max-height 350px with scroll, populated by profile.ts -->
 						<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
-							<h2 class="text-2xl font-bold text-white mb-6 flex items-center sticky top-0 bg-white/10 backdrop-blur-md pb-4 -mt-2">
+							<h2 class="text-2xl font-bold text-white mb-6 flex items-center  top-0  pb-4 -mt-2">
 								<svg class="w-7 h-7 mr-3 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
 								</svg>
 								<span id="match_history_header"></span>
 							</h2>
 							<!-- DESIGN: Scrollable container with custom scrollbar styling -->
-							<div id="match-history" class="max-h-[350px] overflow-y-auto pr-2"></div>
+							<div id="match-history" class="max-h-[350px] overflow-y-auto pr-2">
+								<span id="match_history_label"></span>
+							</div>
 						</div>
 
 						<!-- Users List Section -->

@@ -14,7 +14,6 @@ export interface User {
 	tfa: boolean,
 	tfa_secret: string,
 	role: string,
-	email: string,
 	password: string,
 	created_at: string,
 	//game info

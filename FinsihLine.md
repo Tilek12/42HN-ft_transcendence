@@ -9,6 +9,16 @@
 - last 0.5 module -> Browser support? /3d Rustam decides after subject reading
 
 
+
+
+>|Module 1| Module 2| Module 3 | Module 4| Module 5 |  Module 6 |  Module 7|
+>|--------|---------|----------|---------|----------|-----------|--------|
+>|1.0 Fasify Backend | 0.5 Frontend tailwind| 1.0 User Management| 1.0 Remote players | 1.0 2FA with JWT| 0.5 Browser Support| 1.0 Severside Pong|
+>| |0.5 Database  | | | |0.5 Language Support | |
+
+
+
+
 # Issues
 
 ### Frontend
@@ -44,18 +54,21 @@
 
 
 # Issues
+
 GAME
 - when game plays, and you switch to another page it doesnt disconnect
-
+- game alert issue after finsih
 
 FRONTEND
 - boxes of login and register page cant show whole placeholders
 - register button on login page is not colorful when language switched 
-- picture buttons in settigs dont have language support
+
 
 BACKEND
 
 
 USERMANAGEMENT
+- match history proper display
+- profile updates on change -> through presence socket?
 
 do we need a leaderboard?
