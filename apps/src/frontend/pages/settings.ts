@@ -64,7 +64,7 @@ export async function showSettingsError(root: HTMLElement, res: Response, messag
 	const data = await res.json();
 	if (error)
 		error.innerText = `${translations_errors[languageStore.language].error_default} ${res.status} ${data.message ? data.message : ''} ${message ? message : ''}`;
-	setTimeout(() => { renderSettings(root) }, 1000)
+	setTimeout(() => { renderSettings(root) }, 2000)
 }
 
 
@@ -74,7 +74,7 @@ export function showSettingsSuccess(root: HTMLElement,) {
 	error?.classList.add('text-green-600');
 	if (error)
 		error.innerText = `${translations_register_page[languageStore.language].success}`;
-	setTimeout(() => { renderSettings(root) }, 1000)
+	setTimeout(() => { renderSettings(root) }, 2000)
 }
 
 

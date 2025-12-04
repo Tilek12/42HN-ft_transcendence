@@ -54,18 +54,21 @@
 
 
 # Issues
+
 GAME
 - when game plays, and you switch to another page it doesnt disconnect
-
+- game alert issue after finsih
 
 FRONTEND
 - boxes of login and register page cant show whole placeholders
 - register button on login page is not colorful when language switched 
 
-- 2fa enable cancel option
+
 BACKEND
 
 
 USERMANAGEMENT
+- match history proper display
+- profile updates on change -> through presence socket?
 
 do we need a leaderboard?
