@@ -29,6 +29,8 @@
 |**User Management modules**|TODO|❌|❌| on profile page: https://10.12.6.4:8080/#/profile: number of wins, number of losses, number of trophies works, match history table is not visible
 |**Gameplay and user experience modules** | **major module (1):  2 Remote players on separate computers** |❌|❌| click play online button-> very often when the paddle hits the ball, the game reacts if I did not hit the ball and the ball starts from the middle of the game
  **Cybersecurity modules** | **major module (1): Two-Factor Authentication (2FA) and  JSON Web Tokens (JWT)** |✅|✅| 2FA: additional layer of security  with secondary verification method with "Google authenticator smartphone app"<br>Login works. logout and login again works<br><br>JWT: authentication and authorization<br>login->rightclick inspect->network->200 POST login->response cookies:ACCESS token, value:eyJhbGciOiJIUzI1NiIsI...<br>200 GET me ->request cookies: ACCESS	"eyJhbGciOiJIUzI1NiIsI..." ->response: user data => JWT authentication is working.
+| **Accessibility modules** | **Minor module (0.5): Expanding Browser Compatibility**|||Mozilla firefox and google chrome: Functionality works, Layout->CSS can be interpreted differently, WebSocket event behavior, localStorage / sessionStorage differences, 2FA or token generation, Test with a Private Window, DIFFERENCE: engine, javascript engine (firefox slower)
+|	| **Minor module (0.5): Multiple language**
 
 
 
