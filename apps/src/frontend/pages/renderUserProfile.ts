@@ -165,7 +165,7 @@ export function renderUserProfile()
 									</svg>
 								<span id="friend_list_header"></span>
 							</h2>
-							<button id="triggerfriendrequest" class ="bg-black-500 tranform hover:scale-105 ">trigger '/friends' request </button>
+							 <!--button id="triggerfriendrequest" class ="bg-black-500 tranform hover:scale-105 ">trigger '/friends' request </button-->
 							<div id="friend-list"></div>							
 						</div>
 					</div>

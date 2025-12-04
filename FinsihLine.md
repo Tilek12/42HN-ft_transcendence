@@ -71,4 +71,6 @@ USERMANAGEMENT
 - match history proper display
 - profile updates on change -> through presence socket?
 
-do we need a leaderboard?
+- is everything okay with thomas' commits?
+
+git shortlog -s -n -e

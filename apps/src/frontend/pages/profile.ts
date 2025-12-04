@@ -104,19 +104,19 @@ export async function renderProfile(root: HTMLElement) {
 			//enable reload of profiles on click of navbar profiles it doesnt go through router and so makes sense to add here, nice -p
 			document.getElementById('nav_profile')?.addEventListener('click', () => { nav_profile_clicked = true; });
 
-			document.getElementById('triggerfriendrequest')?.addEventListener('click', ()=>{
-				try {
-					const res = apiFetch('/api/private/parse-profiles', {
-						method: 'GET',
-						credentials: 'include',
-					})
-					// if (res.ok)
+			// document.getElementById('triggerfriendrequest')?.addEventListener('click', ()=>{
+			// 	try {
+			// 		const res = apiFetch('/api/private/parse-profiles', {
+			// 			method: 'GET',
+			// 			credentials: 'include',
+			// 		})
+			// 		// if (res.ok)
 
-				}catch(e:any)
-				{
-					alert(e.message);
-				}
-			});
+			// 	}catch(e:any)
+			// 	{
+			// 		alert(e.message);
+			// 	}
+			// });
 
 
 			//render the profile list asyncronously
