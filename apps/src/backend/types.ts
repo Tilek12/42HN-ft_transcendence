@@ -24,7 +24,8 @@ export interface User {
 	tournamentMatchId?: number;
 	isAlive: boolean;
 	isInGame: boolean;
-	isInTournament: boolean;
+	isInLocalTournament: boolean;
+	isInOnlineTournament: boolean;
 }
 
 

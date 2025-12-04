@@ -93,17 +93,21 @@ class LocalTournamentManager {
 	/** Local tournaments: start matches one-by-one on the same computer */
 	private async startRoundSequentially(tournament: TournamentState, roundIdx: number) {
 		const ctrlSocket: WebSocket | undefined = this.localControlSockets.get(tournament.id);
-		if (!ctrlSocket) {
-			console.error(`[LOCAL Tournament ${tournament.id}] No control socket found`);
+		if (!ctrlSocket || ctrlSocket.readyState !== WebSocket.OPEN) {
+			console.error(`[LOCAL Tournament ${tournament.id}] Control socket not ready`);
 			return;
 		}
 		for (const match of tournament.rounds[roundIdx]!) {
-			this.startOneMatch(tournament, match, ctrlSocket); // await: resolves when game ends
+			await this.startOneMatch(tournament, match, ctrlSocket);
+			// Add 2-second pause between matches for graceful switching
+			if (tournament.rounds[roundIdx]!.indexOf(match) < tournament.rounds[roundIdx]!.length - 1) {
+				await new Promise(resolve => setTimeout(resolve, 2000));
+			}
 		}
 	}
 
 	/** Start one match, wire onEnd → TournamentManager.onMatchEnded */
-	private startOneMatch(tournament: TournamentState, match: Match, localSocket: WebSocket) {
+	private async startOneMatch(tournament: TournamentState, match: Match, localSocket: WebSocket): Promise<void> {
 		match.status = 'waiting_for_sockets';
 
 		localSocket.send(JSON.stringify({
@@ -115,7 +119,7 @@ class LocalTournamentManager {
 			player2: { id: match.p2.id, name: match.p2.name }
 		}));
 		// For local tournaments, start immediately since socket is ready
-		this.startActualMatch(tournament.id, match, localSocket);
+		return this.startActualMatch(tournament.id, match, localSocket);
 	}
 
 	/** Actually start the game after socket readiness is confirmed */
@@ -165,17 +169,16 @@ class LocalTournamentManager {
 	private broadcastTournamentUpdate(tournamentId: string) {
 		const tournament = this.localTournaments.get(tournamentId);
 		if (!tournament) return;
+
+		const ctrlSocket = this.localControlSockets.get(tournamentId);
+		if (!ctrlSocket || ctrlSocket.readyState !== WebSocket.OPEN) return;
+
 		const update = JSON.stringify({
 			type: 'tournamentUpdate',
 			state: this.getTournamentState(tournament.id)
 		});
 
-		for (const participant of tournament.participants) {
-			const user = userManager.getUser(Number(participant.id));
-			if (user?.tournamentSocket?.readyState === WebSocket.OPEN) {
-				user.tournamentSocket.send(update);
-			}
-		}
+		ctrlSocket.send(update);
 	}
 
 	getTournamentState(id: string) {
@@ -221,7 +224,7 @@ class LocalTournamentManager {
 	}
 
 	/** Called by GameManager when one game ends */
-	onMatchEnd(
+	async onMatchEnd(
 		tournamentId: string,
 		matchId: string,
 		winner: Participant,
@@ -254,7 +257,7 @@ class LocalTournamentManager {
 				// Send tournamentEnd message
 				const winner = winners[0];
 				const ctrlSocket = this.localControlSockets.get(tournament.id);
-				if (ctrlSocket) {
+				if (ctrlSocket && ctrlSocket.readyState === WebSocket.OPEN) {
 					ctrlSocket.send(JSON.stringify({
 						type: 'tournamentEnd',
 						winner: { id: winner!.id, name: winner!.name }
@@ -262,6 +265,10 @@ class LocalTournamentManager {
 				}
 
 				this.broadcastTournamentUpdate(tournament.id);
+
+				// Cleanup resources
+				this.localControlSockets.delete(tournament.id);
+				this.localTournaments.delete(tournament.id);
 				return;
 			}
 
@@ -272,8 +279,9 @@ class LocalTournamentManager {
 				nextRound.push(this.makeMatch(tournament, nextIdx, winners[i]!, winners[i + 1]!));
 			}
 			tournament.rounds.push(nextRound);
+			console.log(`🏆 [LOCAL Tournament: ${tournament.id}] Round ${nextIdx} created with ${nextRound.length} matches`);
 
-			// this.startRoundSimultaneously(tournament, nextIdx);   <------- !!! FIX THIS !!! <--------
+			await this.startRoundSequentially(tournament, nextIdx);
 		}
 
 		this.broadcastTournamentUpdate(tournament.id);

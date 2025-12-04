@@ -11,7 +11,7 @@ import { JWTPayload, User } from '../../types';
 
 function handle_message(text: string, user:User, userId:string, socket:WebSocket) {
 	if (text === 'pong') {
-		userManager.setInTournament(user, true);
+		userManager.setInOnlineTournament(user, true);
 		return;
 	}
 
@@ -74,7 +74,7 @@ const wsOnlineTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 						return;
 					}
 
-					userManager.setInTournament(user, true);
+					userManager.setInOnlineTournament(user, true);
 					console.log(`🎯 [ONLINE Tournament WS] Connected: ${userId} (${action})`);
 					socket.send(JSON.stringify({ type: 'tournamentJoined', id: tournament.id }));
 					while (buffer.length) {
@@ -113,14 +113,14 @@ const wsOnlineTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 			const user = userManager.getUser(id);
 			if (!user || !user.tournamentSocket) return;
 
-			if (!user.isInTournament) {
+			if (!user.isInOnlineTournament) {
 				console.log(`💀 [Tournament WS] Inactive, closing: ${id}`);
 				user.tournamentSocket.close();
 				userManager.removeTournamentSocket(user);
 				return;
 			}
 
-			user.isInTournament = false;
+			user.isInOnlineTournament = false;
 			if (user.tournamentSocket.readyState === WebSocket.OPEN) {
 				try {
 					user.tournamentSocket.send('ping');

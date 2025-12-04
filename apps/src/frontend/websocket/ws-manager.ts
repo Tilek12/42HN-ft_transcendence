@@ -227,13 +227,10 @@ class WebSocketManager {
 		const user = getUser();
 		if (!user) return null;
 
-		let url = `/ws/tournament?mode=${mode}&action=${action}&size=${size}`;
+		let url = `/ws/${mode}-tournament?action=${action}&size=${size}`;
 		if (action === 'join' && id) url += `&id=${id}`;
-		while (names && names.length > 0) {
-			const name = names.pop();
-			if (name)
-				url += `&names=${name}`;
-
+		if (mode === 'local' && names) {
+			url += `&names=${encodeURIComponent(JSON.stringify(names))}`;
 		}
 
 		const socket = new WebSocket(url);
@@ -245,7 +242,10 @@ class WebSocketManager {
 		}
 
 		socket.onmessage = (e) => {
-			if (e.data === 'ping') socket.send('pong');
+			if (e.data === 'ping'){
+				socket.send('pong');
+				console.log('🎯 [Tournament WS] Ping received, pong sent');
+			}
 			else {
 				try {
 					const msg = JSON.parse(e.data);

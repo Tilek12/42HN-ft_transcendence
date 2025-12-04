@@ -13,14 +13,14 @@ import { findUserById } from '../../database/user';
 
 function handle_message(text: string, user:User, userId:string, socket:WebSocket) {
 	if (text === 'pong') {
-		userManager.setInTournament(user, true);
+		userManager.setInLocalTournament(user, true);
 		return;
 	}
 	const data = JSON.parse(text);
-	if (data.type === 'quitTournament') {
+	if (data.type === 'quitLocalTournament') {
 		localTournamentManager.quitLocalTournament(userId);
 		userManager.removeTournamentSocket(user);
-		socket.send(JSON.stringify({ type: 'tournamentLeft' }));
+		socket.send(JSON.stringify({ type: 'localtTournamentLeft' }));
 	} else if (data.type === 'move') {
 		const tournament = localTournamentManager.getUserTournament(userId);
 		if (tournament) {
@@ -35,14 +35,13 @@ function handle_message(text: string, user:User, userId:string, socket:WebSocket
 const wsLocalTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 	fastify.get('/local-tournament', { websocket: true }, (socket: WebSocket, req: FastifyRequest) => {
 		const params = new URLSearchParams(req.url?.split('?')[1] || '');
-		const token = params.get('token');
 		const action = params.get('action'); // "create" or "join"
-		const tournamentId = params.get('id');
 		const size = parseInt(params.get('size') || '4') as 4 | 8;
 		const namesRaw = params.get('names') || '';
-		const extraNames = namesRaw ? JSON.parse(namesRaw) : [];
+		const extraNames = namesRaw ? JSON.parse(decodeURIComponent(namesRaw)) : [];
 
-		if (!token || !action || (action === 'join' && !tournamentId)) {
+
+		if (action !== 'create') {
 			socket.close(4001, '[LOCAL Tournament WS] Missing or invalid parameters');
 			return;
 		}
@@ -78,9 +77,9 @@ const wsLocalTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 						return;
 					}
 
-					userManager.setInTournament(user, true);
+					userManager.setInLocalTournament(user, true);
 					console.log(`🎯 [LOCAL Tournament WS] Connected: ${userId} (${action})`);
-					socket.send(JSON.stringify({ type: 'tournamentJoined', id: tournament.id }));
+					socket.send(JSON.stringify({ type: 'localTournamentCreated', id: tournament.id }));
 
 					localTournamentManager.startLocalTournament(tournament.id);
 
@@ -120,14 +119,14 @@ const wsLocalTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 			const user = userManager.getUser(id);
 			if (!user || !user.tournamentSocket) return;
 
-			if (!user.isInTournament) {
+			if (!user.isInLocalTournament) {
 				console.log(`💀 [LOCAL Tournament WS] Inactive, closing: ${id}`);
 				user.tournamentSocket.close();
 				userManager.removeTournamentSocket(user);
 				return;
 			}
 
-			user.isInTournament = false;
+			user.isInLocalTournament = false;
 			if (user.tournamentSocket.readyState === WebSocket.OPEN) {
 				try {
 					user.tournamentSocket.send('ping');
@@ -136,7 +135,7 @@ const wsLocalTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 				}
 			}
 		});
-	}, PING_INTERVAL_MS);
+	}, 20000);
 };
 
 export default fp(wsLocalTournamentPlugin);

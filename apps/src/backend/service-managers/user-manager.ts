@@ -19,7 +19,8 @@ class UserManager {
 			user.tournamentSocket = null,
 			user.isAlive = true,
 			user.isInGame = false,
-			user.isInTournament = false,
+			user.isInLocalTournament = false,
+			user.isInOnlineTournament = false,
 
 			this.users.set(user.id, user);
 		return true;
@@ -49,8 +50,6 @@ class UserManager {
 		 console.log("❎ All Users logged out.");
 	}
 
-
-
 	setAlive(id: number) {
 		const user = this.getUser(id);
 		if (user) {
@@ -63,9 +62,14 @@ class UserManager {
 		if (user) user.isInGame = value;
 	}
 
-	setInTournament(user: User, value: boolean) {
+	setInLocalTournament(user: User, value: boolean) {
 		if (user)
-			user.isInTournament = value;
+			user.isInLocalTournament = value;
+	}
+
+	setInOnlineTournament(user: User, value: boolean) {
+		if (user)
+			user.isInOnlineTournament = value;
 	}
 
 	getOnlineUsers() {
