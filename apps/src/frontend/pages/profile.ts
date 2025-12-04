@@ -200,8 +200,10 @@ export async function renderProfile(root: HTMLElement) {
 				.catch(err => {
 					console.error('Failed to load matches:', err);
 				});
-
-			// set all corect language strings
+			
+			// trigger reload
+			document.getElementById('nav_profile')?.addEventListener('click', () => { renderProfile(root) });
+			// set all correct language strings
 			update_langauge_headers_user_profile(languageStore.language);
 			//make sure the language strings update on language
 			languageStore.subscribe((lang) => update_langauge_headers_user_profile(lang));

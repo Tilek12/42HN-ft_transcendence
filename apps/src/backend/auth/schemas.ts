@@ -152,7 +152,7 @@ export const AnswerRequestSchema =
 			required: ['profileId', 'profileAnswer'],
 			properties: {
 				profileId: { type: 'string' },
-				profileAnswer: { type: 'string'}
+				profileAnswer: { type: 'string' }
 			},
 		}
 	} as const;
@@ -323,22 +323,38 @@ export const enable_TFA_Schema = {
 	headers: {
 		type: 'object',
 		properties: {
-			enablejwt: { type: 'string' }
-		}
+			enablejwt: { type: 'string' },
+		},
 	},
 	body: {},
 	response: {
 		200: {
 			type: 'object',
 			properties: {
-				verifyjwt: { type: 'string'},
-					qr: { type: 'string' } 
-				}
+				verifyjwt: { type: 'string' },
+				qr: { type: 'string' }
+			},
 		}
 	}
-} as const ;
+} as const;
 export type enable_TFA_body = FromSchema<typeof enable_TFA_Schema.body>;
 
+
+export const cancel_TFA_Schema = {
+	description: 'post request enable 2fa',
+	tags: ['2FA'],
+	summary: 'cancels request to enable 2fa auth, deletes database secret and boolean, also stops the timeout check',
+	hidden: false,
+	headers: {
+		type: 'object',
+		properties: {
+			verifyjwt: { type: 'string' },
+		},
+		required: ['verifyjwt'],
+	},
+	body: {},
+
+} as const;
 
 
 export const disable_TFA_Schema = {

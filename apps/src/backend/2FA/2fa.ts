@@ -14,7 +14,7 @@ export async function generateqrcode(username:string, secret: string):Promise<st
 		secret: OTPAuth.Secret.fromBase32(secret),
 	});
 	const uri = totp.toString();
-	console.log(uri);
+	// console.log(uri);
 	return QRCode.toDataURL(uri);
 }
 

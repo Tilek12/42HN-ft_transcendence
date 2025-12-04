@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
-import { enable_TFA_Schema, disable_TFA_Schema, verifyTFASchema, verifyTFAbody } from '../../auth/schemas';
+import { enable_TFA_Schema, disable_TFA_Schema, verifyTFASchema, verifyTFAbody, cancel_TFA_Schema } from '../../auth/schemas';
 import { enable_TFA_body, disable_TFA_body } from '../../auth/schemas';
-import { verifyPassword } from '../../auth/utils';
+import { verifyPassword, verifyUserJWT } from '../../auth/utils';
 
 import { generateqrcode, generateSecret, validate_2fa_token } from '../../2FA/2fa';
 import { JWTPayload, Jwt_type } from '../../types';
@@ -13,21 +13,23 @@ import { userManager } from '../../service-managers/user-manager';
 
 const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 
+	let tfa_timeout: NodeJS.Timeout;
+
 	//enables the 2fa auth logic, needs a valid jwt token sends out the 2fa secret as qrcode.
 	fastify.post<{ Body: enable_TFA_body }>
-		('/enable', { schema: enable_TFA_Schema,
+		('/enable', {
+			schema: enable_TFA_Schema,
 			// onSend:function(req, res,payload, done){
 			// 	fastify.log.info(payload);
 			// 	done();
 			// }
-		 },
+		},
 			async (req, res) => {
 				try {
 					let jwt = req.headers['enablejwt'] as string | undefined;
-					if (!jwt)
-					{
+					if (!jwt) {
 						const result = fastify.unsignCookie(req.cookies.ACCESS || "");
-						if (result.valid && result.value){
+						if (result.valid && result.value) {
 							jwt = result.value;
 						}
 
@@ -41,19 +43,19 @@ const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 							throw new Error('WRONG_TOKEN');
 						}
 						const user = await findUserById(payload.id);
-						if (!user )
+						if (!user)
 							throw new Error('INVALID_USER');
-						else if ( user.tfa)
+						else if (user.tfa)
 							throw new Error('TFA_ALREADY_ENABLED');
 						const secret = generateSecret();
 						store2faKey(user.id, secret);
 
-						const qr = await generateqrcode(user.username,secret);
+						const qr = await generateqrcode(user.username, secret);
 						payload.type = Jwt_type.verify;
 						payload.tfa = true;
 						const verifyToken = fastify.jwt.sign(payload, { expiresIn: '5min' })
 						res.status(201).send({ verifyjwt: verifyToken, qr: qr });
-						setTimeout(async ()=>{
+						tfa_timeout = setTimeout(async () => {
 							const check = await findUserById(user.id);
 							if (check && !check.tfa)
 								delete2faKey(user.id);
@@ -63,8 +65,39 @@ const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 				catch (e: any) {
 					return res.status(401).send({ message: e.message });
 				}
-				
 			});
+
+	fastify.delete('/cancel',
+		{	schema: cancel_TFA_Schema,
+			preHandler: async (req, res) => {
+				const ret = await verifyUserJWT(req, [Jwt_type.access]);
+				if (!ret)
+					return res.status(401).send({ message: 'Invalid or expired token' });
+			}
+		 },
+		async (req, res) => {
+			try {
+				let jwt = req.headers['verifyjwt'] as string | undefined;
+				if (!jwt) {
+					throw new Error('NO_VERIFY_JWT');
+				}
+				else {
+					const payload = fastify.jwt.verify(jwt) as JWTPayload;
+					if (payload.type !== Jwt_type.verify) {
+						throw new Error('WRONG_VERIFY_JWT');
+					}
+					const user = await findUserById(payload.id);
+					if (!user)
+						throw new Error('INVALID_USER');
+					delete2faKey(user.id);
+					clearTimeout(tfa_timeout);
+				}
+			}
+			catch (e: any) {
+				return res.status(401).send({ message: e.message });
+			}
+		});
+
 
 	//disables the 2fa auth functionality. needs username, passsowrd 2fa_token and jwt
 	fastify.post<{ Body: disable_TFA_body }>
@@ -106,7 +139,7 @@ const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 					} else {
 						payload = fastify.jwt.verify(jwt) as JWTPayload; //throws on invalid
 						// console.log("payload: ", payload);
-						if (payload.type !== Jwt_type.verify){
+						if (payload.type !== Jwt_type.verify) {
 							throw new Error('INCORRECT_JWT');
 						}
 						const { tfa_token } = req.body;
