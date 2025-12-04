@@ -28,6 +28,17 @@ export interface User {
 }
 
 
+export type Profile = {
+	id:number
+	username: string,
+	created_at:string,
+	wins: string,
+	losses: string,
+	trophies: string,
+	image_blob: string,
+};
+
+
 // AUTH
 export enum Jwt_type {
 	enable = "ENABLE",

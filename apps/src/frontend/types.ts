@@ -10,16 +10,20 @@ export interface PresenceUser {
   name?: string;
 }
 
-export interface fUser {
-  id:number;
-  username: string,
-  created_at: string,
-  image_blob:string | undefined;
-  wins:number,
-  losses:number,
-  trophies:number,
+// fUser = Frontend User (to not get confused)
+export interface fUser extends fProfile {
   tfa:boolean,
 }
+
+export type fProfile = {
+	id:number
+	username: string,
+	created_at:string,
+	wins: string,
+	losses: string,
+	trophies: string,
+	image_blob: string | undefined,
+};
 
 export type Match =
 	{

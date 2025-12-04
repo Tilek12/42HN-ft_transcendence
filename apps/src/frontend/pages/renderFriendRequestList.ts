@@ -58,7 +58,7 @@ export async function renderFriendRequestsList() {
 		).join('');
 	}
 	else{
-		container.innerHTML = /*html*/`<span class>${translations_profile[languageStore.language].no_friend_requests}</span>`
+		container.innerHTML = /*html*/`<span id="no_requests_span">${translations_profile[languageStore.language].no_friend_requests}</span>`
 	}
 	
 	} catch (err) {

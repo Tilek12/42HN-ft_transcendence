@@ -20,17 +20,8 @@ export type return_on_render = {
 }
 const friend_request_action = (is_friend: number, peding_direction: string, other_profile_id: number) => {
 	let res: string = '';
-	if (is_friend)
-		res =/*html*/` 
-        <button 
-            data-profile-id="${other_profile_id}" 
-            class="unlink-btn px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-xl transform hover:scale-110 group"
-            title="Remove Friend">
-            <svg class="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"></path>
-			</svg>
-        </button>`;
-	else {
+	if (!is_friend)
+	{
 		if (peding_direction == null)
 			res = /*html*/`<button data-profile-id = "${other_profile_id}" class="link-btn px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-xl transform hover:scale-110 group">
 				<svg class="w-5 h-5 transition-transform duration-300 group-hover:-translate-y-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,6 +37,8 @@ const friend_request_action = (is_friend: number, peding_direction: string, othe
 	}
 	return res
 }
+
+
 const block_action = (is_blocking: number, other_profile_id: number) => {
 	let res: string = '';
 	if (!is_blocking)
@@ -138,10 +131,7 @@ export async function renderProfilesList(
 	let old_limit = limit;
 	let old_offset = offset;
 	let res: any;
-	languageStore.subscribe(async () => {
-		res = await renderProfilesList(element_id, load, allProfiles, offset, limit);
-		allProfiles = res.AllProfiles;
-	})
+
 	if (!container)
 		return;
 
@@ -191,6 +181,7 @@ export async function renderProfilesList(
 			// console.log(`changing on profile lists ${pr.username} to ${pr.logged_in}`);
 			// console.log("===>>", document.getElementById(`profiles-loggin-state-${pr.username}`));
 			const profile_loggin_state = document.getElementById(`profiles-loggin-state-${pr.username}`) as HTMLSpanElement;
+			
 			if (profile_loggin_state) {
 				profile_loggin_state.classList.remove('bg-green-500', 'bg-gray-400', 'animate-pulse');
 				if (pr.logged_in) {
@@ -201,9 +192,15 @@ export async function renderProfilesList(
 			}
 		}));
 		// console.log("===================HERE CHECK AFTER THE LAST MAP=========================");
-		return_res = { AllProfiles: allProfiles, limit: limit, offset: offset, already_parsed: already_parsed };
-		const r_on_r: return_on_render = { allProfiles: return_res.AllProfiles, already_parsed: return_res.already_parsed };
-		// console.log("===========r_on_r for check:=========== ", r_on_r);
+		return_res = { 	AllProfiles: allProfiles,
+						limit: limit,
+						offset: offset,
+						already_parsed: already_parsed 
+					};
+		const r_on_r: return_on_render = {	allProfiles: return_res.AllProfiles,
+											already_parsed: return_res.already_parsed 
+										};
+	
 		return r_on_r;
 	} catch (err) {
 		console.error('Failed to fetch profiles: ', err);

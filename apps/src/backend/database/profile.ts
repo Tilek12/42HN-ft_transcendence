@@ -3,6 +3,7 @@ import { findUserByUsername } from './user';
 import fs from 'fs';
 import sharp from 'sharp';
 import path from 'path';
+import type { Profile } from '../types';
 
 //----------functions for profiles data base-----------
 export async function findProfileByUsername(username: string)
@@ -75,12 +76,12 @@ export async function updatePicture(id: number, image_blob?: any) {
 
 
 //-----Friends list-------------------------------------
-export async function parseFriends(id: number, offset_param?: string, limit_param?: string)
+export async function parseFriends(id: number, offset_param?: string, limit_param?: string): Promise<Profile[]>
 {
-	let rows : any;
+	let Friends : Profile[];
 	if (offset_param && limit_param)
 	{
-		rows = await db.all(
+		Friends = await db.all(
 			`
 				SELECT
 				u.id, u.username, u.created_at,
@@ -90,11 +91,11 @@ export async function parseFriends(id: number, offset_param?: string, limit_para
 				JOIN profiles p ON u.id = p.id
 				WHERE f.user_id = ?
 				LIMIT ? OFFSET ?
-			`, [id, Number(limit_param), Number(offset_param)]);
+			`, [id, Number(limit_param), Number(offset_param)]) as Profile[];
 
 	}
 	else{
-	rows = await db.all(
+	Friends = await db.all(
 		`
 			SELECT
 			u.id, u.username, u.created_at,
@@ -103,10 +104,20 @@ export async function parseFriends(id: number, offset_param?: string, limit_para
 			JOIN users u ON f.friend_id = u.id
 			JOIN profiles p ON u.id = p.id
 			WHERE f.user_id = ?
-		`, id);
+		`, id) as Profile[];
 	}
-	const row_with_stringified_image_blob = rows.map((row : any) => {if (row.image_blob) row.image_blob = row.image_blob.toString("base64"); return row;})
-	return row_with_stringified_image_blob;
+	Friends.forEach((f:Profile)=>{
+		console.log("id: ",f.id)
+		console.log("username: ",f.username)
+		console.log("created: ",f.created_at)
+		console.log("wins: ",f.wins)
+		console.log("losses ",f.losses)
+		console.log("trophies ",f.trophies)
+		console.log("image: ",!!f.image_blob);
+		return;
+	});
+	const Freinds_with_stringified_image_blob = Friends.map((row : Profile) => { if (row.image_blob) row.image_blob = (row.image_blob as any).toString('base64'); return row;})
+	return Freinds_with_stringified_image_blob;
 }
 
 

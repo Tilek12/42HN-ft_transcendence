@@ -4,20 +4,9 @@ import type { Language, fUser } from '../types.js';
 import { defaultPicture } from '../utils/constants.js';
 import { languageStore, translations_profile, transelate_per_id } from './languages.js'
 
-export type Profile_details = {
-	data_async: any;
-	profile_pic_id: string;
-	logged_in_id: string;
-	username_id: string;
-	email_id: string;
-	wins_id: string;
-	losses_id: string;
-	trophies_id: string;
-	created_at_id: string;
-};
+
 
 let lastPresence: string[] | undefined = [];
-
 
 
 export const fill_profile_info = (user: fUser) => {
@@ -53,6 +42,7 @@ export const update_langauge_headers_user_profile = (lang: Language) => {
 	transelate_per_id(translations_profile, "load_more", lang, "load_more_header");
 	transelate_per_id(translations_profile, "username", lang, "username_header");
 	transelate_per_id(translations_profile, "no_match_history", lang, "match_history_label");
+	transelate_per_id(translations_profile, "no_friend_requests", lang, "no_requests_span")
 
 
 }
@@ -79,7 +69,7 @@ export function renderUserProfile()
 	let res : string = renderBackgroundFull(
 		/*html*/
 		`
-		<div class="min-h-screen 2xl:w-2/3 lg:h-full lg:w-full ">
+		<div class="min-h-screen lg:h-full lg:w-full ">
 			<div class="max-w m-8">
 				<!-- DESIGN: 3-column responsive grid using Tailwind's 12-column system -->
 				<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full ">
@@ -175,6 +165,7 @@ export function renderUserProfile()
 									</svg>
 								<span id="friend_list_header"></span>
 							</h2>
+							<button id="triggerfriendrequest" class ="bg-black-500 tranform hover:scale-105 ">trigger '/friends' request </button>
 							<div id="friend-list"></div>							
 						</div>
 					</div>

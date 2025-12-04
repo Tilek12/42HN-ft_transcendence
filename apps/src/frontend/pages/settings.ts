@@ -55,7 +55,6 @@ const update_text = (lang: Language) => {
 	transelate_per_id(translations_settings, "password_placeholder", lang, "tfa_password_input");
 
 
-
 };
 
 

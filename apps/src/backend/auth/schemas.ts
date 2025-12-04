@@ -108,11 +108,11 @@ export type DeletePicBody = FromSchema<typeof DeletePicSchema.body>;
 
 
 
-export const ParseFriendsSchema =
+export const ParseSchema =
 	{
-		description: 'ParseFriendsSchema',
+		description: 'ParseSchema',
 		tags: ['profile'],
-		summary: 'ParseFriendsSchema',
+		summary: 'ParseSchema',
 		hidden: false,
 		header: AuthHeader,
 
@@ -192,6 +192,7 @@ export const parseProfilesSchema = {
 		properties: {
 			offset: { type: 'number' },
 			limit: { type: 'number' },
+			type: {type: 'string', enum: ['friends', 'users', 'requests'] } 
 		}
 	},
 
