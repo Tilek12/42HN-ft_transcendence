@@ -171,43 +171,43 @@ export async function renderProfile(root: HTMLElement) {
 						/*html*/
 						`
 			<div class="overflow-x-auto rounded-xl">
-				<table class="w-full text-left border-collapse">
+				<table class="w-full text-left border-collapse text-sm">
 				<thead>
 					<tr class="bg-white/20 backdrop-blur-sm">
-					<th class="py-3 px-4 text-white font-semibold">Opponent</th>
-					<th class="py-3 px-4 text-white font-semibold">Score</th>
-					<th class="py-3 px-4 text-white font-semibold">Result</th>
-					<th class="py-3 px-4 text-white font-semibold">Played At</th>
-					<th class="py-3 px-4 text-white font-semibold">Wins</th>
-					<th class="py-3 px-4 text-white font-semibold">Total Matches</th>
-					<th class="py-3 px-4 text-white font-semibold">Win Rate</th>
+					<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm">Opponent</th>
+					<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm">Score</th>
+					<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm">Result</th>
+					<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm hidden lg:table-cell">Played At</th>
+					<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm hidden xl:table-cell">Wins</th>
+					<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm hidden xl:table-cell">Total</th>
+					<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm hidden xl:table-cell">Rate</th>
 					</tr>
 				</thead>
 				<tbody>
 					${matches.map((match: Match, index) => /*html*/`
 					<tr class="border-t border-white/10 ${index % 2 === 0 ? 'bg-white/5' : 'bg-white/10'} hover:bg-white/20 transition-colors duration-200">
-						<td class="py-3 px-4 text-white font-medium">${match.player1_id === data.profile_id ? match.player2_username : match.player1_username}</td>
-						<td class="py-3 px-4 text-white font-mono">
+						<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm truncate max-w-[80px]">${match.player1_id === data.profile_id ? match.player2_username : match.player1_username}</td>
+						<td class="py-2 px-2 text-white font-mono text-xs lg:text-sm whitespace-nowrap">
 						${match.player1_id === data.profile_id
-								? `<span class="font-bold text-blue-400">${match.player1_score}</span> - <span class="text-gray-300">${match.player2_score}</span>`
-								: `<span class="font-bold text-blue-400">${match.player2_score}</span> - <span class="text-gray-300">${match.player1_score}</span>`}
+								? `<span class="font-bold text-blue-400">${match.player1_score}</span>-<span class="text-gray-300">${match.player2_score}</span>`
+								: `<span class="font-bold text-blue-400">${match.player2_score}</span>-<span class="text-gray-300">${match.player1_score}</span>`}
 						</td>
-						<td class="py-3 px-4">
-						<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${match.winner_id === null
+						<td class="py-2 px-2">
+						<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${match.winner_id === null
 								? 'bg-gray-500/30 text-gray-200'
 								: match.winner_id === data.profile_id
 									? 'bg-green-500/30 text-green-300'
 									: 'bg-red-500/30 text-red-300'}">
 							${match.winner_id === null
-								? '⚖️ Tie'
-								: match.winner_id === data.profile_id ? '🏆 Win' : '❌ Loss'}
+								? 'Tie'
+								: match.winner_id === data.profile_id ? 'Win' : 'Loss'}
 						</span>
 						</td>
-						<td class="py-3 px-4 text-gray-300 text-sm">${new Date(match.played_at).toLocaleString()}</td>
-						<td class="py-3 px-4 text-green-400 font-bold">${index == 0 ? data.win : ''}</td>
-						<td class="py-3 px-4 text-blue-400 font-bold">${index == 0 ? data.matches_count : ''}</td>
-						<td class="py-3 px-4">
-							${index == 0 ? `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/30 text-purple-300">${data.win_rate}%</span>` : ''}
+						<td class="py-2 px-2 text-gray-300 text-xs hidden lg:table-cell">${new Date(match.played_at).toLocaleDateString()}</td>
+						<td class="py-2 px-2 text-green-400 font-bold text-xs hidden xl:table-cell">${index == 0 ? data.win : ''}</td>
+						<td class="py-2 px-2 text-blue-400 font-bold text-xs hidden xl:table-cell">${index == 0 ? data.matches_count : ''}</td>
+						<td class="py-2 px-2 hidden xl:table-cell">
+							${index == 0 ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-500/30 text-purple-300">${data.win_rate}%</span>` : ''}
 						</td>
 					</tr>
 					`).join('')}
