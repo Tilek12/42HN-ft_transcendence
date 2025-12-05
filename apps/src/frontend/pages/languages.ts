@@ -563,36 +563,37 @@ export const translations_errors: TranslationSet = {
 export const translations_dashboards: TranslationSet = {
 	EN: {
 		match_summary_header: 'Match Summary',
-		// top_player_ld_header: 'Top players.',
-		// username_ld_header: 'Username',
-		// wins_ld_header: 'Wins',
-		// losses_ld_header: 'Losses',
-		// trophies_ld_header: 'Trophies',
-		// matches_played_ld_header: 'Matches Played',
-		// wins_in_tour_ld_header: 'Wins in Tournament',
-		// failed_ld_header: 'Failed to load leaderboard',
+		match_id: 'Match ID',
+		player1_username: 'Player1',
+		player2_username: 'Player2',
+		player1_score: 'Score Player1',
+		player2_score: 'Score Player2',
+		winner_username: 'Winner',
+		is_tournament_match: 'Tournament Match',
+		played_at: 'Played At'
 	},
 	DE: {
 		match_summary_header: 'Spielübersicht',
-		// top_player_ld_header: 'Top-Spieler.',
-		// username_ld_header: 'Benutzername',
-		// wins_ld_header: 'Siege',
-		// losses_ld_header: 'Niederlagen',
-		// trophies_ld_header: 'Trophäen',
-		// matches_played_ld_header: 'Gespielte Spiele',
-		// wins_in_tour_ld_header: 'Siege im Turnier',
-		// failed_ld_header: 'Fehler beim Laden der Bestenliste',
+		match_id: 'Spiel-ID',
+		player1_username: 'Spieler 1',
+		player2_username: 'Spieler 2',
+		player1_score: 'Punkte Spieler 1',
+		player2_score: 'Punkte Spieler 2',
+		winner_username: 'Sieger',
+		is_tournament_match: 'Turnierspiel',
+		played_at: 'Gespielt am'
 	},
+	
 	GR: {
 		match_summary_header: 'Σύνοψη Αγώνα',
-		// top_player_ld_header: 'Κορυφαίοι παίκτες.',
-		// username_ld_header: 'Όνομα Χρήστη',
-		// wins_ld_header: 'Νίκες',
-		// losses_ld_header: 'Ήττες',
-		// trophies_ld_header: 'Τρόπαια',
-		// matches_played_ld_header: 'Αγώνες που παίχτηκαν',
-		// wins_in_tour_ld_header: 'Νίκες στο Τουρνουά',
-		// failed_ld_header: 'Αποτυχία φόρτωσης πίνακα κατάταξης',
+		match_id: 'ID Αγώνα',
+		player1_username: 'Παίκτης 1',
+		player2_username: 'Παίκτης 2',
+		player1_score: 'Σκορ Παίκτης 1',
+		player2_score: 'Σκορ Παίκτης 2',
+		winner_username: 'Νικητής',
+		is_tournament_match: 'Αγώνας Τουρνουά',
+		played_at: 'Ημερομηνία Αγώνα'
 	}
 };
 

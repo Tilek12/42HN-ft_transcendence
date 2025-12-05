@@ -7,15 +7,14 @@ import { languageStore, transelate_per_id, translations_dashboards } from "./lan
 
 function addMatchSummaryTranslations(lang: Language) {
 	transelate_per_id(translations_dashboards, 'match_summary_header', lang, 'MatchSummaryHeader');
-	// transelate_per_id(translations_profile, 'score', lang, 'Score');
-	// transelate_per_id(translations_profile, 'result', lang, 'Result');
-	// transelate_per_id(translations_profile, 'played_at', lang, 'Played_At');
-	// transelate_per_id(translations_profile, 'wins', lang, 'Wins');
-	// transelate_per_id(translations_profile, 'losses', lang, 'Losses');
-	// transelate_per_id(translations_profile, 'total', lang, 'Total');
-	// transelate_per_id(translations_profile, 'rate', lang, 'Rate');
-	// transelate_per_id(translations_profile, 'tournament_games', lang, 'tournament_games');
-	// transelate_per_id(translations_profile, "no_match_history", lang, "match_history_label");
+	transelate_per_id(translations_dashboards, 'match_id', lang, 'MatchID');
+	transelate_per_id(translations_dashboards, 'player1_username', lang, 'Player1');
+	transelate_per_id(translations_dashboards, 'player2_username', lang, 'Player2');
+	transelate_per_id(translations_dashboards, 'player1_score', lang, 'Player1Score');
+	transelate_per_id(translations_dashboards, 'player2_score', lang, 'Player2Score');
+	transelate_per_id(translations_dashboards, 'winner_username', lang, 'Winner');
+	transelate_per_id(translations_dashboards, 'is_tournament_match', lang, 'IsTournamentMatch');
+	transelate_per_id(translations_dashboards, 'played_at', lang, 'PlayedAt');
 }
 
 
