@@ -86,3 +86,14 @@ export type matchHistory = {
 	tournament_games:number,
 
 }
+
+export type matchForSummary = {
+	matchID:number,
+	player1_username:string,
+	player2_username:string,
+	player1_score:number,
+	player2_score:number,
+	winner_username:string,
+	is_tournament_match:boolean,
+	played_at: string,
+}

@@ -49,6 +49,23 @@ export type fMatchHistory = {
   tournament_games:number,
 }
 
+// frontend fMatchForSummary
+export type fMatchForSummary = {
+	matchID:number,
+	player1_username:string,
+	player2_username:string,
+	player1_score:number,
+	player2_score:number,
+	winner_username:string,
+	is_tournament_match:boolean,
+	played_at: string,
+}
+
+// frontend fMatchSummary
+export type fMatchSummary = {
+	matchesForSummary: fMatchForSummary[],
+}
+
 export type PresenceCallback = (users: number, tournaments: any[]) => void;
 
 // FRIENDS

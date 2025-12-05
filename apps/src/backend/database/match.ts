@@ -1,5 +1,7 @@
 import { db } from './client';
 import type { match } from '../types'
+import type { matchForSummary } from '../types'
+
 //----------functions for matches data base-----------
 export async function createMatch(
 	player1Id: number,
@@ -34,6 +36,30 @@ export async function createMatch(
 
   export async function getAllMatches() {
 	return db.all(`SELECT * FROM matches ORDER BY played_at DESC`);
+  }
+
+  export async function getAllMatchesForSummary() {
+	const matches = await db.all(
+	  `
+	  SELECT
+		m.id AS matchID,
+		u1.username AS player1_username,
+		u2.username AS player2_username,
+		m.player1_score,
+		m.player2_score,
+		CASE
+		  WHEN m.player1_score > m.player2_score THEN u1.username
+		  ELSE u2.username
+		END AS winner_username,
+		m.is_tournament_match,
+		m.played_at
+	  FROM matches m
+	  JOIN users u1 ON m.player1_id = u1.id
+	  JOIN users u2 ON m.player2_id = u2.id
+	  ORDER BY m.played_at DESC
+	  `
+	);
+	return matches as matchForSummary[];
   }
 
 export async function getMatchesByUserId(userId: number): Promise<match[]> 
