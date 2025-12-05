@@ -14,7 +14,7 @@ export interface PresenceUser {
 export interface fUser extends fProfile {
   tfa:boolean,
 }
-
+//frontend profile
 export type fProfile = {
 	id:number
 	username: string,
@@ -25,22 +25,29 @@ export type fProfile = {
 	image_blob: string | undefined,
 };
 
-export type Match =
-	{
-		id: number,
-		player1_id: number,
-		player2_id: number,
-		player1_score: number,
-		player2_score: number,
-		winner_id: number,
-		is_tie: boolean,
-		is_tournament_match: boolean,
-		played_at: string,
-		player1_username: string,
-		player2_username: string,
-		total_matches?: number,
-		win_rate?: number,
-	};
+// frontend match
+export type fMatch = {
+	matchID:number,
+	player1_username:string,
+	player2_username:string,
+	player1_id:number,
+	player2_is:number,
+	player1_score:number,
+	player2_score:number,
+	winner_id:number,
+	is_tie:boolean,
+	is_tournament_match:boolean,
+	played_at: string,
+}
+
+// frontend matchHistory
+export type fMatchHistory = {
+	matches: fMatch[],
+	wins: number,
+	total: number,
+	win_rate: number,
+  tournament_games:number,
+}
 
 export type PresenceCallback = (users: number, tournaments: any[]) => void;
 

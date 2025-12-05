@@ -68,9 +68,11 @@ BACKEND
 
 
 USERMANAGEMENT
-- match history proper display
+- match history fro every user?
+
 - profile updates on change -> through presence socket?
 
-- is everything okay with thomas' commits?
+
 
 git shortlog -s -n -e
+

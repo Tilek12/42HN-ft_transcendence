@@ -5,7 +5,7 @@ import {
 	getMatchesByUserId,
 	getMatchById,
 } from '../../database/match';
-import { JWTPayload, match } from '../../types'
+import { JWTPayload, match, matchHistory } from '../../types'
 
 const matchRoutes: FastifyPluginAsync = async (fastify: any) => {
 	// Create a match (requires authentication)
@@ -54,7 +54,7 @@ const matchRoutes: FastifyPluginAsync = async (fastify: any) => {
 		try {
 			const jwt = req.user as JWTPayload;
 			const profile_id = jwt.id;
-			const matches = await getMatchesByUserId(profile_id);
+			const matches: match[] = await getMatchesByUserId(profile_id);
 			const matches_count = matches.length;
 			//   console.log(matches);
 
@@ -62,16 +62,20 @@ const matchRoutes: FastifyPluginAsync = async (fastify: any) => {
 			//   console.log(win);
 
 			const win_rate = Math.floor(win / matches_count * 100);
+			const tournament_games = matches.filter((m: match) => m.is_tournament_match).length;
 			//-------------Thomas code----------------------
 			//   console.log(matches[0]);
 			//----------------------------------------------
-			const send_obj = {	matches: matches,
-								win: win,
-								matches_count: matches_count,
-								win_rate: win_rate };
-			
-			res.send(send_obj);
-		} catch (err:any) {
+			const send_obj: matchHistory = {
+				matches: matches,
+				wins: win,
+				total: matches_count,
+				win_rate: win_rate,
+				tournament_games:tournament_games
+			};
+
+			res.send({history: send_obj});
+		} catch (err: any) {
 			res.status(400).send({ message: err.message });
 		}
 	});

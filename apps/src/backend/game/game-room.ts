@@ -1,7 +1,7 @@
 import { Player, GameState, GameMessage, OnGameEnd, GameMode } from './game-types';
 
-const PHYSICS_FRAME_RATE = 1000 / 80; // 60 FPS for physics (original speed)
-const NETWORK_FRAME_RATE = 1000 / 80;  // 30 FPS for network updates
+const PHYSICS_FRAME_RATE = 1000 / 100; // 60 FPS for physics (original speed)
+const NETWORK_FRAME_RATE = 1000 / 100;  // 30 FPS for network updates
 const PADDLE_HEIGHT = 20;
 const BALL_SPEED = 0.6;
 const FIELD_WIDTH = 100;

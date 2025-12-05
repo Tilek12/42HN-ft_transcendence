@@ -159,7 +159,7 @@ class WebSocketManager {
 				console.log(`👥 [Presence WS] Retry attempt `);
 				this.reconnectTimeout = setTimeout(() => {
 					this.connectPresenceSocket(onUpdate)
-				}, 3000);
+				}, 10000);
 			} else {
 				console.warn(`👥 [Presence WS] Closed.`);
 			}

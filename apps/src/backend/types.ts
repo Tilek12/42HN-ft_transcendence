@@ -66,6 +66,8 @@ interface FastifyJWT {
 
 export type match = {
 	matchID:number,
+	player1_username:string,
+	player2_username:string,
 	player1_id:number,
 	player2_is:number,
 	player1_score:number,
@@ -77,9 +79,10 @@ export type match = {
 }
 
 export type matchHistory = {
-	profile_id: number,
 	matches: match[],
-	win: number,
-	matches_count: number,
+	wins: number,
+	total: number,
 	win_rate: number,
+	tournament_games:number,
+
 }

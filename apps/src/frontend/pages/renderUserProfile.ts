@@ -41,7 +41,6 @@ export const update_langauge_headers_user_profile = (lang: Language) => {
 	transelate_per_id(translations_profile, "match_history", lang, "match_history_header");
 	transelate_per_id(translations_profile, "load_more", lang, "load_more_header");
 	transelate_per_id(translations_profile, "username", lang, "username_header");
-	transelate_per_id(translations_profile, "no_match_history", lang, "match_history_label");
 	transelate_per_id(translations_profile, "no_friend_requests", lang, "no_requests_span")
 
 

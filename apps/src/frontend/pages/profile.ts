@@ -7,12 +7,11 @@ import { listenerFriendAndBlock } from './ListenerProfileList.js';
 
 import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore } from './languages.js';
-import { Match, fUser } from '../types.js';
 import { renderConnectionErrorPage } from './error.js';
 import { renderFriendsList } from './renderFriends.js';
 import { renderFriendRequestsList } from './renderFriendRequestList.js';
 import { friendsRequestListener } from './friends.js';
-
+import { renderMatchHistory } from './renderMatchHistory.js'
 let i = 0;
 
 let profilesList: fProfile[];
@@ -126,6 +125,8 @@ export async function renderProfile(root: HTMLElement) {
 				already_parsed = r_on_r?.already_parsed;
 			})();
 
+
+
 			//render friends list
 			(async()=>{renderFriendsList('friend-list');})();
 			//render freind request list
@@ -133,7 +134,7 @@ export async function renderProfile(root: HTMLElement) {
 			friendsRequestListener();
 			
 
-			//more-profiles button event listener, 
+			// more-profiles button event listener, 
 			document.getElementById('more-profiles-btn')?.addEventListener('click', async () => {
 				profile_offset += profile_limit;
 				const r_on_r = await renderProfilesList('profiles-list', true, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit);
@@ -143,83 +144,16 @@ export async function renderProfile(root: HTMLElement) {
 			})
 
 
+			// eventlisteners for profiles list
 			//----------------load pagination process--------------------------------------
 			document.getElementById('profiles-list')?.addEventListener
 				('click', async (e) => {
 					ref_obj_allProfiles.allProfiles = await listenerFriendAndBlock(e, 'profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit)
 				});
 			
-
-			// renders match history
+			renderMatchHistory();
+						// renders match history
 			//==================Linda's code==========================
-			apiFetch('/api/private/match/user', {
-				method: 'GET',
-				credentials: 'include',
-			})
-				.then(res => res.json())
-				.then((data) => {
-					const matchContainer = document.getElementById('match-history') as HTMLElement;
-					console.log("data: ", data);
-					const matches = data.matches;
-					if (!matchContainer) return;
-
-					if (!Array.isArray(matches) || matches.length === 0) {
-						return;
-					}
-					document.getElementById('match_history_label')?.classList.add('hidden');
-					matchContainer.innerHTML +=
-						/*html*/
-						`
-			<div class="overflow-x-auto rounded-xl">
-				<table class="w-full text-left border-collapse text-sm">
-				<thead>
-					<tr class="bg-white/20 backdrop-blur-sm">
-					<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm">Opponent</th>
-					<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm">Score</th>
-					<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm">Result</th>
-					<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm hidden lg:table-cell">Played At</th>
-					<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm hidden xl:table-cell">Wins</th>
-					<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm hidden xl:table-cell">Total</th>
-					<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm hidden xl:table-cell">Rate</th>
-					</tr>
-				</thead>
-				<tbody>
-					${matches.map((match: Match, index) => /*html*/`
-					<tr class="border-t border-white/10 ${index % 2 === 0 ? 'bg-white/5' : 'bg-white/10'} hover:bg-white/20 transition-colors duration-200">
-						<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm truncate max-w-[80px]">${match.player1_id === data.profile_id ? match.player2_username : match.player1_username}</td>
-						<td class="py-2 px-2 text-white font-mono text-xs lg:text-sm whitespace-nowrap">
-						${match.player1_id === data.profile_id
-								? `<span class="font-bold text-blue-400">${match.player1_score}</span>-<span class="text-gray-300">${match.player2_score}</span>`
-								: `<span class="font-bold text-blue-400">${match.player2_score}</span>-<span class="text-gray-300">${match.player1_score}</span>`}
-						</td>
-						<td class="py-2 px-2">
-						<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${match.winner_id === null
-								? 'bg-gray-500/30 text-gray-200'
-								: match.winner_id === data.profile_id
-									? 'bg-green-500/30 text-green-300'
-									: 'bg-red-500/30 text-red-300'}">
-							${match.winner_id === null
-								? 'Tie'
-								: match.winner_id === data.profile_id ? 'Win' : 'Loss'}
-						</span>
-						</td>
-						<td class="py-2 px-2 text-gray-300 text-xs hidden lg:table-cell">${new Date(match.played_at).toLocaleDateString()}</td>
-						<td class="py-2 px-2 text-green-400 font-bold text-xs hidden xl:table-cell">${index == 0 ? data.win : ''}</td>
-						<td class="py-2 px-2 text-blue-400 font-bold text-xs hidden xl:table-cell">${index == 0 ? data.matches_count : ''}</td>
-						<td class="py-2 px-2 hidden xl:table-cell">
-							${index == 0 ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-500/30 text-purple-300">${data.win_rate}%</span>` : ''}
-						</td>
-					</tr>
-					`).join('')}
-				</tbody>
-				</table>
-			</div>
-			`;
-
-				})
-				.catch(err => {
-					console.error('Failed to load matches:', err);
-				});
 			
 			// trigger reload
 			document.getElementById('nav_profile')?.addEventListener('click', () => { renderProfile(root) });
