@@ -18,7 +18,7 @@ let gameSocket: WebSocket | null = null;
 let isPlayerInMatch = false;
 
 
-export async function renderTournament(root: HTMLElement) {
+export async function renderLocalTournament(root: HTMLElement) {
 
 	root.innerHTML = renderBackgroundFull(/*html*/`
 	<div class="max-w-4xl mx-auto m-8 p-6 bg-white/10 rounded-xl shadow-lg backdrop-blur-md">

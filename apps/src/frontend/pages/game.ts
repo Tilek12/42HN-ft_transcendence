@@ -68,8 +68,8 @@ export async function renderGame(root: HTMLElement) {
           </div>
         </button>
 
-        <!-- Play Tournament Button -->
-        <button id="play-tournament" class="group relative w-full md:w-56 px-8 py-6 bg-gradient-to-br from-[#facc15] to-[#f59e0b] text-gray-900 rounded-2xl shadow-2xl shadow-[#facc15]/30 hover:shadow-[#facc15]/50 hover:scale-105 transition-all duration-300 overflow-hidden">
+        <!-- Play Local Tournament Button -->
+        <button id="play-local-tournament" class="group relative w-full md:w-56 px-8 py-6 bg-gradient-to-br from-[#94a3b8] to-[#38bdf8] text-gray-900 rounded-2xl shadow-2xl shadow-[#94a3b8]/30 hover:shadow-[#94a3b8]/50 hover:scale-105 transition-all duration-300 overflow-hidden">
           <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
           <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
             <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[shimmer_2s_infinite]"></div>
@@ -78,9 +78,23 @@ export async function renderGame(root: HTMLElement) {
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
             </svg>
-            <span class="font-bold text-lg">${tr!.play_tournament}</span>
+            <span class="font-bold text-lg">${tr!.play_local_tournament}</span>
           </div>
         </button>
+
+		<!-- Play Online Tournament Button -->
+		<button id="play-online-tournament" class="group relative w-full md:w-56 px-8 py-6 bg-gradient-to-br from-[#facc15] to-[#f59e0b] text-gray-900 rounded-2xl shadow-2xl shadow-[#facc15]/30 hover:shadow-[#facc15]/50 hover:scale-105 transition-all duration-300 overflow-hidden">
+			<div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
+			<div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+				<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[shimmer_2s_infinite]"></div>
+			</div>
+			<div class="relative flex flex-col items-center gap-2">
+				<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+				</svg>
+				<span class="font-bold text-lg">${tr!.play_online_tournament}</span>
+			</div>
+		</button>
       </div>
 
       <!-- Countdown -->
@@ -188,7 +202,8 @@ export async function renderGame(root: HTMLElement) {
 		transelate_per_id(translations_game_render, "pong_game_header", lang, "pong_game_header");
 		transelate_per_id(translations_game_render, "play_alone", lang, "play-alone");
 		transelate_per_id(translations_game_render, "play_online", lang, "play-online");
-		transelate_per_id(translations_game_render, "play_tournament", lang, "play-tournament");
+		transelate_per_id(translations_game_render, "play_local_tournament", lang, "play-local-tournament");
+		transelate_per_id(translations_game_render, "play_online_tournament", lang, "play-online-tournament");
 		transelate_per_id(translations_game_render, "info", lang, "info");
 
 	})
@@ -241,8 +256,11 @@ export async function renderGame(root: HTMLElement) {
 
 	document.getElementById('play-alone')!.addEventListener('click', () => startGame('solo'));
 	document.getElementById('play-online')!.addEventListener('click', () => startGame('duel'));
-	document.getElementById('play-tournament')!.addEventListener('click', () => {
-		location.hash = '#/tournament';
+	document.getElementById('play-local-tournament')!.addEventListener('click', () => {
+		location.hash = '#/local-tournament';
+	});
+	document.getElementById('play-online-tournament')!.addEventListener('click', () => {
+		location.hash = '#/online-tournament';
 	});
 
 	// Game Over modal close handler
