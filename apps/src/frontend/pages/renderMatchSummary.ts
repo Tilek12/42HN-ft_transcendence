@@ -11,6 +11,8 @@ function addMatchSummaryTranslations(lang: Language) {
 	transelate_per_id(translations_dashboards, 'tournament_matches', lang, 'TournamentMatches');
 	transelate_per_id(translations_dashboards, 'total_games_per_player', lang, 'TotalGamesPerPlayer');
 	transelate_per_id(translations_dashboards, 'win_rates', lang, 'WinRates');
+	transelate_per_id(translations_dashboards, 'total_games_of_individual', lang, 'TotalGamesOf');
+	transelate_per_id(translations_dashboards, 'individual_win_rate_of', lang, 'IndividualWinRateOf');
 	transelate_per_id(translations_dashboards, 'match_summary_header', lang, 'MatchSummaryHeader');
 	transelate_per_id(translations_dashboards, 'match_id', lang, 'MatchID');
 	transelate_per_id(translations_dashboards, 'player1_username', lang, 'Player1');
@@ -119,6 +121,66 @@ export async function renderMatchSummary(root:HTMLElement) {
 			  summary.forEach(m=>{m.is_tournament_match ? total_tournament_matches++ : null});
 			console.log(`total_tournament_matches: ${total_tournament_matches}`);
 			total_normal_matches = total_matches - total_tournament_matches;
+
+			// individual player data for statistics
+			const individual_summary_matches = summary.filter(match=>match.player1_username == "cat" || match.player2_username == "cat");
+			console.log(`individual_summary_matches: ${individual_summary_matches}`);
+			const opponents_array : {name:string}[] = [];
+			individual_summary_matches.forEach(match => {
+				const opponent =
+				  match.player1_username === "cat"
+					? match.player2_username
+					: match.player1_username;
+				opponents_array.push({ name: opponent });
+			  });
+			  var opponents_array_unique: { name: string, total_matches: number, individual_wins: number, individual_win_rate: number }[] = [];
+
+			  opponents_array.forEach(o => {
+				if (!opponents_array_unique.some(u => u.name === o.name)) {
+				  opponents_array_unique.push({ name: o.name, total_matches: 0, individual_wins: 0, individual_win_rate: 0});
+				}
+			  });
+			  opponents_array_unique.forEach(opp=>individual_summary_matches.forEach(match=>match.player1_username === opp.name || match.player2_username === opp.name ? opp.total_matches++ : null));
+			  opponents_array_unique.forEach(opp=>individual_summary_matches.forEach(match=>(match.player1_username === opp.name || match.player2_username === opp.name)&&match.winner_username == "cat" ? opp.individual_wins++ : null));
+			  opponents_array_unique.map(opp=> opp.total_matches!==0? opp.individual_win_rate = Math.round((opp.individual_wins/opp.total_matches)*100): null);
+			console.log(`opponents_array: ${opponents_array}`);
+			console.log(`opponents_array_unique[0].total_matches: ${opponents_array_unique[0].total_matches}`);
+			console.log(`opponents_array_unique[0].individual_wins: ${opponents_array_unique[0].individual_wins}`);
+			console.log(`opponents_array_unique[0].individual_win_rate: ${opponents_array_unique[0].individual_win_rate}`);
+
+			
+			//individual win rate bars
+			const maxIndividualWinRateBarHeight = 6;
+			const individual_win_rate_chart = opponents_array_unique.map(opp => {
+				const barHeight = Math.round(opp.individual_win_rate/opp.total_matches) * maxIndividualWinRateBarHeight; // scale height
+				const safeName = String(opp.name).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+		
+				return /*html*/`
+				<div class="flex flex-col items-center">
+					<div class="text-xs mt-1 text-white">${opp.individual_win_rate}%</div>
+					<div class="w-10 h-[${barHeight}px] bg-gradient-to-t from-purple-600 to-pink-400 rounded"></div>
+					<div class="text-xs mt-1 text-white text-center">${safeName}</div>
+				</div>
+				`;
+			});
+			const individual_win_rate_chart_string = individual_win_rate_chart.join('');
+
+			//individual total games bars
+			const maxIndividualBarHeight = 12 * 4;
+			const individual_total_games_chart = opponents_array_unique.map(opp => {
+				const barHeight = Math.round((opp.total_matches/individual_summary_matches.length) * maxIndividualBarHeight); // scale height
+				const safeName = String(opp.name).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+		
+				return /*html*/`
+				<div class="flex flex-col items-center">
+					<div class="text-xs mt-1 text-white">${opp.total_matches}</div>
+					<div class="w-10 h-[${barHeight}px] bg-gradient-to-t from-purple-600 to-pink-400 rounded"></div>
+					<div class="text-xs mt-1 text-white text-center">${safeName}</div>
+				</div>
+				`;
+			});
+			const individual_total_games_chart_string = individual_total_games_chart.join('');
+
 			//total game bars
 			const maxBarHeight = 12 * 4;
 			const filtered_total_games_chart_array = total_games_array.filter(p=> p.value !== 0).map(p => {
@@ -152,6 +214,9 @@ export async function renderMatchSummary(root:HTMLElement) {
 			}).join('');
 
 			root.innerHTML = renderBackgroundFull(/*html*/ `
+
+
+				
 				<div class="flex flex-col items-center space-y-8">
 				  
 				  <!-- Charts Row -->
@@ -205,11 +270,31 @@ export async function renderMatchSummary(root:HTMLElement) {
 					</div>
 			  
 				  </div>
+
+				  	<!-- Total Games for individual Bar Chart -->
+					<div class="relative w-[420px] h-[340px] bg-white/5 rounded text-white">
+					<div class="text-center text-lg font-semibold pt-4" id="TotalGamesPerPlayer">
+					  <span id="TotalGamesOf">Total games of</span> cat
+					</div>
+					<div class="flex items-end space-x-4 overflow-x-auto mt-[180px]">
+					  ${individual_total_games_chart}
+					</div>
+				  </div>
+
+				  	<!-- individual win rate Bar Chart -->
+					<div class="relative w-[420px] h-[340px] bg-white/5 rounded text-white">
+					<div class="text-center text-lg font-semibold pt-4" id="TotalGamesPerPlayer">
+					<span id="IndividualWinRateOf">Individual Win Rate of</span> cat
+					</div>
+					<div class="flex items-end space-x-4 overflow-x-auto mt-[180px]">
+					  ${individual_win_rate_chart}
+					</div>
+				  </div>
 			  
 				  <!-- Match Table -->
 				  <div class="overflow-y-auto overflow-x-hidden pr-1 w-full">
 					<span id="MatchSummaryHeader"></span>
-					<table class="w-full text-left border-collapse text-sm">
+					<table id="MatchTable" class="w-full text-left border-collapse text-sm">
 					  <thead>
 						<tr class="bg-white/20 backdrop-blur-sm">
 						  <th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="MatchID"></th>
@@ -240,6 +325,8 @@ export async function renderMatchSummary(root:HTMLElement) {
 				  </div>
 			  
 				</div>
+
+				
 			  `);
 			  
 			  
