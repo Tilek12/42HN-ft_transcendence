@@ -566,3 +566,42 @@ export const translations_errors: TranslationSet = {
 	},
 };
 
+export const translations_dashboards: TranslationSet = {
+	EN: {
+		match_summary_header: 'Match Summary',
+		match_id: 'Match ID',
+		player1_username: 'Player1',
+		player2_username: 'Player2',
+		player1_score: 'Score Player1',
+		player2_score: 'Score Player2',
+		winner_username: 'Winner',
+		is_tournament_match: 'Tournament Match',
+		played_at: 'Played At'
+	},
+	DE: {
+		match_summary_header: 'Spielübersicht',
+		match_id: 'Spiel-ID',
+		player1_username: 'Spieler 1',
+		player2_username: 'Spieler 2',
+		player1_score: 'Punkte Spieler 1',
+		player2_score: 'Punkte Spieler 2',
+		winner_username: 'Sieger',
+		is_tournament_match: 'Turnierspiel',
+		played_at: 'Gespielt am'
+	},
+	
+	GR: {
+		match_summary_header: 'Σύνοψη Αγώνα',
+		match_id: 'ID Αγώνα',
+		player1_username: 'Παίκτης 1',
+		player2_username: 'Παίκτης 2',
+		player1_score: 'Σκορ Παίκτης 1',
+		player2_score: 'Σκορ Παίκτης 2',
+		winner_username: 'Νικητής',
+		is_tournament_match: 'Αγώνας Τουρνουά',
+		played_at: 'Ημερομηνία Αγώνα'
+	}
+};
+
+
+

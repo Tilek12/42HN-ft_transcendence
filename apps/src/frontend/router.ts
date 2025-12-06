@@ -5,7 +5,7 @@ import { renderProfile } from './pages/profile.js';
 import { renderLogin } from './pages/login.js';
 import { renderRegister } from './pages/register.js';
 // import { renderFriends } from './pages/friends.js';
-// import { renderLeaderboard } from './pages/leaderboard.js';
+import { renderLeaderboard } from './pages/leaderboard.js';
 import { renderNotFound } from './pages/not-found.js';
 import { getUser, validateLogin } from './utils/auth.js';
 import { changeLoginButton, unhideNav } from './pages/nav.js';
@@ -14,8 +14,9 @@ import { renderQrcode } from './pages/2fa.js';
 import { renderSettings } from './pages/settings.js';
 // DESIGN change: Import global language selector initializer to enable floating language toggle on all pages
 import { initGlobalLanguageSelector } from './utils/globalLanguageSelector.js';
+import { renderMatchSummary } from './pages/renderMatchSummary.js';
 
-const protectedRoutes = ['#/profile', '#/game', '#/settings', '#/tournament','#/settings']//, '#/leaderboard'];
+const protectedRoutes = ['#/profile', '#/game', '#/settings', '#/tournament','#/settings', '#/leaderboard'];
 export async function router() 
 {
 	const	root = document.getElementById('app')!;
@@ -42,8 +43,8 @@ export async function router()
 				case '#/profile': 
 					renderProfile(root);
 					break;
-				// case '#/leaderboard': 
-				// 	renderLeaderboard(root);
+				case '#/leaderboard': 
+					renderMatchSummary(root);
 					break;
 				case '#/settings': 
 					renderSettings(root);

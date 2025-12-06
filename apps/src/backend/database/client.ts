@@ -121,4 +121,21 @@ export async function connectToDB() {
 		)
 	`
  );
+
+  // //---------------match summary table------------------
+  // await db.exec(`
+  //   CREATE TABLE IF NOT EXISTS matchesForSummary (
+  //     id INTEGER PRIMARY KEY AUTOINCREMENT,
+  //     player1_id TEXT NOT NULL,
+  //     player2_id TEXT NOT NULL,
+  //     player1_score INTEGER NOT NULL,
+  //     player2_score INTEGER NOT NULL,
+  //     winner_username TEXT,
+  //     is_tie BOOLEAN DEFAULT 0,
+  //     is_tournament_match BOOLEAN DEFAULT 0,
+  //     played_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  //     FOREIGN KEY(player1_id) REFERENCES users(id) ON DELETE CASCADE,
+  //     FOREIGN KEY(player2_id) REFERENCES users(id) ON DELETE CASCADE
+  //   );
+  // `);
 }

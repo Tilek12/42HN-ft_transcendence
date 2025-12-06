@@ -147,7 +147,7 @@ export function renderNav() {
 						<span class="relative z-10"></span>
 						</a>
 
-						<!--a id="nav_leaderboard" href="#/leaderboard" class="flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
+						<a id="nav_leaderboard" href="#/leaderboard" class="flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
 						<span class="relative z-10"></span>
 						</a>
 
@@ -184,7 +184,7 @@ export function renderNav() {
 		console.log("language callback")
 		transelate_per_id(translations_nav, "game", lang, "nav_game");
 		transelate_per_id(translations_nav, "tournament", lang, "nav_tournament");
-		// transelate_per_id(translations_nav, "leaderboard", lang, "nav_leaderboard");
+		transelate_per_id(translations_nav, "leaderboard", lang, "nav_leaderboard");
 		// transelate_per_id(translations_nav, "friends", lang, "nav_friends");
 		transelate_per_id(translations_nav, "profile", lang, "nav_profile");
 		transelate_per_id(translations_nav, "settings", lang, "nav_settings");

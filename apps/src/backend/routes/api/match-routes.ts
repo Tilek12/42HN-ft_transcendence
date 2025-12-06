@@ -4,6 +4,7 @@ import {
 	getAllMatches,
 	getMatchesByUserId,
 	getMatchById,
+	getAllMatchesForSummary
 } from '../../database/match';
 import { JWTPayload, match, matchHistory } from '../../backendTypes'
 
@@ -39,15 +40,15 @@ const matchRoutes: FastifyPluginAsync = async (fastify: any) => {
 		}
 	});
 
-	// // Get all matches (public)
-	// fastify.get('/match', async (req: any, res: any) => {
-	// 	try {
-	// 		const matches = await getAllMatches();
-	// 		res.send(matches);
-	// 	} catch (err) {
-	// 		res.status(500).send({ message: 'Error retrieving matches' });
-	// 	}
-	// });
+	// Get all matches (public)
+	fastify.get('/match', async (req: any, res: any) => {
+		try {
+			const matches = await getAllMatches();
+			res.send(matches);
+		} catch (err) {
+			res.status(500).send({ message: 'Error retrieving matches' });
+		}
+	});
 
 	// Get matches for a user (requires authentication)
 	fastify.get('/match/user', async (req: any, res: any) => {
@@ -95,9 +96,15 @@ const matchRoutes: FastifyPluginAsync = async (fastify: any) => {
 		res.send(match);
 	});
 
-
-
-	
+	// Get match summary (public)
+	fastify.get('/match/summary', async (req: any, res: any) => {
+	try {
+	  const matchesSummary = await getAllMatchesForSummary();
+	  res.send({ summary: matchesSummary });
+	} catch (err: any) {
+	  res.status(500).send({ message: 'Error retrieving match summary' });
+	}
+  });
 };
 
 export default matchRoutes;
