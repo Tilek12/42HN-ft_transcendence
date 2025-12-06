@@ -50,6 +50,7 @@ export async function renderMatchSummary(root:HTMLElement) {
 		console.log(`data: ${data_chart.profiles}`);
 		const total_games_array: { name: string; value: number }[] = [];
 		const chart_profiles = data_chart.profiles;
+		const wins_rate_array : { name: string; win_rate: number }[] = [];
 		if (!chart_profiles)
 		{		
 			alert(`no chart_profiles`)
@@ -59,14 +60,22 @@ export async function renderMatchSummary(root:HTMLElement) {
 		{
 			const total_games = Number(row.wins) + Number(row.losses);
 			total_games_array.push({name: row.username, value: total_games});
-			console.log(`total_games_arra[${i}] = ${row.username}, ${total_games}`);
+			const wins_rate_var = (Number(row.wins) == 0) ? 0 : Math.round((Number(row.wins)/total_games)*100);
+			wins_rate_array.push({name: row.username, win_rate: wins_rate_var});
+			console.log(`win rate: ${wins_rate_var}`);
 		})
+			var total_win_rate = 0;
+			wins_rate_array.forEach(v=> total_win_rate += v.win_rate);
+			const avg_win_rate = (total_win_rate / wins_rate_array.length).toFixed(2);
+			console.log(`avg_win_rate: ${avg_win_rate}`);
 			console.log(total_games_array[0].name);
 			console.log(total_games_array[0].value);
 			const summary = trysummary as fMatchForSummary[];
 			console.log(`the summary[0]: ${summary[0].matchID}`);
 			var total_matches = summary[0].matchID;
+
 		
+
 			const maxBarHeight = total_matches*4;
 			const filtered_total_games_chart_array = total_games_array.filter(p=> p.value !== 0).map(p => {
 				const barHeight = Math.round((p.value / total_matches) * maxBarHeight); // scale height
