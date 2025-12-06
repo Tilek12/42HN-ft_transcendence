@@ -4,6 +4,7 @@ import { COLORS } from '../constants/colors.js';
 import { languageStore, translations_tournament_render, transelate_per_id } from './languages.js';
 
 let currentMatch: any = null;
+let currentMatchId: string | null = null;
 let gameState: any = null;
 let countdownValue: number | null = null;
 
@@ -34,8 +35,12 @@ export async function renderLocalTournament(root: HTMLElement) {
         </div>
 
         <div id="local-tournament" class="hidden mt-6">
-            <div id="tournament-info" class="text-center text-gray-400 mb-6"></div>
-            <div id="countdown" class="text-6xl font-bold text-center text-white mb-6 hidden">5</div>
+            <div id="tournament-info" class="text-center text-gray-400 mb-4"></div>
+
+            <!-- Matches table -->
+            <div id="matches-table" class="mb-4"></div>
+
+            <!-- countdown is only drawn inside the canvas now -->
             <p id="status" class="text-center text-gray-400 mb-4">Waiting for tournament to start...</p>
             <canvas id="pong" width="600" height="400" class="mx-auto border border-white/30 bg-white/10 backdrop-blur-md rounded shadow-lg hidden"></canvas>
             <div class="text-center mt-6">
@@ -79,9 +84,16 @@ export async function renderLocalTournament(root: HTMLElement) {
         }
         document.getElementById('local-tournament')!.classList.add('hidden');
         document.getElementById('local-section')!.classList.remove('hidden');
+        // show glory header again when we go back to lobby
+        const glory = document.getElementById('glory_header');
+        if (glory) glory.classList.remove('hidden');
+
         currentMatch = null;
+        currentMatchId = null;
         gameState = null;
         countdownValue = null;
+        const matchesTable = document.getElementById('matches-table');
+        if (matchesTable) matchesTable.innerHTML = '';
     });
 
     function updateNameInputs(size: number) {
@@ -146,8 +158,13 @@ export async function renderLocalTournament(root: HTMLElement) {
 
         document.getElementById('local-section')!.classList.add('hidden');
         document.getElementById('local-tournament')!.classList.remove('hidden');
+        // hide glory header after tournament starts
+        const glory = document.getElementById('glory_header');
+        if (glory) glory.classList.add('hidden');
+
+        // Short info only once
         document.getElementById('tournament-info')!.textContent =
-            `Local tournament created with ${size} players.`;
+            `Local tournament with ${size} players.`;
     }
 
     function handleLocalMessage(msg: any) {
@@ -155,55 +172,74 @@ export async function renderLocalTournament(root: HTMLElement) {
 
         switch (msg.type) {
             case 'localTournamentCreated': {
-                // You can add richer info here if needed later
+                const t = msg.tournament ?? msg.state;
+                if (!t) {
+                    console.warn('localTournamentCreated without tournament/state:', msg);
+                    break;
+                }
+                // Brief info, no technical id/status
                 document.getElementById('tournament-info')!.textContent =
-                    `Tournament ${msg.tournament.id} created with ${msg.tournament.participants.length} players`;
+                    `Tournament created with ${t.participants.length} players.`;
+                renderMatchesTable(t, currentMatchId);
                 break;
             }
             case 'localTournamentUpdate': {
-                // For now we just update basic text; no bracket
+                const t = msg.tournament ?? msg.state;
+                if (!t) {
+                    console.warn('localTournamentUpdate without tournament/state:', msg);
+                    break;
+                }
+                // Do not show detailed "t-local-X, status: active" text
                 document.getElementById('tournament-info')!.textContent =
-                    `Tournament updated: ${msg.tournament.joined}/${msg.tournament.size} players`;
+                    `Tournament in progress: ${t.participants.length} players.`;
+                renderMatchesTable(t, currentMatchId);
                 break;
             }
             case 'localMatchStart': {
-                currentMatch = { p1: msg.p1, p2: msg.p2 };
+                const p1 = msg.player1;
+                const p2 = msg.player2;
+
+                if (!p1 || !p2) {
+                    console.error('localMatchStart: missing player1/player2 in message', msg);
+                    return;
+                }
+
+                currentMatch = { p1, p2 };
+                currentMatchId = msg.matchId || null;
+
                 gameState = {
                     ball: { x: 50, y: 50, vx: 0, vy: 0 },
                     paddles: {
-                        [currentMatch.p1.id]: 50,
-                        [currentMatch.p2.id]: 50,
+                        [p1.id]: 50,
+                        [p2.id]: 50,
                     },
                     score: {
-                        [currentMatch.p1.id]: 0,
-                        [currentMatch.p2.id]: 0,
+                        [p1.id]: 0,
+                        [p2.id]: 0,
                     },
                     width: 100,
                     height: 100,
                     status: 'countdown',
                     playerNames: {
-                        [currentMatch.p1.id]: currentMatch.p1.name,
-                        [currentMatch.p2.id]: currentMatch.p2.name,
+                        [p1.id]: p1.name,
+                        [p2.id]: p2.name,
                     },
                 };
                 document.getElementById('pong')!.classList.remove('hidden');
                 document.getElementById('status')!.innerHTML = /*html*/`
                     <div style="font-size: 24px; font-weight: bold; color: white; text-align: center; margin: 10px 0;">
-                        ${currentMatch.p1.name} VS ${currentMatch.p2.name}
+                        ${p1.name} VS ${p2.name}
                     </div>
                 `;
                 break;
             }
             case 'countdown': {
+                // countdown only inside canvas (via countdownValue)
                 countdownValue = msg.value;
-                const cdEl = document.getElementById('countdown')!;
-                cdEl.classList.remove('hidden');
-                cdEl.textContent = String(msg.value);
                 break;
             }
             case 'start': {
                 countdownValue = null;
-                document.getElementById('countdown')!.classList.add('hidden');
                 break;
             }
             case 'update': {
@@ -216,11 +252,12 @@ export async function renderLocalTournament(root: HTMLElement) {
                 document.getElementById('status')!.textContent =
                     `Match ended. Winner: ${msg.winner.name}`;
                 currentMatch = null;
+                currentMatchId = null;
                 gameState = null;
                 countdownValue = null;
                 break;
             }
-            case 'tournamentEnd': {
+            case 'localTournamentEnd': {
                 document.getElementById('status')!.innerHTML = /*html*/`
                     <span style="color: gold; font-weight: bold;">
                         🏆 Congratulations! ${msg.winner.name} is the champion! 🏆
@@ -234,6 +271,77 @@ export async function renderLocalTournament(root: HTMLElement) {
             }
         }
     }
+
+    // --- Matches table renderer (simple view) ---
+
+    function renderMatchesTable(state: any, highlightMatchId: string | null) {
+        const container = document.getElementById('matches-table');
+        if (!container) return;
+
+        const participants: { id: string; name: string }[] = state.participants || [];
+        const rounds: any[][] = state.rounds || [];
+
+        if (!rounds.length) {
+            container.innerHTML = '';
+            return;
+        }
+
+        const lookupName = (id: string | undefined) => {
+            if (!id) return 'TBD';
+            const p = participants.find(p => p.id === id);
+            return p ? p.name : 'TBD';
+        };
+
+        let html = `
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm text-white border border-white/20 rounded">
+                    <thead class="bg-white/10">
+                        <tr>
+                            <th class="px-2 py-1 text-left">Match</th>
+                            <th class="px-2 py-1 text-left">Player 1</th>
+                            <th class="px-2 py-1 text-left">Player 2</th>
+                            <th class="px-2 py-1 text-left">Winner</th>
+                            <th class="px-2 py-1 text-left">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        let matchCounter = 1;
+
+        rounds.forEach((round) => {
+            round.forEach((match) => {
+                const p1Name = lookupName(match.p1);
+                const p2Name = lookupName(match.p2);
+                const winnerName = lookupName(match.winnerId);
+                const status = match.status || 'unknown';
+
+                const isCurrent = highlightMatchId && match.id === highlightMatchId;
+                const rowClass = isCurrent ? 'bg-yellow-500/30' : '';
+
+                html += `
+                    <tr class="${rowClass}">
+                        <td class="px-2 py-1 border-t border-white/10">#${matchCounter}</td>
+                        <td class="px-2 py-1 border-t border-white/10">${p1Name}</td>
+                        <td class="px-2 py-1 border-t border-white/10">${p2Name}</td>
+                        <td class="px-2 py-1 border-t border-white/10">${winnerName !== 'TBD' ? winnerName : '—'}</td>
+                        <td class="px-2 py-1 border-t border-white/10">${status}</td>
+                    </tr>
+                `;
+                matchCounter++;
+            });
+        });
+
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        container.innerHTML = html;
+    }
+
+    // --- Game drawing ---
 
     function drawGame() {
         if (!currentMatch || !gameState) return;
@@ -296,7 +404,7 @@ export async function renderLocalTournament(root: HTMLElement) {
         const scoreWidth = ctx.measureText(scoreText).width;
         ctx.fillText(scoreText, (width - scoreWidth) / 2, 25);
 
-        // Countdown overlay
+        // Countdown overlay (only here now)
         if (countdownValue !== null) {
             ctx.fillStyle = 'white';
             ctx.font = '64px sans-serif';
@@ -335,9 +443,9 @@ export async function renderLocalTournament(root: HTMLElement) {
             socket.send(JSON.stringify({ type: 'move', direction: 'down', playerId: currentMatch.p1.id }));
         }
     }
-    setInterval(sendMoveIntervalBased, 50); // Same interval as before
+    setInterval(sendMoveIntervalBased, 50);
 
-    // OPTION 2: event-driven sending (commented out; you can switch if you want)
+    // OPTION 2: event-driven sending
     /*
     function sendMoveOnKeyEvent(direction: 'up' | 'down', playerId: string) {
         const socket = wsManager.localTournamentWS;
@@ -354,7 +462,6 @@ export async function renderLocalTournament(root: HTMLElement) {
     });
     */
 
-    // Simple draw loop for local (keeps canvas updated if backend sends updates without us calling drawGame)
     function drawLoop() {
         drawGame();
         requestAnimationFrame(drawLoop);

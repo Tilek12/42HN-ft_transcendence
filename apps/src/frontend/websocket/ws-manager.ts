@@ -96,7 +96,7 @@ class WebSocketManager {
 			try {
 				if (this.gameSocket.readyState === WebSocket.OPEN) {
 					this.gameSocket.send('quit');
-					console.log('🕹️ [FRONT][Game WS] Sent quit message');
+					console.log('🕹️ [Game WS] Sent quit message');
 				}
 			} catch { }
 			const socket = this.gameSocket;
@@ -242,7 +242,6 @@ class WebSocketManager {
 		socket.onmessage = (e) => {
 			if (e.data === 'ping'){
 				socket.send('pong');
-				console.log('🎯 [LOCAL Tournament WS] Ping received, pong sent');
 			}
 			else {
 				try {
@@ -280,8 +279,8 @@ class WebSocketManager {
 	quitLocalTournament() {
 		console.log("quit ", this.localTournamentSocket)
 		if (this.localTournamentSocket?.readyState === WebSocket.OPEN) {
-			console.log('🎯 [LOCAL Tournament WS] Sending quitLocalTournament');
 			this.localTournamentSocket.send(JSON.stringify({ type: 'quitLocalTournament' }));
+			console.log('🎯 [LOCAL Tournament WS] Sending quitLocalTournament');
 		}
 	}
 
@@ -351,8 +350,8 @@ class WebSocketManager {
 	quitOnlineTournament() {
 		console.log("quitOnlineTournament", this.onlineTournamentSocket)
 		if (this.onlineTournamentSocket?.readyState === WebSocket.OPEN) {
-			console.log('🎯 [ONLINE Tournament WS] Sending quitOnlineTournament');
 			this.onlineTournamentSocket.send(JSON.stringify({ type: 'quitOnlineTournament' }));
+			console.log('🎯 [ONLINE Tournament WS] Sending quitOnlineTournament');
 		}
 	}
 
