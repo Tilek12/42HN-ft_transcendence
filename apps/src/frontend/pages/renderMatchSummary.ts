@@ -61,28 +61,46 @@ export async function renderMatchSummary(root:HTMLElement) {
 			total_games_array.push({name: row.username, value: total_games});
 			console.log(`total_games_arra[${i}] = ${row.username}, ${total_games}`);
 		})
+			console.log(total_games_array[0].name);
+			console.log(total_games_array[0].value);
 			const summary = trysummary as fMatchForSummary[];
 			console.log(`the summary[0]: ${summary[0].matchID}`);
 			var total_matches = summary[0].matchID;
-			// console.log(`total_matches: ${total_matches}`);
-
-			// we need a function that is taking the players
-			// summary.filter(match:);
-			// const userlist = document.getElementById('user_list');
-			// console.log(`userlist:---------------`);
-			// console.log(`userlist: ${userlist.}`);
-			// we need a way to go for every summary [array] and ctch the name of the player
-			// per player how many games
+		
+			const maxBarHeight = total_matches*4;
+			const filtered_total_games_chart_array = total_games_array.filter(p=> p.value !== 0).map(p => {
+				const barHeight = Math.round((p.value / total_matches) * maxBarHeight); // scale height
+				const safeName = String(p.name).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+		
+				return /*html*/`
+				<div class="flex flex-col items-center">
+					<div class="text-xs mt-1 text-white">${p.value}</div>
+					<div class="w-10 h-[${barHeight}px] bg-gradient-to-t from-purple-600 to-pink-400 rounded"></div>
+					<div class="text-xs mt-1 text-white text-center">${safeName}</div>
+				</div>
+				`;
+			});
+			const filtered_total_games_chart_length = filtered_total_games_chart_array.length;
+			const total_games_chart_string = filtered_total_games_chart_array.join('');
 
 			// const total_game_chart
 			root.innerHTML = renderBackgroundFull(
 				/*html*/
 			`
-			
 			   <!-- Total Games Chart -->
-			   	<div class="w-full flex justify-center my-6 border">
-			   		<canvas id="totalGamesChart" width="400" height="200"></canvas>
-		   		</div>	
+			   <div class="relative w-[420px] h-[340px] mx-auto my-8 bg-white/5 rounded text-white">
+
+			   <!-- Graph Title -->
+			   <div class="text-center text-lg font-semibold pt-4">
+				   Total Games Per Player
+			   </div>
+		   
+				<!-- Bars container -->
+				<div class="flex items-end space-x-4 overflow-x-auto mt-[180px]">
+					${total_games_chart_string} 
+				</div>
+		   	</div>
+				
 				<!-- Match Table -->
 				<div class="overflow-y-auto overflow-x-hidden pr-1 border">
 					<span id="MatchSummaryHeader"></span>
@@ -115,7 +133,7 @@ export async function renderMatchSummary(root:HTMLElement) {
 					  </tbody>
 					</table>
 				</div>
-			`);
+			` ) ;
 		
 		addMatchSummaryTranslations(languageStore.language);
 		languageStore.subscribe((lang) => addMatchSummaryTranslations(lang));
