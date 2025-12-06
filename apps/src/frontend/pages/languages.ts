@@ -1,4 +1,4 @@
-import { Language, PlaceholderElement, TranslationSet } from '../types.js'
+import { Language, PlaceholderElement, TranslationSet } from '../frontendTypes.js'
 
 
 

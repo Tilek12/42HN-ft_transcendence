@@ -2,7 +2,7 @@ import { apiFetch, getUser } from '../utils/auth.js'
 import { defaultPicture } from '../utils/constants.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore, translations_errors, translations_friends_render } from './languages.js';
-import type { fProfile } from '../types.js'
+import type { fProfile } from '../frontendTypes.js'
 
 export async function renderFriendsList(container_id: string, load?: boolean, allFriends?: { friends: any[] }, friend_offeset?: number, friend_limit?: number) {
 	const container = document.getElementById(container_id);

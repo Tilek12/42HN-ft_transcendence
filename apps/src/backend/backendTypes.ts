@@ -28,15 +28,6 @@ export interface User {
 }
 
 
-export type Profile = {
-	id:number
-	username: string,
-	created_at:string,
-	wins: string,
-	losses: string,
-	trophies: string,
-	image_blob: string,
-};
 
 
 // AUTH
@@ -60,9 +51,44 @@ interface FastifyJWT {
 	user: JWTPayload, // user type is return type of `request.user` object
 }
 
-// interface FastifyRequest {
-// 	user: JWTPayload
-// }
+
+
+
+
+
+
+
+// database types for user management
+
+
+export type Profile = {
+	id:number
+	username: string,
+	created_at:string,
+	wins: string,
+	losses: string,
+	trophies: string,
+	image_blob: string,
+};
+
+export type ProfileListEntry = Profile & {
+	friendrequest: 'received' | 'sent' | null,
+	iBlock:boolean;
+	blocksMe:boolean;
+}
+
+
+export type friendRequest = {
+  sender_id:number,
+  receiver_id:number,
+}
+
+
+export type blockStatus = {
+  user_id: number,
+  blocked_id: number,
+}
+
 
 export type match = {
 	matchID:number,
@@ -86,3 +112,4 @@ export type matchHistory = {
 	tournament_games:number,
 
 }
+

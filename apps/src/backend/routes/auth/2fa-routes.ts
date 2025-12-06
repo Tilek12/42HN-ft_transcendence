@@ -4,7 +4,7 @@ import { enable_TFA_body, disable_TFA_body } from '../../auth/schemas';
 import { verifyPassword, verifyUserJWT } from '../../auth/utils';
 
 import { generateqrcode, generateSecret, validate_2fa_token } from '../../2FA/2fa';
-import { JWTPayload, Jwt_type } from '../../types';
+import { JWTPayload, Jwt_type } from '../../backendTypes';
 import { findUserById, log_in } from '../../database/user';
 import { store2faKey, delete2faKey, update2faStatus } from '../../database/2fa';
 import { setAccessCookie, setRefreshCookie } from '../../auth/cookies';

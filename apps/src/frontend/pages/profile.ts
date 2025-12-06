@@ -1,8 +1,8 @@
 
 import { getUser, clearUser, setUser, apiFetch } from '../utils/auth.js'
-import { AllProfileWithLimitAndOffset, renderProfilesList } from './renderProfiles.js';
+import { fetchProfiles,  LoadMoreBtnListener,  renderProfiles } from './renderProfiles.js';
 import { renderUserProfile, fill_profile_info, update_langauge_headers_user_profile } from './renderUserProfile.js';
-import type { fProfile } from '../types.js';
+import type { fProfile } from '../frontendTypes.js';
 import { listenerFriendAndBlock } from './ListenerProfileList.js';
 
 import { wsManager } from '../websocket/ws-manager.js';
@@ -14,62 +14,62 @@ import { friendsRequestListener } from './friends.js';
 import { renderMatchHistory } from './renderMatchHistory.js'
 let i = 0;
 
-let profilesList: fProfile[];
+// let profilesList: fProfile[];
 
-const ref_obj_allProfiles: { allProfiles: { profiles: any[] }[] | undefined } = { allProfiles: [] };
+// const ref_obj_allProfiles: { allProfiles: { profiles: any[] }[] | undefined } = { allProfiles: [] };
 
 
-let allProfiles: { profiles: any[] }[] | undefined = [];
-let profile_offset = 0;
-let profile_limit = 3;
-let new_all_profiles: AllProfileWithLimitAndOffset | undefined;
-let nav_profile_clicked = false;
-let already_parsed: boolean | undefined = false;
-let first_profile_render = 1;
-let presenceList: any[] | undefined = [];
+// let allProfiles: { profiles: any[] }[] | undefined = [];
+// let profile_offset = 0;
+// let profile_limit = 3;
+// let new_all_profiles: AllProfileWithLimitAndOffset | undefined;
+// let nav_profile_clicked = false;
+// let already_parsed: boolean | undefined = false;
+// let first_profile_render = 1;
+// let presenceList: any[] | undefined = [];
 
-export const resetEventListeners = (elemnt_ids : string[]) : void =>
-{
-	elemnt_ids.forEach(id => 
-	{
-		const el = document.getElementById(id)
-		if(el)
-			el.replaceWith(el.cloneNode(true));
-		// document.getElementById(id)!.innerHTML = ''
-	});
-}
-const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) =>
-	{
+// export const resetEventListeners = (elemnt_ids : string[]) : void =>
+// {
+// 	elemnt_ids.forEach(id => 
+// 	{
+// 		const el = document.getElementById(id)
+// 		if(el)
+// 			el.replaceWith(el.cloneNode(true));
+// 		// document.getElementById(id)!.innerHTML = ''
+// 	});
+// }
+// const renderCheckerForProfiles = (load = false, nav_profile_clicked = false) =>
+// 	{
 
-		// console.log("ALL PROFILES ON RENDER", ref_obj_allProfiles.allProfiles)
-		let listUsers = wsManager.presenceUserList.map((u)=>u.name);
-		console.log(`Is ${JSON.stringify(listUsers) !== JSON.stringify(presenceList) ? ' ' : ' not '}changing`)
-		if (load) first_profile_render--;
-		if (JSON.stringify(listUsers) !== JSON.stringify(presenceList) || (first_profile_render == 1) || nav_profile_clicked)
-		{
-			if(load === false)
-				{
-					console.log("I'm In no load")
-					first_profile_render++
-				};
-			presenceList = [...listUsers];
-			// console.log("ALLLPROFILES INSIDE AUTORENDER===========>>>", ref_obj_allProfiles.allProfiles);
-			// ref_obj_allProfiles.allProfiles?.forEach((pr)=> console.log("DEFAULT BEFORE MAPPING", pr.profiles[0].logged_in));
-			ref_obj_allProfiles.allProfiles?.map((all) => all.profiles?.map((pr)=> {pr.logged_in = wsManager.presenceUserList.map((u)=> u.name).includes(pr.username); return pr;}));
-			ref_obj_allProfiles.allProfiles?.map((all) => all.profiles?.forEach((pr) =>
-			{
-				// console.log(`changing on rendering of user ${pr.username}, ${pr.logged_in}`);
-				const profile_loggin_state = document.getElementById(`profiles-loggin-state-${pr.username}`) as HTMLSpanElement;
-				profile_loggin_state?.classList.add(`${pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
-				profile_loggin_state?.classList.remove(`${!pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
-				if (profile_loggin_state)
-					profile_loggin_state.innerHTML = '●';
-			}))
-		}
-		if(!load)
-			setTimeout(renderCheckerForProfiles, 500);
-		// return allProfiles
-	}
+// 		// console.log("ALL PROFILES ON RENDER", ref_obj_allProfiles.allProfiles)
+// 		let listUsers = wsManager.presenceUserList.map((u)=>u.name);
+// 		console.log(`Is ${JSON.stringify(listUsers) !== JSON.stringify(presenceList) ? ' ' : ' not '}changing`)
+// 		if (load) first_profile_render--;
+// 		if (JSON.stringify(listUsers) !== JSON.stringify(presenceList) || (first_profile_render == 1) || nav_profile_clicked)
+// 		{
+// 			if(load === false)
+// 				{
+// 					console.log("I'm In no load")
+// 					first_profile_render++
+// 				};
+// 			presenceList = [...listUsers];
+// 			// console.log("ALLLPROFILES INSIDE AUTORENDER===========>>>", ref_obj_allProfiles.allProfiles);
+// 			// ref_obj_allProfiles.allProfiles?.forEach((pr)=> console.log("DEFAULT BEFORE MAPPING", pr.profiles[0].logged_in));
+// 			ref_obj_allProfiles.allProfiles?.map((all) => all.profiles?.map((pr)=> {pr.logged_in = wsManager.presenceUserList.map((u)=> u.name).includes(pr.username); return pr;}));
+// 			ref_obj_allProfiles.allProfiles?.map((all) => all.profiles?.forEach((pr) =>
+// 			{
+// 				// console.log(`changing on rendering of user ${pr.username}, ${pr.logged_in}`);
+// 				const profile_loggin_state = document.getElementById(`profiles-loggin-state-${pr.username}`) as HTMLSpanElement;
+// 				profile_loggin_state?.classList.add(`${pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
+// 				profile_loggin_state?.classList.remove(`${!pr.logged_in ? 'text-green-600' :'text-gray-500'}`);
+// 				if (profile_loggin_state)
+// 					profile_loggin_state.innerHTML = '●';
+// 			}))
+// 		}
+// 		if(!load)
+// 			setTimeout(renderCheckerForProfiles, 500);
+// 		// return allProfiles
+// 	}
 export async function renderProfile(root: HTMLElement) {
 	apiFetch('/api/private/profile', {
 		method: 'GET',
@@ -87,76 +87,69 @@ export async function renderProfile(root: HTMLElement) {
 			};
 
 			// Get Data from request and insert it
-			const { username, image_blob, wins,	losses,	trophies} = data;
+			const { username, image_blob, wins, losses, trophies } = data;
 			let user = getUser();
 			root.innerHTML = renderUserProfile(); //main html content
-			if (user){
+			if (user) {
 				user.username = username;
 				user.image_blob = image_blob;
 				user.wins = wins;
-				user.losses= losses;
+				user.losses = losses;
 				user.trophies = trophies;
 				setUser(user);
 				fill_profile_info(user);
 			}
 
 			//enable reload of profiles on click of navbar profiles it doesnt go through router and so makes sense to add here, nice -p
-			document.getElementById('nav_profile')?.addEventListener('click', () => { nav_profile_clicked = true; });
-
-			// document.getElementById('triggerfriendrequest')?.addEventListener('click', ()=>{
-			// 	try {
-			// 		const res = apiFetch('/api/private/parse-profiles', {
-			// 			method: 'GET',
-			// 			credentials: 'include',
-			// 		})
-			// 		// if (res.ok)
-
-			// 	}catch(e:any)
-			// 	{
-			// 		alert(e.message);
-			// 	}
-			// });
+			// document.getElementById('nav_profile')?.addEventListener('click', () => { nav_profile_clicked = true; });
 
 
-			//render the profile list asyncronously
-			(async () => {
-				const r_on_r = await renderProfilesList('profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit, already_parsed);
-				ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
-				already_parsed = r_on_r?.already_parsed;
-			})();
+			// //render the profile list asyncronously
+			// (async () => {
+			// 	const r_on_r = await renderProfilesList('profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit, already_parsed);
+			// 	ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
+			// 	already_parsed = r_on_r?.already_parsed;
+			// })();
 
 
 
 			//render friends list
-			(async()=>{renderFriendsList('friend-list');})();
-			//render freind request list
+			(async () => { renderFriendsList('friend-list'); })();
+
+			// render freind request list
 			(async()=>{renderFriendRequestsList();})();
 			friendsRequestListener();
-			
+
+			// Render user-list
+			(async () => { fetchProfiles();})();
+			wsManager.subscribeToPresence(renderProfiles);
+			document.getElementById('more-profiles-btn')?.addEventListener('click', LoadMoreBtnListener);
+
 
 			// more-profiles button event listener, 
-			document.getElementById('more-profiles-btn')?.addEventListener('click', async () => {
-				profile_offset += profile_limit;
-				const r_on_r = await renderProfilesList('profiles-list', true, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit);
-				ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
-				already_parsed = r_on_r?.already_parsed;
-				console.log("check render what is returning: ++++ ONLOAD", renderCheckerForProfiles(true));
-			})
+			// document.getElementById('more-profiles-btn')?.addEventListener('click', async () => {
+			// 	profile_offset += profile_limit;
+			// 	const r_on_r = await renderProfilesList('profiles-list', true, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit);
+			// 	ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
+			// 	already_parsed = r_on_r?.already_parsed;
+			// 	console.log("check render what is returning: ++++ ONLOAD", renderCheckerForProfiles(true));
+			// })
 
 
 			// eventlisteners for profiles list
 			//----------------load pagination process--------------------------------------
 			document.getElementById('profiles-list')?.addEventListener
 				('click', async (e) => {
-					ref_obj_allProfiles.allProfiles = await listenerFriendAndBlock(e, 'profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit)
+					await listenerFriendAndBlock(e)
 				});
-			
+
+
+			// renders match history
 			renderMatchHistory();
-						// renders match history
-			//==================Linda's code==========================
-			
+
 			// trigger reload
 			document.getElementById('nav_profile')?.addEventListener('click', () => { renderProfile(root) });
+
 			// set all correct language strings
 			update_langauge_headers_user_profile(languageStore.language);
 			//make sure the language strings update on language

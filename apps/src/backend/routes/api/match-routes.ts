@@ -5,7 +5,7 @@ import {
 	getMatchesByUserId,
 	getMatchById,
 } from '../../database/match';
-import { JWTPayload, match, matchHistory } from '../../types'
+import { JWTPayload, match, matchHistory } from '../../backendTypes'
 
 const matchRoutes: FastifyPluginAsync = async (fastify: any) => {
 	// Create a match (requires authentication)
@@ -94,6 +94,10 @@ const matchRoutes: FastifyPluginAsync = async (fastify: any) => {
 
 		res.send(match);
 	});
+
+
+
+	
 };
 
 export default matchRoutes;

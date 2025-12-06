@@ -3,7 +3,8 @@ import { findUserByUsername } from './user';
 import fs from 'fs';
 import sharp from 'sharp';
 import path from 'path';
-import type { Profile } from '../types';
+import type { Profile } from '../backendTypes';
+import { blockStatus, friendRequest } from '../backendTypes';
 
 //----------functions for profiles data base-----------
 export async function findProfileByUsername(username: string)
@@ -12,9 +13,18 @@ export async function findProfileByUsername(username: string)
 }
 
 
-export async function findProfileById(id: number)
+export async function findProfileById(id: number):  Promise<Profile>
 {
-	return await db.get('SELECT * FROM profiles WHERE id = ?', id);
+	return await db.get(`SELECT
+		  u.id,
+		  u.username,
+		  p.wins,
+		  p.losses,
+		  p.trophies,
+		  p.image_blob
+		FROM users u
+		JOIN profiles p ON u.id = p.id
+		WHERE u.id != ?`, id) as Profile;
 }
 
 
@@ -32,8 +42,10 @@ export async function createProfile(username: string)
 }
 
 
-export async function parseProfiles(prof_id : number, offset?: number, limit?: number) : Promise<any[]>
+export async function parseProfiles(prof_id : number, offset?: number, limit?: number) : Promise<Profile[]>
 {
+	let Profiles:Profile[];
+
 	let sqliteString = `SELECT
 		  u.id,
 		  u.username,
@@ -47,10 +59,12 @@ export async function parseProfiles(prof_id : number, offset?: number, limit?: n
 	if (offset !== undefined && limit !== undefined)
 	{
 		sqliteString += ` LIMIT  ? OFFSET ?`;
-		return await db.all(sqliteString, [prof_id, limit, offset])
+		Profiles =  await db.all(sqliteString, [prof_id, limit, offset]) as Profile[];
 	}
-	return await db.all(sqliteString, [prof_id]);
+	else
+		Profiles =  await db.all(sqliteString, [prof_id]) as Profile[];
 
+	return Profiles; 
 }
 
 
@@ -171,11 +185,15 @@ export async function DeleteFromBlockedList(id_user:number, id_of_blocked_user: 
 }
 
 
-export async function parseBlockedList(user_id: number) : Promise<any[]>
+export async function parseIBlockedList(user_id: number) : Promise<blockStatus[]>
 {
-	return await db.all('SELECT user_id, blocked_id FROM blocked_list WHERE user_id = ?', user_id);
+	return await db.all('SELECT user_id, blocked_id FROM blocked_list WHERE user_id = ?', user_id) as blockStatus[];
 }
 
+export async function parseBlockedMeList(id: number): Promise<blockStatus[]>
+{
+	return await db.all('SELECT user_id, blocked_id FROM blocked_list WHERE blocked_id = ?', id) as blockStatus[];
+}
 
 //-------Friend request List--------------------------------
 export async function isExistsFriendRequest(senderId : number, recieverId: number)
@@ -206,17 +224,18 @@ export async function deleteFriendRequest(senderId: number, receiverId: number)
 }
 
 
-export async function parsePendingRequests(userId: number, offset_param?: string, limit_param?: string ) : Promise<any[]>
+export async function parsePendingRequests(userId: number, offset_param?: string, limit_param?: string ) : Promise<friendRequest[]>
 {
-	let res : any;
+	let res : friendRequest[];
 	if (offset_param && limit_param)
-		res =  await db.all(`SELECT sender_id, receiver_id sent_at FROM friends_requests WHERE receiver_id = ? LIMIT ? OFFSET ?`,[userId, parseInt(offset_param), parseInt(limit_param)]);
-	res =  await db.all(`SELECT sender_id, receiver_id sent_at FROM friends_requests WHERE receiver_id = ?`,[userId]);
+		res =  await db.all(`SELECT sender_id, receiver_id FROM friends_requests WHERE receiver_id = ? LIMIT ? OFFSET ?`,[userId, parseInt(offset_param), parseInt(limit_param)]) as friendRequest[];
+	else
+		res =  await db.all(`SELECT sender_id, receiver_id FROM friends_requests WHERE receiver_id = ?`,[userId]) as friendRequest[];
 	return res;
 }
 
 
-export async function parseBidirectionalPendingRequests(userId: number, profileId: number) : Promise<any[]>
+export async function parseBidirectionalPendingRequests(userId: number, profileId: number) : Promise<friendRequest[]>
 {
-	return await db.all(`SELECT sender_id, receiver_id FROM friends_requests WHERE sender_id = ? OR receiver_id = ?`,[userId, profileId]);
+	return await db.all(`SELECT sender_id, receiver_id FROM friends_requests WHERE sender_id = ? OR receiver_id = ?`,[userId, profileId]) as friendRequest[];
 }

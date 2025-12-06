@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyPluginAsync, FastifyReply } from 'fastify';
 import { hashPassword, verifyPassword } from '../../auth/utils';
 import { LoginBody, loginSchema, logoutSchema, refreshSchema, registerBody, registerSchema } from '../../auth/schemas';
-import type { JWTPayload, User } from '../../types';
-import { Jwt_type } from '../../types';
+import type { JWTPayload, User } from '../../backendTypes';
+import { Jwt_type } from '../../backendTypes';
 import { findUserByUsername, createUser, log_in, log_out, findUserById, deleteUser } from '../../database/user';
 import { createProfile } from '../../database/profile';
 import { userManager } from '../../service-managers/user-manager';

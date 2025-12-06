@@ -1,6 +1,6 @@
 import { renderBackgroundFull } from '../utils/layout.js';
 import { wsManager } from '../websocket/ws-manager.js';
-import type { Language, fUser } from '../types.js';
+import type { Language, fUser } from '../frontendTypes.js';
 import { defaultPicture } from '../utils/constants.js';
 import { languageStore, translations_profile, transelate_per_id } from './languages.js'
 
@@ -115,6 +115,7 @@ export function renderUserProfile()
 								<span id="friend_requests_header"></span>
 							</h2>
 							<div id="friend-requests-list"></div>
+							<span id="friend_requests_error" class="text-xl hidden font-bold text-red-600 mb-4 flex items-center"></span>	
 						</div>	
 						
 					</div>
@@ -165,7 +166,8 @@ export function renderUserProfile()
 								<span id="friend_list_header"></span>
 							</h2>
 							 <!--button id="triggerfriendrequest" class ="bg-black-500 tranform hover:scale-105 ">trigger '/friends' request </button-->
-							<div id="friend-list"></div>							
+							<div id="friend-list"></div>	
+							<span id="friend_list_error" class="text-xl hidden font-bold text-red-600 mb-4 flex items-center"></span>						
 						</div>
 					</div>
 
@@ -202,11 +204,12 @@ export function renderUserProfile()
 								<span id="user_list_header"></span>
 							</h2>
 							<div id="profiles-list" class="max-h-[400px] overflow-y-auto overflow-x-hidden pr-1 mb-4 rounded-xl">
-						</div>
+							</div>
 							<!-- DESIGN: Multi-color gradient button (blue-purple-pink) -->
 							<button id="more-profiles-btn" class="w-full px-4 py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white text-base font-bold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-2xl">
 								<span id="load_more_header"></span>
 							</button>
+							<span id="user_list_error" class="text-xl hidden font-bold text-red-600 mb-4 flex items-center"></span>
 						</div>
 					</div>
 				</div>

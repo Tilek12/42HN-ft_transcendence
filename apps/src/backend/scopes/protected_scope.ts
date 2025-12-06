@@ -1,7 +1,7 @@
 import { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
 import { verifyUserJWT } from '../auth/utils';
-import { Jwt_type } from '../types';
+import { Jwt_type } from '../backendTypes';
 
 
 // only registered in protected scope

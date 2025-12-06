@@ -1,7 +1,7 @@
 import { FastifyPluginAsync } from 'fastify';
 import { findUserById } from '../../database/user';
 // import { userManager } from '../../service-managers/user-manager';
-import type { JWTPayload } from '../../types';
+import type { JWTPayload } from '../../backendTypes';
 import { userManager } from '../../service-managers/user-manager';
 
 

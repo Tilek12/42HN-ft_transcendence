@@ -1,5 +1,5 @@
 import { db } from './client';
-import { User } from '../types'
+import { User } from '../backendTypes'
 
 
 async function findUserByUsername(username: string): Promise<User | null> {

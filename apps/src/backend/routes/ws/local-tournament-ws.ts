@@ -7,7 +7,7 @@ import { userManager } from '../../service-managers/user-manager';
 import { localTournamentManager } from '../../service-managers/local-tournament-manager';
 import { gameManager } from '../../service-managers/game-manager';
 import { PING_INTERVAL_MS } from '../../constants';
-import { JWTPayload, User } from '../../types';
+import { JWTPayload, User } from '../../backendTypes';
 import { TournamentWebsocketQuery, TournamentWebsocketSchema } from './WebsocketSchemas';
 import { findUserById } from '../../database/user';
 

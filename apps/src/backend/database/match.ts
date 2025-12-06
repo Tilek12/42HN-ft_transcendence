@@ -1,5 +1,5 @@
 import { db } from './client';
-import type { match } from '../types'
+import type { match } from '../backendTypes'
 //----------functions for matches data base-----------
 export async function createMatch(
 	player1Id: number,
@@ -33,7 +33,7 @@ export async function createMatch(
   }
 
   export async function getAllMatches() {
-	return db.all(`SELECT * FROM matches ORDER BY played_at DESC`);
+	return db.all(`SELECT * FROM matches ORDER BY played_at DESC`) ;
   }
 
 export async function getMatchesByUserId(userId: number): Promise<match[]> 

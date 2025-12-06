@@ -6,9 +6,9 @@ import { onlineTournamentManager } from '../../service-managers/online-tournamen
 import { findUserById, getUsernameById } from '../../database/user';
 import { PING_INTERVAL_MS } from '../../constants';
 import { PresenceWebsocketSchema } from './WebsocketSchemas'
-import { JWTPayload } from '../../types';
+import { JWTPayload } from '../../backendTypes';
 import { verifyUserJWT } from '../../auth/utils';
-import { Jwt_type, User } from '../../types';
+import { Jwt_type, User } from '../../backendTypes';
 import { JWT } from '@fastify/jwt';
 import { error } from 'console';
 

@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
-import { JWTPayload } from '../types';
+import { JWTPayload } from '../backendTypes';
 import { FastifyRequest } from 'fastify';
-import { Jwt_type } from '../types';
+import { Jwt_type } from '../backendTypes';
 
 
 export async function hashPassword(password: string): Promise<string> {

@@ -7,7 +7,7 @@ import { userManager } from '../../service-managers/user-manager';
 import { onlineTournamentManager } from '../../service-managers/online-tournament-manager';
 import { gameManager } from '../../service-managers/game-manager';
 import { PING_INTERVAL_MS } from '../../constants';
-import { JWTPayload, User } from '../../types';
+import { JWTPayload, User } from '../../backendTypes';
 
 function handle_message(text: string, user:User, userId:string, socket:WebSocket) {
 	if (text === 'pong') {

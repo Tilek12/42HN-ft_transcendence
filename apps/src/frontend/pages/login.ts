@@ -3,7 +3,7 @@ import { renderBackgroundFull } from '../utils/layout.js';
 import { getUser } from '../utils/auth.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore, translations_login_page, transelate_per_id, translations_errors, translations_nav, translations_register_page } from './languages.js';
-import type { Language } from '../types.js';
+import type { Language } from '../frontendTypes.js';
 
 
 // DESIGN change: Unified login/register page with tab switching instead of separate pages

@@ -1,5 +1,5 @@
 import WebSocket from 'ws'
-import { User } from '../types'
+import { User } from '../backendTypes'
 
 class UserManager {
 	private users = new Map<number, User>();

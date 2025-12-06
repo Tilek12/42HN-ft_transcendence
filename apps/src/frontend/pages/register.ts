@@ -1,7 +1,7 @@
 
 import { renderBackgroundFull } from '../utils/layout.js';
 import { languageStore, translations_register_page, transelate_per_id, translations_errors } from './languages.js';
-import type { Language } from '../types.js';
+import type { Language } from '../frontendTypes.js';
 
 
 export function renderRegister(root: HTMLElement) {

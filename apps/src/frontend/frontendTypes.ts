@@ -10,6 +10,7 @@ export interface PresenceUser {
   name?: string;
 }
 
+
 // fUser = Frontend User (to not get confused)
 export interface fUser extends fProfile {
   tfa:boolean,
@@ -24,6 +25,22 @@ export type fProfile = {
 	trophies: string,
 	image_blob: string | undefined,
 };
+
+export type fProfileListEntry = fProfile & {
+  friendrequest: 'received' | 'sent' | null,
+  iBlock:boolean;
+  blocksMe:boolean;
+}
+
+
+export type fProfileList =
+	{
+		profiles: fProfileListEntry[],
+		limit: number,
+		offset: number,
+		already_parsed: boolean | undefined
+	};
+
 
 // frontend match
 export type fMatch = {
@@ -47,7 +64,7 @@ export type fMatchHistory = {
 	total: number,
 	win_rate: number,
   tournament_games:number,
-}
+  }
 
 export type PresenceCallback = (users: number, tournaments: any[]) => void;
 
@@ -75,25 +92,6 @@ export type payload = {
 }
 
 
-export type match = {
-	matchID:number,
-	player1_id:number,
-	player2_is:number,
-	player1_score:number,
-	player2_score:number,
-	winner_id:number,
-	is_tie:boolean,
-	is_tournament_match:boolean,
-	played_at: string,
-}
-
-export type matchHistory = {
-	profile_id: number,
-	matches: match[],
-	win: number,
-	matches_count: number,
-	win_rate: number,
-}
 // Tournament WebSocket Message Types (Frontend) - Copied from backend for consistency
 export type TournamentMessage =
   | TournamentJoinedMessage

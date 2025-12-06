@@ -109,7 +109,7 @@ export async function connectToDB() {
 	`);
 
  //------------friends request table----------------
- await db.exec (
+ await db.exec ( 
 	`
 		CREATE TABLE IF NOT EXISTS friends_requests (
 			sender_id INTEGER NOT NULL,

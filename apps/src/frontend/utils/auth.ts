@@ -1,6 +1,6 @@
 import { renderConnectionErrorPage } from '../pages/error.js';
 import { changeLoginButton, logoutFrontend } from '../pages/nav.js';
-import { payload, fUser } from '../types.js'
+import { payload, fUser } from '../frontendTypes.js'
 
 
 let user: fUser | null;

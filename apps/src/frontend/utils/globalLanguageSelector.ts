@@ -5,7 +5,7 @@
 // - Automatically syncs with languageStore for language changes
 // - Works with layout.ts global selector HTML
 import { languageStore } from '../pages/languages.js';
-import type { Language } from '../types.js';
+import type { Language } from '../frontendTypes.js';
 
 export function initGlobalLanguageSelector() {
 	// DESIGN change: 100ms delay ensures DOM elements are ready after page render

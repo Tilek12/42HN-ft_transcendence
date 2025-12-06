@@ -1,4 +1,4 @@
-import { Language } from '../types.js';
+import { Language } from '../frontendTypes.js';
 import { apiFetch, fetchUser, getUser, setUser } from '../utils/auth.js';
 import { defaultPicture } from '../utils/constants.js';
 import { renderBackgroundFull } from '../utils/layout.js'

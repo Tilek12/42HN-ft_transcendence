@@ -115,13 +115,11 @@ export function renderNav() {
 	// for consistent UX. This declutters the navigation header and provides language switching everywhere.
 
 	// Subscribe ONCE to presence updates and re-render
-	if (!presenceUnsub) {
-		presenceUnsub = wsManager.subscribeToPresence(() => {
-			requestAnimationFrame(updateOnlineUsers);
-		});
-	}
+	// if (!presenceUnsub) {
+		wsManager.subscribeToPresence(() => {requestAnimationFrame(updateOnlineUsers);});
+	// }
 	// Detect when DOM has been updated and patch content into it
-	requestAnimationFrame(() => updateOnlineUsers());
+	// requestAnimationFrame(() => updateOnlineUsers());
 	if (nav) {
 		nav.innerHTML =
 			/*html*/

@@ -1,5 +1,5 @@
 import { getUser } from '../utils/auth.js';
-import { GameMode, PresenceUser, PresenceCallback } from '../types.js';
+import { GameMode, PresenceUser, PresenceCallback } from '../frontendTypes.js';
 
 
 function setOnlineStatusOffline() {
@@ -74,14 +74,13 @@ class WebSocketManager {
 			console.log('🕹️ [Game WS] Disconnected');
 			this.gameSocket = null;
 		};
-		socket.onerror = async(event: any) => {
-			if (getUser()){
+		socket.onerror = async (event: any) => {
+			if (getUser()) {
 				const res = await fetch('/api/refresh', {
 					method: 'POST',
 					credentials: 'include'
 				})
-				if (res.ok)
-				{
+				if (res.ok) {
 					this.createGameSocket(mode);
 				}
 			}
@@ -168,13 +167,12 @@ class WebSocketManager {
 		socket.onerror = async (err) => {
 			console.error('👥 [Presence WS] Error:', err);
 			// refresh access token in case it turned invalid. check once on connect error if not ok then dont try again
-			if (getUser()){
+			if (getUser()) {
 				const res = await fetch('/api/refresh', {
 					method: 'POST',
 					credentials: 'include'
 				})
-				if (res.ok)
-				{
+				if (res.ok) {
 					this.connectPresenceSocket(onUpdate);
 				}
 			}
@@ -190,12 +188,11 @@ class WebSocketManager {
 		}
 	}
 
-	subscribeToPresence(cb: PresenceCallback): () => void {
-		this.presenceListeners.push(cb);
-		cb(this.activeUserCount, this.presenceUsers);
-		return () => {
-			this.presenceListeners = this.presenceListeners.filter(fn => fn !== cb);
-		};
+	subscribeToPresence(cb: PresenceCallback) {
+		if (!this.presenceListeners.includes(cb)) {
+			this.presenceListeners.push(cb);
+		}
+
 	}
 
 	clearPresenceData() {

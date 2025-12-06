@@ -7,7 +7,7 @@ import { GameMode, Player } from '../../game/game-types';
 import { userManager } from '../../service-managers/user-manager';
 import { PING_INTERVAL_MS } from '../../constants';
 import { GameWebsocketSchema, GameWebsocketQuery } from './WebsocketSchemas';
-import { JWTPayload, User } from '../../types';
+import { JWTPayload, User } from '../../backendTypes';
 import { sleep } from '../../utils'
 import { WebsocketHandler } from '@fastify/websocket';
 
