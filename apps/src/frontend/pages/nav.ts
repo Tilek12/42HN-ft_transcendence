@@ -2,6 +2,7 @@ import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore, transelate_per_id, translations_nav } from './languages.js';
 import { getUser, clearUser, apiFetch } from '../utils/auth.js'
 import { renderConnectionErrorPage } from './error.js';
+import { clearUserList } from './renderProfiles.js';
 
 
 let presenceUnsub: (() => void) | null = null;
@@ -59,10 +60,10 @@ export function changeLoginButton(login: boolean) {
 
 export function logoutFrontend() {
 	clearUser();
+	// clearUserList();
 	wsManager.clearPresenceData();
 	wsManager.disconnectAllSockets();
 	changeLoginButton(true);
-	
 }
 
 const listenerLogoutBtn = async (e: any) => {

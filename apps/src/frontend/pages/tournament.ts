@@ -284,7 +284,9 @@ export async function renderTournament(root: HTMLElement) {
 	}
 
 	function renderTournamentList() {
-		const list = document.getElementById('tournament-list')!;
+		const list = document.getElementById('tournament-list');
+		if (!list)
+			return;
 		list.innerHTML = '';
 
 		const tournaments = wsManager.onlineTournaments;

@@ -6,13 +6,16 @@ import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore, translations_errors, translations_profile } from './languages.js';
 import { showError } from './renderProfiles.js';
 
-
+let counter:number = 0;
 
 export async function renderFriendRequestsList() {
 
 	const container = document.getElementById('friend-requests-list');
+	
+	
 	if (!container) return;
 	try {
+		console.log('render friend requests', counter++);
 		const res = await apiFetch('/api/private/friendrequests', {
 			method: 'GET',
 			credentials: 'include'
@@ -25,17 +28,18 @@ export async function renderFriendRequestsList() {
 		const requests: fProfile[] = data.requestProfiles;
 		if (!requests)
 			showError('friend_requests_error', undefined, "NO requestProfiles received");
-		console.log(requests);
+		
+		
+		
 		if (requests.length > 0) {
+			document.getElementById('no_requests_span')?.classList.add('hidden');	
 			let content: string[] = [];
 			requests.forEach((profile: fProfile) => {
 
-			let is_connected =wsManager.presenceUserList.map((u) => u.name).includes(profile.username);
-			
+			let is_connected = wsManager.presenceUserList.map((u) => u.name).includes(profile.username);
 			const profile_pic_src = profile.image_blob ? `data:image/webp;base64,${profile.image_blob}` : defaultPicture;
 
 				content.push  (/*html*/`
-			
 						<div class="flex items-center justify-between bg-white/10 backdrop-blur-md p-5 rounded-xl shadow-xl mb-4 border border-white/20 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)] hover:bg-white/15 hover:border-blue-400/50 group">
 							<div class="flex items-center space-x-4">
 
@@ -74,7 +78,7 @@ export async function renderFriendRequestsList() {
 							<button 
 								data-profile-answer="accept"
 								data-profile-id="${profile.id}"
-								class="link-btn px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-xl transform hover:scale-110 group">
+								class="answer-request-btn px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-xl transform hover:scale-110 group">
 								<svg class="w-5 h-5 transition-transform duration-300 group-hover:-translate-y-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
 								</svg>
@@ -82,7 +86,7 @@ export async function renderFriendRequestsList() {
 							<button
 								data-profile-answer="decline" 
 								data-profile-id="${profile.id}"
-								class="block-btn px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-xl transform hover:scale-110 group">
+								class="answer-request-btn px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-xl transform hover:scale-110 group">
 								<svg class="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
 								</svg>
@@ -93,7 +97,8 @@ export async function renderFriendRequestsList() {
 			container.innerHTML = content.join("");
 		}
 		else {
-			container.innerHTML = /*html*/`<span id="no_requests_span">${translations_profile[languageStore.language].no_friend_requests}</span>`
+			document.getElementById('no_requests_span')?.classList.remove('hidden');
+			container.innerHTML = '';	
 		}
 
 	} catch (err: any) {

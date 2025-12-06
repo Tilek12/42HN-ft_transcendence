@@ -24,8 +24,8 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
 		// console.log(user);
 		if (!user)
 			return res.status(401).send({ message: 'User not found' });
-		else if ( userManager.getUser(payload.id))
-			return res.status(401).send({ message: 'User already logged in' });
+		// else if ( userManager.getUser(payload.id))
+		// 	return res.status(401).send({ message: 'User already logged in' });
 		const fuser:fUser = {
 			id:user.id,
 			username:user.username,

@@ -1,3 +1,4 @@
+
 import { fProfileList, fProfileListEntry } from '../frontendTypes.js';
 import { apiFetch, getUser } from '../utils/auth.js'
 import { defaultPicture } from '../utils/constants.js';
@@ -19,9 +20,11 @@ import { languageStore, translations_errors, translations_friends } from './lang
 
 
 // returns the html for friend request rendering
-const friend_request_action = (peding: boolean, other_profile_id: number) => {
+const friend_request_action = (peding: boolean, other_profile_id: number, blocksMe:boolean) => {
 	let res: string = '';
 	// if (!is_friend) {
+	if (blocksMe)
+		return '';
 	if (!peding)
 		res = /*html*/`
 				<button 
@@ -45,9 +48,9 @@ const friend_request_action = (peding: boolean, other_profile_id: number) => {
 }
 
 // returns the html for blocking or non blocking
-const block_action = (is_blocking: boolean, other_profile_id: number) => {
+const block_action = (iBlock: boolean, other_profile_id: number) => {
 	let res: string = '';
-	if (!is_blocking)
+	if (!iBlock)
 		res = /*html*/
 			`<button 
 			data-profile-id = "${other_profile_id}"
@@ -227,9 +230,12 @@ const block_action = (is_blocking: boolean, other_profile_id: number) => {
 
 // }
 
+type errorID = 'user_list_error' | 'friend_requests_error' | 'friend_list_error' | 'match_history_error';
 
-export async function showError(id:string, res?: Response, message?: string) {
-	const errorBox = document.getElementById(id) as HTMLSpanElement;
+export async function showError(id: errorID, res?: Response, message?: string) {
+	const errorBox = document.getElementById(id);
+	if (!errorBox)
+		return;
 	errorBox.classList.remove('hidden');
 	if (res) {
 		const data = await res.json();
@@ -252,41 +258,65 @@ let profilesList: fProfileList = {
 
 export async function fetchProfiles() {
 	try {
-		const res = await apiFetch(`/api/private/parse-profiles?offset=${profilesList.offset}&limit=${profilesList.limit}`, {
+		// const res = await apiFetch(`/api/private/parse-profiles?offset=${profilesList.offset}&limit=${profilesList.limit}`, {
+		const res = await apiFetch(`/api/private/parse-profiles`, {
 			method: 'GET',
 			credentials: 'include',
 		});
 		if (!res.ok)
-			return (showError('user_list_error',res));
-		const data = await res.json();
+			return (showError('user_list_error', res));
+		let data;
+		try{data = await res.json();}catch(e:any){data = {}}
 		if (!data.profilesList)
 			return showError('user_list_error', undefined, "NO PROFILES LIST GOTTEN!");
-		profilesList.profiles = profilesList.profiles.concat(data.profilesList);
+		profilesList.profiles = data.profilesList;
 	} catch (e: any) {
 		showError(e.message);
 	}
-	renderProfiles();
+	// renderProfiles();
 }
 
+export function clearUserList() {
+	profilesList = {
+		profiles: [],
+		offset: 0,
+		limit: 3,
+		already_parsed: false, //neverused
+	};
+}
 
-export const LoadMoreBtnListener = async()=>{
-	profilesList.offset += profilesList.limit;
-	fetchProfiles();
-};
+// export async function reloadProfiles()
+// {
+// 	clearUserList();
+// 	fetchProfiles();
+// }
 
-export function renderProfiles() {
+// export const LoadMoreBtnListener = async () => {
+// 	profilesList.limit += 3;
+// 	renderProfiles();
+// };
+
+let counter:number = 0;
+export async function renderProfiles() {
+	console.log('render Profiles ', counter++);
+	// console.trace("Callstack:");
+	await fetchProfiles();
 	try {
 		const listContainer = document.getElementById('profiles-list');
 		if (!listContainer)
-			return showError('user_list_error', undefined, "No ListContainer");
+			return;
 		let content: string[] = [];
 
-		profilesList.profiles.forEach((profile: fProfileListEntry) => {
-			let is_connected =wsManager.presenceUserList.map((u) => u.name).includes(profile.username);
-			
-			const profile_pic_src = profile.image_blob ? `data:image/webp;base64,${profile.image_blob}` : defaultPicture;
+		if (profilesList.profiles.length > 0) {
+		
 
-			content.push  (/*html*/`
+			document.getElementById('no_user_list_span')?.classList.add('hidden');
+			profilesList.profiles.forEach((profile: fProfileListEntry) => {
+
+				let is_connected = wsManager.presenceUserList.map((u) => u.name).includes(profile.username);
+				const profile_pic_src = profile.image_blob ? `data:image/webp;base64,${profile.image_blob}` : defaultPicture;
+				console.log(profile);
+				content.push(/*html*/`
 				<div class="flex items-center justify-between bg-white/10 backdrop-blur-md p-5 rounded-xl shadow-xl mb-4 border border-white/20 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)] hover:bg-white/15 hover:border-blue-400/50 group">
 					<div class="flex items-center space-x-4">
 
@@ -324,13 +354,18 @@ export function renderProfiles() {
 					</div>
 
 					<div class="flex space-x-2">
-						${friend_request_action(profile.friendrequest !== null, profile.id)}
-						${block_action(profile.iBlock || profile.blocksMe, profile.id)}
+						${friend_request_action(profile.friendrequest !== null, profile.id, profile.blocksMe)}
+						${block_action(profile.iBlock, profile.id)}
 					</div>
 				</div>
 			`);
-		});
-		listContainer.innerHTML = content.join("");
+			});
+			listContainer.innerHTML = content.join("");
+		}
+		else{
+			document.getElementById('no_user_list_span')?.classList.remove('hidden');
+			listContainer.innerHTML = '';
+		}
 	} catch (e: any) {
 		showError('user_list_error', undefined, e.message);
 	}

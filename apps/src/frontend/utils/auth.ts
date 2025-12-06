@@ -3,15 +3,17 @@ import { changeLoginButton, logoutFrontend } from '../pages/nav.js';
 import { payload, fUser } from '../frontendTypes.js'
 
 
-let user: fUser | null;
+let user: fUser | null = null;
 let csrfToken: string | null;
 
 export function getUser(): fUser | null {
 	return user;
 }
+
 export function setUser(newUser: fUser | null) {
 	user = newUser;
 }
+
 export function clearUser() {
 	user = null
 }
@@ -37,18 +39,22 @@ export async function fetchUser() {
 		});
 		if (res.ok) {
 			const data = await res.json();
-			const { username, image_blob, wins,	losses,	trophies} = data;
-			if (user)
-			{
+			const { username, image_blob, wins, losses, trophies } = data;
+			if (!user)
+				if (!validateLogin())
+					throw new Error("INVALID LOGIN")
+			if (user) {
 				user.username = username;
-				user.image_blob = image_blob;
+				user.image_blob = image_blob !== null ? image_blob : undefined;
 				user.wins = wins;
-				user.losses= losses;
+				user.losses = losses;
 				user.trophies = trophies;
 			}
+			else
+				throw new Error("NO USER OBJECT")
 		}
 	} catch (err: any) {
-		renderConnectionErrorPage();
+		renderConnectionErrorPage(err.message);
 	}
 }
 
@@ -63,8 +69,16 @@ export async function validateLogin(): Promise<boolean> {
 			throw new Error();
 		changeLoginButton(false);
 		const data = await res.json();
-		if (data.user)
-			setUser(data.user);
+		if (data.user) {
+			if (!user) {
+				user = data.user;
+			}
+			else {
+				user.tfa = data.user.tfa;
+				user.id = data.user.id;
+				user.username = data.user.username;
+			}
+		}
 		return true;
 	} catch (e: any) {
 		return false;

@@ -62,7 +62,7 @@ GAME
 FRONTEND
 - boxes of login and register page cant show whole placeholders
 - register button on login page is not colorful when language switched 
-
+- fix logout token expired issue
 
 BACKEND
 
@@ -75,4 +75,10 @@ USERMANAGEMENT
 
 
 git shortlog -s -n -e
+
+philipp: request bild laedt nicht, profilbild ist kaputt.. friend list geht nicht.
+
+
+
+make script not block forever
 

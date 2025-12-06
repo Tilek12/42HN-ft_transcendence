@@ -1,5 +1,6 @@
 import { getUser } from '../utils/auth.js';
 import { GameMode, PresenceUser, PresenceCallback } from '../frontendTypes.js';
+import { renderProfile } from '../pages/profile.js';
 
 
 function setOnlineStatusOffline() {
@@ -138,6 +139,11 @@ class WebSocketManager {
 					} else if (msg.type === 'tournamentUpdate') {
 						this.activeTournaments = msg.tournaments || [];
 					}
+					else if (msg.type === 'renderUpdate')
+					{
+						console.log('[ RENDERUPDATE ]')
+						renderProfile(document.getElementById('app')!)
+					}
 					this.notifyPresenceListeners();
 					onUpdate?.(msg);
 				} catch (e) {
@@ -192,7 +198,6 @@ class WebSocketManager {
 		if (!this.presenceListeners.includes(cb)) {
 			this.presenceListeners.push(cb);
 		}
-
 	}
 
 	clearPresenceData() {

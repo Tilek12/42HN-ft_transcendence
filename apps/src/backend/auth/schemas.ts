@@ -192,7 +192,6 @@ export const parseProfilesSchema = {
 		properties: {
 			offset: { type: 'number' },
 			limit: { type: 'number' },
-			type: {type: 'string', enum: ['friends', 'users', 'requests'] } 
 		}
 	},
 

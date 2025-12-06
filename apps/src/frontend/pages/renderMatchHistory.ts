@@ -2,6 +2,7 @@ import { Language, fMatch, fMatchHistory } from "../frontendTypes.js";
 import { apiFetch, getUser } from "../utils/auth.js";
 import { renderConnectionErrorPage } from "./error.js";
 import { languageStore, transelate_per_id, translations_profile } from "./languages.js";
+import { showError } from "./renderProfiles.js";
 
 
 
@@ -30,15 +31,20 @@ export async function renderMatchHistory() {
 			method: 'GET',
 			credentials: 'include',
 		})
-		const data = await res.json();
+		let data;
+		try{data = await res.json();}catch(e:any){data = {}}
 		if (!res.ok) {
-
+			return showError('match_history_error', res);
 		}
 		const history = data.history as fMatchHistory;
-		if (!matchContainer || !user || !history.total)
+		if (!matchContainer || !user || history.matches.length === 0)
+		{
+			console.log("NO MATCH HISTORY")
+			document.getElementById('no_match_history_span')?.classList.remove('hidden');
 			return;
+		}
 		else {
-			
+			document.getElementById('no_match_history_span')?.classList.add('hidden');
 			matchContainer.innerHTML =
 				/*html*/
 			`

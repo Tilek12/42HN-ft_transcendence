@@ -2,7 +2,7 @@ import { apiFetch, getUser, setUser } from '../utils/auth.js'
 import { defaultPicture } from '../utils/constants.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { renderConnectionErrorPage } from './error.js';
-import { showSettingsError, showSettingsSuccess } from './settings.js';
+import { renderSettings, showSettingsError, showSettingsSuccess } from './settings.js';
 
 
 export const compressFile = async (file: File): Promise<File> => {
@@ -10,7 +10,7 @@ export const compressFile = async (file: File): Promise<File> => {
 		const file_name = file.name.substring(0, file.name.lastIndexOf('.') + 1);
 		const img = new Image();
 		const reader = new FileReader();
-		reader.onload = (e) => img.src = e.target?.result as string;
+		// reader.onload = (e) => img.src = e.target?.result as string;
 		img.onload = () => {
 			const canvas = document.createElement('canvas');
 			canvas.width = 200;
@@ -55,15 +55,13 @@ export const listenerUploadPicture = async (root:HTMLElement, e: any) => {
 
 		const result = await res.json();
 		// console.log("result ====>>> FrontEnd", result);
-		if (res.ok) {
-			// profile.image_blob ? `data:image/webp;base64,${profile.image_blob}` : `${BACKEND_URL}/profile_pics/${profile.image_path}`;
-			// const BACKEND_URL = getEnvVariable('VITE_BACKEND_URL');
-			
+		if (res.ok) {	
 			const user = getUser();
 			if (user){
 				user.image_blob = result.blob;
 				setUser(user);
 				showSettingsSuccess(root);
+				renderSettings(root);
 			}
 			// location.reload();
 			

@@ -44,6 +44,8 @@ import {
 } from '../../auth/schemas'
 import type { Profile, ProfileListEntry } from '../../backendTypes';
 import { blockStatus, friendRequest } from '../../../backend/backendTypes';
+import { userManager } from '../../service-managers/user-manager';
+import { sendRenderUpdate, sendRenderUpdateAll } from '../ws/presence-ws';
 const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 
 
@@ -57,7 +59,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 					throw new Error('User or profile not found');
 				res.status(200).send({
 					username: user.username,
-					image_blob: profile.image_blob ? (profile.image_blob as any).toString("base64") : undefined,
+					image_blob: profile.image_blob ? profile.image_blob.toString("base64") : null,
 					wins: profile.wins,
 					losses: profile.losses,
 					trophies: profile.trophies,
@@ -97,7 +99,8 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 					await updatePicture(jwt.id, compressed);
 					const profile = await findProfileById(jwt.id);
 					// console.log(profile);
-					res.status(200).send({ message: 'Profile picture updated and resized', blob: (profile.image_blob as any).toString("base64") });
+					sendRenderUpdateAll();
+					res.status(200).send({ message: 'Profile picture updated and resized', blob: profile.image_blob.toString("base64") });
 				} catch (err) {
 					console.error(err);
 					res.status(500).send({ message: `Upload failed: ${err}` });
@@ -113,20 +116,21 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 					const profile = await findProfileById(jwt.id);
 					await updatePicture(jwt.id, null);
 					res.send({ message: 'Profile picture deleted and reset to default' });
+					sendRenderUpdateAll();
 				} catch (err) {
 					res.status(400).send({ message: 'Unauthorized or error delete_pic' });
 				}
 			});
 
 
-	fastify.get
+	fastify.get<{ Querystring: parseProfilesQuery }>
 		('/parse-friends',
-			{ schema: ParseSchema },
+			{ schema: parseProfilesSchema },
 			async (req, res) => {
 				try {
 					const jwt = req.user as JWTPayload;
 					const userId = jwt.id;
-					const rows = await parseFriends(userId);
+					const rows = await parseFriends(userId, req.query.offset, req.query.limit);
 
 					res.send({ friends: rows });
 				} catch (err: any) {
@@ -145,6 +149,8 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 					const userId = jwt.id;
 					const { profileId } = req.body;
 					await bidirectionalDeleteAFriend(userId, Number(profileId));
+
+					sendRenderUpdate(Number(profileId));
 				} catch (err: any) {
 					res.status(400).send({ message: err.message });
 					console.log(err);
@@ -160,8 +166,11 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 					const jwt = req.user as JWTPayload;
 					const userId = jwt.id;
 					const { profileId } = req.body;
+					console.log(`[ BLOCK ] Me: ${jwt.username}, ${userId}  toBlock: ${profileId}`)
 					await AddToBlockedList(userId, Number(profileId));
 					await bidirectionalDeleteAFriend(userId, Number(profileId));
+					
+					sendRenderUpdate(Number(profileId));
 				} catch (err: any) {
 					res.status(400).send({ message: err.message });
 					console.log(err);
@@ -178,6 +187,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 					const userId = jwt.id;
 					const { profileId } = req.body as any;
 					await DeleteFromBlockedList(userId, profileId);
+					sendRenderUpdate(Number(profileId));
 				} catch (err: any) {
 					res.status(400).send({ message: err.message });
 					console.log(err);
@@ -193,10 +203,14 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 					const jwt = req.user as JWTPayload;
 					const userId = jwt.id;
 					const { profileId } = req.body;
-					const is_blocking = await userIsBlocked(Number(profileId), userId);
-					if (is_blocking)
+					const iBlock = await userIsBlocked(userId, Number(profileId));
+					const blocksMe = await userIsBlocked(Number(profileId), userId)
+					if (blocksMe) //in case a request is made by manipulating js code in tghe client. bc frontend just hides the link-btn on block
+						return;
+					if (iBlock)
 						await DeleteFromBlockedList(userId, Number(profileId));
 					await addFriendRequest(userId, Number(profileId));
+					sendRenderUpdate(Number(profileId));
 				} catch (err: any) {
 					res.status(400).send({ message: err.message });
 					console.log(err);
@@ -213,6 +227,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 					const userId = jwt.id;
 					const { profileId } = req.body;
 					await deleteFriendRequest(userId, Number(profileId));
+					sendRenderUpdate(userId);
 				} catch (err: any) {
 					res.status(400).send({ message: err.message });
 					console.log(err);
@@ -220,181 +235,183 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			});
 
 
-	fastify.get
-		('/friendrequests',
-			{ schema: ParseSchema },
-			async (req, res) => {
-				try {
-					const jwt = req.user as JWTPayload;
-					//find all requests where I'm the receiver
-					const pendingRequests: friendRequest[] = await parsePendingRequests(jwt.id);
-					// take the sender IDS
-					const senderIDs = pendingRequests.map((f:friendRequest)=>f.sender_id)
-					// find corresponding profiles
-					const rawSenderProfiles:Profile[] = await Promise.all(senderIDs.map(async(id:number)=>findProfileById(id)));
+		fastify.get
+			('/friendrequests',
+				{ schema: ParseSchema },
+				async (req, res) => {
+					try {
+						const jwt = req.user as JWTPayload;
+						//find all requests where I'm the receiver
+						const pendingRequests: friendRequest[] = await parsePendingRequests(jwt.id);
+						// take the sender IDS
+						const senderIDs = pendingRequests.map((f: friendRequest) => f.sender_id)
+						// find corresponding profiles
+						const rawSenderProfiles: Profile[] = await Promise.all(senderIDs.map(async (id: number) => findProfileById(id)));
 						// turn all profile pictures to base64 encoded strings
-					const senderProfiles = rawSenderProfiles.map((profile: Profile) => {
-						if (profile.image_blob) {
-							profile.image_blob = (profile.image_blob as any).toString("base64");
-						}
-						return profile;
-					});
-					senderProfiles.forEach((p:Profile)=>{p.image_blob=''})
-					res.status(200).send({ requestProfiles: senderProfiles });
-				} catch (err: any) {
-					res.status(400).send({ message: err.message });
-					console.log(err);
-				}
-			});
+						const senderProfiles = rawSenderProfiles.map((profile: Profile) => {
+							if (profile.image_blob) {
+								profile.image_blob = (profile.image_blob as any).toString("base64");
+							}
+							return profile;
+
+						});
+						res.status(200).send({ requestProfiles: senderProfiles });
+					} catch (err: any) {
+						res.status(400).send({ message: err.message });
+						console.log(err);
+					}
+				});
 
 
 
-	fastify.post<{ Body: { profileId: string, profileAnswer: string } }>
-		('/answer-request',
-			{ schema: AnswerRequestSchema },
-			async (req, res) => {
-				try {
+		fastify.post<{ Body: { profileId: string, profileAnswer: string } }>
+			('/answer-request',
+				{ schema: AnswerRequestSchema },
+				async (req, res) => {
+					try {
+						const jwt = req.user as JWTPayload;
+						const userId = jwt.id;
+						const { profileId, profileAnswer } = req.body;
+						if (profileAnswer === 'accept')
+							await bidirectionalAddAFriend(userId, Number(profileId));
+						await deleteFriendRequest(Number(profileId), userId);
+						await deleteFriendRequest(userId, Number(profileAnswer));
+						sendRenderUpdate(Number(profileId));
+					} catch (err: any) {
+						res.status(400).send({ message: err.message });
+						console.log(err);
+					}
+				});
+
+
+		fastify.post<{ Body: UsernameChangeBody }>
+			('/update-username',
+				{ schema: UsernameChangeSchema },
+				async (req, res) => {
 					const jwt = req.user as JWTPayload;
 					const userId = jwt.id;
-					const { profileId, profileAnswer } = req.body;
-					if (profileAnswer === 'accept')
-						await bidirectionalAddAFriend(userId, Number(profileId));
-					await deleteFriendRequest(Number(profileId), userId);
-					await deleteFriendRequest(userId, Number(profileAnswer));
-				} catch (err: any) {
-					res.status(400).send({ message: err.message });
-					console.log(err);
-				}
-			});
+					const new_username = req.body.newUsername;
+
+					const exists = await isUsername(new_username);
+					if (exists)
+						return res.status(400).send({ error: 'USERNAME_TAKEN ' });
+					await updateUsername(userId, new_username);
+					sendRenderUpdateAll();
+					res.status(200).send({ success: true, new_username: new_username });
+				});
 
 
-	fastify.post<{ Body: UsernameChangeBody }>
-		('/update-username',
-			{ schema: UsernameChangeSchema },
-			async (req, res) => {
-				const jwt = req.user as JWTPayload;
-				const userId = jwt.id;
-				const new_username = req.body.newUsername;
-
-				const exists = await isUsername(new_username);
-				if (exists)
-					return res.status(400).send({ error: 'USERNAME_TAKEN ' });
-				await updateUsername(userId, new_username);
-				res.status(200).send({ success: true, new_username: new_username });
-			});
-
-
-	fastify.get<{ Querystring: parseProfilesQuery }>
-		('/parse-profiles',
-			{ schema: parseProfilesSchema },
-			async (req, res) => {
-				try {
-					const jwt = req.user as JWTPayload;
-					const offset = req.query.offset;
-					const limit = req.query.limit;
+		fastify.get<{ Querystring: parseProfilesQuery }>
+			('/parse-profiles',
+				{ schema: parseProfilesSchema },
+				async (req, res) => {
+					try {
+						const jwt = req.user as JWTPayload;
+						const offset = req.query.offset;
+						const limit = req.query.limit;
 
 
 
-					// get all profiles
-					const rawProfiles = await parseProfiles(jwt.id, offset, limit);
+						// get all profiles
+						const rawProfiles = await parseProfiles(jwt.id, offset, limit);
 
-					// turn all profile pictures to base64 encoded strings
-					const profiles = rawProfiles.map((profile: Profile) => {
-						if (profile.image_blob) {
-							profile.image_blob = (profile.image_blob as any).toString("base64");
-						}
-						return profile;
-					});
-
-					// get all friends
-					const friends = await parseFriends(jwt.id);
-
-					// make a set of ids I am friends with
-					const friendsIds: Set<number> = new Set(friends.map((row: Profile) => row.id));
-
-					// get all pending friend requests 
-					const pendingRequests: friendRequest[] = await parseBidirectionalPendingRequests(jwt.id, jwt.id);
-
-					// set of ids of users tI have sent request to 
-					const sentRequests: Set<number> = new Set(pendingRequests.filter((r: friendRequest) => (r.sender_id === jwt.id) && (r.receiver_id !== jwt.id)) // get all requests sent from user
-						.map((r: friendRequest) => r.receiver_id)); // get the receiver id of those
-
-					// set of ids request to me
-					const receivedRequests = new Set(pendingRequests.filter((r: friendRequest) => r.receiver_id && r.sender_id !== jwt.id)
-						.map((r: friendRequest) => r.sender_id));
-
-					// array of block status where i am the user_id so the blocker
-					const IBlockedList: blockStatus[] = await parseIBlockedList(jwt.id);
-
-					const BlockedMeList: blockStatus[] = await parseBlockedMeList(jwt.id);
-
-					// set of ids that I blocked 
-					const IBlockedSet: Set<number> = new Set(IBlockedList.map((row: blockStatus) => row.blocked_id));
-
-					//set of ids that blocked me
-					const BlockedMeSet: Set<number> = new Set(BlockedMeList.map((row: blockStatus) => row.user_id));
-
-
-
-					//assemble final profile list with neccessary info
-					let profileList: ProfileListEntry[] = [];
-
-					// filter out friends
-					profiles.forEach((profile: Profile) => {
-						if (friendsIds.has(profile.id)) {
-							return;
-						}
-						profileList.push({
-							...profile, //all profile values
-							friendrequest: sentRequests.has(profile.id) ? "sent" : receivedRequests.has(profile.id) ? "received" : null,
-							iBlock: IBlockedSet.has(profile.id),
-							blocksMe: BlockedMeSet.has(profile.id),
+						// turn all profile pictures to base64 encoded strings
+						const profiles = rawProfiles.map((profile: Profile) => {
+							if (profile.image_blob) {
+								profile.image_blob = (profile.image_blob as any).toString("base64");
+							}
+							return profile;
 						});
 
+						// get all friends
+						const friends = await parseFriends(jwt.id);
 
-					});
-					profileList.forEach((p: ProfileListEntry) => {
-						console.log("id:", p.id);
-						console.log("username", p.username);
-						console.log("created_at", p.created_at);
-						console.log("wins", p.wins);
-						console.log("losses", p.losses);
-						console.log("trophies", p.trophies);
-						console.log("image_blob", !!p.image_blob);
-						console.log("friendrequest", p.friendrequest);
-						console.log("iBlock", p.iBlock);
-						console.log("blocksMe", p.blocksMe);
-						console.log('------------------------');
-					})
-					res.send({ profilesList: profileList });
-				} catch (err) {
-					res.status(401).send({ message: 'Unauthorized parse_profiles' });
-				}
-			});
+						// make a set of ids I am friends with
+						const friendsIds: Set<number> = new Set(friends.map((row: Profile) => row.id));
+
+						// get all pending friend requests 
+						const pendingRequests: friendRequest[] = await parseBidirectionalPendingRequests(jwt.id, jwt.id);
+
+						// set of ids of users tI have sent request to 
+						const sentRequests: Set<number> = new Set(pendingRequests.filter((r: friendRequest) => (r.sender_id === jwt.id) && (r.receiver_id !== jwt.id)) // get all requests sent from user
+							.map((r: friendRequest) => r.receiver_id)); // get the receiver id of those
+
+						// set of ids request to me
+						const receivedRequests = new Set(pendingRequests.filter((r: friendRequest) => r.receiver_id && r.sender_id !== jwt.id)
+							.map((r: friendRequest) => r.sender_id));
+
+						// array of block status where i am the user_id so the blocker
+						const IBlockedList: blockStatus[] = await parseIBlockedList(jwt.id);
+
+						const BlockedMeList: blockStatus[] = await parseBlockedMeList(jwt.id);
+
+						// set of ids that I blocked 
+						const IBlockedSet: Set<number> = new Set(IBlockedList.map((row: blockStatus) => row.blocked_id));
+
+						//set of ids that blocked me
+						const BlockedMeSet: Set<number> = new Set(BlockedMeList.map((row: blockStatus) => row.user_id));
 
 
-	fastify.post<{ Body: PasswordChangeBody }>
-		('/update-password',
-			{ schema: PasswordChangeSchema },
-			async (req, res) => {
-				try {
-					const jwt = req.user as JWTPayload;
-					const id = jwt.id;
-					const user = await findUserById(id);
-					if (user) {
-						const is_password_verified = await verifyPassword(req.body.oldpassword, user.password);
-						if (!is_password_verified)
-							throw new Error("INVALID_PASSWORD");
-						const hashed = await hashPassword(req.body.newpassword);
-						await updatePasswordById(id, hashed);
-						res.status(200).send({ message: 'User successfully updated his password!' });
+
+						//assemble final profile list with neccessary info
+						let profileList: ProfileListEntry[] = [];
+
+						// filter out friends
+						profiles.forEach((profile: Profile) => {
+							if (friendsIds.has(profile.id)) {
+								return;
+							}
+							profileList.push({
+								...profile, //all profile values
+								friendrequest: sentRequests.has(profile.id) ? "sent" : receivedRequests.has(profile.id) ? "received" : null,
+								iBlock: IBlockedSet.has(profile.id),
+								blocksMe: BlockedMeSet.has(profile.id),
+							});
+
+
+						});
+						// profileList.forEach((p: ProfileListEntry) => {
+						// 	console.log("id:", p.id);
+						// 	console.log("username", p.username);
+						// 	console.log("created_at", p.created_at);
+						// 	console.log("wins", p.wins);
+						// 	console.log("losses", p.losses);
+						// 	console.log("trophies", p.trophies);
+						// 	console.log("image_blob", !!p.image_blob);
+						// 	console.log("friendrequest", p.friendrequest);
+						// 	console.log("iBlock", p.iBlock);
+						// 	console.log("blocksMe", p.blocksMe);
+						// 	console.log('------------------------');
+						// })
+						res.send({ profilesList: profileList });
+					} catch (err) {
+						res.status(401).send({ message: 'Unauthorized parse_profiles' });
 					}
-				} catch (e: any) {
-					res.status(400).send({ message: e.message });
-					console.log(e);
-				}
+				});
 
-			})
-};
 
-export default profileRoutes;
+		fastify.post<{ Body: PasswordChangeBody }>
+			('/update-password',
+				{ schema: PasswordChangeSchema },
+				async (req, res) => {
+					try {
+						const jwt = req.user as JWTPayload;
+						const id = jwt.id;
+						const user = await findUserById(id);
+						if (user) {
+							const is_password_verified = await verifyPassword(req.body.oldpassword, user.password);
+							if (!is_password_verified)
+								throw new Error("INVALID_PASSWORD");
+							const hashed = await hashPassword(req.body.newpassword);
+							await updatePasswordById(id, hashed);
+							res.status(200).send({ message: 'User successfully updated his password!' });
+						}
+					} catch (e: any) {
+						res.status(400).send({ message: e.message });
+						console.log(e);
+					}
+
+				})
+	};
+
+	export default profileRoutes;

@@ -27,6 +27,37 @@ export const sendPresenceUpdate = () => {
 	}
 };
 
+
+
+export const sendRenderUpdate = (id: number) => {
+
+	const msg = JSON.stringify({
+		type: 'renderUpdate',
+	});
+
+	const socket = userManager.getUser(id)?.presenceSocket;
+	if (socket && socket.readyState === socket.OPEN) {
+		try { socket.send(msg); } catch (err) { console.warn('Presence send error', err); }
+
+	}
+}
+
+
+export const sendRenderUpdateAll = () => {
+	const users = userManager.getOnlineUsers();
+	const msg = JSON.stringify({
+		type: 'renderUpdate',
+	});
+	for (const u of users) {
+		const socket = userManager.getUser(u.id)?.presenceSocket;
+		if (socket && socket.readyState === socket.OPEN) {
+			try { socket.send(msg); } catch (err) { console.warn('Presence send error', err); }
+		}
+	}
+}
+
+
+
 export const sendTournamentUpdate = () => {
 	const users = userManager.getOnlineUsers();
 	const msg = JSON.stringify({
@@ -54,7 +85,7 @@ const wsPresencePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) =>
 			let authenticated = false;
 			const decoded = req.user as JWTPayload;
 			const userPromise = findUserById(decoded.id); //start async search and store it in promise
-			let user : User | null;
+			let user: User | null;
 			user = null;
 
 			// Synconously attach to prevent dropped messages
@@ -89,14 +120,14 @@ const wsPresencePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) =>
 
 					}
 				}
-				catch (err:any) {
+				catch (err: any) {
 					fastify.log.warn(`🔴 [Presence WS] Error: ${err}`);
 					socket.close(4001, 'Unauthorized')
 					return;
 				}
 
 			});
-			
+
 			socket.on('close', () => {
 				console.log("presence ws close handler");
 				if (user) {

@@ -213,7 +213,6 @@ export async function renderSettings(root: HTMLElement) {
 										inputmode="numeric"
 										autocomplete="one-time-code"
 										maxlength="6"
-										oninput="this.value = this.value.replace(/\\D/g, '')"
 										class="w-1/2 bg-white/5 border border-white/10 text-white text-center text-2xl tracking-[0.5em] px-5 py-4 rounded-xl focus:outline-none focus:border-purple-500/50 focus:bg-white/10 placeholder-white-600 transition-all duration-200"
 										/>
 										<button id="tfa_enable_submit_btn" type="submit" class="relative w-1/2 group rounded-xl mt-2 transform hover:scale-105 transition duration-200 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 hover:bg-gradient-to-r hover:from-purple-700 hover:via-pink-700 hover:to-blue-700">
@@ -250,7 +249,6 @@ export async function renderSettings(root: HTMLElement) {
 										inputmode="numeric"
 										autocomplete="one-time-code"
 										maxlength="6"
-										oninput="this.value = this.value.replace(/\\D/g, '')"
 										class="w-1/2 bg-white/5 border border-white/10 text-white text-center text-2xl tracking-[0.5em] px-5 py-4 rounded-xl focus:outline-none focus:border-purple-500/50 focus:bg-white/10 placeholder-white-600 transition-all duration-200"
 										/>
 										<button id="tfa_disable_submit_btn" type="submit" class=" w-1/2 group rounded-xl mt-2 transform hover:scale-105 transition duration-200 group bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600">
@@ -343,6 +341,7 @@ export async function renderSettings(root: HTMLElement) {
 				username_input_el as HTMLInputElement,
 				username_par_el as HTMLInputElement
 			));
+
 	}
 
 	document.getElementById('upload-form')?.addEventListener
@@ -353,11 +352,11 @@ export async function renderSettings(root: HTMLElement) {
 
 
 	// user is loaded on login as the first page liked to is profile. should be fine for now, otherwise fwtch again.
+	// let user = getUser();
+	// if (!user) {
+	fetchUser();
 	let user = getUser();
-	if (!user) {
-		fetchUser();
-		user = getUser();
-	}
+	// }
 	if (user) {
 		// FILL CONTENT OF USER INFORMATION
 		const pic = document.getElementById('profile-pic');
@@ -427,7 +426,9 @@ export async function renderSettings(root: HTMLElement) {
 						verifyJwt = data.verifyjwt;
 						picture.classList.remove('hidden');
 						const tfa_enable_form = document.getElementById('tfa_enable_form');
-
+						const tokeninput = document.getElementById('tfa_enable_token_input');
+						if (tokeninput)
+							(tokeninput as HTMLInputElement).addEventListener('input', () => { (tokeninput as HTMLInputElement).value = (tokeninput as HTMLInputElement).value.replace(/\D/g, '') })
 						// verify submit
 						if (tfa_enable_form) {
 							tfa_enable_form.addEventListener('submit', async (e: Event) => {

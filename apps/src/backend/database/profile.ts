@@ -13,7 +13,7 @@ export async function findProfileByUsername(username: string)
 }
 
 
-export async function findProfileById(id: number):  Promise<Profile>
+export async function findProfileById(id: number)
 {
 	return await db.get(`SELECT
 		  u.id,
@@ -24,7 +24,7 @@ export async function findProfileById(id: number):  Promise<Profile>
 		  p.image_blob
 		FROM users u
 		JOIN profiles p ON u.id = p.id
-		WHERE u.id != ?`, id) as Profile;
+		WHERE u.id = ?`, id);
 }
 
 
@@ -90,7 +90,7 @@ export async function updatePicture(id: number, image_blob?: any) {
 
 
 //-----Friends list-------------------------------------
-export async function parseFriends(id: number, offset_param?: string, limit_param?: string): Promise<Profile[]>
+export async function parseFriends(id: number, offset_param?: number, limit_param?: number): Promise<Profile[]>
 {
 	let Friends : Profile[];
 	if (offset_param && limit_param)
@@ -120,16 +120,18 @@ export async function parseFriends(id: number, offset_param?: string, limit_para
 			WHERE f.user_id = ?
 		`, id) as Profile[];
 	}
-	Friends.forEach((f:Profile)=>{
-		console.log("id: ",f.id)
-		console.log("username: ",f.username)
-		console.log("created: ",f.created_at)
-		console.log("wins: ",f.wins)
-		console.log("losses ",f.losses)
-		console.log("trophies ",f.trophies)
-		console.log("image: ",!!f.image_blob);
-		return;
-	});
+	// Friends.forEach((f:Profile)=>{
+	// 	console.log("------Friend----- ");
+	// 	console.log("id: ",f.id)
+	// 	console.log("username: ",f.username)
+	// 	console.log("created: ",f.created_at)
+	// 	console.log("wins: ",f.wins)
+	// 	console.log("losses ",f.losses)
+	// 	console.log("trophies ",f.trophies)
+	// 	console.log("image: ",!!f.image_blob);
+	// 	console.log("----------- ");
+	// 	return;
+	// });
 	const Freinds_with_stringified_image_blob = Friends.map((row : Profile) => { if (row.image_blob) row.image_blob = (row.image_blob as any).toString('base64'); return row;})
 	return Freinds_with_stringified_image_blob;
 }
@@ -158,11 +160,16 @@ export async function bidirectionalDeleteAFriend(id_user: number, id_of_invited_
 export async function AddToBlockedList(id_user: number, id_of_blocked_user: number)
 {
 	const is_already_blocked = await userIsBlocked(id_user, id_of_blocked_user);
+	// console.log(`[ IS BLOCKED : ${is_already_blocked}]`)
 	if (id_user !== id_of_blocked_user && !is_already_blocked)
 	{
 		const friend_request_is_exists = await isExistsFriendRequest(id_user, id_of_blocked_user);
 		if (friend_request_is_exists)
+		{
+			// console.log(`[ deleting friend request`)
 			await deleteFriendRequest(id_user, id_of_blocked_user);
+		}
+		// console.log(`[ insert block userid:${id_user}  blockid: ${id_of_blocked_user}`)
 		await db.run(`INSERT OR IGNORE INTO blocked_list (user_id, blocked_id) VALUES (?, ?)`, [id_user, id_of_blocked_user]);
 	}
 }
@@ -172,16 +179,17 @@ export async function userIsBlocked(user_id: number, profile_id: number) : Promi
 {
 	let res : any;
 	if (user_id !== profile_id)
-		res = await db.get(`SELECT 1 FROM blocked_list WHERE (user_id = ? AND blocked_id = ?)`, [profile_id, user_id]);
+		res = await db.get(`SELECT 1 FROM blocked_list WHERE (user_id = ? AND blocked_id = ?)`, [user_id, profile_id]);
 	return !!res;
 }
 
 
 export async function DeleteFromBlockedList(id_user:number, id_of_blocked_user: number)
 {
-	if (id_user !== id_of_blocked_user)
-			await db.run(`DELETE FROM blocked_list WHERE user_id = ? AND blocked_id =
-		?`, [id_user, id_of_blocked_user])
+	if (id_user !== id_of_blocked_user){
+		// console.log(`[ delete block userid:${id_user}  blockid: ${id_of_blocked_user}`)
+		await db.run(`DELETE FROM blocked_list WHERE user_id = ? AND blocked_id = ?`, [id_user, id_of_blocked_user])
+	}
 }
 
 

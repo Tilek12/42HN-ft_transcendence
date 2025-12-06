@@ -1,7 +1,7 @@
 import { renderBackgroundFull } from "../utils/layout.js";
 
 
-export function renderConnectionErrorPage() {
+export function renderConnectionErrorPage(message?:string) {
 	const root = document.getElementById('app');
 	if (root)
 		root.innerHTML = renderBackgroundFull(
@@ -11,7 +11,7 @@ export function renderConnectionErrorPage() {
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
       </svg>
       <h1 class="text-4xl font-bold mb-4">Something went wrong!</h1>
-      <p class="text-gray-300 mb-6">Server not available</p>
+      <p class="text-gray-300 mb-6">${message?message:'Server not available'}</p>
       <button 
         id="retryBtn" 
         class="bg-red-500 text-white font-semibold px-6 py-2 rounded hover:bg-red-600 transition"

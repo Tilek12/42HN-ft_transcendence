@@ -3,20 +3,27 @@ import { wsManager } from '../websocket/ws-manager.js';
 import type { Language, fUser } from '../frontendTypes.js';
 import { defaultPicture } from '../utils/constants.js';
 import { languageStore, translations_profile, transelate_per_id } from './languages.js'
+import { getUser } from '../utils/auth.js';
 
 
 
 let lastPresence: string[] | undefined = [];
 
 
-export const fill_profile_info = (user: fUser) => {
+export const fill_profile_info = () => {
+
+	const user = getUser();
+	if (!user){
+		// alert("HAHA");
+		return;
+	}
 
 	let username 	= document.getElementById('username');
 	let wins 		= document.getElementById('wins');
 	let losses 		= document.getElementById('losses');
 	let trophies 	= document.getElementById('trophies');
 	let created_at 	= document.getElementById('created_at');
-	let profile_pic = document.getElementById('profile_pic') as HTMLImageElement;
+	let profile_pic = document.getElementById('profile_picture');
 
 	if (username && wins && losses && trophies && created_at && profile_pic) {
 		username.innerText = ` ${user.username}`;
@@ -24,7 +31,7 @@ export const fill_profile_info = (user: fUser) => {
 		losses.innerText = ` ${user.losses}`;
 		trophies.innerText = ` ${user.trophies}`;
 		created_at.innerText = ` ${new Date(user.created_at).toLocaleString()}`;
-		profile_pic.src = user.image_blob ? `data:image/webp;base64,${user.image_blob}` : defaultPicture;
+		(profile_pic as HTMLImageElement).src = user.image_blob ? `data:image/webp;base64,${user.image_blob}` : defaultPicture;
 	}
 };
 
@@ -41,22 +48,15 @@ export const update_langauge_headers_user_profile = (lang: Language) => {
 	transelate_per_id(translations_profile, "match_history", lang, "match_history_header");
 	transelate_per_id(translations_profile, "load_more", lang, "load_more_header");
 	transelate_per_id(translations_profile, "username", lang, "username_header");
+	transelate_per_id(translations_profile, "no_match_history", lang, "no_match_history_span")
 	transelate_per_id(translations_profile, "no_friend_requests", lang, "no_requests_span")
+	transelate_per_id(translations_profile, "no_friends", lang, "no_friends_span")
+	transelate_per_id(translations_profile, "no_users", lang, "no_user_list_span")
 
 
 }
 export function renderUserProfile()
 {
-	// const select = document.getElementById('language-select') as HTMLSelectElement; 
-	// const lang = select.value;
-	// console.log("inside of renderer=========================", data);
-	// I can have an obj with keyes the language value
-	// let new_value = document.getElementById('language-select').value;
-	// let old_value_of_language = 'DE';
-	// console.log(new_value);
-	// if(new_value !== old_value_of_language)
-	// 	console.log('!!!!!!!!!!!!!!!!!!!!yes');
-	// update_langauge_headers_user_profile(lang);
 	
 	// DESIGN CHANGE: Complete 3-column layout redesign with glass-morphism and larger sizing
 	// - Changed from compact layout to full-screen (95% width)
@@ -65,7 +65,7 @@ export function renderUserProfile()
 	// - All sections use glass-morphism (bg-white/10 + backdrop-blur-md)
 	// - Increased all sizes: profile pic (224px), fonts (text-base to text-4xl), padding (p-8)
 	// - Added hover animations (scale-105) and enhanced shadows
-	let res : string = renderBackgroundFull(
+	return renderBackgroundFull(
 		/*html*/
 		`
 		<div class="min-h-screen w-full">
@@ -84,7 +84,7 @@ export function renderUserProfile()
 							<!-- DESIGN: Large circular image (224px) with online indicator -->
 				
 								<div class="relative w-40 h-40 lg:w-48 lg:h-48 mx-auto mb-6">
-									<img id="profile_pic" src="" alt="Profile" class="w-full h-full object-cover rounded-full border-4 border-white/30 shadow-xl transition-all duration-300 hover:scale-105">
+									<img id="profile_picture" src="" alt="Profile" class="w-full h-full object-cover rounded-full border-4 border-white/30 shadow-xl transition-all duration-300 hover:scale-105">
 									<div id="logged_in" class="absolute bottom-1 right-1 w-6 h-6 lg:w-8 lg:h-8 bg-green-500 rounded-full border-4 border-white shadow-lg animate-pulse"></div>
 								</div>
 							
@@ -115,6 +115,7 @@ export function renderUserProfile()
 								<span id="friend_requests_header"></span>
 							</h2>
 							<div id="friend-requests-list"></div>
+							<span id="no_requests_span" class="text-xl hidden font-bold text-gray-300 mb-4 flex items-center"></span>	
 							<span id="friend_requests_error" class="text-xl hidden font-bold text-red-600 mb-4 flex items-center"></span>	
 						</div>	
 						
@@ -166,7 +167,8 @@ export function renderUserProfile()
 								<span id="friend_list_header"></span>
 							</h2>
 							 <!--button id="triggerfriendrequest" class ="bg-black-500 tranform hover:scale-105 ">trigger '/friends' request </button-->
-							<div id="friend-list"></div>	
+							<div id="friend-list"></div>
+							<span id="no_friends_span" class="text-xl hidden font-bold text-gray-300 mb-4 flex items-center"></span>	
 							<span id="friend_list_error" class="text-xl hidden font-bold text-red-600 mb-4 flex items-center"></span>						
 						</div>
 					</div>
@@ -187,7 +189,8 @@ export function renderUserProfile()
 							</h2>
 							<!-- DESIGN: Scrollable container with custom scrollbar styling -->
 							<div id="match-history" class="max-h-[300px] lg:max-h-[350px] overflow-y-auto overflow-x-hidden pr-1">
-								<span id="match_history_label"></span>
+								<span id="no_match_history_span" class="text-xl hidden font-bold text-gray-300 mb-4 flex items-center"></span>	
+								<span id="match_history_error" class="text-xl hidden font-bold text-red-600 mb-4 flex items-center"></span>	
 							</div>
 						</div>
 
@@ -206,9 +209,10 @@ export function renderUserProfile()
 							<div id="profiles-list" class="max-h-[400px] overflow-y-auto overflow-x-hidden pr-1 mb-4 rounded-xl">
 							</div>
 							<!-- DESIGN: Multi-color gradient button (blue-purple-pink) -->
-							<button id="more-profiles-btn" class="w-full px-4 py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white text-base font-bold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-2xl">
+							<!--button id="more-profiles-btn" class="w-full px-4 py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white text-base font-bold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-2xl">
 								<span id="load_more_header"></span>
-							</button>
+							</button-->
+							<span id="no_user_list_span" class="text-xl hidden font-bold text-gray-300 mb-4 flex items-center"></span>	
 							<span id="user_list_error" class="text-xl hidden font-bold text-red-600 mb-4 flex items-center"></span>
 						</div>
 					</div>
@@ -224,5 +228,4 @@ export function renderUserProfile()
 	// Interactive: Hover animations (scale-105), gradient buttons, color-coded stats
 	// Spacing: pt-24 added to prevent header overlap, gap-8 between columns
 	// Scrolling: Match history (350px) and users list (320px) are scrollable
-	return res;
 }

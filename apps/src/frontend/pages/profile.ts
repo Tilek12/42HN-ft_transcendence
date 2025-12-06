@@ -1,6 +1,6 @@
 
-import { getUser, clearUser, setUser, apiFetch } from '../utils/auth.js'
-import { fetchProfiles,  LoadMoreBtnListener,  renderProfiles } from './renderProfiles.js';
+import { getUser, clearUser, setUser, apiFetch, fetchUser } from '../utils/auth.js'
+import { fetchProfiles,  renderProfiles } from './renderProfiles.js';
 import { renderUserProfile, fill_profile_info, update_langauge_headers_user_profile } from './renderUserProfile.js';
 import type { fProfile } from '../frontendTypes.js';
 import { listenerFriendAndBlock } from './ListenerProfileList.js';
@@ -8,9 +8,9 @@ import { listenerFriendAndBlock } from './ListenerProfileList.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore } from './languages.js';
 import { renderConnectionErrorPage } from './error.js';
-import { renderFriendsList } from './renderFriends.js';
+import { fetchFriends, renderFriendsList } from './renderFriends.js';
 import { renderFriendRequestsList } from './renderFriendRequestList.js';
-import { friendsRequestListener } from './friends.js';
+import { friendsRequestListener } from './listenerFriendRequests.js';
 import { renderMatchHistory } from './renderMatchHistory.js'
 let i = 0;
 
@@ -71,91 +71,47 @@ let i = 0;
 // 		// return allProfiles
 // 	}
 export async function renderProfile(root: HTMLElement) {
-	apiFetch('/api/private/profile', {
-		method: 'GET',
-		credentials: 'include'
-	})
-		.then(res => res.json()
-		)
-		.then(data => {
-			if (data.message === 'User or profile not found' ||
-				data.message === 'Invalid or expired token') {
-				console.log('prfile render fail1');
-				clearUser();
-				location.hash = '#/login';
-				return;
-			};
 
-			// Get Data from request and insert it
-			const { username, image_blob, wins, losses, trophies } = data;
-			let user = getUser();
-			root.innerHTML = renderUserProfile(); //main html content
-			if (user) {
-				user.username = username;
-				user.image_blob = image_blob;
-				user.wins = wins;
-				user.losses = losses;
-				user.trophies = trophies;
-				setUser(user);
-				fill_profile_info(user);
-			}
+	try {
 
-			//enable reload of profiles on click of navbar profiles it doesnt go through router and so makes sense to add here, nice -p
-			// document.getElementById('nav_profile')?.addEventListener('click', () => { nav_profile_clicked = true; });
+		await fetchUser();
+		
+		root.innerHTML = renderUserProfile(); //main html content
+		
+		fill_profile_info();
+
+		
+		// render friend request list
+		renderFriendRequestsList();
+		// wsManager.subscribeToPresence(renderFriendRequestsList);
+		document.getElementById('friend-requests-list')?.addEventListener('click', friendsRequestListener);
+		
+
+		// render friends list
+		renderFriendsList(); 
+		// wsManager.subscribeToPresence(renderFriendsList);
+		document.getElementById('friend-list')?.addEventListener('click', listenerFriendAndBlock);
 
 
-			// //render the profile list asyncronously
-			// (async () => {
-			// 	const r_on_r = await renderProfilesList('profiles-list', false, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit, already_parsed);
-			// 	ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
-			// 	already_parsed = r_on_r?.already_parsed;
-			// })();
+		// Render user-list
+		renderProfiles();
+		// wsManager.subscribeToPresence(renderProfiles);
+		// document.getElementById('more-profiles-btn')?.addEventListener('click', LoadMoreBtnListener);
+		document.getElementById('profiles-list')?.addEventListener('click', listenerFriendAndBlock);
 
 
+		// renders match history
+		renderMatchHistory();
 
-			//render friends list
-			(async () => { renderFriendsList('friend-list'); })();
+		// trigger reload
+		document.getElementById('nav_profile')?.addEventListener('click', () => { renderProfile(root) });
 
-			// render freind request list
-			(async()=>{renderFriendRequestsList();})();
-			friendsRequestListener();
-
-			// Render user-list
-			(async () => { fetchProfiles();})();
-			wsManager.subscribeToPresence(renderProfiles);
-			document.getElementById('more-profiles-btn')?.addEventListener('click', LoadMoreBtnListener);
-
-
-			// more-profiles button event listener, 
-			// document.getElementById('more-profiles-btn')?.addEventListener('click', async () => {
-			// 	profile_offset += profile_limit;
-			// 	const r_on_r = await renderProfilesList('profiles-list', true, ref_obj_allProfiles.allProfiles, profile_offset, profile_limit);
-			// 	ref_obj_allProfiles.allProfiles = r_on_r?.allProfiles;
-			// 	already_parsed = r_on_r?.already_parsed;
-			// 	console.log("check render what is returning: ++++ ONLOAD", renderCheckerForProfiles(true));
-			// })
-
-
-			// eventlisteners for profiles list
-			//----------------load pagination process--------------------------------------
-			document.getElementById('profiles-list')?.addEventListener
-				('click', async (e) => {
-					await listenerFriendAndBlock(e)
-				});
-
-
-			// renders match history
-			renderMatchHistory();
-
-			// trigger reload
-			document.getElementById('nav_profile')?.addEventListener('click', () => { renderProfile(root) });
-
-			// set all correct language strings
-			update_langauge_headers_user_profile(languageStore.language);
-			//make sure the language strings update on language
-			languageStore.subscribe((lang) => update_langauge_headers_user_profile(lang));
-		})
-		.catch(() => {
-			renderConnectionErrorPage();
-		})
+		// set all correct language strings
+		update_langauge_headers_user_profile(languageStore.language);
+		//make sure the language strings update on language
+		languageStore.subscribe((lang) => update_langauge_headers_user_profile(lang));
+	}
+	catch (e: any) {
+		renderConnectionErrorPage();
+	}
 }

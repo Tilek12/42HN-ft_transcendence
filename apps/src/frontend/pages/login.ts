@@ -218,7 +218,6 @@ export function renderLogin(root: HTMLElement) {
 				autofocus
                 maxlength="6"
 				minlentgh="6"
-                oninput="this.value = this.value.replace(/\D/g, '')" 
                 class="w-full bg-white/5 border border-white/10 text-white text-center text-3xl tracking-[0.5em] px-5 py-4 rounded-xl focus:outline-none focus:border-purple-500/50 focus:bg-white/10 placeholder-gray-600 transition-all duration-300"
               />
               <button 
@@ -456,13 +455,16 @@ export function renderLogin(root: HTMLElement) {
 			} else {
 				if (response_data.tfa) {
 					if (!response_data.verifyjwt)
-						alert("no verify jwt");
+						throw new Error("no verify jwt");
 					form.classList.add('hidden');
 					const tfa_container = document.getElementById('tfa_container') as HTMLFormElement;
 					if (!tfa_container)
 						throw new Error('no tfa_container');
 					tfa_container.classList.remove('hidden');
-
+					const tokeninput = document.getElementById('2fa_token');
+					if (tokeninput)
+						(tokeninput as HTMLInputElement).addEventListener('input',()=>{(tokeninput as HTMLInputElement).value =  (tokeninput as HTMLInputElement).value.replace(/\D/g, '')})
+					
 					tfa_container.addEventListener('submit', async (e) => {
 						e.preventDefault();
 						const tfa_token = (document.getElementById('2fa_token') as HTMLInputElement).value;
@@ -471,7 +473,7 @@ export function renderLogin(root: HTMLElement) {
 							method: 'POST',
 							headers: {
 								'Content-Type': 'application/json',
-								'verifyjwt': response_data.verifyjwt 
+								'verifyjwt': response_data.verifyjwt
 							},
 							body: JSON.stringify({ tfa_token: tfa_token }),
 						});
@@ -565,11 +567,11 @@ export function renderLogin(root: HTMLElement) {
 				body: JSON.stringify({ username, password, tfa }),
 			});
 			const response_data = await res.json();
-			if (!res.ok ) {
+			if (!res.ok) {
 				throw new Error(response_data.message);
 			} else {
 				if (tfa) {
-					if (!response_data.enablejwt){
+					if (!response_data.enablejwt) {
 						console.log(response_data);
 						throw new Error('NO_ENABLE_JWT');
 					}
@@ -580,7 +582,7 @@ export function renderLogin(root: HTMLElement) {
 							'Content-Type': 'application/json',
 							'enablejwt': `${response_data.enablejwt}`,
 						},
-						
+
 					});
 					if (!res.ok) {
 						throw new Error("2FA_ENABLE_FAILED")
