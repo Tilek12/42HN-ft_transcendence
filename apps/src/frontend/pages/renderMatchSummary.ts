@@ -7,6 +7,10 @@ import { languageStore, transelate_per_id, translations_dashboards } from "./lan
 
 
 function addMatchSummaryTranslations(lang: Language) {
+	transelate_per_id(translations_dashboards, 'normal_matches', lang, 'NormalMatches');
+	transelate_per_id(translations_dashboards, 'tournament_matches', lang, 'TournamentMatches');
+	transelate_per_id(translations_dashboards, 'total_games_per_player', lang, 'TotalGamesPerPlayer');
+	transelate_per_id(translations_dashboards, 'win_rates', lang, 'WinRates');
 	transelate_per_id(translations_dashboards, 'match_summary_header', lang, 'MatchSummaryHeader');
 	transelate_per_id(translations_dashboards, 'match_id', lang, 'MatchID');
 	transelate_per_id(translations_dashboards, 'player1_username', lang, 'Player1');
@@ -79,41 +83,42 @@ export async function renderMatchSummary(root:HTMLElement) {
 			// normal match, tournament match chart
 			var total_tournament_matches = 0;
 			var total_normal_matches = 0;
-			// add dummy data tournament = true
-			const dummyMatch: fMatchForSummary = {
-				matchID: 14,
-				player1_username: "cat",
-				player2_username: "philipp",
-				player1_score: 5,
-				player2_score: 4,
-				winner_username: "cat",
-				is_tournament_match: true, // this marks it as a tournament match
-				played_at: "2025-12-06 15:00:00"
-			  };
-			  const dummyMatch_two: fMatchForSummary = {
-				matchID: 15,
-				player1_username: "cat",
-				player2_username: "philipp",
-				player1_score: 5,
-				player2_score: 4,
-				winner_username: "cat",
-				is_tournament_match: true, // this marks it as a tournament match
-				played_at: "2025-12-06 15:00:00"
-			  };
-			  const dummyMatch_three: fMatchForSummary = {
-				matchID: 16,
-				player1_username: "cat",
-				player2_username: "philipp",
-				player1_score: 5,
-				player2_score: 4,
-				winner_username: "cat",
-				is_tournament_match: true, // this marks it as a tournament match
-				played_at: "2025-12-06 15:00:00"
-			  };
-			  summary.unshift(dummyMatch_three,  dummyMatch_two,dummyMatch);
+			// // add dummy data tournament = true
+			// const dummyMatch: fMatchForSummary = {
+			// 	matchID: 14,
+			// 	player1_username: "cat",
+			// 	player2_username: "philipp",
+			// 	player1_score: 5,
+			// 	player2_score: 4,
+			// 	winner_username: "cat",
+			// 	is_tournament_match: true, // this marks it as a tournament match
+			// 	played_at: "2025-12-06 15:00:00"
+			//   };
+			//   const dummyMatch_two: fMatchForSummary = {
+			// 	matchID: 15,
+			// 	player1_username: "cat",
+			// 	player2_username: "philipp",
+			// 	player1_score: 5,
+			// 	player2_score: 4,
+			// 	winner_username: "cat",
+			// 	is_tournament_match: true, // this marks it as a tournament match
+			// 	played_at: "2025-12-06 15:00:00"
+			//   };
+			//   const dummyMatch_three: fMatchForSummary = {
+			// 	matchID: 16,
+			// 	player1_username: "cat",
+			// 	player2_username: "philipp",
+			// 	player1_score: 5,
+			// 	player2_score: 4,
+			// 	winner_username: "cat",
+			// 	is_tournament_match: true, // this marks it as a tournament match
+			// 	played_at: "2025-12-06 15:00:00"
+			//   };
+			//   summary.unshift(dummyMatch_three,  dummyMatch_two,dummyMatch);
 			  var total_matches = summary[0].matchID;
 			  summary.forEach(m=>{m.is_tournament_match ? total_tournament_matches++ : null});
 			console.log(`total_tournament_matches: ${total_tournament_matches}`);
+			total_normal_matches = total_matches - total_tournament_matches;
 			//total game bars
 			const maxBarHeight = 12 * 4;
 			const filtered_total_games_chart_array = total_games_array.filter(p=> p.value !== 0).map(p => {
@@ -154,22 +159,34 @@ export async function renderMatchSummary(root:HTMLElement) {
 					
 					<!-- Pie Chart -->
 					<div class="flex flex-col items-center space-y-4">
-					  <div class="w-40 h-40 rounded-full bg-[conic-gradient(#8b5cf6_0%_81.25%,#ec4899_0%_81.25%,#facc15_81.25%_100%,#ef4444_100%)]"></div>
-					  <div class="flex space-x-4">
+					<div
+						class="w-40 h-40 rounded-full"
+						style="
+						background: conic-gradient(
+							#8b5cf6 0% ${Math.round((total_normal_matches / total_matches) * 100)}%, 
+							#facc15 ${Math.round((total_normal_matches / total_matches) * 100)}% 100%
+						);
+						"
+					></div>
+
+					<div class="flex space-x-4">
 						<div class="flex items-center space-x-2">
-						  <div class="w-4 h-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full"></div>
-						  <span>Normal Matches: 13</span>
+						<div class="w-4 h-4 bg-purple-500 rounded-full"></div>
+						<span id="NormalMatches">Normal Matches: </span>
+						<span>${total_normal_matches}</span>
 						</div>
 						<div class="flex items-center space-x-2">
-						  <div class="w-4 h-4 bg-gradient-to-br from-yellow-400 to-red-500 rounded-full"></div>
-						  <span>Tournament Matches: 3</span>
+						<div class="w-4 h-4 bg-yellow-400 rounded-full"></div>
+						<span id="TournamentMatches">Tournament Matches: </span>
+						<span>${total_tournament_matches}</span>
 						</div>
-					  </div>
 					</div>
+					</div>
+
 			  
 					<!-- Total Games Bar Chart -->
 					<div class="relative w-[420px] h-[340px] bg-white/5 rounded text-white">
-					  <div class="text-center text-lg font-semibold pt-4">
+					  <div class="text-center text-lg font-semibold pt-4" id="TotalGamesPerPlayer">
 						Total Games Per Player
 					  </div>
 					  <div class="flex items-end space-x-4 overflow-x-auto mt-[180px]">
@@ -179,7 +196,7 @@ export async function renderMatchSummary(root:HTMLElement) {
 			  
 					<!-- Win Rate Bar Chart -->
 					<div class="relative w-[420px] h-[340px] bg-white/5 rounded text-white">
-					  <div class="text-center text-lg font-semibold pt-4">
+					  <div class="text-center text-lg font-semibold pt-4" id="WinRates">
 						Win Rates
 					  </div>
 					  <div class="flex items-end space-x-4 overflow-x-auto mt-[180px]">
