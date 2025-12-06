@@ -111,7 +111,7 @@ class LocalTournamentManager {
 		match.status = 'waiting_for_sockets';
 
 		localSocket.send(JSON.stringify({
-			type: 'matchStart',
+			type: 'localMatchStart',
 			tournamentId: tournament.id,
 			tournamentSize: tournament.size,
 			matchId: match.id,
@@ -174,7 +174,7 @@ class LocalTournamentManager {
 		if (!ctrlSocket || ctrlSocket.readyState !== WebSocket.OPEN) return;
 
 		const update = JSON.stringify({
-			type: 'tournamentUpdate',
+			type: 'localTournamentUpdate',
 			state: this.getTournamentState(tournament.id)
 		});
 
@@ -259,7 +259,7 @@ class LocalTournamentManager {
 				const ctrlSocket = this.localControlSockets.get(tournament.id);
 				if (ctrlSocket && ctrlSocket.readyState === WebSocket.OPEN) {
 					ctrlSocket.send(JSON.stringify({
-						type: 'tournamentEnd',
+						type: 'localTournamentEnd',
 						winner: { id: winner!.id, name: winner!.name }
 					}));
 				}

@@ -144,11 +144,11 @@ export function renderNav() {
 						<span class="relative z-10"></span>
 						</a>
 
-						<a id="nav_local_tournament" href="#/localTournament" class=" flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
+						<a id="nav_local_tournament" href="#/local-tournament" class=" flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
 						<span class="relative z-10"></span>
 						</a>
 
-						<a id="nav_online_tournament" href="#/onlineTournament" class=" flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
+						<a id="nav_online_tournament" href="#/online-tournament" class=" flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
 						<span class="relative z-10"></span>
 						</a>
 
