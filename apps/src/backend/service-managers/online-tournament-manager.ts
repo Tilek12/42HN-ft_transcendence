@@ -134,8 +134,8 @@ class OnlineTournamentManager {
 				// Online: broadcast to participants
 				for (const participant of tournament.participants) {
 					const user = userManager.getUser(Number(participant.id));
-					if (user && user.tournamentSocket?.readyState === WebSocket.OPEN) {
-						user.tournamentSocket.send(JSON.stringify({
+					if (user && user.onlineTournamentSocket?.readyState === WebSocket.OPEN) {
+						user.onlineTournamentSocket.send(JSON.stringify({
 							type: 'tournamentEnd',
 							winner: { id: winner!.id, name: winner!.name }
 						}));
@@ -186,8 +186,8 @@ class OnlineTournamentManager {
 		round.forEach(match => {
 			[match.p1, match.p2].forEach(player => {
 				const user = userManager.getUser(Number(player.id));
-				if (user && user.tournamentSocket?.readyState === WebSocket.OPEN) {
-					user.tournamentSocket.send(JSON.stringify({
+				if (user && user.onlineTournamentSocket?.readyState === WebSocket.OPEN) {
+					user.onlineTournamentSocket.send(JSON.stringify({
 						type: 'matchStart',
 						tournamentId: tournament.id,
 						tournamentSize: tournament.size,
@@ -250,8 +250,8 @@ class OnlineTournamentManager {
 		// Send matchStart to both players' tournament sockets
 		[match.p1, match.p2].forEach(player => {
 			const user = userManager.getUser(Number(player.id));
-			if (user?.tournamentSocket?.readyState === WebSocket.OPEN) {
-				user.tournamentSocket.send(JSON.stringify({
+			if (user?.onlineTournamentSocket?.readyState === WebSocket.OPEN) {
+				user.onlineTournamentSocket.send(JSON.stringify({
 					type: 'matchStart',
 					tournamentId: tournament.id,
 					tournamentSize: tournament.size,
@@ -384,8 +384,8 @@ class OnlineTournamentManager {
 
 		for (const participant of tournament.participants) {
 			const user = userManager.getUser(Number(participant.id));
-			if (user?.tournamentSocket?.readyState === WebSocket.OPEN) {
-				user.tournamentSocket.send(update);
+			if (user?.onlineTournamentSocket?.readyState === WebSocket.OPEN) {
+				user.onlineTournamentSocket.send(update);
 			}
 		}
 	}
@@ -515,7 +515,7 @@ class OnlineTournamentManager {
 				id: tournament.id
 			});
 			for (const u of userManager.getOnlineUsers()) {
-				const socket = userManager.getUser(u.id)?.tournamentSocket;
+				const socket = userManager.getUser(u.id)?.onlineTournamentSocket;
 				if (socket?.readyState === WebSocket.OPEN) {
 					try {
 						socket.send(update);

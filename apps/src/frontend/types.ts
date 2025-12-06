@@ -3,7 +3,7 @@
 
 
 // WEBSOCKET
-export type GameMode = 'solo' | 'duel' | 'tournament';
+export type GameMode = 'solo' | 'duel' | 'local-match' | 'online-match';
 
 export interface PresenceUser {
   id: string;

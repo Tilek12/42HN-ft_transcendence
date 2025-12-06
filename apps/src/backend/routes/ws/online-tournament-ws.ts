@@ -16,9 +16,9 @@ function handle_message(text: string, user:User, userId:string, socket:WebSocket
 	}
 
 	const data = JSON.parse(text);
-	if (data.type === 'quitTournament') {
+	if (data.type === 'quitOnlineTournament') {
 		onlineTournamentManager.quitOnlineTournament(userId);
-		userManager.removeTournamentSocket(user);
+		userManager.removeOnlineTournamentSocket(user);
 		socket.send(JSON.stringify({ type: 'tournamentLeft' }));
 	} else if (data.type === 'playerReady') {
 		// Handle player socket ready signal for tournament matches
@@ -54,7 +54,7 @@ const wsOnlineTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 						throw new Error(`[ONLINE Tournament WS] User not valid: ${decoded.id}`);
 					fastify.log.info(`🟢 [ONLINE Tournament WS] Connected: ${user.username}`);
 					userId = user.id.toString();
-					userManager.setTournamentSocket(user, socket);
+					userManager.setOnlineTournamentSocket(user, socket);
 
 					let tournament: TournamentState | null = null;
 					const participant: Participant = { id: userId, name: user.name };
@@ -100,7 +100,7 @@ const wsOnlineTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 		socket.on('close', () => {
 			console.log(`❌ [ONLINE Tournament WS] Disconnected: ${userId}`);
 			onlineTournamentManager.quitOnlineTournament(userId);
-			userManager.removeTournamentSocket(user);
+			userManager.removeOnlineTournamentSocket(user);
 		});
 		socket.on('error', (err: any) => {
 			console.error(`⚠️ [ONLINE Tournament WS] Error from ${userId}:`, err);
@@ -111,19 +111,19 @@ const wsOnlineTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 	setInterval(() => {
 		userManager.getOnlineUsers().forEach(({ id }) => {
 			const user = userManager.getUser(id);
-			if (!user || !user.tournamentSocket) return;
+			if (!user || !user.onlineTournamentSocket) return;
 
 			if (!user.isInOnlineTournament) {
-				console.log(`💀 [Tournament WS] Inactive, closing: ${id}`);
-				user.tournamentSocket.close();
-				userManager.removeTournamentSocket(user);
+				console.log(`💀 [ONLINE Tournament WS] Inactive, closing: ${id}`);
+				user.onlineTournamentSocket.close();
+				userManager.removeOnlineTournamentSocket(user);
 				return;
 			}
 
 			user.isInOnlineTournament = false;
-			if (user.tournamentSocket.readyState === WebSocket.OPEN) {
+			if (user.onlineTournamentSocket.readyState === WebSocket.OPEN) {
 				try {
-					user.tournamentSocket.send('ping');
+					user.onlineTournamentSocket.send('ping');
 				} catch (err) {
 					console.warn(`⚠️ [ONLINE Tournament WS] Ping failed for ${id}:`, err);
 				}

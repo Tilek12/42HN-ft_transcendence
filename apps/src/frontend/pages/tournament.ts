@@ -117,7 +117,7 @@ export async function renderTournament(root: HTMLElement) {
 
 	// Quit local
 	document.getElementById('quit-local')!.addEventListener('click', () => {
-		wsManager.quitTournament();
+		wsManager.quitLocalTournament();
 		document.getElementById('local-tournament')!.classList.add('hidden');
 		document.getElementById('local-section')!.classList.remove('hidden');
 		// Reset state
@@ -174,12 +174,12 @@ export async function renderTournament(root: HTMLElement) {
 		});
 		if (names.length !== size) return;
 
-		const socket = wsManager.connectTournamentSocket('create', size == 4 ? 4 : 8, undefined, (msg) => {
+		const socket = wsManager.connectLocalTournamentSocket(size == 4 ? 4 : 8, (msg) => {
 			handleTournamentMessage(msg);
-		}, 'local', names);
+		}, names);
 
 		if (!socket) {
-			alert('Failed to create tournament');
+			alert('Failed to create LOCAL Tournament');
 			return;
 		}
 
@@ -204,14 +204,14 @@ export async function renderTournament(root: HTMLElement) {
 					p2: msg.participants[1]
 				};
 				// Create game socket first, then signal readiness
-				gameSocket = wsManager.createGameSocket('tournament');
+				gameSocket = wsManager.createGameSocket('online-match');
 				if (!gameSocket) {
 					alert('Failed to create game socket for tournament match');
 					return;
 				}
 
 				// Signal that our game socket is ready
-				wsManager.tournamentWS?.send(JSON.stringify({
+				wsManager.onlineTournamentWS?.send(JSON.stringify({
 					type: 'playerReady',
 					tournamentId: msg.tournamentId,
 					matchId: msg.matchId
@@ -219,7 +219,7 @@ export async function renderTournament(root: HTMLElement) {
 
 				startOnlineTournamentMatch(msg);
 			} else {
-				console.log('🎯 Spectating match in tournament bracket');
+				console.log('🎯 Spectating match in ONLINE Tournament bracket');
 				// Optionally update bracket display live here
 			}
 		} else if (msg.type === 'tournamentEnd') {
@@ -277,7 +277,7 @@ export async function renderTournament(root: HTMLElement) {
 				announcementEl.innerHTML = '';
 				// Reset tournament state
 				currentTournamentId = null;
-				wsManager.disconnectTournamentSocket();
+				wsManager.disconnectOnlineTournamentSocket();
 				renderTournamentList();
 			}, 7000); // Show winner for 7 seconds
 		}
@@ -309,10 +309,10 @@ export async function renderTournament(root: HTMLElement) {
 			list.appendChild(infoBox);
 
 			infoBox.querySelector('#quit-tournament-btn')?.addEventListener('click', () => {
-				wsManager.quitTournament();
+				wsManager.quitOnlineTournament();
 				currentTournamentId = null;
 				alert('🚪 You left the tournament.');
-				wsManager.disconnectTournamentSocket();
+				wsManager.disconnectOnlineTournamentSocket();
 				renderTournamentList();
 			});
 		}
@@ -393,7 +393,7 @@ export async function renderTournament(root: HTMLElement) {
 			return;
 		}
 
-		const socket = wsManager.connectTournamentSocket('join', size, id, (msg) => {
+		const socket = wsManager.connectOnlineTournamentSocket('join', size, id, (msg) => {
 			handleTournamentMessage(msg);
 			if (msg.type === 'tournamentJoined') {
 				currentTournamentId = msg.id;
@@ -405,7 +405,7 @@ export async function renderTournament(root: HTMLElement) {
 			} else if (msg.type === 'end') {
 				alert(`🏁 Tournament finished! Winner: ${msg.winner}`);
 				currentTournamentId = null;
-				wsManager.disconnectTournamentSocket();
+				wsManager.disconnectOnlineTournamentSocket();
 				renderTournamentList();
 			}
 		});
@@ -419,7 +419,7 @@ export async function renderTournament(root: HTMLElement) {
 			return;
 		}
 
-		const socket = wsManager.connectTournamentSocket('create', size, undefined, (msg) => {
+		const socket = wsManager.connectOnlineTournamentSocket('create', size, undefined, (msg) => {
 			handleTournamentMessage(msg);
 			if (msg.type === 'tournamentJoined') {
 				currentTournamentId = msg.id;
@@ -428,7 +428,7 @@ export async function renderTournament(root: HTMLElement) {
 			} else if (msg.type === 'end') {
 				alert(`🏁 Tournament finished! Winner: ${msg.winner}`);
 				currentTournamentId = null;
-				wsManager.disconnectTournamentSocket();
+				wsManager.disconnectOnlineTournamentSocket();
 				renderTournamentList();
 			}
 		}, );
@@ -756,20 +756,20 @@ export async function renderTournament(root: HTMLElement) {
 	});
 
 	function sendMove() {
-		if (!currentMatch || !wsManager.tournamentWS || !isLocalTournament) return;
+		if (!currentMatch || !wsManager.onlineTournamentWS || !isLocalTournament) return;
 		// Local tournament uses unified control - determine which player this client controls
 		// For simplicity, assume client controls both players in local tournament
 		if (keys['ArrowUp']) {
-			wsManager.tournamentWS.send(JSON.stringify({ type: 'move', direction: 'up', playerId: currentMatch.p2.id }));
+			wsManager.onlineTournamentWS.send(JSON.stringify({ type: 'move', direction: 'up', playerId: currentMatch.p2.id }));
 		}
 		if (keys['ArrowDown']) {
-			wsManager.tournamentWS.send(JSON.stringify({ type: 'move', direction: 'down', playerId: currentMatch.p2.id }));
+			wsManager.onlineTournamentWS.send(JSON.stringify({ type: 'move', direction: 'down', playerId: currentMatch.p2.id }));
 		}
 		if (keys['w']) {
-			wsManager.tournamentWS.send(JSON.stringify({ type: 'move', direction: 'up', playerId: currentMatch.p1.id }));
+			wsManager.onlineTournamentWS.send(JSON.stringify({ type: 'move', direction: 'up', playerId: currentMatch.p1.id }));
 		}
 		if (keys['s']) {
-			wsManager.tournamentWS.send(JSON.stringify({ type: 'move', direction: 'down', playerId: currentMatch.p1.id }));
+			wsManager.onlineTournamentWS.send(JSON.stringify({ type: 'move', direction: 'down', playerId: currentMatch.p1.id }));
 		}
 	}
 

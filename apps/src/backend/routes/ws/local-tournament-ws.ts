@@ -19,7 +19,7 @@ function handle_message(text: string, user:User, userId:string, socket:WebSocket
 	const data = JSON.parse(text);
 	if (data.type === 'quitLocalTournament') {
 		localTournamentManager.quitLocalTournament(userId);
-		userManager.removeTournamentSocket(user);
+		userManager.removeLocalTournamentSocket(user);
 		socket.send(JSON.stringify({ type: 'localtTournamentLeft' }));
 	} else if (data.type === 'move') {
 		const tournament = localTournamentManager.getUserTournament(userId);
@@ -60,7 +60,7 @@ const wsLocalTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 						throw new Error(`[LOCAL Tournament WS] User not valid: ${decoded.id}`);
 					fastify.log.info(`🟢 [LOCAL Tournament WS] Connected: ${user.username}`);
 					userId = user.id.toString();
-					userManager.setTournamentSocket(user, socket);
+					userManager.setLocalTournamentSocket(user, socket);
 
 					const participant: Participant = { id: userId, name: user.name };
 
@@ -106,7 +106,7 @@ const wsLocalTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 		socket.on('close', () => {
 			console.log(`❌ [LOCAL Tournament WS] Disconnected: ${userId}`);
 			localTournamentManager.quitLocalTournament(userId);
-			userManager.removeTournamentSocket(user);
+			userManager.removeLocalTournamentSocket(user);
 		});
 		socket.on('error', (err: any) => {
 			console.error(`⚠️ [LOCAL Tournament WS] Error from ${userId}:`, err);
@@ -117,25 +117,25 @@ const wsLocalTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 	setInterval(() => {
 		userManager.getOnlineUsers().forEach(({ id }) => {
 			const user = userManager.getUser(id);
-			if (!user || !user.tournamentSocket) return;
+			if (!user || !user.localTournamentSocket) return;
 
 			if (!user.isInLocalTournament) {
 				console.log(`💀 [LOCAL Tournament WS] Inactive, closing: ${id}`);
-				user.tournamentSocket.close();
-				userManager.removeTournamentSocket(user);
+				user.localTournamentSocket.close();
+				userManager.removeLocalTournamentSocket(user);
 				return;
 			}
 
 			user.isInLocalTournament = false;
-			if (user.tournamentSocket.readyState === WebSocket.OPEN) {
+			if (user.localTournamentSocket.readyState === WebSocket.OPEN) {
 				try {
-					user.tournamentSocket.send('ping');
+					user.localTournamentSocket.send('ping');
 				} catch (err) {
 					console.warn(`⚠️ [LOCAL Tournament WS] Ping failed for ${id}:`, err);
 				}
 			}
 		});
-	}, 20000);
+	}, PING_INTERVAL_MS);
 };
 
 export default fp(wsLocalTournamentPlugin);
