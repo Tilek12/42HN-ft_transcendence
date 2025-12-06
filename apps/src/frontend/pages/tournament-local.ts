@@ -234,7 +234,6 @@ export async function renderLocalTournament(root: HTMLElement) {
                 break;
             }
             case 'countdown': {
-                // countdown only inside canvas (via countdownValue)
                 countdownValue = msg.value;
                 break;
             }
@@ -426,21 +425,23 @@ export async function renderLocalTournament(root: HTMLElement) {
 
     // OPTION 1: keep your original interval-based sending (active)
     function sendMoveIntervalBased() {
-        if (!currentMatch) return;
         const socket = wsManager.localTournamentWS;
-        if (!socket || socket.readyState !== WebSocket.OPEN) return;
+        if (!currentMatch || !socket || socket.readyState !== WebSocket.OPEN) return;
 
+        // Right paddle controlled by Arrow keys
         if (keys['ArrowUp']) {
-            socket.send(JSON.stringify({ type: 'move', direction: 'up', playerId: currentMatch.p2.id }));
+            socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'right' }));
         }
         if (keys['ArrowDown']) {
-            socket.send(JSON.stringify({ type: 'move', direction: 'down', playerId: currentMatch.p2.id }));
+            socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'right' }));
         }
+
+        // Left paddle controlled by W/S
         if (keys['w']) {
-            socket.send(JSON.stringify({ type: 'move', direction: 'up', playerId: currentMatch.p1.id }));
+            socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'left' }));
         }
         if (keys['s']) {
-            socket.send(JSON.stringify({ type: 'move', direction: 'down', playerId: currentMatch.p1.id }));
+            socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'left' }));
         }
     }
     setInterval(sendMoveIntervalBased, 50);

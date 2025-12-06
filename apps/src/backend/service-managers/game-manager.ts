@@ -145,7 +145,6 @@ class GameManager {
 				//------ Save to matches table -------
 				const isTournamentMatch = mode === 'duel' && !!tournamentId;
 				// if (isTournamentMatch) {
-				console.log("---=== Before creating match ===---");
 					await createMatch(
 						parseInt(winner.id),
 						parseInt(loser.id),
@@ -153,7 +152,6 @@ class GameManager {
 						loserScore,
 						isTournamentMatch
 					);
-				console.log("###### After creating match ######");
 				// }
 
 				// Get last inserted match ID

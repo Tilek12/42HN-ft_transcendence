@@ -11,25 +11,25 @@ import { JWTPayload, User } from '../../types';
 import { TournamentWebsocketQuery, TournamentWebsocketSchema } from './WebsocketSchemas';
 import { findUserById } from '../../database/user';
 
-function handle_message(text: string, user:User, userId:string, socket:WebSocket) {
-	if (text === 'pong') {
-		userManager.setInLocalTournament(user, true);
-		return;
-	}
-	const data = JSON.parse(text);
-	if (data.type === 'quitLocalTournament') {
-		localTournamentManager.quitLocalTournament(userId);
-		userManager.removeLocalTournamentSocket(user);
-		socket.send(JSON.stringify({ type: 'localtTournamentLeft' }));
-	} else if (data.type === 'move') {
-		const tournament = localTournamentManager.getUserTournament(userId);
-		if (tournament) {
-			const game = gameManager.getRoomByPlayerId(userId);
-			if (game) {
-				game.handleMove(userId, data.direction, data.side);
-			}
-		}
-	}
+function handle_message(text: string, user: User, userId: string, socket: WebSocket) {
+    if (text === 'pong') {
+        userManager.setInLocalTournament(user, true);
+        return;
+    }
+
+    let data: any;
+    try {
+        data = JSON.parse(text);
+    } catch (err) {
+        console.warn('[LOCAL Tournament WS] Invalid JSON from client:', text);
+        return;
+    }
+
+    if (data.type === 'quitLocalTournament') {
+        localTournamentManager.quitLocalTournament(userId);
+        userManager.removeLocalTournamentSocket(user);
+        socket.send(JSON.stringify({ type: 'localtTournamentLeft' }));
+    }
 }
 
 const wsLocalTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
