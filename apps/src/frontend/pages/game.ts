@@ -290,7 +290,7 @@ export async function renderGame(root: HTMLElement) {
 
 		const user = getUser();
 		if (!user) {
-			alert('❌ You must be logged in to play');
+			// alert('❌ You must be logged in to play');
 			location.hash = '#/login';
 			return;
 		}
@@ -306,7 +306,7 @@ export async function renderGame(root: HTMLElement) {
 		const pong_status = document.getElementById('pong_status');
 		socket = wsManager.createGameSocket(mode);
 		if (!socket) {
-			alert('❌ Failed to create game socket');
+			//alert('❌ Failed to create game socket');
 			return;
 		}
 
@@ -424,7 +424,7 @@ export async function renderGame(root: HTMLElement) {
 					break;
 				}
 				case 'disconnect':
-					alert(`❌ Opponent disconnected`);
+					// alert(`❌ Opponent disconnected`);
 					wsManager.disconnectGameSocket();
 					cleanupListeners();
 					break;
@@ -436,7 +436,7 @@ export async function renderGame(root: HTMLElement) {
 
 		socket.onerror = (err) => {
 			console.error('❌ Game socket error:', err);
-			alert('❌ Connection error. Try again.');
+			// alert('❌ Connection error. Try again.');
 			cleanupListeners();
 			wsManager.disconnectGameSocket();
 		};

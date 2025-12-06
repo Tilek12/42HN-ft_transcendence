@@ -1,4 +1,4 @@
-import { Language, fMatch, fMatchHistory, fMatchForSummary, fMatchSummary,  } from "../types.js";
+import { Language, fMatch, fMatchHistory, fMatchForSummary, fMatchSummary,  } from "../frontendTypes.js";
 import { apiFetch, getUser } from "../utils/auth.js";
 import { renderConnectionErrorPage } from "./error.js";
 import { languageStore, transelate_per_id, translations_dashboards } from "./languages.js";

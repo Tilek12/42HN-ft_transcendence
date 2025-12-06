@@ -9,7 +9,7 @@
 		"cp_index": "cp src/frontend/index.html dist/frontend/",
 		"tailwind": "tailwindcss -i src/frontend/styles.css -o dist/frontend/output.css",
 		"build": "npm run frontend && npm run backend && npm run cp_assets && npm run cp_index && npm run tailwind",
-		"prod": "npm run delete_dist && npm run build && node dist/backend/server.js",
+		"prod": "npm run delete_dist && npm run build ",
 		"update": "ncu -u"
 	},
 	"dependencies": {
