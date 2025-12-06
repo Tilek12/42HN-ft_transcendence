@@ -66,6 +66,18 @@ export type fMatchSummary = {
 	matchesForSummary: fMatchForSummary[],
 }
 
+// frontend fPlayer
+export type fPlayer = {
+  username: string,
+  wins:number,
+  losses:number,
+  total_match:number,
+  total_score:number,
+  tournament_games: number,
+  tournament_games_won:number,
+  win_rate:number,
+}
+
 export type PresenceCallback = (users: number, tournaments: any[]) => void;
 
 // FRIENDS

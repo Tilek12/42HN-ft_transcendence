@@ -1,5 +1,6 @@
 import { Language, fMatch, fMatchHistory, fMatchForSummary, fMatchSummary,  } from "../types.js";
 import { apiFetch, getUser } from "../utils/auth.js";
+import { renderBackgroundFull } from "../utils/layout.js";
 import { renderConnectionErrorPage } from "./error.js";
 import { languageStore, transelate_per_id, translations_dashboards } from "./languages.js";
 
@@ -20,8 +21,8 @@ function addMatchSummaryTranslations(lang: Language) {
 
 export async function renderMatchSummary(root:HTMLElement) {
 	try {
-		// const matchContainer = document.getElementById('match-summary') as HTMLElement;//frontend div id
 		
+		// Match summary
 		const res = await apiFetch('/api/private/match/summary', {
 			method: 'GET',
 			credentials: 'include',
@@ -30,18 +31,60 @@ export async function renderMatchSummary(root:HTMLElement) {
 		if (!res.ok) {
 			alert(data.message)
 		}
-		const trysummary = data.summary 
-		if (!trysummary){
+		const trysummary = data.summary
+		if (!trysummary)
+		{
 			alert(`no summary`)
 			return;
 		}
-		else {
+
+		// total-games-charts
+		const res_chart = await apiFetch('/api/private/parse-profiles-for-total-games-charts', {
+			method: 'GET',
+			credentials: 'include'
+		});
+		const data_chart = await res_chart.json();
+		if (!res_chart.ok) {
+			alert(data_chart.message)
+		}
+		console.log(`data: ${data_chart.profiles}`);
+		const total_games_array: { name: string; value: number }[] = [];
+		const chart_profiles = data_chart.profiles;
+		if (!chart_profiles)
+		{		
+			alert(`no chart_profiles`)
+			return;
+		}
+		chart_profiles.forEach((row: any, i: number) => 
+		{
+			const total_games = Number(row.wins) + Number(row.losses);
+			total_games_array.push({name: row.username, value: total_games});
+			console.log(`total_games_arra[${i}] = ${row.username}, ${total_games}`);
+		})
 			const summary = trysummary as fMatchForSummary[];
-			root.innerHTML =
+			console.log(`the summary[0]: ${summary[0].matchID}`);
+			var total_matches = summary[0].matchID;
+			// console.log(`total_matches: ${total_matches}`);
+
+			// we need a function that is taking the players
+			// summary.filter(match:);
+			// const userlist = document.getElementById('user_list');
+			// console.log(`userlist:---------------`);
+			// console.log(`userlist: ${userlist.}`);
+			// we need a way to go for every summary [array] and ctch the name of the player
+			// per player how many games
+
+			// const total_game_chart
+			root.innerHTML = renderBackgroundFull(
 				/*html*/
 			`
+			
+			   <!-- Total Games Chart -->
+			   	<div class="w-full flex justify-center my-6 border">
+			   		<canvas id="totalGamesChart" width="400" height="200"></canvas>
+		   		</div>	
 				<!-- Match Table -->
-				<div class="overflow-y-auto overflow-x-hidden pr-1">
+				<div class="overflow-y-auto overflow-x-hidden pr-1 border">
 					<span id="MatchSummaryHeader"></span>
 					<table class="w-full text-left border-collapse text-sm">
 						<thead>
@@ -72,8 +115,8 @@ export async function renderMatchSummary(root:HTMLElement) {
 					  </tbody>
 					</table>
 				</div>
-			`;
-		}
+			`);
+		
 		addMatchSummaryTranslations(languageStore.language);
 		languageStore.subscribe((lang) => addMatchSummaryTranslations(lang));
 	} catch (e: any) {

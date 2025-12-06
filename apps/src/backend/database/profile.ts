@@ -53,6 +53,21 @@ export async function parseProfiles(prof_id : number, offset?: number, limit?: n
 
 }
 
+export async function parseProfilesForTotalGamesChart() : Promise<any[]>
+{
+	let sqliteString = `SELECT
+		  u.id,
+		  u.username,
+		  p.wins,
+		  p.losses,
+		  p.trophies,
+		  p.image_blob
+		FROM users u
+		JOIN profiles p ON u.id = p.id
+		`;
+	return await db.all(sqliteString);
+
+}
 
 //-----Matches and tournaments-------------------------
 export async function incrementWinsOrLossesOrTrophies(id: number, field: 'wins' | 'losses' | 'trophies')

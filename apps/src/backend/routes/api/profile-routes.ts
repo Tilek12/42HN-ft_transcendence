@@ -17,6 +17,7 @@ import {
 	AddToBlockedList,
 	DeleteFromBlockedList,
 	userIsBlocked,
+	parseProfilesForTotalGamesChart,
 } from '../../database/profile';
 import { verifyPassword, hashPassword } from '../../auth/utils';
 import { JWTPayload } from '../../types';
@@ -316,6 +317,62 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 				}
 			})
 
+			fastify.get<{ Querystring: parseProfilesQuery }>
+			('/parse-profiles-for-total-games-charts',
+				{ schema: parseProfilesSchema },
+				async (req, res) => {
+					try {
+						const jwt = req.user as JWTPayload;
+						const offset = req.query.offset;
+						const limit = req.query.limit;
+	
+						const profiles = await parseProfilesForTotalGamesChart();
+						// console.log ("backend-------------------<<<<>>>> :",profiles);
+						// const friends = await parseFriends(jwt.id);
+						// const friendsIds = new Set(friends.map((row: any) => row.id));
+	
+						// const pendingRequests = await parseBidirectionalPendingRequests(jwt.id, jwt.id);
+	
+						// const sentRequests = new Set(pendingRequests.filter((r: any) => r.sender_id === jwt.id && r.receiver_id !== jwt.id).map((r: any) => r.receiver_id));
+	
+						// const receivedRequests = new Set(pendingRequests.filter((r: any) => r.receiver_id && r.sender_id !== jwt.id).map((r: any) => r.sender_id));
+	
+						// const blockingList = await parseBlockedList(jwt.id);
+	
+						// console.log("Blocked_list:");
+						// console.log(blockingList);
+						// const blockingListIds = new Set(blockingList.map((row: any) => row.blocked_id));
+	
+						// const newProfiles = profiles.map((profile: any) => {
+						// 	if (profile.image_blob) {
+						// 		profile.image_blob = profile.image_blob.toString("base64");
+						// 	}
+							// return profile;
+						// });
+	
+						// console.log("Here ----------->>>> New Profiles: ", newProfiles);
+						// const profilesWithFriendFlag = await Promise.all(newProfiles
+						// 	.map(async (profile: any) => ({
+						// 		...profile,
+						// 		image_blob_setted: profile.image_blob ? true : false,
+						// 		is_friend: friendsIds.has(profile.id),
+						// 		received_requests: Array.from(receivedRequests),
+						// 		pending_direction: sentRequests.has(profile.id) ? "sent" :
+						// 			receivedRequests.has(profile.id) ? "recieved" :
+						// 				null,
+						// 		is_blocking: blockingListIds.has(profile.id) ? 1 : 0,
+						// 		is_blocked: await userIsBlocked(jwt.id, profile.id)
+						// 	})
+						// 	));
+						// console.log(' Here ----->> BackEnd : ', profilesWithFriendFlag);
+	
+						res.send({ profiles });
+						// console.log(profilesWithFriendFlag);
+					} catch (err) {
+						res.status(400).send({ message: 'Unauthorized parse_profiles' });
+						console.log(err);
+					}
+				})
 
 	fastify.post<{ Body: PasswordChangeBody }>
 		('/update-password',
