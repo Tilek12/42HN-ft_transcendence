@@ -22,7 +22,7 @@ function addMatchSummaryTranslations(lang: Language) {
 export async function renderMatchSummary(root:HTMLElement) {
 	try {
 		
-		// Match summary
+		// Match summary data
 		const res = await apiFetch('/api/private/match/summary', {
 			method: 'GET',
 			credentials: 'include',
@@ -38,7 +38,7 @@ export async function renderMatchSummary(root:HTMLElement) {
 			return;
 		}
 
-		// total-games-charts
+		// total-games-chart and win rate chart data
 		const res_chart = await apiFetch('/api/private/parse-profiles-for-total-games-charts', {
 			method: 'GET',
 			credentials: 'include'
@@ -47,6 +47,7 @@ export async function renderMatchSummary(root:HTMLElement) {
 		if (!res_chart.ok) {
 			alert(data_chart.message)
 		}
+		// total-games-chart
 		console.log(`data: ${data_chart.profiles}`);
 		const total_games_array: { name: string; value: number }[] = [];
 		const chart_profiles = data_chart.profiles;
@@ -62,8 +63,10 @@ export async function renderMatchSummary(root:HTMLElement) {
 			total_games_array.push({name: row.username, value: total_games});
 			const wins_rate_var = (Number(row.wins) == 0) ? 0 : Math.round((Number(row.wins)/total_games)*100);
 			wins_rate_array.push({name: row.username, win_rate: wins_rate_var});
+			
 			console.log(`win rate: ${wins_rate_var}`);
 		})
+			// win rate chart
 			var total_win_rate = 0;
 			wins_rate_array.forEach(v=> total_win_rate += v.win_rate);
 			const avg_win_rate = (total_win_rate / chart_profiles.length).toFixed(2);
@@ -73,10 +76,45 @@ export async function renderMatchSummary(root:HTMLElement) {
 			console.log(total_games_array[0].value);
 			const summary = trysummary as fMatchForSummary[];
 			console.log(`the summary[0]: ${summary[0].matchID}`);
-			var total_matches = summary[0].matchID;
-
-		
-
+			// normal match, tournament match chart
+			var total_tournament_matches = 0;
+			var total_normal_matches = 0;
+			// add dummy data tournament = true
+			const dummyMatch: fMatchForSummary = {
+				matchID: 14,
+				player1_username: "cat",
+				player2_username: "philipp",
+				player1_score: 5,
+				player2_score: 4,
+				winner_username: "cat",
+				is_tournament_match: true, // this marks it as a tournament match
+				played_at: "2025-12-06 15:00:00"
+			  };
+			  const dummyMatch_two: fMatchForSummary = {
+				matchID: 15,
+				player1_username: "cat",
+				player2_username: "philipp",
+				player1_score: 5,
+				player2_score: 4,
+				winner_username: "cat",
+				is_tournament_match: true, // this marks it as a tournament match
+				played_at: "2025-12-06 15:00:00"
+			  };
+			  const dummyMatch_three: fMatchForSummary = {
+				matchID: 16,
+				player1_username: "cat",
+				player2_username: "philipp",
+				player1_score: 5,
+				player2_score: 4,
+				winner_username: "cat",
+				is_tournament_match: true, // this marks it as a tournament match
+				played_at: "2025-12-06 15:00:00"
+			  };
+			  summary.unshift(dummyMatch_three,  dummyMatch_two,dummyMatch);
+			  var total_matches = summary[0].matchID;
+			  summary.forEach(m=>{m.is_tournament_match ? total_tournament_matches++ : null});
+			console.log(`total_tournament_matches: ${total_tournament_matches}`);
+			//total game bars
 			const maxBarHeight = 12 * 4;
 			const filtered_total_games_chart_array = total_games_array.filter(p=> p.value !== 0).map(p => {
 				const barHeight = Math.round((p.value / total_matches) * maxBarHeight); // scale height
@@ -93,6 +131,7 @@ export async function renderMatchSummary(root:HTMLElement) {
 			const filtered_total_games_chart_length = filtered_total_games_chart_array.length;
 			const total_games_chart_string = filtered_total_games_chart_array.join('');
 
+			// win rate bars
 			const maxWinRateBarHeight = 24 * 4;
 			const win_rate_chart_string = wins_rate_array.filter(p=> p.win_rate !== 0).map(p => {
 				const barHeight = Math.round((p.win_rate / total_win_rate) * maxWinRateBarHeight); // scale height
@@ -107,55 +146,66 @@ export async function renderMatchSummary(root:HTMLElement) {
 				`;
 			}).join('');
 
-			// const total_game_chart
-			root.innerHTML = renderBackgroundFull(
-				/*html*/
-			`
-			   <!-- Total Games Chart -->
-			   <div class="relative w-[420px] h-[340px] mx-auto my-8 bg-white/5 rounded text-white">
-
-					<!-- Graph Title -->
-					<div class="text-center text-lg font-semibold pt-4">
-						Total Games Per Player
-					</div>
-			
-					<!-- Bars container -->
-					<div class="flex items-end space-x-4 overflow-x-auto mt-[180px]">
-						${total_games_chart_string} 
-					</div>
-		   		</div>
-				
-				<!-- Win_rate Chart -->
-				<div class="relative w-[420px] h-[340px] mx-auto my-8 bg-white/5 rounded text-white">
+			root.innerHTML = renderBackgroundFull(/*html*/ `
+				<div class="flex flex-col items-center space-y-8">
+				  
+				  <!-- Charts Row -->
+				  <div class="grid grid-cols-3 gap-6 w-full justify-items-center">
 					
-				<!-- Graph Title -->
-					<div class="text-center text-lg font-semibold pt-4">
+					<!-- Pie Chart -->
+					<div class="flex flex-col items-center space-y-4">
+					  <div class="w-40 h-40 rounded-full bg-[conic-gradient(#8b5cf6_0%_81.25%,#ec4899_0%_81.25%,#facc15_81.25%_100%,#ef4444_100%)]"></div>
+					  <div class="flex space-x-4">
+						<div class="flex items-center space-x-2">
+						  <div class="w-4 h-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full"></div>
+						  <span>Normal Matches: 13</span>
+						</div>
+						<div class="flex items-center space-x-2">
+						  <div class="w-4 h-4 bg-gradient-to-br from-yellow-400 to-red-500 rounded-full"></div>
+						  <span>Tournament Matches: 3</span>
+						</div>
+					  </div>
+					</div>
+			  
+					<!-- Total Games Bar Chart -->
+					<div class="relative w-[420px] h-[340px] bg-white/5 rounded text-white">
+					  <div class="text-center text-lg font-semibold pt-4">
+						Total Games Per Player
+					  </div>
+					  <div class="flex items-end space-x-4 overflow-x-auto mt-[180px]">
+						${total_games_chart_string}
+					  </div>
+					</div>
+			  
+					<!-- Win Rate Bar Chart -->
+					<div class="relative w-[420px] h-[340px] bg-white/5 rounded text-white">
+					  <div class="text-center text-lg font-semibold pt-4">
 						Win Rates
+					  </div>
+					  <div class="flex items-end space-x-4 overflow-x-auto mt-[180px]">
+						${win_rate_chart_string}
+					  </div>
 					</div>
-			
-					<!-- Bars container -->
-					<div class="flex items-end space-x-4 overflow-x-auto mt-[180px]">
-						${win_rate_chart_string} 
-					</div>
-			   </div>
-
-				<!-- Match Table -->
-				<div class="overflow-y-auto overflow-x-hidden pr-1 border">
+			  
+				  </div>
+			  
+				  <!-- Match Table -->
+				  <div class="overflow-y-auto overflow-x-hidden pr-1 w-full">
 					<span id="MatchSummaryHeader"></span>
 					<table class="w-full text-left border-collapse text-sm">
-						<thead>
-							<tr class="bg-white/20 backdrop-blur-sm">
-							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="MatchID"></th>
-							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="Player1"></th>
-							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="Player2"></th>
-							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="Player1Score"></th>
-							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="Player2Score"></th>
-							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="Winner"></th>
-							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="IsTournamentMatch"></th>
-							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm hidden lg:table-cell" id="PlayedAt" ></th>
-							</tr>
-						</thead>
-						<tbody>
+					  <thead>
+						<tr class="bg-white/20 backdrop-blur-sm">
+						  <th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="MatchID"></th>
+						  <th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="Player1"></th>
+						  <th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="Player2"></th>
+						  <th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="Player1Score"></th>
+						  <th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="Player2Score"></th>
+						  <th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="Winner"></th>
+						  <th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="IsTournamentMatch"></th>
+						  <th class="py-2 px-2 text-gray-300 text-xs hidden lg:table-cell" id="PlayedAt"></th>
+						</tr>
+					  </thead>
+					  <tbody>
 						${summary.map((match: fMatchForSummary, index) => `
 						  <tr class="border-t border-white/10 ${index % 2 === 0 ? 'bg-white/5' : 'bg-white/10'} hover:bg-white/20 transition-colors duration-200">
 							<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm truncate max-w-[80px]">${match.matchID}</td>
@@ -170,8 +220,12 @@ export async function renderMatchSummary(root:HTMLElement) {
 						`).join('')}
 					  </tbody>
 					</table>
+				  </div>
+			  
 				</div>
-			` ) ;
+			  `);
+			  
+			  
 		
 		addMatchSummaryTranslations(languageStore.language);
 		languageStore.subscribe((lang) => addMatchSummaryTranslations(lang));
