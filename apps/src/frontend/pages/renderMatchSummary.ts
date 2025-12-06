@@ -66,8 +66,9 @@ export async function renderMatchSummary(root:HTMLElement) {
 		})
 			var total_win_rate = 0;
 			wins_rate_array.forEach(v=> total_win_rate += v.win_rate);
-			const avg_win_rate = (total_win_rate / wins_rate_array.length).toFixed(2);
+			const avg_win_rate = (total_win_rate / chart_profiles.length).toFixed(2);
 			console.log(`avg_win_rate: ${avg_win_rate}`);
+			console.log(`chart_profiles.length: ${chart_profiles.length}`);
 			console.log(total_games_array[0].name);
 			console.log(total_games_array[0].value);
 			const summary = trysummary as fMatchForSummary[];
@@ -76,7 +77,7 @@ export async function renderMatchSummary(root:HTMLElement) {
 
 		
 
-			const maxBarHeight = total_matches*4;
+			const maxBarHeight = 12 * 4;
 			const filtered_total_games_chart_array = total_games_array.filter(p=> p.value !== 0).map(p => {
 				const barHeight = Math.round((p.value / total_matches) * maxBarHeight); // scale height
 				const safeName = String(p.name).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -92,6 +93,20 @@ export async function renderMatchSummary(root:HTMLElement) {
 			const filtered_total_games_chart_length = filtered_total_games_chart_array.length;
 			const total_games_chart_string = filtered_total_games_chart_array.join('');
 
+			const maxWinRateBarHeight = 24 * 4;
+			const win_rate_chart_string = wins_rate_array.filter(p=> p.win_rate !== 0).map(p => {
+				const barHeight = Math.round((p.win_rate / total_win_rate) * maxWinRateBarHeight); // scale height
+				const safeName = String(p.name).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+		
+				return /*html*/`
+				<div class="flex flex-col items-center">
+					<div class="text-xs mt-1 text-white">${p.win_rate}%</div>
+					<div class="w-10 h-[${barHeight}px] bg-gradient-to-t from-purple-600 to-pink-400 rounded"></div>
+					<div class="text-xs mt-1 text-white text-center">${safeName}</div>
+				</div>
+				`;
+			}).join('');
+
 			// const total_game_chart
 			root.innerHTML = renderBackgroundFull(
 				/*html*/
@@ -99,17 +114,31 @@ export async function renderMatchSummary(root:HTMLElement) {
 			   <!-- Total Games Chart -->
 			   <div class="relative w-[420px] h-[340px] mx-auto my-8 bg-white/5 rounded text-white">
 
-			   <!-- Graph Title -->
-			   <div class="text-center text-lg font-semibold pt-4">
-				   Total Games Per Player
-			   </div>
-		   
-				<!-- Bars container -->
-				<div class="flex items-end space-x-4 overflow-x-auto mt-[180px]">
-					${total_games_chart_string} 
-				</div>
-		   	</div>
+					<!-- Graph Title -->
+					<div class="text-center text-lg font-semibold pt-4">
+						Total Games Per Player
+					</div>
+			
+					<!-- Bars container -->
+					<div class="flex items-end space-x-4 overflow-x-auto mt-[180px]">
+						${total_games_chart_string} 
+					</div>
+		   		</div>
 				
+				<!-- Win_rate Chart -->
+				<div class="relative w-[420px] h-[340px] mx-auto my-8 bg-white/5 rounded text-white">
+					
+				<!-- Graph Title -->
+					<div class="text-center text-lg font-semibold pt-4">
+						Win Rates
+					</div>
+			
+					<!-- Bars container -->
+					<div class="flex items-end space-x-4 overflow-x-auto mt-[180px]">
+						${win_rate_chart_string} 
+					</div>
+			   </div>
+
 				<!-- Match Table -->
 				<div class="overflow-y-auto overflow-x-hidden pr-1 border">
 					<span id="MatchSummaryHeader"></span>
