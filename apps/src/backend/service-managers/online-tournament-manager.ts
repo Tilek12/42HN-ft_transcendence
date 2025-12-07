@@ -12,6 +12,7 @@ import {
 import { sendTournamentUpdate } from '../routes/ws/presence-ws';
 import { incrementWinsOrLossesOrTrophies } from '../database/profile';
 import { createTournamentDB, joinTournamentDB } from '../database/tournament';
+import { sleep } from '../utils';
 
 class OnlineTournamentManager {
 	private nextTid = 1;  // Tournament ID starts at 1
@@ -287,6 +288,8 @@ class OnlineTournamentManager {
 			const readyPlayers = this.playerReadyStates.get(readyKey)?.size || 0;
 
 			if (readyPlayers === 2) {
+				console.log(`🎯 waitForPlayerSockets [ONLINE Tournament ${tournamentId}] Both players ready for match ${match.id}`);
+				sleep(7000);
 				// Both players ready, start the actual game
 				this.startActualMatch(tournamentId, match);
 				this.playerReadyStates.delete(readyKey);
@@ -345,6 +348,7 @@ class OnlineTournamentManager {
 		const player1 = toPlayer(match.p1);
 		const player2 = toPlayer(match.p2);
 
+		sleep(7000)
 		const game = gameManager.createGame(
 			'online-match',
 			player1,
