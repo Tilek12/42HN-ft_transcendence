@@ -11,45 +11,157 @@ let countdownValue: number | null = null;
 export async function renderLocalTournament(root: HTMLElement) {
 
     root.innerHTML = renderBackgroundFull(/*html*/`
-    <div class="max-w-4xl mx-auto m-8 p-6 bg-white/10 rounded-xl shadow-lg backdrop-blur-md">
-        <h1 id="tournament_lobby_header" class="text-3xl font-bold mb-4 text-center text-white">
-            ${translations_tournament_render[languageStore.language]!.tournament_lobby_header}
-        </h1>
-        <p id="glory_header" class="text-center text-gray-400 mb-6">
-            ${translations_tournament_render[languageStore.language]!.glory_header}
-        </p>
+    <div class="max-w-5xl mx-auto m-8 p-8 bg-gradient-to-br from-white/5 via-white/10 to-white/5 rounded-3xl shadow-2xl shadow-purple-500/10 backdrop-blur-xl border border-white/20">
+        <!-- Header with gradient text -->
+        <div class="mb-8">
+            <h1 id="tournament_lobby_header" class="text-5xl md:text-6xl font-black mb-3 text-center bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent animate-[pulse_3s_ease-in-out_infinite]">
+                ${translations_tournament_render[languageStore.language]!.tournament_lobby_header}
+            </h1>
+            <p id="glory_header" class="text-center text-gray-300 text-lg font-light tracking-wide">
+                ${translations_tournament_render[languageStore.language]!.glory_header}
+            </p>
+        </div>
 
         <!-- Local only UI -->
         <div id="local-section">
-            <div class="mb-4">
-                <label class="block text-white mb-2">Tournament Size:</label>
-                <select id="local-size" class="bg-white/20 text-white p-2 rounded">
-                    <option value="4">4 Players</option>
-                    <option value="8">8 Players</option>
+            <!-- Tournament Size Selector Card -->
+            <div class="mb-6 p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
+                <label class="block text-white text-lg font-semibold mb-3 flex items-center gap-2">
+                    <span class="text-2xl">👥</span>
+                    Tournament Size
+                </label>
+                <select id="local-size" class="w-full bg-gradient-to-r from-purple-600/30 to-pink-600/30 text-white p-4 rounded-xl border border-white/20 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/50 transition-all duration-300 cursor-pointer text-lg font-medium backdrop-blur-sm hover:from-purple-600/40 hover:to-pink-600/40">
+                    <option value="4" class="bg-gray-900">🏆 4 Players Championship</option>
+                    <option value="8" class="bg-gray-900">👑 8 Players Elite Tournament</option>
                 </select>
             </div>
-            <div id="name-inputs" class="space-y-2"></div>
-            <button id="create-local" class="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold mt-4">
-                Create Local Tournament
+
+            <!-- Player Names Card -->
+            <div class="mb-6 p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
+                <h3 class="text-white text-lg font-semibold mb-4 flex items-center gap-2">
+                    <span class="text-2xl">🎮</span>
+                    Player Names
+                </h3>
+                <div id="name-inputs" class="space-y-3"></div>
+            </div>
+
+            <!-- Create Button -->
+            <button id="create-local" class="group relative w-full bg-gradient-to-r from-yellow-500 via-orange-500 to-yellow-500 hover:from-yellow-400 hover:via-orange-400 hover:to-yellow-400 text-black px-8 py-4 rounded-xl font-bold text-xl shadow-2xl shadow-yellow-500/30 hover:shadow-yellow-500/50 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] overflow-hidden">
+                <span class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></span>
+                <span class="relative flex items-center justify-center gap-3">
+                    <span class="text-2xl">🚀</span>
+                    Create Local Tournament
+                    <span class="text-2xl">🚀</span>
+                </span>
             </button>
         </div>
 
-        <div id="local-tournament" class="hidden mt-6">
-            <div id="tournament-info" class="text-center text-gray-400 mb-4"></div>
-
-            <!-- Matches table -->
-            <div id="matches-table" class="mb-4"></div>
-
-            <!-- countdown is only drawn inside the canvas now -->
-            <p id="status" class="text-center text-gray-400 mb-4">Waiting for tournament to start...</p>
-            <canvas id="pong" width="600" height="400" class="mx-auto border border-white/30 bg-white/10 backdrop-blur-md rounded shadow-lg hidden"></canvas>
-            <div class="text-center mt-6">
-                <button id="quit-local" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
-                    Quit Tournament
+        <!-- Tournament Active Section - Full Screen Layout -->
+        <div id="local-tournament" class="hidden">
+        </div>
+    </div>
+    
+    <!-- Full Screen Game Layout (shown when tournament starts) -->
+    <div id="tournament-game-view" class="hidden fixed inset-0 z-40 flex">
+        <!-- LEFT SIDEBAR - Information Panel -->
+        <div class="w-80 bg-gradient-to-b from-gray-900/95 to-gray-800/95 backdrop-blur-xl border-r border-white/20 overflow-y-auto">
+            <div class="p-6 space-y-4">
+                <div id="tournament-info" class="text-white text-sm p-3 bg-white/10 rounded-lg border border-white/20"></div>
+                <p id="status" class="text-gray-300 text-sm p-2 bg-white/5 rounded-lg">Waiting...</p>
+                <div id="matches-table"></div>
+                <button id="quit-local" class="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white px-6 py-3 rounded-lg font-bold shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all hover:scale-105 active:scale-95">
+                    <span class="flex items-center justify-center gap-2">
+                        <span>❌</span>
+                        Quit Tournament
+                    </span>
                 </button>
             </div>
         </div>
+
+        <!-- RIGHT SIDE - Game Canvas (Full Remaining Space) -->
+        <div class="flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black p-8">
+            <!-- Score Display Above Canvas -->
+            <div class="flex items-center justify-between w-full max-w-5xl mb-6">
+                <!-- Left Player -->
+                <div class="flex flex-col items-center space-y-2 bg-gradient-to-br from-blue-600/20 to-blue-400/20 backdrop-blur-lg border border-blue-400/40 rounded-2xl px-8 py-6 shadow-2xl shadow-blue-500/30">
+                    <div id="player1-name" class="text-3xl font-black text-blue-300 tracking-wide">Player 1</div>
+                    <div id="player1-score" class="text-6xl font-black bg-gradient-to-b from-white to-blue-200 bg-clip-text text-transparent">0</div>
+                </div>
+
+                <!-- VS Text -->
+                <div class="text-6xl font-black bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent animate-pulse tracking-widest" style="font-family: 'Impact', 'Arial Black', sans-serif; text-shadow: 0 0 30px rgba(251, 191, 36, 0.5);">
+                    VS
+                </div>
+
+                <!-- Right Player -->
+                <div class="flex flex-col items-center space-y-2 bg-gradient-to-br from-orange-600/20 to-orange-400/20 backdrop-blur-lg border border-orange-400/40 rounded-2xl px-8 py-6 shadow-2xl shadow-orange-500/30">
+                    <div id="player2-name" class="text-3xl font-black text-orange-300 tracking-wide">Player 2</div>
+                    <div id="player2-score" class="text-6xl font-black bg-gradient-to-b from-white to-orange-200 bg-clip-text text-transparent">0</div>
+                </div>
+            </div>
+
+            <!-- Canvas -->
+            <canvas id="pong" width="1000" height="600" class="border-4 border-purple-500/50 bg-gradient-to-br from-black/60 to-purple-900/30 rounded-2xl shadow-2xl shadow-purple-500/30"></canvas>
+        </div>
     </div>
+
+    <!-- Champion Celebration Modal -->
+    <div id="champion-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="relative bg-gradient-to-br from-yellow-900/95 to-orange-900/95 rounded-3xl shadow-2xl border-4 border-yellow-400/50 p-12 max-w-2xl w-full mx-4 animate-[scaleIn_0.5s_ease-out]">
+            <!-- Trophy Icon -->
+            <div class="text-center mb-6">
+                <div class="text-9xl animate-bounce">🏆</div>
+            </div>
+            
+            <!-- Congratulations Text -->
+            <div class="text-center space-y-4 mb-8">
+                <h2 class="text-5xl font-black bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-300 bg-clip-text text-transparent animate-pulse">
+                    CONGRATULATIONS!
+                </h2>
+                <div id="champion-name" class="text-7xl font-black bg-gradient-to-r from-white via-yellow-200 to-white bg-clip-text text-transparent py-4">
+                    Champion
+                </div>
+                <p class="text-3xl font-bold text-yellow-300">
+                    is the CHAMPION!
+                </p>
+            </div>
+
+            <!-- Confetti Effect -->
+            <div class="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
+                <div class="absolute top-0 left-1/4 w-2 h-2 bg-yellow-400 rounded-full animate-[fall_3s_linear_infinite]"></div>
+                <div class="absolute top-0 left-1/2 w-2 h-2 bg-orange-400 rounded-full animate-[fall_3.5s_linear_infinite_0.5s]"></div>
+                <div class="absolute top-0 left-3/4 w-2 h-2 bg-red-400 rounded-full animate-[fall_4s_linear_infinite_1s]"></div>
+            </div>
+
+            <!-- Close Button -->
+            <button id="close-champion-modal" class="w-full px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-400 hover:to-orange-500 text-black font-black text-2xl rounded-xl transition-all duration-300 shadow-lg hover:shadow-2xl hover:scale-105 active:scale-95">
+                Continue
+            </button>
+        </div>
+    </div>
+
+    <style>
+      @keyframes scaleIn {
+        from {
+          opacity: 0;
+          transform: scale(0.5);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      @keyframes fall {
+        0% {
+          transform: translateY(-10px) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(500px) rotate(360deg);
+          opacity: 0;
+        }
+      }
+    </style>
     `);
 
     // --- Translations stay as before ---
@@ -75,6 +187,11 @@ export async function renderLocalTournament(root: HTMLElement) {
     // Create local tournament
     document.getElementById('create-local')!.addEventListener('click', () => createLocalTournament());
 
+    // Close champion modal
+    document.getElementById('close-champion-modal')!.addEventListener('click', () => {
+        document.getElementById('champion-modal')!.classList.add('hidden');
+    });
+
     // Quit local tournament
     document.getElementById('quit-local')!.addEventListener('click', () => {
         try {
@@ -82,7 +199,8 @@ export async function renderLocalTournament(root: HTMLElement) {
         } catch (err) {
             console.error('Error quitting local tournament:', err);
         }
-        document.getElementById('local-tournament')!.classList.add('hidden');
+        // Hide game view and show setup
+        document.getElementById('tournament-game-view')!.classList.add('hidden');
         document.getElementById('local-section')!.classList.remove('hidden');
         // show glory header again when we go back to lobby
         const glory = document.getElementById('glory_header');
@@ -101,14 +219,17 @@ export async function renderLocalTournament(root: HTMLElement) {
         container.innerHTML = '';
         for (let i = 0; i < size; i += 2) {
             const row = document.createElement('div');
-            row.className = 'flex space-x-4 mb-4';
+            row.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
             for (let j = 0; j < 2 && i + j < size; j++) {
                 const playerNum = i + j + 1;
                 const div = document.createElement('div');
                 div.className = 'flex-1';
                 div.innerHTML = /*html*/`
-                    <label class="block text-white mb-2">Player ${playerNum}:</label>
-                    <input type="text" class="name-input bg-white/20 text-white p-2 rounded w-full" placeholder="Name">
+                    <label class="block text-white font-medium mb-2 text-sm flex items-center gap-2">
+                        <span class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center font-bold text-sm shadow-lg">${playerNum}</span>
+                        Player ${playerNum}
+                    </label>
+                    <input type="text" class="name-input bg-white/10 text-white p-3 rounded-lg w-full border border-white/20 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/50 focus:bg-white/15 transition-all duration-200 placeholder-gray-400 font-medium" placeholder="Enter player name...">
                 `;
                 row.appendChild(div);
             }
@@ -157,7 +278,7 @@ export async function renderLocalTournament(root: HTMLElement) {
         }
 
         document.getElementById('local-section')!.classList.add('hidden');
-        document.getElementById('local-tournament')!.classList.remove('hidden');
+        document.getElementById('tournament-game-view')!.classList.remove('hidden');
         // hide glory header after tournament starts
         const glory = document.getElementById('glory_header');
         if (glory) glory.classList.add('hidden');
@@ -225,9 +346,8 @@ export async function renderLocalTournament(root: HTMLElement) {
                         [p2.id]: p2.name,
                     },
                 };
-                document.getElementById('pong')!.classList.remove('hidden');
                 document.getElementById('status')!.innerHTML = /*html*/`
-                    <div style="font-size: 24px; font-weight: bold; color: white; text-align: center; margin: 10px 0;">
+                    <div style="font-size: 18px; font-weight: bold; color: white; text-align: center;">
                         ${p1.name} VS ${p2.name}
                     </div>
                 `;
@@ -247,7 +367,6 @@ export async function renderLocalTournament(root: HTMLElement) {
                 break;
             }
             case 'end': {
-                document.getElementById('pong')!.classList.add('hidden');
                 document.getElementById('status')!.textContent =
                     `Match ended. Winner: ${msg.winner.name}`;
                 currentMatch = null;
@@ -257,12 +376,18 @@ export async function renderLocalTournament(root: HTMLElement) {
                 break;
             }
             case 'localTournamentEnd': {
+                // Show champion modal with winner's name
+                const championNameEl = document.getElementById('champion-name');
+                const championModal = document.getElementById('champion-modal');
+                if (championNameEl) championNameEl.textContent = msg.winner.name;
+                if (championModal) championModal.classList.remove('hidden');
+                
+                // Also update status text
                 document.getElementById('status')!.innerHTML = /*html*/`
                     <span style="color: gold; font-weight: bold;">
                         🏆 Congratulations! ${msg.winner.name} is the champion! 🏆
                     </span>
                 `;
-                document.getElementById('pong')!.classList.add('hidden');
                 break;
             }
             default: {
@@ -292,18 +417,11 @@ export async function renderLocalTournament(root: HTMLElement) {
         };
 
         let html = `
-            <div class="overflow-x-auto">
-                <table class="min-w-full text-sm text-white border border-white/20 rounded">
-                    <thead class="bg-white/10">
-                        <tr>
-                            <th class="px-2 py-1 text-left">Match</th>
-                            <th class="px-2 py-1 text-left">Player 1</th>
-                            <th class="px-2 py-1 text-left">Player 2</th>
-                            <th class="px-2 py-1 text-left">Winner</th>
-                            <th class="px-2 py-1 text-left">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            <div class="bg-white/5 rounded-lg border border-white/10 p-3">
+                <h3 class="text-white text-sm font-bold mb-3 flex items-center gap-2">
+                    ⚔️ Matches
+                </h3>
+                <div class="space-y-2">
         `;
 
         let matchCounter = 1;
@@ -316,24 +434,31 @@ export async function renderLocalTournament(root: HTMLElement) {
                 const status = match.status || 'unknown';
 
                 const isCurrent = highlightMatchId && match.id === highlightMatchId;
-                const rowClass = isCurrent ? 'bg-yellow-500/30' : '';
+                const bgClass = isCurrent ? 'bg-yellow-500/20 border-l-2 border-yellow-400' : 'bg-white/5';
+
+                const statusIcon = status === 'completed' ? '✓' : status === 'in-progress' ? '⚡' : '○';
+                const statusColor = status === 'completed' ? 'text-green-400' : status === 'in-progress' ? 'text-yellow-400' : 'text-gray-400';
 
                 html += `
-                    <tr class="${rowClass}">
-                        <td class="px-2 py-1 border-t border-white/10">#${matchCounter}</td>
-                        <td class="px-2 py-1 border-t border-white/10">${p1Name}</td>
-                        <td class="px-2 py-1 border-t border-white/10">${p2Name}</td>
-                        <td class="px-2 py-1 border-t border-white/10">${winnerName !== 'TBD' ? winnerName : '—'}</td>
-                        <td class="px-2 py-1 border-t border-white/10">${status}</td>
-                    </tr>
+                    <div class="${bgClass} p-2 rounded text-xs">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-yellow-400 font-bold">#${matchCounter}</span>
+                            <span class="${statusColor}">${statusIcon}</span>
+                        </div>
+                        <div class="text-white space-y-0.5">
+                            <div class="${p1Name === winnerName && winnerName !== 'TBD' ? 'text-green-400 font-bold' : ''}">${p1Name}</div>
+                            <div class="text-gray-500 text-center">vs</div>
+                            <div class="${p2Name === winnerName && winnerName !== 'TBD' ? 'text-green-400 font-bold' : ''}">${p2Name}</div>
+                        </div>
+                        ${winnerName !== 'TBD' ? `<div class="text-green-400 text-xs mt-1">🏆 ${winnerName}</div>` : ''}
+                    </div>
                 `;
                 matchCounter++;
             });
         });
 
         html += `
-                    </tbody>
-                </table>
+                </div>
             </div>
         `;
 
@@ -367,41 +492,154 @@ export async function renderLocalTournament(root: HTMLElement) {
         const scaleX = width / VIRTUAL_WIDTH;
         const scaleY = height / VIRTUAL_HEIGHT;
 
-        // Ball
-        const ball = gameState.ball;
-        ctx.fillStyle = 'white';
-        ctx.beginPath();
-        ctx.arc(ball.x * scaleX, ball.y * scaleY, 5, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Paddles
-        const paddleHeight = PADDLE_HEIGHT * scaleY;
-        const paddleWidth = 10;
-        const ids = Object.keys(gameState.paddles || {});
-
-        ids.forEach((id, index) => {
-            const y = gameState.paddles[id] * scaleY;
-            const x = index === 0 ? 0 : width - paddleWidth;
-            ctx.fillStyle = index === 0 ? COLORS.squidGame.greenDark : COLORS.squidGame.pinkDark;
-            ctx.fillRect(x, y, paddleWidth, paddleHeight);
-        });
-
-        // Names
-        ctx.fillStyle = 'white';
-        ctx.font = '16px sans-serif';
+        // ========== UPDATE HTML SCORE DISPLAYS ==========
         const names = gameState.playerNames || {};
         const p1Name = names[currentMatch.p1.id] || currentMatch.p1.name;
         const p2Name = names[currentMatch.p2.id] || currentMatch.p2.name;
-        ctx.fillText(p1Name, 20, 20);
-        ctx.fillText(p2Name, width - ctx.measureText(p2Name).width - 20, 20);
-
-        // Scores
         const p1Score = gameState.score?.[currentMatch.p1.id] || 0;
         const p2Score = gameState.score?.[currentMatch.p2.id] || 0;
-        const scoreText = `${p1Score} - ${p2Score}`;
-        ctx.font = '20px sans-serif';
-        const scoreWidth = ctx.measureText(scoreText).width;
-        ctx.fillText(scoreText, (width - scoreWidth) / 2, 25);
+
+        const player1NameEl = document.getElementById('player1-name');
+        const player2NameEl = document.getElementById('player2-name');
+        const player1ScoreEl = document.getElementById('player1-score');
+        const player2ScoreEl = document.getElementById('player2-score');
+
+        if (player1NameEl) player1NameEl.textContent = p1Name;
+        if (player2NameEl) player2NameEl.textContent = p2Name;
+        if (player1ScoreEl) player1ScoreEl.textContent = p1Score.toString();
+        if (player2ScoreEl) player2ScoreEl.textContent = p2Score.toString();
+
+        // ========== MODERN CLEAN BACKGROUND ==========
+        // Solid dark background (consistent color)
+        ctx.fillStyle = '#0a0a0f';
+        ctx.fillRect(0, 0, width, height);
+
+        // Center line (dashed white, subtle)
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([15, 15]);
+        ctx.beginPath();
+        ctx.moveTo(width / 2, 0);
+        ctx.lineTo(width / 2, height);
+        ctx.stroke();
+        ctx.restore();
+
+        // ========== MODERN CLEAN BALL ==========
+        const ball = gameState.ball;
+        const ballX = ball.x * scaleX;
+        const ballY = ball.y * scaleY;
+        const ballRadius = 10;
+
+        ctx.save();
+
+        // Motion trail effect
+        for (let i = 0; i < 3; i++) {
+            const trailX = ballX - (ball.dx * i * 2);
+            const trailY = ballY - (ball.dy * i * 2);
+            const trailAlpha = 0.15 - (i * 0.05);
+
+            ctx.fillStyle = `rgba(200, 100, 255, ${trailAlpha})`;
+            ctx.beginPath();
+            ctx.arc(trailX, trailY, ballRadius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Subtle glow
+        const ballGlow = ctx.createRadialGradient(ballX, ballY, 0, ballX, ballY, ballRadius * 2.5);
+        ballGlow.addColorStop(0, 'rgba(200, 100, 255, 0.4)');
+        ballGlow.addColorStop(0.5, 'rgba(150, 80, 200, 0.2)');
+        ballGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = ballGlow;
+        ctx.beginPath();
+        ctx.arc(ballX, ballY, ballRadius * 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Main ball with gradient
+        const ballGradient = ctx.createRadialGradient(
+            ballX - ballRadius * 0.3,
+            ballY - ballRadius * 0.3,
+            0,
+            ballX,
+            ballY,
+            ballRadius
+        );
+        ballGradient.addColorStop(0, '#e8b3ff');
+        ballGradient.addColorStop(0.5, '#c878dc');
+        ballGradient.addColorStop(1, '#a050b8');
+
+        ctx.fillStyle = ballGradient;
+        ctx.beginPath();
+        ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Small highlight
+        const highlight = ctx.createRadialGradient(
+            ballX - ballRadius * 0.4,
+            ballY - ballRadius * 0.4,
+            0,
+            ballX - ballRadius * 0.4,
+            ballY - ballRadius * 0.4,
+            ballRadius * 0.5
+        );
+        highlight.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+        highlight.addColorStop(0.7, 'rgba(255, 255, 255, 0.2)');
+        highlight.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = highlight;
+        ctx.beginPath();
+        ctx.arc(ballX - ballRadius * 0.3, ballY - ballRadius * 0.3, ballRadius * 0.4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+
+        // ========== CLEAN MODERN PADDLES ==========
+        const paddleHeight = PADDLE_HEIGHT * scaleY;
+        const paddleWidth = 16;
+        const cornerRadius = 8;
+        const ids = Object.keys(gameState.paddles || {});
+
+        ids.forEach((id, index) => {
+            const paddleY = gameState.paddles[id] * scaleY;
+            const paddleX = index === 0 ? 30 : width - paddleWidth - 30;
+            
+            // Use player colors
+            const paddleColor = index === 0 ? '#6b9dff' : '#ff8b6b';
+            const glowColor = index === 0 ? '#4a7dd9' : '#e56847';
+
+            ctx.save();
+
+            // Subtle glow
+            const paddleGlow = ctx.createRadialGradient(
+                paddleX + paddleWidth/2,
+                paddleY + paddleHeight/2,
+                0,
+                paddleX + paddleWidth/2,
+                paddleY + paddleHeight/2,
+                paddleHeight * 0.7
+            );
+            paddleGlow.addColorStop(0, paddleColor + '60');
+            paddleGlow.addColorStop(0.6, paddleColor + '20');
+            paddleGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = paddleGlow;
+            ctx.fillRect(paddleX - 15, paddleY - 15, paddleWidth + 30, paddleHeight + 30);
+
+            // Main paddle - solid color with rounded corners
+            ctx.fillStyle = paddleColor;
+            ctx.beginPath();
+            ctx.roundRect(paddleX, paddleY, paddleWidth, paddleHeight, cornerRadius);
+            ctx.fill();
+
+            // Subtle highlight on top edge
+            const topHighlight = ctx.createLinearGradient(paddleX, paddleY, paddleX, paddleY + paddleHeight/4);
+            topHighlight.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+            topHighlight.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = topHighlight;
+            ctx.beginPath();
+            ctx.roundRect(paddleX + 2, paddleY + 2, paddleWidth - 4, paddleHeight / 4, cornerRadius);
+            ctx.fill();
+
+            ctx.restore();
+        });
 
         // Countdown overlay (only here now)
         if (countdownValue !== null) {
@@ -423,12 +661,12 @@ export async function renderLocalTournament(root: HTMLElement) {
         keys[e.key] = false;
     });
 
-    // OPTION 1: keep your original interval-based sending (active)
+    // Horizontal pong - paddles move up/down
     function sendMoveIntervalBased() {
         const socket = wsManager.localTournamentWS;
         if (!currentMatch || !socket || socket.readyState !== WebSocket.OPEN) return;
 
-        // Right paddle controlled by Arrow keys
+        // Right paddle controlled by Arrow Up/Down keys
         if (keys['ArrowUp']) {
             socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'right' }));
         }
@@ -436,32 +674,15 @@ export async function renderLocalTournament(root: HTMLElement) {
             socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'right' }));
         }
 
-        // Left paddle controlled by W/S
-        if (keys['w']) {
+        // Left paddle controlled by W/S keys
+        if (keys['w'] || keys['W']) {
             socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'left' }));
         }
-        if (keys['s']) {
+        if (keys['s'] || keys['S']) {
             socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'left' }));
         }
     }
     setInterval(sendMoveIntervalBased, 50);
-
-    // OPTION 2: event-driven sending
-    /*
-    function sendMoveOnKeyEvent(direction: 'up' | 'down', playerId: string) {
-        const socket = wsManager.localTournamentWS;
-        if (!currentMatch || !socket || socket.readyState !== WebSocket.OPEN) return;
-        socket.send(JSON.stringify({ type: 'move', direction, playerId }));
-    }
-
-    document.addEventListener('keydown', (e) => {
-        if (!currentMatch) return;
-        if (e.key === 'ArrowUp') sendMoveOnKeyEvent('up', currentMatch.p2.id);
-        if (e.key === 'ArrowDown') sendMoveOnKeyEvent('down', currentMatch.p2.id);
-        if (e.key === 'w') sendMoveOnKeyEvent('up', currentMatch.p1.id);
-        if (e.key === 's') sendMoveOnKeyEvent('down', currentMatch.p1.id);
-    });
-    */
 
     function drawLoop() {
         drawGame();
