@@ -23,7 +23,7 @@ export function setRefreshCookie(token: string, res: FastifyReply) {
 export function setAccessCookie(token: string, res: FastifyReply) {
 	res.setCookie('ACCESS', token, {
 		path: '/',
-		maxAge: 300, //5min
+		maxAge: 14400, //4hr
 		sameSite: 'strict',
 		secure: true,
 		httpOnly: true,

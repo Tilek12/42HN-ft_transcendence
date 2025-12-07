@@ -40,7 +40,7 @@ export const listenerUploadPicture = async (root:HTMLElement, e: any) => {
 
 		const file_type = file.name.substring(file.name.lastIndexOf('.') + 1);
 
-		if (file_type !== 'png' && file_type !== 'jpg' && file_type !== 'jpeg') return alert('Please select a png or jpeg or jpg. ');
+		if (file_type !== 'png' && file_type !== 'jpg' && file_type !== 'jpeg' && file_type !== 'webp') return alert('Please select a png or jpeg or jpg. ');
 		if (file.size > 500000) file = await compressFile(file);
 
 		const formData = new FormData();

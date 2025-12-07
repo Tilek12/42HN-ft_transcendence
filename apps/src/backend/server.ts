@@ -52,27 +52,27 @@ console.log(`===========>>> Server setup in APP_MODE:${APP_MODE} <<<===========`
 
 // Create server instance
 const server = Fastify({
-	// logger: 
-	// {
-	// 	transport: {
-	// 		target: 'pino-pretty'
-	// 	},
-	// 	serializers: {
-	// 		req(request) {
-	// 			return {
-	// 				method: request.method,
-	// 				url: request.url,
-	// 				body: request.body,					
-	// 			};
-	// 		},
-	// 		res(reply) {
-	// 			return {
-	// 				statusCode: reply.statusCode,
-	// 			};
-	// 		}
-	// 	},
-	// 	level:'info', 
-	// },
+	logger: 
+	{
+		transport: {
+			target: 'pino-pretty'
+		},
+		serializers: {
+			req(request) {
+				return {
+					method: request.method,
+					url: request.url,
+					body: request.body,					
+				};
+			},
+			res(reply) {
+				return {
+					statusCode: reply.statusCode,
+				};
+			}
+		},
+		level:'info', 
+	},
 	https: {
 		key: fs.readFileSync('/run/secrets/ssl_key'),
 		cert: fs.readFileSync('/run/secrets/ssl_cert')

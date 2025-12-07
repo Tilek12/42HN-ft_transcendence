@@ -2,7 +2,7 @@ import {apiFetch, getUser} from '../utils/auth.js'
 
 // DESIGN CHANGE: Added modern toast notification system with animations and gradient backgrounds
 // Replaces basic alert() messages with sleek notifications
-const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+export const showToast = (message: string, type: 'success' | 'error' = 'success') => {
 	const toast = document.createElement('div');
 	const bgColor = type === 'success' ? 'from-green-500 to-green-600' : 'from-red-500 to-red-600';
 	const icon = type === 'success' 
@@ -178,9 +178,9 @@ const listenerUsernameUpdate = async (
 	console.log(`====> username_par_el: $$${username_par_el.innerText}$$$`);
 	
 	// DESIGN CHANGE: Added regex validation with clear error message via toast
-	if (!/^(?=.*[a-z])[a-z0-9]+$/.test(new_username))
+	if (!/^[a-zA-Z0-9]+$/.test(new_username))
 	{
-		showToast('Username must have at least one lowercase letter and only contain letters and numbers!', 'error');
+		showToast('Username must have contain only letters and numbers!', 'error');
 		return;
 	}
 	try

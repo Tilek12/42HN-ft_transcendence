@@ -100,7 +100,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 					await updatePicture(jwt.id, compressed);
 					const profile = await findProfileById(jwt.id);
 					// console.log(profile);
-					sendRenderUpdateAll();
+					sendRenderUpdateAll(jwt.id);
 					res.status(200).send({ message: 'Profile picture updated and resized', blob: profile.image_blob.toString("base64") });
 				} catch (err) {
 					console.error(err);
@@ -117,7 +117,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 					const profile = await findProfileById(jwt.id);
 					await updatePicture(jwt.id, null);
 					res.send({ message: 'Profile picture deleted and reset to default' });
-					sendRenderUpdateAll();
+					sendRenderUpdateAll(jwt.id);
 				} catch (err) {
 					res.status(400).send({ message: 'Unauthorized or error delete_pic' });
 				}
@@ -297,7 +297,7 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 					if (exists)
 						return res.status(400).send({ error: 'USERNAME_TAKEN ' });
 					await updateUsername(userId, new_username);
-					sendRenderUpdateAll();
+					sendRenderUpdateAll(jwt.id);
 					res.status(200).send({ success: true, new_username: new_username });
 				});
 

@@ -4,7 +4,7 @@ import { defaultPicture } from '../utils/constants.js';
 import { renderBackgroundFull } from '../utils/layout.js'
 import { renderConnectionErrorPage } from './error.js';
 import { languageStore, transelate_per_id, translations_settings, translations_login_page, translations_register_page, translations_errors } from './languages.js';
-import { listenerPasswordCancel, listenerPasswordEdit, listenerPasswordUpdate, listenerUsernameCancel, listenerUsernameEdit, listenerUsernameUpdate } from './listenerUpdatePasswordAndUsername.js';
+import { listenerPasswordCancel, listenerPasswordEdit, listenerPasswordUpdate, listenerUsernameCancel, listenerUsernameEdit, listenerUsernameUpdate, showToast } from './listenerUpdatePasswordAndUsername.js';
 import { listenerDeletePicture, listenerUploadPicture } from './listenerUploadAndDeletePicture.js';
 
 
@@ -59,21 +59,24 @@ const update_text = (lang: Language) => {
 
 
 export async function showSettingsError(root: HTMLElement, res: Response, message?: string) {
-	const error = document.getElementById('error_header');
-	const data = await res.json();
-	if (error)
-		error.innerText = `${translations_errors[languageStore.language].error_default} ${res.status} ${data.message ? data.message : ''} ${message ? message : ''}`;
-	setTimeout(() => { renderSettings(root) }, 2000)
+	// const error = document.getElementById('error_header');
+	let data:any;
+	try{data = await res.json()}catch(e:any){};
+	// if (error)
+	// 	error.innerText = `${translations_errors[languageStore.language].error_default} ${res.status} ${data.message ? data.message : ''} ${message ? message : ''}`;
+	showToast(`${translations_errors[languageStore.language].error_default} ${res.status} ${data.message ? data.message : ''} ${message ? message : ''}`, 'error');
+	// setTimeout(() => { renderSettings(root) }, 1000)
 }
 
 
 export function showSettingsSuccess(root: HTMLElement,) {
-	const error = document.getElementById('error_header');
-	error?.classList.remove('text-red-600');
-	error?.classList.add('text-green-600');
-	if (error)
-		error.innerText = `${translations_register_page[languageStore.language].success}`;
-	setTimeout(() => { renderSettings(root) }, 2000)
+	// const error = document.getElementById('error_header');
+	// error?.classList.remove('text-red-600');
+	// error?.classList.add('text-green-600');
+	// if (error)
+		// error.innerText = `${translations_register_page[languageStore.language].success}`;
+	showToast(`${translations_register_page[languageStore.language].success}`, 'error');
+	//  renderSettings(root);
 }
 
 
@@ -444,12 +447,12 @@ export async function renderSettings(root: HTMLElement) {
 									body: JSON.stringify({ tfa_token }),
 								})
 								if (!res.ok) {
-									showSettingsError(root, res)
+									return showSettingsError(root, res);
 								}
 								user.tfa = true;
 								setUser(user);
 								showSettingsSuccess(root);
-								;
+								renderSettings(root);
 							});
 
 							// cancel button
@@ -461,15 +464,9 @@ export async function renderSettings(root: HTMLElement) {
 											'verifyjwt': `${verifyJwt}`,
 										},
 										credentials: 'include'
-									})
-									if (!res.ok)
-										showSettingsError(root, res);
-									else
-										renderSettings(root);
+									})//dont care about response, just make sure the backend deletes the 2fa request
 								}
-								else {
-									renderSettings(root);
-								}
+								renderSettings(root);
 							});
 						}
 						update_text(languageStore.language);
@@ -522,6 +519,7 @@ export async function renderSettings(root: HTMLElement) {
 								else {
 									showSettingsError(root, res);
 								}
+								renderSettings(root);
 							} catch (e: any) {
 								renderConnectionErrorPage();
 							}

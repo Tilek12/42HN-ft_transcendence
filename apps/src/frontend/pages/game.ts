@@ -115,6 +115,18 @@ export async function renderGame(root: HTMLElement) {
       <!-- DESIGN CHANGE: Removed CSS background gradients/borders from canvas, now uses pure JavaScript rendering -->
       <div id="canvas-container" class="flex justify-center mb-8">
         <div class="relative" id="canvas-wrapper">
+          <!-- Left Player Score (Top Left Corner) -->
+          <div id="left-player-score" class="hidden absolute top-2 left-2 z-10 flex flex-col items-start space-y-1">
+            <div id="game-player1-name" class="text-xl font-black text-blue-300 tracking-wide drop-shadow-[0_2px_8px_rgba(107,157,255,0.8)]">Player 1</div>
+            <div id="game-player1-score" class="text-6xl font-black bg-gradient-to-b from-white to-blue-200 bg-clip-text text-transparent drop-shadow-[0_4px_12px_rgba(107,157,255,0.9)]">0</div>
+          </div>
+
+          <!-- Right Player Score (Top Right Corner) -->
+          <div id="right-player-score" class="hidden absolute top-2 right-2 z-10 flex flex-col items-end space-y-1">
+            <div id="game-player2-name" class="text-xl font-black text-orange-300 tracking-wide drop-shadow-[0_2px_8px_rgba(255,139,107,0.8)]">Player 2</div>
+            <div id="game-player2-score" class="text-6xl font-black bg-gradient-to-b from-white to-orange-200 bg-clip-text text-transparent drop-shadow-[0_4px_12px_rgba(255,139,107,0.9)]">0</div>
+          </div>
+
           <canvas id="pong" width="1000" height="600" class="hidden rounded-2xl border-4 border-amber-900/50 shadow-[0_0_80px_rgba(255,140,0,0.3),0_0_40px_rgba(255,69,0,0.2)] bg-gradient-to-br from-green-900/30 via-green-800/20 to-green-900/30 backdrop-blur-xl"></canvas>
           <div class="absolute inset-0 rounded-2xl bg-gradient-to-t from-green-500/5 to-transparent pointer-events-none hidden" id="canvas-glow"></div>
         </div>
@@ -302,6 +314,8 @@ export async function renderGame(root: HTMLElement) {
 		canvas.classList.add('hidden');
 		countdown.classList.add('hidden');
 		document.getElementById('canvas-glow')?.classList.add('hidden');
+		document.getElementById('left-player-score')?.classList.add('hidden');
+		document.getElementById('right-player-score')?.classList.add('hidden');
 	});
 
 	function startGame(mode: 'solo' | 'duel') {
@@ -374,6 +388,8 @@ export async function renderGame(root: HTMLElement) {
 					countdown.classList.add('hidden');
 					canvas.classList.remove('hidden');
 					document.getElementById('canvas-glow')?.classList.remove('hidden');
+					document.getElementById('left-player-score')?.classList.remove('hidden');
+					document.getElementById('right-player-score')?.classList.remove('hidden');
 
 					// DESIGN CHANGE: Fullscreen game mode - hides header/buttons and scales canvas to 80% of viewport
 					// Enter fullscreen game mode
@@ -618,30 +634,30 @@ export async function renderGame(root: HTMLElement) {
 				ctx.roundRect(paddleX + 2, paddleY + 2, paddleWidth - 4, paddleHeight / 4, cornerRadius);
 				ctx.fill();
 
-				ctx.restore();
-			});
-
-			// ========== CLEAN SCORES ==========
-			ctx.save();
-			ctx.font = 'bold 28px Arial, sans-serif';
-			let scoreX = 60;
-
-			for (const id in gameState.score) {
-				const name = playerNames[id] || id;
-				const text = `${name}: ${gameState.score[id]}`;
-
-				// Simple white text with subtle shadow
-				ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-				ctx.shadowBlur = 4;
-				ctx.fillStyle = '#ffffff';
-				ctx.fillText(text, scoreX, 45);
-
-				scoreX += 320;
-			}
 			ctx.restore();
-		}
+		});
 
-		requestAnimationFrame(draw);
+		// ========== UPDATE HTML SCORE DISPLAYS ==========
+		const playerIds = Object.keys(gameState.score);
+		if (playerIds.length >= 2) {
+			const player1Id = playerIds[0]!;
+			const player2Id = playerIds[1]!;
+			const player1Name = playerNames[player1Id] || player1Id;
+			const player2Name = playerNames[player2Id] || player2Id;
+			const player1Score = gameState.score[player1Id] || 0;
+			const player2Score = gameState.score[player2Id] || 0;
+
+			const p1NameEl = document.getElementById('game-player1-name');
+			const p2NameEl = document.getElementById('game-player2-name');
+			const p1ScoreEl = document.getElementById('game-player1-score');
+			const p2ScoreEl = document.getElementById('game-player2-score');
+
+			if (p1NameEl) p1NameEl.textContent = player1Name;
+			if (p2NameEl) p2NameEl.textContent = player2Name;
+			if (p1ScoreEl) p1ScoreEl.textContent = player1Score.toString();
+			if (p2ScoreEl) p2ScoreEl.textContent = player2Score.toString();
+		}
+		}		requestAnimationFrame(draw);
 	}
 
 	draw();
