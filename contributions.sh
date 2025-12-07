@@ -117,3 +117,6 @@ for (i = 1; i <= n; i++) {
 }
      }
 '
+
+
+git ls-files "*.ts" "*.sh" "*.html" | xargs wc -l
