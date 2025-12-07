@@ -14,13 +14,13 @@ export async function renderGame(root: HTMLElement) {
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
       <!-- Background Pong Game Canvas -->
       <canvas id="bg-pong" class="absolute inset-0 w-full h-full opacity-10"></canvas>
-      
+
       <!-- Floating Balls -->
       <div class="absolute top-1/4 left-1/4 w-4 h-4 bg-white/10 rounded-full animate-[ping_3s_ease-in-out_infinite]"></div>
       <div class="absolute top-1/3 right-1/4 w-6 h-6 bg-white/10 rounded-full animate-[ping_4s_ease-in-out_infinite_0.5s]"></div>
       <div class="absolute bottom-1/4 left-1/3 w-5 h-5 bg-white/10 rounded-full animate-[ping_3.5s_ease-in-out_infinite_1s]"></div>
       <div class="absolute top-2/3 right-1/3 w-4 h-4 bg-white/10 rounded-full animate-[ping_4.5s_ease-in-out_infinite_1.5s]"></div>
-      
+
       <!-- Animated Grid Pattern -->
       <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] animate-[pulse_8s_ease-in-out_infinite]"></div>
     </div>
@@ -68,8 +68,8 @@ export async function renderGame(root: HTMLElement) {
           </div>
         </button>
 
-        <!-- Play Tournament Button -->
-        <button id="play-tournament" class="group relative w-full md:w-56 px-8 py-6 bg-gradient-to-br from-[#facc15] to-[#f59e0b] text-gray-900 rounded-2xl shadow-2xl shadow-[#facc15]/30 hover:shadow-[#facc15]/50 hover:scale-105 transition-all duration-300 overflow-hidden">
+        <!-- Play Local Tournament Button -->
+        <button id="play-local-tournament" class="group relative w-full md:w-56 px-8 py-6 bg-gradient-to-br from-[#94a3b8] to-[#38bdf8] text-gray-900 rounded-2xl shadow-2xl shadow-[#94a3b8]/30 hover:shadow-[#94a3b8]/50 hover:scale-105 transition-all duration-300 overflow-hidden">
           <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
           <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
             <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[shimmer_2s_infinite]"></div>
@@ -78,9 +78,23 @@ export async function renderGame(root: HTMLElement) {
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
             </svg>
-            <span class="font-bold text-lg">${tr!.play_tournament}</span>
+            <span class="font-bold text-lg">${tr!.play_local_tournament}</span>
           </div>
         </button>
+
+		<!-- Play Online Tournament Button -->
+		<button id="play-online-tournament" class="group relative w-full md:w-56 px-8 py-6 bg-gradient-to-br from-[#facc15] to-[#f59e0b] text-gray-900 rounded-2xl shadow-2xl shadow-[#facc15]/30 hover:shadow-[#facc15]/50 hover:scale-105 transition-all duration-300 overflow-hidden">
+			<div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
+			<div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+				<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[shimmer_2s_infinite]"></div>
+			</div>
+			<div class="relative flex flex-col items-center gap-2">
+				<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+				</svg>
+				<span class="font-bold text-lg">${tr!.play_online_tournament}</span>
+			</div>
+		</button>
       </div>
 
       <!-- Countdown -->
@@ -188,7 +202,8 @@ export async function renderGame(root: HTMLElement) {
 		transelate_per_id(translations_game_render, "pong_game_header", lang, "pong_game_header");
 		transelate_per_id(translations_game_render, "play_alone", lang, "play-alone");
 		transelate_per_id(translations_game_render, "play_online", lang, "play-online");
-		transelate_per_id(translations_game_render, "play_tournament", lang, "play-tournament");
+		transelate_per_id(translations_game_render, "play_local_tournament", lang, "play-local-tournament");
+		transelate_per_id(translations_game_render, "play_online_tournament", lang, "play-online-tournament");
 		transelate_per_id(translations_game_render, "info", lang, "info");
 
 	})
@@ -241,31 +256,34 @@ export async function renderGame(root: HTMLElement) {
 
 	document.getElementById('play-alone')!.addEventListener('click', () => startGame('solo'));
 	document.getElementById('play-online')!.addEventListener('click', () => startGame('duel'));
-	document.getElementById('play-tournament')!.addEventListener('click', () => {
-		location.hash = '#/tournament';
+	document.getElementById('play-local-tournament')!.addEventListener('click', () => {
+		location.hash = '#/local-tournament';
+	});
+	document.getElementById('play-online-tournament')!.addEventListener('click', () => {
+		location.hash = '#/online-tournament';
 	});
 
 	// Game Over modal close handler
 	document.getElementById('close-game-over')!.addEventListener('click', () => {
 		const modal = document.getElementById('game-over-modal')!;
 		modal.classList.add('hidden');
-		
+
 		// Exit fullscreen game mode - restore normal view
 		const gameContent = document.getElementById('game-content');
 		const gameHeader = document.getElementById('game-header');
 		const gameButtons = document.getElementById('game-buttons');
 		const canvasContainer = document.getElementById('canvas-container');
 		const canvasWrapper = document.getElementById('canvas-wrapper');
-		
+
 		if (gameContent && gameHeader && gameButtons && canvasContainer && canvasWrapper) {
 			// Restore normal layout
 			gameContent.classList.remove('fixed', 'inset-0', 'p-0', 'm-0');
 			gameContent.classList.add('pt-24', 'pb-12', 'max-w-5xl', 'mx-auto', 'px-4');
-			
+
 			// Restore canvas container
 			canvasContainer.classList.remove('w-full', 'h-full', 'm-0', 'flex', 'items-center', 'justify-center');
 			canvasContainer.classList.add('mb-8', 'flex', 'justify-center');
-			
+
 			// Reset canvas wrapper and canvas transform
 			canvasWrapper.style.width = '';
 			canvasWrapper.style.height = '';
@@ -274,12 +292,12 @@ export async function renderGame(root: HTMLElement) {
 			canvasWrapper.style.justifyContent = '';
 			canvas.style.transform = '';
 			canvas.style.transformOrigin = '';
-			
+
 			// Show header and buttons
 			gameHeader.classList.remove('hidden');
 			gameButtons.classList.remove('hidden');
 		}
-		
+
 		// Hide game elements
 		canvas.classList.add('hidden');
 		countdown.classList.add('hidden');
@@ -333,20 +351,20 @@ export async function renderGame(root: HTMLElement) {
 				if (msg.value > 0) {
 					countdown.classList.remove('hidden');
 					const countdownNumber = document.getElementById('countdown-number')!;
-					
+
 					// Update number
 					countdownNumber.textContent = msg.value.toString();
-					
+
 					// Reset and trigger animation
 					countdownNumber.style.opacity = '0';
 					countdownNumber.style.transform = 'scale(0.5)';
-					
+
 					// Fade in and scale up
 					setTimeout(() => {
 						countdownNumber.style.opacity = '1';
 						countdownNumber.style.transform = 'scale(1)';
 					}, 10);
-					
+
 					// Fade out and scale up before next number
 					setTimeout(() => {
 						countdownNumber.style.opacity = '0';
@@ -356,7 +374,7 @@ export async function renderGame(root: HTMLElement) {
 					countdown.classList.add('hidden');
 					canvas.classList.remove('hidden');
 					document.getElementById('canvas-glow')?.classList.remove('hidden');
-					
+
 					// DESIGN CHANGE: Fullscreen game mode - hides header/buttons and scales canvas to 80% of viewport
 					// Enter fullscreen game mode
 						const gameContent = document.getElementById('game-content');
@@ -364,33 +382,33 @@ export async function renderGame(root: HTMLElement) {
 						const gameButtons = document.getElementById('game-buttons');
 						const canvasContainer = document.getElementById('canvas-container');
 						const canvasWrapper = document.getElementById('canvas-wrapper');
-						
+
 						if (gameContent && gameHeader && gameButtons && canvasContainer && canvasWrapper) {
 							// Hide header and buttons
 							gameHeader.classList.add('hidden');
 							gameButtons.classList.add('hidden');
-							
+
 							// Make game content fill viewport
 							gameContent.classList.remove('pt-24', 'pb-12', 'max-w-5xl', 'mx-auto', 'px-4');
 							gameContent.classList.add('fixed', 'inset-0', 'p-0', 'm-0');
-							
+
 							// Make canvas container fill viewport and center content
 							canvasContainer.classList.remove('mb-8', 'flex', 'justify-center');
 							canvasContainer.classList.add('w-full', 'h-full', 'm-0', 'flex', 'items-center', 'justify-center');
-							
+
 							// Scale canvas to fill viewport while maintaining aspect ratio
 							canvasWrapper.style.width = '100%';
 							canvasWrapper.style.height = '100%';
 							canvasWrapper.style.display = 'flex';
 							canvasWrapper.style.alignItems = 'center';
 							canvasWrapper.style.justifyContent = 'center';
-							
+
 							// Calculate scaling to fit 80% of viewport while maintaining 1000:600 aspect ratio
 							const viewportWidth = window.innerWidth;
 							const viewportHeight = window.innerHeight;
 							const canvasAspect = 1000 / 600;
 							const viewportAspect = viewportWidth / viewportHeight;
-							
+
 							let scale;
 							if (viewportAspect > canvasAspect) {
 								// Viewport is wider - scale by height (80% of viewport)
@@ -399,7 +417,7 @@ export async function renderGame(root: HTMLElement) {
 								// Viewport is taller - scale by width (80% of viewport)
 								scale = (viewportWidth * 0.8) / 1000;
 							}
-							
+
 							canvas.style.transform = `scale(${scale})`;
 							canvas.style.transformOrigin = 'center center';
 						}
@@ -415,7 +433,7 @@ export async function renderGame(root: HTMLElement) {
 					// Show Game Over modal
 					const modal = document.getElementById('game-over-modal')!;
 					modal.classList.remove('hidden');
-					
+
 					// Cleanup
 					wsManager.disconnectGameSocket();
 					cleanupListeners();
@@ -460,14 +478,14 @@ export async function renderGame(root: HTMLElement) {
 
 	function draw() {
 		animationTime += 0.05;
-		
+
 		// Clear canvas
 		ctx.clearRect(0, 0, width, height);
 
 		// DESIGN CHANGE: Complete table redesign with purple header bar, diagonal separators,
 		// centered scores/time display, dark game area - inspired by modern sports UI
 		// ========== PURPLE HEADER BAR ==========
-		
+
 		// Solid dark background (consistent color)
 		ctx.fillStyle = '#0a0a0f';
 		ctx.fillRect(0, 0, width, height);
@@ -492,13 +510,13 @@ export async function renderGame(root: HTMLElement) {
 			// DESIGN CHANGE: Pink/purple ball with long motion trail (8 frames) for dramatic effect
 			// ========== MODERN CLEAN BALL ==========
 			ctx.save();
-			
+
 			// Motion trail effect
 			for (let i = 0; i < 3; i++) {
 				const trailX = ballX - (ball.dx * i * 2);
 				const trailY = ballY - (ball.dy * i * 2);
 				const trailAlpha = 0.15 - (i * 0.05);
-				
+
 				ctx.fillStyle = `rgba(200, 100, 255, ${trailAlpha})`;
 				ctx.beginPath();
 				ctx.arc(trailX, trailY, ballRadius, 0, Math.PI * 2);
@@ -527,7 +545,7 @@ export async function renderGame(root: HTMLElement) {
 			ballGradient.addColorStop(0, '#e8b3ff');
 			ballGradient.addColorStop(0.5, '#c878dc');
 			ballGradient.addColorStop(1, '#a050b8');
-			
+
 			ctx.fillStyle = ballGradient;
 			ctx.beginPath();
 			ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
@@ -549,7 +567,7 @@ export async function renderGame(root: HTMLElement) {
 			ctx.beginPath();
 			ctx.arc(ballX - ballRadius * 0.3, ballY - ballRadius * 0.3, ballRadius * 0.4, 0, Math.PI * 2);
 			ctx.fill();
-			
+
 			ctx.restore();
 
 			// ========== CLEAN MODERN PADDLES ==========
@@ -563,7 +581,7 @@ export async function renderGame(root: HTMLElement) {
 				const paddleY = gameState.paddles[id] * scaleY;
 				const paddleX = index === 0 ? 30 : width - paddleWidth - 30;
 				const isMainPlayer = id === mainPlayerId;
-				
+
 				// Solid colors like reference image
 				const paddleColor = isMainPlayer ? '#6b9dff' : '#ff8b6b';
 				const glowColor = isMainPlayer ? '#4a7dd9' : '#e56847';
@@ -572,11 +590,11 @@ export async function renderGame(root: HTMLElement) {
 
 				// Subtle glow
 				const paddleGlow = ctx.createRadialGradient(
-					paddleX + paddleWidth/2, 
-					paddleY + paddleHeight/2, 
-					0, 
-					paddleX + paddleWidth/2, 
-					paddleY + paddleHeight/2, 
+					paddleX + paddleWidth/2,
+					paddleY + paddleHeight/2,
+					0,
+					paddleX + paddleWidth/2,
+					paddleY + paddleHeight/2,
 					paddleHeight * 0.7
 				);
 				paddleGlow.addColorStop(0, paddleColor + '60');
@@ -607,17 +625,17 @@ export async function renderGame(root: HTMLElement) {
 			ctx.save();
 			ctx.font = 'bold 28px Arial, sans-serif';
 			let scoreX = 60;
-			
+
 			for (const id in gameState.score) {
 				const name = playerNames[id] || id;
 				const text = `${name}: ${gameState.score[id]}`;
-				
+
 				// Simple white text with subtle shadow
 				ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
 				ctx.shadowBlur = 4;
 				ctx.fillStyle = '#ffffff';
 				ctx.fillText(text, scoreX, 45);
-				
+
 				scoreX += 320;
 			}
 			ctx.restore();
@@ -631,7 +649,7 @@ export async function renderGame(root: HTMLElement) {
 	// Background Pong Animation
 	const bgCanvas = document.getElementById('bg-pong') as HTMLCanvasElement;
 	const bgCtx = bgCanvas.getContext('2d')!;
-	
+
 	// Set canvas size to full screen
 	const resizeBgCanvas = () => {
 		bgCanvas.width = window.innerWidth;

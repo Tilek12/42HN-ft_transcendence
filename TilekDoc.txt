@@ -343,3 +343,15 @@ Add unit tests for message validation.
 These solutions maintain the existing architecture while improving robustness.
 Implement incrementally, testing each fix. If issues persist, consider refactoring to
 a more event-sourced model for tournaments.
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+Last issues to fix:
+
+- proper define routes on frontend for /ws/loca-tournament and /ws/online-tournament
+- test tournament gameplay for Local Tournament
+- test tournament gameplay for Online Tournament
+-

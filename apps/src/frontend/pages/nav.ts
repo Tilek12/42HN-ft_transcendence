@@ -64,6 +64,7 @@ export function logoutFrontend() {
 	wsManager.clearPresenceData();
 	wsManager.disconnectAllSockets();
 	changeLoginButton(true);
+
 }
 
 const listenerLogoutBtn = async (e: any) => {
@@ -134,7 +135,7 @@ export function renderNav() {
 						</div>
 							<a href="#/" class="text-white font-bold text-xl hover:underline rounded">Transcendence</a>
 					</div>
-			<!--div class="flex items-center justify-between h-16 2 red-500 dashed"-->	
+			<!--div class="flex items-center justify-between h-16 2 red-500 dashed"-->
 				<nav id="navigation" class="flex flex-wrap justify-center gap-4 white/20 p-2 z-50 ">
 
 					<!-- Navigation Links -->
@@ -143,7 +144,11 @@ export function renderNav() {
 						<span class="relative z-10"></span>
 						</a>
 
-						<a id="nav_tournament" href="#/tournament" class=" flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
+						<a id="nav_local_tournament" href="#/local-tournament" class=" flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
+						<span class="relative z-10"></span>
+						</a>
+
+						<a id="nav_online_tournament" href="#/online-tournament" class=" flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
 						<span class="relative z-10"></span>
 						</a>
 
@@ -183,8 +188,9 @@ export function renderNav() {
 	languageStore.subscribe((lang) => {
 		console.log("language callback")
 		transelate_per_id(translations_nav, "game", lang, "nav_game");
-		transelate_per_id(translations_nav, "tournament", lang, "nav_tournament");
-		transelate_per_id(translations_nav, "leaderboard", lang, "nav_leaderboard");
+		transelate_per_id(translations_nav, "local_tournament", lang, "nav_local_tournament");
+		transelate_per_id(translations_nav, "online_tournament", lang, "nav_online_tournament");
+		// transelate_per_id(translations_nav, "leaderboard", lang, "nav_leaderboard");
 		// transelate_per_id(translations_nav, "friends", lang, "nav_friends");
 		transelate_per_id(translations_nav, "profile", lang, "nav_profile");
 		transelate_per_id(translations_nav, "settings", lang, "nav_settings");

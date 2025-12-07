@@ -26,9 +26,9 @@ class GameManager {
 		// room.onEndCallback((winner, loser, winnerScore, loserScore) => {
 		// 	console.log(`🏁 [GameManager] Game ended in room ${room.id}: ${winner.name} (${winnerScore} - ${loserScore}) ${loser.name}`);
 
-		// 	// Clean up sockets
-		// 	userManager.removeGameSocket(Number(winner.id));
-		// 	userManager.removeGameSocket(Number(loser.id));
+			// Clean up sockets
+			// userManager.removeGameSocket(Number(winner.id));
+			// userManager.removeGameSocket(Number(loser.id));
 
 		// 	if (isTournament && tournamentId && matchId) {
 		// 		const tournamentManager = mode === 'online-match'
@@ -106,7 +106,6 @@ class GameManager {
 		this.setWaitingDuelPlayer(player.id, player);
 		const players = Array.from(this.getWaitingDuel().values());
 
-		console.log("_____HERE_______");
 		if (players.length >= 2) {
 			const [p1, p2] = players;
 			this.removeWaitingDuelPlayer(p1!.id);
@@ -118,8 +117,8 @@ class GameManager {
 				console.log(`🏁 [GameManager] Game ended in room ${room.id}: ${winner.name} (${winnerScore} - ${loserScore}) ${loser.name}`);
 
 				// Clean up sockets
-				// userManager.removeGameSocket(Number(winner.id));
-				// userManager.removeGameSocket(Number(loser.id));
+				userManager.removeGameSocket(Number(winner.id));
+				userManager.removeGameSocket(Number(loser.id));
 
 				// if (isTournament && tournamentId && matchId) {
 				// 	const tournamentManager = mode === 'online-match'
@@ -146,7 +145,6 @@ class GameManager {
 				//------ Save to matches table -------
 				const isTournamentMatch = mode === 'duel' && !!tournamentId;
 				// if (isTournamentMatch) {
-				console.log("---=== Before creating match ===---");
 					await createMatch(
 						parseInt(winner.id),
 						parseInt(loser.id),
@@ -154,7 +152,6 @@ class GameManager {
 						loserScore,
 						isTournamentMatch
 					);
-				console.log("###### After creating match ######");
 				// }
 
 				// Get last inserted match ID

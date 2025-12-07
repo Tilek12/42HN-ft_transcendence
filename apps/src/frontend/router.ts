@@ -1,5 +1,6 @@
 import { renderMainPage } from './pages/main-page.js';
-import { renderTournament } from './pages/tournament.js';
+import { renderOnlineTournament } from './pages/tournament-online.js';
+import { renderLocalTournament } from './pages/tournament-local.js';
 import { renderGame } from './pages/game.js';
 import { renderProfile } from './pages/profile.js';
 import { renderLogin } from './pages/login.js';
@@ -16,8 +17,8 @@ import { renderSettings } from './pages/settings.js';
 import { initGlobalLanguageSelector } from './utils/globalLanguageSelector.js';
 import { renderMatchSummary } from './pages/renderMatchSummary.js';
 
-const protectedRoutes = ['#/profile', '#/game', '#/settings', '#/tournament','#/settings', '#/leaderboard'];
-export async function router() 
+const protectedRoutes = ['#/profile', '#/game', '#/settings', '#/online-tournament', '#/local-tournament', '#/settings']//, '#/leaderboard'];
+export async function router()
 {
 	const	root = document.getElementById('app')!;
 	let		route = location.hash || '#/';
@@ -34,25 +35,28 @@ export async function router()
 		{
 			console.log("first switch");
 			switch (route) {
-				case '#/tournament': 
-					renderTournament(root);
+				case '#/online-tournament':
+					renderOnlineTournament(root);
 					break;
-				case '#/game': 
+				case '#/local-tournament':
+					renderLocalTournament(root);
+					break;
+				case '#/game':
 					renderGame(root);
 					break;
-				case '#/profile': 
+				case '#/profile':
 					renderProfile(root);
 					break;
-				case '#/leaderboard': 
-					renderMatchSummary(root);
+				// case '#/leaderboard':
+				// 	renderLeaderboard(root);
 					break;
-				case '#/settings': 
+				case '#/settings':
 					renderSettings(root);
 					break;
 			}
 			// DESIGN change: Initialize global language selector after each page render to ensure floating toggle works
 			// across all protected routes. The selector needs re-initialization after DOM updates to attach event listeners properly.
-			
+
 		}
 		else
 			return location.hash = '/login';
@@ -72,23 +76,23 @@ export async function router()
 		}
 		else{
 			console.log("else switch");
-			
+
 			switch(route)
 			{
-				case '#/login': 
+				case '#/login':
 				renderLogin(root);
 					break;
-			case '#/register': 
+			case '#/register':
 				renderRegister(root);
 					break;
 			case '#/':
-				case '': 
+				case '':
 				renderMainPage(root);
 						break;
-			default: 
+			default:
 				renderNotFound(root);
 				}
-		
+
 		}
 			// DESIGN change: Initialize global language selector for public routes (login, register, main page)
 		// ensuring consistent language toggle availability throughout the entire application

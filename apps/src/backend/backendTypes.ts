@@ -19,12 +19,14 @@ export interface User {
 	//game info
 	gameSocket: WebSocket | null;
 	presenceSocket: WebSocket | null;
-	tournamentSocket: WebSocket | null;
+	localTournamentSocket: WebSocket | null;
+	onlineTournamentSocket: WebSocket | null;
 	tournamentId?: number;
 	tournamentMatchId?: number;
 	isAlive: boolean;
 	isInGame: boolean;
-	isInTournament: boolean;
+	isInLocalTournament: boolean;
+	isInOnlineTournament: boolean;
 }
 
 

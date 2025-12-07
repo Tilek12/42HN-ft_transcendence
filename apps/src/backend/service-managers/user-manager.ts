@@ -16,10 +16,12 @@ class UserManager {
 		user.name = newuser.username,
 			user.gameSocket = null,
 			user.presenceSocket = presenceSocket,
-			user.tournamentSocket = null,
+			user.localTournamentSocket = null,
+			user.onlineTournamentSocket = null,
 			user.isAlive = true,
 			user.isInGame = false,
-			user.isInTournament = false,
+			user.isInLocalTournament = false,
+			user.isInOnlineTournament = false,
 
 			this.users.set(user.id, user);
 		return true;
@@ -33,7 +35,8 @@ class UserManager {
 				user.presenceSocket.close();
 
 			user.gameSocket?.close();
-			user.tournamentSocket?.close();
+			user.localTournamentSocket?.close();
+			user.onlineTournamentSocket?.close();
 
 			this.users.delete(id);
 		}
@@ -49,8 +52,6 @@ class UserManager {
 		 console.log("❎ All Users logged out.");
 	}
 
-
-
 	setAlive(id: number) {
 		const user = this.getUser(id);
 		if (user) {
@@ -63,9 +64,14 @@ class UserManager {
 		if (user) user.isInGame = value;
 	}
 
-	setInTournament(user: User, value: boolean) {
+	setInLocalTournament(user: User, value: boolean) {
 		if (user)
-			user.isInTournament = value;
+			user.isInLocalTournament = value;
+	}
+
+	setInOnlineTournament(user: User, value: boolean) {
+		if (user)
+			user.isInOnlineTournament = value;
 	}
 
 	getOnlineUsers() {
@@ -114,18 +120,33 @@ class UserManager {
 		}
 	}
 
-	setTournamentSocket(user: User | undefined, socket: WebSocket) {
+	setLocalTournamentSocket(user: User | undefined, socket: WebSocket) {
 
 		if (!user) return;
 
-		user.tournamentSocket?.close();
-		user.tournamentSocket = socket;
+		user.localTournamentSocket?.close();
+		user.localTournamentSocket = socket;
 	}
 
-	removeTournamentSocket(user: User | undefined) {
-		if (user && user.tournamentSocket) {
-			user.tournamentSocket.close();
-			user.tournamentSocket = null;
+	removeLocalTournamentSocket(user: User | undefined) {
+		if (user && user.localTournamentSocket) {
+			user.localTournamentSocket.close();
+			user.localTournamentSocket = null;
+		}
+	}
+
+	setOnlineTournamentSocket(user: User | undefined, socket: WebSocket) {
+
+		if (!user) return;
+
+		user.onlineTournamentSocket?.close();
+		user.onlineTournamentSocket = socket;
+	}
+
+	removeOnlineTournamentSocket(user: User | undefined) {
+		if (user && user.onlineTournamentSocket) {
+			user.onlineTournamentSocket.close();
+			user.onlineTournamentSocket = null;
 		}
 	}
 

@@ -1,3 +1,4 @@
+export type TournamentMode = 'local' | 'online';
 export type TournamentSize = 4 | 8;
 export type TournamentStatus = 'waiting' | 'active' | 'finished';
 
@@ -31,8 +32,10 @@ export interface TournamentState {
 
 // Tournament WebSocket Message Types (Backend)
 export type TournamentMessage =
-  | TournamentJoinedMessage
-  | TournamentLeftMessage
+  | JoinOnlineTournamentMessage
+  | CreateOnlineTournamentMessage
+  | OnlineTournamentLeftMessage
+  | LocalTournamentLeftMessage
   | CreateLocalTournamentMessage
   | MatchStartMessage
   | MatchEndMessage
@@ -48,15 +51,34 @@ export interface TournamentParticipant {
   name: string;
 }
 
-// Tournament joined confirmation
-export interface TournamentJoinedMessage {
-  type: 'tournamentJoined';
+// Create ONLINE Tournament with participants
+export interface CreateOnlineTournamentMessage {
+  type: 'createOnlineTournament';
+  size: 4 | 8;
+  participants: TournamentParticipant[];
+}
+
+// Join ONLINE Tournament joined confirmation
+export interface JoinOnlineTournamentMessage {
+  type: 'onlineTournamentJoined';
   id: string;  // Tournament ID
 }
 
-// User left tournament
-export interface TournamentLeftMessage {
-  type: 'tournamentLeft';
+// Create LOCAL Tournament with participants
+export interface CreateLocalTournamentMessage {
+  type: 'createLocalTournament';
+  size: 4 | 8;
+  participants: TournamentParticipant[];
+}
+
+// User left ONLINE tournament
+export interface OnlineTournamentLeftMessage {
+  type: 'onlineTournamentLeft';
+}
+
+// User left LOCAL tournament
+export interface LocalTournamentLeftMessage {
+  type: 'localTournamentLeft';
 }
 
 // Match starting (unified for local/online)
@@ -99,13 +121,6 @@ export interface PlayerReadyMessage {
 // User quits tournament
 export interface QuitTournamentMessage {
   type: 'quitTournament';
-}
-
-// Create local tournament with participants
-export interface CreateLocalTournamentMessage {
-  type: 'createLocalTournament';
-  size: 4 | 8;
-  participants: TournamentParticipant[];
 }
 
 // Error message

@@ -3,7 +3,7 @@
 
 
 // WEBSOCKET
-export type GameMode = 'solo' | 'duel' | 'tournament';
+export type GameMode = 'solo' | 'duel' | 'local-match' | 'online-match';
 
 export interface PresenceUser {
   id: string;
@@ -121,10 +121,34 @@ export type payload = {
 }
 
 
-// Tournament WebSocket Message Types (Frontend) - Copied from backend for consistency
+export type match = {
+	matchID:number,
+	player1_id:number,
+	player2_is:number,
+	player1_score:number,
+	player2_score:number,
+	winner_id:number,
+	is_tie:boolean,
+	is_tournament_match:boolean,
+	played_at: string,
+}
+
+export type matchHistory = {
+	profile_id: number,
+	matches: match[],
+	win: number,
+	matches_count: number,
+	win_rate: number,
+}
+
+//////////////////////////////////////////////////////////////////////
+/// --- Tournament Types (copied from backend for consistency) --- ///
+//////////////////////////////////////////////////////////////////////
 export type TournamentMessage =
-  | TournamentJoinedMessage
-  | TournamentLeftMessage
+  | JoinOnlineTournamentMessage
+  | CreateOnlineTournamentMessage
+  | OnlineTournamentLeftMessage
+  | LocalTournamentLeftMessage
   | CreateLocalTournamentMessage
   | MatchStartMessage
   | MatchEndMessage
@@ -140,15 +164,34 @@ export interface TournamentParticipant {
   name: string;
 }
 
-// Tournament joined confirmation
-export interface TournamentJoinedMessage {
-  type: 'tournamentJoined';
+// Create ONLINE Tournament with participants
+export interface CreateOnlineTournamentMessage {
+  type: 'createOnlineTournament';
+  size: 4 | 8;
+  participants: TournamentParticipant[];
+}
+
+// Join ONLINE Tournament joined confirmation
+export interface JoinOnlineTournamentMessage {
+  type: 'onlineTournamentJoined';
   id: string;  // Tournament ID
 }
 
-// User left tournament
-export interface TournamentLeftMessage {
-  type: 'tournamentLeft';
+// Create LOCAL Tournament with participants
+export interface CreateLocalTournamentMessage {
+  type: 'createLocalTournament';
+  size: 4 | 8;
+  participants: TournamentParticipant[];
+}
+
+// User left ONLINE tournament
+export interface OnlineTournamentLeftMessage {
+  type: 'onlineTournamentLeft';
+}
+
+// User left LOCAL tournament
+export interface LocalTournamentLeftMessage {
+  type: 'localTournamentLeft';
 }
 
 // Match starting (unified for local/online)
@@ -191,13 +234,6 @@ export interface PlayerReadyMessage {
 // User quits tournament
 export interface QuitTournamentMessage {
   type: 'quitTournament';
-}
-
-// Create local tournament with participants
-export interface CreateLocalTournamentMessage {
-  type: 'createLocalTournament';
-  size: 4 | 8;
-  participants: TournamentParticipant[];
 }
 
 // Error message

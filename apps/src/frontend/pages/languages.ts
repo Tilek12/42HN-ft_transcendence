@@ -63,7 +63,8 @@ export const translations_nav: TranslationSet =
 {
 	EN: {
 		game: 'Game',
-		tournament: 'Tournament',
+		local_tournament: 'Local Tournament',
+		online_tournament: 'Online Tournament',
 		leaderboard: 'Leaderboard',
 		friends: 'Friends',
 		profile: 'Profile',
@@ -74,7 +75,8 @@ export const translations_nav: TranslationSet =
 	},
 	DE: {
 		game: 'Spiel',
-		tournament: 'Turnier',
+		local_tournament: 'Lokales Turnier',
+		online_tournament: 'Online-Turnier',
 		leaderboard: 'Bestenliste',
 		friends: 'Freunde',
 		profile: 'Profil',
@@ -85,7 +87,8 @@ export const translations_nav: TranslationSet =
 	},
 	GR: {
 		game: 'Παιχνίδι',
-		tournament: 'Τουρνουά',
+		local_tournament: 'Τοπικό Τουρνουά',
+		online_tournament: 'Διαδικτυακό Τουρνουά',
 		leaderboard: 'Κατάταξη',
 		friends: 'Φίλοι',
 		profile: 'Προφίλ',
@@ -425,21 +428,24 @@ export const translations_game_render: TranslationSet = {
 		pong_game_header: 'Pong Game',
 		play_alone: 'Play Alone',
 		play_online: 'Play Online (1v1)',
-		play_tournament: 'Play Tournament',
+		play_local_tournament: 'Play Local Tournament',
+		play_online_tournament: 'Play Online Tournament',
 		info: 'Choose a game mode to begin'
 	},
 	DE: {
 		pong_game_header: 'Pong-Spiel',
 		play_alone: 'Alleine spielen',
 		play_online: 'Online spielen (1v1)',
-		play_tournament: 'Turnier spielen',
+		play_local_tournament: 'Lokales Turnier spielen',
+		play_online_tournament: 'Online-Turnier spielen',
 		info: 'Wähle einen Spielmodus, um zu beginnen'
 	},
 	GR: {
 		pong_game_header: 'Παιχνίδι Pong',
 		play_alone: 'Παίξε Μόνος',
 		play_online: 'Παίξε Online (1v1)',
-		play_tournament: 'Παίξε Τουρνουά',
+		play_local_tournament: 'Παίξε Τοπικό Τουρνουά',
+		play_online_tournament: 'Παίξε Διαδικτυακό Τουρνουά',
 		info: 'Επίλεξε λειτουργία παιχνιδιού για να ξεκινήσεις'
 	}
 };

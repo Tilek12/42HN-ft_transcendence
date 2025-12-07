@@ -11,38 +11,37 @@ import { JWTPayload, User } from '../../backendTypes';
 import { TournamentWebsocketQuery, TournamentWebsocketSchema } from './WebsocketSchemas';
 import { findUserById } from '../../database/user';
 
-function handle_message(text: string, user:User, userId:string, socket:WebSocket) {
-	if (text === 'pong') {
-		userManager.setInTournament(user, true);
-		return;
-	}
-	const data = JSON.parse(text);
-	if (data.type === 'quitTournament') {
-		localTournamentManager.quitLocalTournament(userId);
-		userManager.removeTournamentSocket(user);
-		socket.send(JSON.stringify({ type: 'tournamentLeft' }));
-	} else if (data.type === 'move') {
-		const tournament = localTournamentManager.getUserTournament(userId);
-		if (tournament) {
-			const game = gameManager.getRoomByPlayerId(userId);
-			if (game) {
-				game.handleMove(userId, data.direction, data.side);
-			}
-		}
-	}
+function handle_message(text: string, user: User, userId: string, socket: WebSocket) {
+    if (text === 'pong') {
+        userManager.setInLocalTournament(user, true);
+        return;
+    }
+
+    let data: any;
+    try {
+        data = JSON.parse(text);
+    } catch (err) {
+        console.warn('[LOCAL Tournament WS] Invalid JSON from client:', text);
+        return;
+    }
+
+    if (data.type === 'quitLocalTournament') {
+        localTournamentManager.quitLocalTournament(userId);
+        userManager.removeLocalTournamentSocket(user);
+        socket.send(JSON.stringify({ type: 'localtTournamentLeft' }));
+    }
 }
 
 const wsLocalTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 	fastify.get('/local-tournament', { websocket: true }, (socket: WebSocket, req: FastifyRequest) => {
 		const params = new URLSearchParams(req.url?.split('?')[1] || '');
-		const token = params.get('token');
 		const action = params.get('action'); // "create" or "join"
-		const tournamentId = params.get('id');
 		const size = parseInt(params.get('size') || '4') as 4 | 8;
 		const namesRaw = params.get('names') || '';
-		const extraNames = namesRaw ? JSON.parse(namesRaw) : [];
+		const extraNames = namesRaw ? JSON.parse(decodeURIComponent(namesRaw)) : [];
 
-		if (!token || !action || (action === 'join' && !tournamentId)) {
+
+		if (action !== 'create') {
 			socket.close(4001, '[LOCAL Tournament WS] Missing or invalid parameters');
 			return;
 		}
@@ -61,7 +60,7 @@ const wsLocalTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 						throw new Error(`[LOCAL Tournament WS] User not valid: ${decoded.id}`);
 					fastify.log.info(`🟢 [LOCAL Tournament WS] Connected: ${user.username}`);
 					userId = user.id.toString();
-					userManager.setTournamentSocket(user, socket);
+					userManager.setLocalTournamentSocket(user, socket);
 
 					const participant: Participant = { id: userId, name: user.name };
 
@@ -78,9 +77,9 @@ const wsLocalTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 						return;
 					}
 
-					userManager.setInTournament(user, true);
+					userManager.setInLocalTournament(user, true);
 					console.log(`🎯 [LOCAL Tournament WS] Connected: ${userId} (${action})`);
-					socket.send(JSON.stringify({ type: 'tournamentJoined', id: tournament.id }));
+					socket.send(JSON.stringify({ type: 'localTournamentCreated', id: tournament.id }));
 
 					localTournamentManager.startLocalTournament(tournament.id);
 
@@ -107,7 +106,7 @@ const wsLocalTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 		socket.on('close', () => {
 			console.log(`❌ [LOCAL Tournament WS] Disconnected: ${userId}`);
 			localTournamentManager.quitLocalTournament(userId);
-			userManager.removeTournamentSocket(user);
+			userManager.removeLocalTournamentSocket(user);
 		});
 		socket.on('error', (err: any) => {
 			console.error(`⚠️ [LOCAL Tournament WS] Error from ${userId}:`, err);
@@ -118,19 +117,19 @@ const wsLocalTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 	setInterval(() => {
 		userManager.getOnlineUsers().forEach(({ id }) => {
 			const user = userManager.getUser(id);
-			if (!user || !user.tournamentSocket) return;
+			if (!user || !user.localTournamentSocket) return;
 
-			if (!user.isInTournament) {
+			if (!user.isInLocalTournament) {
 				console.log(`💀 [LOCAL Tournament WS] Inactive, closing: ${id}`);
-				user.tournamentSocket.close();
-				userManager.removeTournamentSocket(user);
+				user.localTournamentSocket.close();
+				userManager.removeLocalTournamentSocket(user);
 				return;
 			}
 
-			user.isInTournament = false;
-			if (user.tournamentSocket.readyState === WebSocket.OPEN) {
+			user.isInLocalTournament = false;
+			if (user.localTournamentSocket.readyState === WebSocket.OPEN) {
 				try {
-					user.tournamentSocket.send('ping');
+					user.localTournamentSocket.send('ping');
 				} catch (err) {
 					console.warn(`⚠️ [LOCAL Tournament WS] Ping failed for ${id}:`, err);
 				}
