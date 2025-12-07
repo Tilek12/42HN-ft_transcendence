@@ -74,7 +74,11 @@ class OnlineTournamentManager {
 	public async startOnlineTournament(id: string) {
 		const tournament = this.onlineTournaments.get(id);
 
-		if (!tournament) return;
+		if (!tournament)
+			{
+				console.log("[startOnlineTournament]: NO TOURNAMENT!");
+				return;
+			}
 
 		tournament.status = 'active';
 

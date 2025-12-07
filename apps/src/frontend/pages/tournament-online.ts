@@ -48,7 +48,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
     wsManager.subscribeToPresence(renderTournamentList);
 
     const user = getUser();
-    const userId = user?.id;
+    const userId = user?.id.toString();
 
     // Quit online match
     document.getElementById('quit-online-match')!.addEventListener('click', () => {
@@ -65,12 +65,20 @@ export async function renderOnlineTournament(root: HTMLElement) {
 
     function handleTournamentMessage(msg: any) {
         if (msg.type === 'onlineMatchStart') {
+            const message = {
+                type: msg.type,
+                tournamentId: msg.tournamentId,
+                tournamentSize: msg.tournamentSize,
+                matchId: msg.matchId,
+                player1: msg.player1,
+                player2: msg.player2,
+            }
 
-            if (msg.participants[0].id === userId || msg.participants[1].id === userId) {
+            if (message.player1.id === userId || message.player2.id == userId) {
                 isPlayerInMatch = true;
                 currentMatch = {
-                    p1: msg.participants[0],
-                    p2: msg.participants[1]
+                    p1: message.player1,
+                    p2: message.player2,
                 };
                 // Create game socket first, then signal readiness
                 gameSocket = wsManager.createGameSocket('online-match');
