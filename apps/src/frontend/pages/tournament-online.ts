@@ -383,6 +383,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
 
                     case 'disconnect':
                         showToast('Opponent disconnected', 'error');
+                        console.log('got disconnect message');
                         document.getElementById('online-tournament-match')!.classList.add('hidden');
                         isPlayerInMatch = false;
                         currentMatch = null;

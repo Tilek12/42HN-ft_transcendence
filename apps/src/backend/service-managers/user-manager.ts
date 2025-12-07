@@ -32,8 +32,11 @@ class UserManager {
 		if (user) {
 			// Only forcibly close sockets if this is a *true* logout or lost connection
 			if (user.presenceSocket?.readyState === WebSocket.OPEN)
+			{
+				console.log(" usermanager removeUser closing presence socket for user", id);
 				user.presenceSocket.close();
-
+			}
+			console.log(" usermanager removeUser closing game/local/online tournament sockets for user", id);
 			user.gameSocket?.close();
 			user.localTournamentSocket?.close();
 			user.onlineTournamentSocket?.close();
@@ -91,14 +94,17 @@ class UserManager {
 			socket.close(4005, 'Game already active');
 			return;
 		}
-
-		user.gameSocket?.close();
+		if (user.gameSocket) {
+			console.log(`Closing previous game socket for user ${id}`);
+			user.gameSocket.close();
+		}
 		user.gameSocket = socket;
 	}
 
 	removeGameSocket(id: number) {
 		const user = this.getUser(id);
 		if (user?.gameSocket) {
+			console.log(`Removing game socket for user ${id}`);
 			user.gameSocket.close();
 			user.gameSocket = null;
 		}

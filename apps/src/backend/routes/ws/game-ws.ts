@@ -15,6 +15,7 @@ import { WebsocketHandler } from '@fastify/websocket';
 async function setup(user:User, socket:WebSocket, buffer:string[], mode:string)
 {
 	// set the game socket (this will close previous if exists)
+	console.log("SETUP GAME WS FOR USER", user.id);
 	userManager.setGameSocket(user.id, socket);
 	userManager.setInGame(user.id, true);
 
@@ -22,20 +23,22 @@ async function setup(user:User, socket:WebSocket, buffer:string[], mode:string)
 	const player: Player = { id: user.id.toString(), name: user.username, socket };
 	await gameManager.startGame(player, mode as GameMode);
 
-	while (buffer.length)
-	{
-		const raw = buffer.shift();
-		try {
-			const msg = raw;
-			if (msg === 'pong') userManager.setInGame(user.id, true);
-			if (msg === 'quit') {
-				socket.close(1000, "Quit game");
-			}
-		} catch {}
-	}
+	// while (buffer.length)
+	// {
+	// 	const raw = buffer.shift();
+	// 	try {
+	// 		const msg = raw;
+	// 		if (msg === 'pong') userManager.setInGame(user.id, true);
+	// 		if (msg === 'quit') {
+	// 			console.log('game-ws setup() received quit from user', user.id);
+	// 			socket.close(1000, "Quit game");
+	// 		}
+	// 	} catch {}
+	// }
 
 	// attach final close handler to cleanup (will be appended to the close handlers )
 	socket.on('close', () => {
+		console.log(`setup close handler ${user.id}`);
 		gameManager.cancelDuelSearch(user.id.toString()); // TODO change id everywhere to number type
 		userManager.removeGameSocket(user.id);
 		userManager.setInGame(user.id, false);

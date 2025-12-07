@@ -21,32 +21,32 @@ class GameManager {
 			roomId = `g-${this.nextId++}`;
 		const room = new GameRoom(roomId, mode, p1, p2, tournamentId);
 		this.rooms.set(roomId, room);
-
+		console.log('createGame mode:', mode, 'for players:', p1.id, p2.id, 'in room:', roomId);
 		// // Auto-remove room when the game ends
-		// room.onEndCallback((winner, loser, winnerScore, loserScore) => {
-		// 	console.log(`🏁 [GameManager] Game ended in room ${room.id}: ${winner.name} (${winnerScore} - ${loserScore}) ${loser.name}`);
+		room.onEndCallback((winner, loser, winnerScore, loserScore) => {
+			console.log(`🏁 [GameManager] Game ended in room ${room.id}: ${winner.name} (${winnerScore} - ${loserScore}) ${loser.name}`);
 
 			// Clean up sockets
-			// userManager.removeGameSocket(Number(winner.id));
-			// userManager.removeGameSocket(Number(loser.id));
+			userManager.removeGameSocket(Number(winner.id));
+			userManager.removeGameSocket(Number(loser.id));
 
-		// 	if (isTournament && tournamentId && matchId) {
-		// 		const tournamentManager = mode === 'online-match'
-		// 			? onlineTournamentManager
-		// 			: localTournamentManager;
-		// 		tournamentManager.onMatchEnd(
-		// 			tournamentId,
-		// 			matchId,
-		// 			{ id: winner.id, name: winner.name },
-		// 			{ id: loser.id, name: loser.name },
-		// 			winnerScore,
-		// 			loserScore
-		// 		);
-		// 	}
+			if (isTournament && tournamentId && matchId) {
+				const tournamentManager = mode === 'online-match'
+					? onlineTournamentManager
+					: localTournamentManager;
+				tournamentManager.onMatchEnd(
+					tournamentId,
+					matchId,
+					{ id: winner.id, name: winner.name },
+					{ id: loser.id, name: loser.name },
+					winnerScore,
+					loserScore
+				);
+			}
 
-		// 	this.rooms.delete(room.id);
-		// 	console.log(`🗑️ [GameManager] Removed room ${room.id}`);
-		// });
+			this.rooms.delete(room.id);
+			console.log(`🗑️ [GameManager] Removed room ${room.id}`);
+		});
 
 		return room;
 	}
@@ -76,6 +76,7 @@ class GameManager {
 
 	// ===== MATCHMAKING METHODS =====
 	async startGame(player: Player, mode: GameMode, tournamentId?: string): Promise<void> {
+		console.log('startGame called with mode:', mode, 'for player:', player.id);
 		if (mode === 'solo') {
 			this.createGame(mode, player, GhostPlayer);
 			return;

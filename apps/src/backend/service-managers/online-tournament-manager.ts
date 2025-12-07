@@ -72,6 +72,7 @@ class OnlineTournamentManager {
 
 	/** Create the bracket and schedule round 1 */
 	public async startOnlineTournament(id: string) {
+		console.log('startOnlineTournament called:', id);
 		const tournament = this.onlineTournaments.get(id);
 
 		if (!tournament)
@@ -108,10 +109,11 @@ class OnlineTournamentManager {
 		winnerScore: number,
 		loserScore: number
 	) {
+		console.log('onMatchEnd :', 'tID:',tournamentId, 'mID:',matchId, 'w:',winner, 'l:',loser);
 		const tournament = this.onlineTournaments.get(tournamentId);
-		if (!tournament) return;
+		if (!tournament) { console.log("no tournament return");return};
 		const match = this.findMatch(tournament, matchId);
-		if (!match) return;
+		if (!match) { console.log("no match return"); return};
 
 		match.status = 'finished';
 		match.winnerId = winner.id;
@@ -170,6 +172,7 @@ class OnlineTournamentManager {
 
 	/** Online tournaments: start whole round in parallel with staggered starts */
 	private startRoundSimultaneously(tournament: TournamentState, roundIdx: number) {
+		console.log('startRoundSimultaneously', tournament.id, roundIdx);
 		if (roundIdx === 0) {
 			// First round: wait for ALL players to be ready, then start all matches simultaneously
 			this.startFirstRoundSimultaneously(tournament);
@@ -183,6 +186,7 @@ class OnlineTournamentManager {
 
 	/** Wait for all players in first round to be ready, then start all matches simultaneously */
 	private startFirstRoundSimultaneously(tournament: TournamentState) {
+		console.log('startFirstRoundSimultaneously called:', tournament.id);
 		const round = tournament.rounds[0];
 		if (!round) return;
 
@@ -209,6 +213,7 @@ class OnlineTournamentManager {
 
 	/** Wait for all tournament players to be ready before starting first round matches */
 	private waitForAllPlayersReady(tournamentId: string, matches: Match[]) {
+		console.log('waitForAllPlayersReady', tournamentId);
 		const readyKey = `${tournamentId}-round0`;
 		const expectedPlayers = new Set(matches.flatMap(m => [m.p1.id, m.p2.id]));
 		const timeout = 15000; // 15 second timeout for first round
@@ -249,6 +254,8 @@ class OnlineTournamentManager {
 
 	/** Start one match, wire onEnd → TournamentManager.onMatchEnded */
 	private startOneMatch(tournament: TournamentState, match: Match) {
+``
+		console.log('startOneMatch', tournament.id, match.id, match.p1, match.p2);
 		match.status = 'waiting_for_sockets';
 
 		// Send matchStart to both players' tournament sockets
@@ -317,6 +324,7 @@ class OnlineTournamentManager {
 
 	/** Actually start the game after socket readiness is confirmed */
 	private startActualMatch(tournamentId: string, match: Match) {
+		console.log('STARTING ACTUAL MATCH', tournamentId, match.id);
 		const tournament = this.onlineTournaments.get(tournamentId);
 		if (!tournament) return;
 
@@ -452,6 +460,7 @@ class OnlineTournamentManager {
 
 	/** Handle player socket ready signal */
 	public playerSocketReady(tournamentId: string, matchId: string, playerId: string) {
+		console.log('playerSocketReady called:', 'tID:',tournamentId, 'mID:',matchId, 'pID:',playerId);
 		// Handle both individual match readiness and round-wide readiness
 		const matchReadyKey = `${tournamentId}-${matchId}`;
 		const roundReadyKey = `${tournamentId}-round0`;

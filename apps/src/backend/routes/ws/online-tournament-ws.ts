@@ -39,6 +39,7 @@ const wsOnlineTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 		const size = parseInt(params.get('size') || '4') as 4 | 8;
 
 		if (!action || (action === 'join' && !tournamentId)) {
+			console.log('[LOCAL Tournament WS] Missing or invalid parameters', action, tournamentId);
 			socket.close(4001, '[ONLINE Tournament WS] Missing or invalid parameters');
 			return;
 		}
@@ -72,6 +73,7 @@ const wsOnlineTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 					}
 
 					if (!tournament) {
+						console.log('[ONLINE Tournament WS] Could not join or create tournament');
 						socket.send(JSON.stringify({ type: 'error', message: 'Could not join or create tournament' }));
 						socket.close();
 						return;
@@ -106,7 +108,7 @@ const wsOnlineTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 			userManager.removeOnlineTournamentSocket(user);
 		});
 		socket.on('error', (err: any) => {
-			console.error(`⚠️ [ONLINE Tournament WS] Error from ${userId}:`, err);
+			console.log(`⚠️ [ONLINE Tournament WS] Error from ${userId}:`, err);
 			socket.close();
 		});
 	});
