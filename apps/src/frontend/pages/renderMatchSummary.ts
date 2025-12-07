@@ -247,24 +247,34 @@ export async function renderMatchSummary(root: HTMLElement) {
 			  
 				  </div>
 
-				  	<!-- Total Games for individual Bar Chart -->
-					<div class="relative w-[420px] h-[340px] bg-white/5 rounded text-white">
-					<div class="text-center text-lg font-semibold pt-4" id="TotalGamesPerPlayer">
-					  <span id="TotalGamesOf">Total games of</span> <span id="IndividualName"></span>
+				  	<!-- Pop up Individual Stats Modal -->
+					<div id="individual-stats-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm">
+						<div id="modal-content" class="relative bg-white/5 rounded p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto text-white shadow-2xl">
+							<!-- Close hint -->
+							<div class="absolute top-4 right-4 text-gray-400 text-xs">Click anywhere to close</div>
+							
+							<!-- Player name header -->
+							<div class="mb-6 text-center">
+								<h2 id="modal-player-name" class="text-3xl font-bold text-white"></h2>
+								<p class="text-gray-400 text-sm mt-1">Individual Statistics</p>
+							</div>
+							
+							<!-- Charts grid -->
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+								<!-- Total Games Chart -->
+								<div class="bg-white/5 p-5 rounded">
+									<h3 class="text-white font-semibold text-base mb-4">Total Games vs <span id="modal-individual-name" class="text-gray-300"></span></h3>
+									<div id="modal-individual-total-games-chart" class="flex justify-around items-end h-48 pt-4"></div>
+								</div>
+								
+								<!-- Win Rate Chart -->
+								<div class="bg-white/5 p-5 rounded">
+									<h3 class="text-white font-semibold text-base mb-4">Win Rate of <span id="modal-win-rate-name" class="text-gray-300"></span></h3>
+									<div id="modal-win-rate-chart" class="flex justify-around items-end h-48 pt-4"></div>
+								</div>
+							</div>
+						</div>
 					</div>
-					<div class="absolute bottom-4 left-0 right-0 flex items-end space-x-4 overflow-x-auto px-4 pb-2" id="IndividualTotalGamesChart">
-					</div>
-				  </div>
-				
-
-				  	<!-- individual win rate Bar Chart -->
-					<div class="relative w-[420px] h-[340px] bg-white/5 rounded text-white">
-					<div class="text-center text-lg font-semibold pt-4" id="TotalGamesPerPlayer">
-					<span id="IndividualWinRateOf">Individual Win Rate of</span> <span id="WinRateName"></span>
-					</div>
-					<div class="absolute bottom-4 left-0 right-0 flex items-end space-x-4 overflow-x-auto px-4 pb-2" id="WinRateChart">
-					</div>
-				  </div>
 			  
 					<!-- Rank Table -->
 					<div class="overflow-y-auto overflow-x-hidden pr-1 w-full">
@@ -371,6 +381,20 @@ export async function renderMatchSummary(root: HTMLElement) {
 			()=> rankTableBody.innerHTML = rankTableCreator(rank_array.sort((rank1, rank2)=>rank2.win_rate -rank1.win_rate))
 		)
 		//----adding event listener for each individual user
+		const modal = document.getElementById("individual-stats-modal")!;
+		const modalContent = document.getElementById("modal-content")!;
+		
+		// Close modal when clicking outside the content
+		modal.addEventListener("click", (e) => {
+			modal.classList.add("hidden");
+			modal.classList.remove("flex");
+		});
+		
+		// Prevent closing when clicking inside the modal content
+		modalContent.addEventListener("click", (e) => {
+			e.stopPropagation();
+		});
+		
 		chart_profiles.forEach(pr=>
 			{
 				const pr_name : string = pr.username;
@@ -386,23 +410,20 @@ export async function renderMatchSummary(root: HTMLElement) {
 							personal_matches.forEach(match=>{
 								const opponent = match.player1_username === pr_name ? match.player2_username : match.player1_username;
 								op_array.push({name : opponent});
-								// console.log(`${opponent} was pushed`);
 							})
 							var op_array_unique: { name: string, total_matches: number, individual_wins: number, individual_win_rate: number }[] = [];
 							op_array.forEach(
 								op=> {!op_array_unique.some(unique=> unique.name == op.name) ? 
 											op_array_unique.push({name: op.name,total_matches: 0,individual_wins: 0,individual_win_rate: 0}) : null;
-											// console.log (`${op.name} is unique`);
-										
 										})
-							//-- for to be parsed they need the players per persong the matches and the win rates
-							console.log(`Hovered on the ${pr_name}`);
+							console.log(`Clicked on the ${pr_name}`);
 							//individual total matches
 							op_array_unique.map(op => personal_matches.forEach(match => match.player1_username === op.name || match.player2_username === op.name ? op.total_matches++ : null));
 							//wins
 							op_array_unique.map(op => personal_matches.forEach(match => (match.player1_username === op.name || match.player2_username === op.name) && (match.winner_username === pr_name) ? op.individual_wins++: null));
 							//wins rate
 							op_array_unique.map(op=> op.total_matches !== 0 ? op.individual_win_rate = Math.round(op.individual_wins / op.total_matches) * 100: 0);
+							
 							// individual total games bars
 							const maxPrBarHeight = 12 * 4;
 							const pr_total_games_chrt = op_array_unique.map(op=>{
@@ -415,14 +436,7 @@ export async function renderMatchSummary(root: HTMLElement) {
 									<div class="text-xs mt-1 text-white text-center">${safeName}</div>
 								</div>`;});
 							const pr_total_games_chrt_string : string = pr_total_games_chrt.join('');
-							const individualNameEl = document.getElementById("IndividualName");
-							if (individualNameEl) {
-							individualNameEl.textContent = pr_name;
-							}
-							const IndidualTotalGamesChartEl = document.getElementById("IndividualTotalGamesChart");
-							if (IndidualTotalGamesChartEl) {
-							IndidualTotalGamesChartEl.innerHTML = pr_total_games_chrt_string;
-							}
+							
 							// individual total win rates
 							const maxPrlWinRateBarHeight = 64;
 							const pr_win_rate_chart = op_array_unique.map(opp => {
@@ -438,14 +452,23 @@ export async function renderMatchSummary(root: HTMLElement) {
 									`;
 							});
 							const pr_win_rate_chart_string = pr_win_rate_chart.join('');
-							const WinRateNameEl = document.getElementById("WinRateName");
-							if (WinRateNameEl) {
-							WinRateNameEl.textContent = pr_name;
-							}
-							const WinRateChartEl = document.getElementById("WinRateChart");
-							if (WinRateChartEl) {
-							WinRateChartEl.innerHTML = pr_win_rate_chart_string;
-							}
+							
+							// Update modal content
+							const modalPlayerName = document.getElementById("modal-player-name");
+							const modalIndividualName = document.getElementById("modal-individual-name");
+							const modalWinRateName = document.getElementById("modal-win-rate-name");
+							const modalTotalGamesChart = document.getElementById("modal-individual-total-games-chart");
+							const modalWinRateChart = document.getElementById("modal-win-rate-chart");
+							
+							if (modalPlayerName) modalPlayerName.textContent = pr_name;
+							if (modalIndividualName) modalIndividualName.textContent = pr_name;
+							if (modalWinRateName) modalWinRateName.textContent = pr_name;
+							if (modalTotalGamesChart) modalTotalGamesChart.innerHTML = pr_total_games_chrt_string;
+							if (modalWinRateChart) modalWinRateChart.innerHTML = pr_win_rate_chart_string;
+							
+							// Show modal
+							modal.classList.remove("hidden");
+							modal.classList.add("flex");
 						}))
 			})
 		
