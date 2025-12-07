@@ -18,10 +18,10 @@ function addMatchSummaryTranslations(lang: Language) {
 	transelate_per_id(translations_dashboards, 'rank_table_header', lang, 'RankTableHeader');
 	transelate_per_id(translations_dashboards, 'rank_id', lang, 'RankID');
 	transelate_per_id(translations_dashboards, 'username', lang, 'Username');
-	transelate_per_id(translations_dashboards, 'wins', lang, 'Wins');
-	transelate_per_id(translations_dashboards, 'trophies', lang, 'Trophies');
-	transelate_per_id(translations_dashboards, 'total_matches', lang, 'TotalMatches');
-	transelate_per_id(translations_dashboards, 'win_rate', lang, 'WinRate');
+	transelate_per_id(translations_dashboards, 'wins', lang, 'WinsText');
+	transelate_per_id(translations_dashboards, 'trophies', lang, 'TrophiesText');
+	transelate_per_id(translations_dashboards, 'total_matches', lang, 'TotalMatchesText');
+	transelate_per_id(translations_dashboards, 'win_rate', lang, 'WinRateText');
 
 
 	transelate_per_id(translations_dashboards, 'match_summary_header', lang, 'MatchSummaryHeader');
@@ -274,10 +274,38 @@ export async function renderMatchSummary(root: HTMLElement) {
 						<tr class="bg-white/20 backdrop-blur-sm">
 							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="RankID"></th>
 							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="Username"></th>
-							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="Wins"></th>
-							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="Trophies"></th>
-							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="TotalMatches"></th>
-							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="WinRate"></th>
+							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm cursor-pointer select-none hover:bg-white/10 active:bg-white/20
+           						transition-colors duration-150" id="Wins" >
+								<span id="WinsText"></span><svg id="WinsSortIcon" xmlns="http://www.w3.org/2000/svg"
+										fill="none" viewBox="0 0 24 24" stroke="currentColor"
+										class="w-4 h-4 opacity-50 transition-transform duration-150">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+										d="M19 9l-7 7-7-7" />
+									</svg></th>
+							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm cursor-pointer select-none hover:bg-white/10 active:bg-white/20
+          						transition-colors duration-150" id="Trophies">
+								<span id="TrophiesText"></span><svg id="WinsSortIcon" xmlns="http://www.w3.org/2000/svg"
+										fill="none" viewBox="0 0 24 24" stroke="currentColor"
+										class="w-4 h-4 opacity-50 transition-transform duration-150">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+										d="M19 9l-7 7-7-7" />
+									</svg></th>
+							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm cursor-pointer select-none hover:bg-white/10 active:bg-white/20
+           						transition-colors duration-150" id="TotalMatches" >
+								<span id="TotalMatchesText"></span><svg id="WinsSortIcon" xmlns="http://www.w3.org/2000/svg"
+										fill="none" viewBox="0 0 24 24" stroke="currentColor"
+										class="w-4 h-4 opacity-50 transition-transform duration-150">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+										d="M19 9l-7 7-7-7" />
+									</svg></th>
+							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm cursor-pointer select-none hover:bg-white/10 active:bg-white/20
+         						transition-colors duration-150" id="WinRate">
+								<span id="WinRateText"></span><svg id="WinsSortIcon" xmlns="http://www.w3.org/2000/svg"
+										fill="none" viewBox="0 0 24 24" stroke="currentColor"
+										class="w-4 h-4 opacity-50 transition-transform duration-150">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+										d="M19 9l-7 7-7-7" />
+									</svg></th>
 						</tr>
 						</thead>
 						<tbody id="RankTableBody">
@@ -306,11 +334,14 @@ export async function renderMatchSummary(root: HTMLElement) {
 						${summary.map((match: fMatchForSummary, index) => `
 						  <tr class="border-t border-white/10 ${index % 2 === 0 ? 'bg-white/5' : 'bg-white/10'} hover:bg-white/20 transition-colors duration-200">
 							<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm truncate max-w-[80px]">${match.matchID}</td>
-							<td data-player="pl_${match.player1_username}" class="pl_${match.player1_username} py-2 px-2 text-white font-medium text-xs lg:text-sm truncate max-w-[80px]">${match.player1_username}</td>
-							<td data-player="pl_${match.player2_username}" class="pl_${match.player2_username} py-2 px-2 text-white font-medium text-xs lg:text-sm truncate max-w-[80px]">${match.player2_username}</td>
+							<td data-player="pl_${match.player1_username}" class="pl_${match.player1_username} cursor-pointer select-none hover:bg-white/10 active:bg-white/20
+          						transition-colors duration-150 py-2 px-2 text-white font-medium text-xs lg:text-sm truncate max-w-[80px]">${match.player1_username}</td>
+							<td data-player="pl_${match.player2_username}" class="pl_${match.player2_username} cursor-pointer select-none hover:bg-white/10 active:bg-white/20
+          						transition-colors duration-150 py-2 px-2 text-white font-medium text-xs lg:text-sm truncate max-w-[80px]">${match.player2_username}</td>
 							<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm">${match.player1_score}</td>
 							<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm">${match.player2_score}</td>
-							<td data-player="pl_${match.winner_username}" class="pl_${match.winner_username} py-2 px-2 text-white font-medium text-xs lg:text-sm">${match.winner_username}</td>
+							<td data-player="pl_${match.winner_username}" class="pl_${match.winner_username} cursor-pointer select-none hover:bg-white/10 active:bg-white/20
+          						transition-colors duration-150 py-2 px-2 text-white font-medium text-xs lg:text-sm">${match.winner_username}</td>
 							<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm">${match.is_tournament_match ? 'Yes' : 'No'}</td>
 							<td class="py-2 px-2 text-gray-300 text-xs hidden lg:table-cell">${new Date(match.played_at).toLocaleString()}</td>
 						  </tr>
@@ -327,16 +358,16 @@ export async function renderMatchSummary(root: HTMLElement) {
 		var rank_total_matches = document.getElementById("TotalMatches") as HTMLTableColElement;
 		var win_rate = document.getElementById("WinRate") as HTMLTableColElement;
 		var rankTableBody = document.getElementById("RankTableBody") as HTMLTableSectionElement
-		wins.addEventListener("mouseover",
+		wins.addEventListener("click",
 			()=>rankTableBody.innerHTML = rankTableCreator(rank_array.sort((rank1, rank2)=>rank2.wins -rank1.wins)) //sort ? rank1.wins < rank2.wins => rank2 -rank1 
 		)
-		trophies.addEventListener("mouseover",
+		trophies.addEventListener("click",
 			()=> rankTableBody.innerHTML = rankTableCreator(rank_array.sort((rank1, rank2)=>rank2.trophies -rank1.trophies))
 		)
-		rank_total_matches.addEventListener("mouseover",
+		rank_total_matches.addEventListener("click",
 			()=> rankTableBody.innerHTML = rankTableCreator(rank_array.sort((rank1, rank2)=>rank2.total_matches -rank1.total_matches))
 		)
-		win_rate.addEventListener("mouseover",
+		win_rate.addEventListener("click",
 			()=> rankTableBody.innerHTML = rankTableCreator(rank_array.sort((rank1, rank2)=>rank2.win_rate -rank1.win_rate))
 		)
 		//----adding event listener for each individual user
@@ -345,7 +376,7 @@ export async function renderMatchSummary(root: HTMLElement) {
 				const pr_name : string = pr.username;
 				const class_pr_name : string = ".pl_"+pr.username;
 				const current_el : NodeListOf<Element> = document.querySelectorAll(class_pr_name);
-				current_el.forEach(cl =>cl.addEventListener("mouseover", 
+				current_el.forEach(cl =>cl.addEventListener("click", 
 					()=>
 						{
 							const personal_matches = summary.filter(match=> match.player1_username == pr_name || match.player2_username == pr_name );
