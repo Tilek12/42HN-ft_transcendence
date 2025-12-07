@@ -1,4 +1,4 @@
-import { Language, fMatch, fMatchHistory, fMatchForSummary, fMatchSummary, } from "../frontendTypes.js";
+import { Language, fMatch, fMatchHistory, fMatchForSummary, fMatchSummary, fProfile} from "../frontendTypes.js";
 import { apiFetch, getUser } from "../utils/auth.js";
 import { renderBackgroundFull } from "../utils/layout.js";
 import { renderConnectionErrorPage } from "./error.js";
@@ -56,7 +56,9 @@ export async function renderMatchSummary(root: HTMLElement) {
 		// total-games-chart
 		console.log(`data: ${data_chart.profiles}`);
 		const total_games_array: { name: string; value: number }[] = [];
-		const chart_profiles = data_chart.profiles;
+		const chart_profiles = data_chart.profiles as fProfile[];
+		//------console logging the data_chart.profiles
+		chart_profiles.forEach(pr => console.log(`${pr.username}`));
 		const wins_rate_array: { name: string; win_rate: number }[] = [];
 		if (!chart_profiles) {
 			alert(`no chart_profiles`)
@@ -74,110 +76,48 @@ export async function renderMatchSummary(root: HTMLElement) {
 		var total_win_rate = 0;
 		wins_rate_array.forEach(v => total_win_rate += v.win_rate);
 		const avg_win_rate = (total_win_rate / chart_profiles.length).toFixed(2);
-		// console.log(`avg_win_rate: ${avg_win_rate}`);
-		// console.log(`chart_profiles.length: ${chart_profiles.length}`);
-		// console.log(total_games_array[0].name);
-		// console.log(total_games_array[0].value);
-		// console.log(`the summary[0]: ${summary[0].matchID}`);
+
 		// normal match, tournament match chart
 		var total_tournament_matches = 0;
 		var total_normal_matches = 0;
 		// // add dummy data tournament = true
-		// const dummyMatch: fMatchForSummary = {
-		// 	matchID: 14,
-		// 	player1_username: "cat",
-		// 	player2_username: "philipp",
-		// 	player1_score: 5,
-		// 	player2_score: 4,
-		// 	winner_username: "cat",
-		// 	is_tournament_match: true, // this marks it as a tournament match
-		// 	played_at: "2025-12-06 15:00:00"
-		//   };
-		//   const dummyMatch_two: fMatchForSummary = {
-		// 	matchID: 15,
-		// 	player1_username: "cat",
-		// 	player2_username: "philipp",
-		// 	player1_score: 5,
-		// 	player2_score: 4,
-		// 	winner_username: "cat",
-		// 	is_tournament_match: true, // this marks it as a tournament match
-		// 	played_at: "2025-12-06 15:00:00"
-		//   };
-		//   const dummyMatch_three: fMatchForSummary = {
-		// 	matchID: 16,
-		// 	player1_username: "cat",
-		// 	player2_username: "philipp",
-		// 	player1_score: 5,
-		// 	player2_score: 4,
-		// 	winner_username: "cat",
-		// 	is_tournament_match: true, // this marks it as a tournament match
-		// 	played_at: "2025-12-06 15:00:00"
-		//   };
-		//   summary.unshift(dummyMatch_three,  dummyMatch_two,dummyMatch);
+		const dummyMatch: fMatchForSummary = {
+			matchID: 14,
+			player1_username: "philipp",
+			player2_username: "LeafiPU",
+			player1_score: 5,
+			player2_score: 4,
+			winner_username: "cat",
+			is_tournament_match: true, // this marks it as a tournament match
+			played_at: "2025-12-06 15:00:00"
+		  };
+		  const dummyMatch_two: fMatchForSummary = {
+			matchID: 15,
+			player1_username: "cat",
+			player2_username: "philipp",
+			player1_score: 5,
+			player2_score: 4,
+			winner_username: "cat",
+			is_tournament_match: true, // this marks it as a tournament match
+			played_at: "2025-12-06 15:00:00"
+		  };
+		  const dummyMatch_three: fMatchForSummary = {
+			matchID: 16,
+			player1_username: "cat",
+			player2_username: "doggo",
+			player1_score: 5,
+			player2_score: 4,
+			winner_username: "cat",
+			is_tournament_match: true, // this marks it as a tournament match
+			played_at: "2025-12-06 15:00:00"
+		  };
+		  summary.unshift(dummyMatch_three, dummyMatch_two ,dummyMatch);
 		var total_matches = summary.length;
 		summary.forEach(m => { m.is_tournament_match ? total_tournament_matches++ : null });
 		console.log(`total_tournament_matches: ${total_tournament_matches}`);
 		total_normal_matches = total_matches - total_tournament_matches;
 
 		// individual player data for statistics
-		const individual_summary_matches = summary.filter(match => match.player1_username == "cat" || match.player2_username == "cat");
-		console.log(`individual_summary_matches: ${individual_summary_matches}`);
-		const opponents_array: { name: string }[] = [];
-		individual_summary_matches.forEach(match => {
-			const opponent =
-				match.player1_username === "cat"
-					? match.player2_username
-					: match.player1_username;
-			opponents_array.push({ name: opponent });
-		});
-		var opponents_array_unique: { name: string, total_matches: number, individual_wins: number, individual_win_rate: number }[] = [];
-
-		opponents_array.forEach(o => {
-			if (!opponents_array_unique.some(u => u.name === o.name)) {
-				opponents_array_unique.push({ name: o.name, total_matches: 0, individual_wins: 0, individual_win_rate: 0 });
-			}
-		});
-		opponents_array_unique.forEach(opp => individual_summary_matches.forEach(match => match.player1_username === opp.name || match.player2_username === opp.name ? opp.total_matches++ : null));
-		opponents_array_unique.forEach(opp => individual_summary_matches.forEach(match => (match.player1_username === opp.name || match.player2_username === opp.name) && match.winner_username == "cat" ? opp.individual_wins++ : null));
-		opponents_array_unique.map(opp => opp.total_matches !== 0 ? opp.individual_win_rate = Math.round((opp.individual_wins / opp.total_matches) * 100) : null);
-		// console.log(`opponents_array: ${opponents_array}`);
-		// console.log(`opponents_array_unique[0].total_matches: ${opponents_array_unique[0].total_matches}`);
-		// console.log(`opponents_array_unique[0].individual_wins: ${opponents_array_unique[0].individual_wins}`);
-		// console.log(`opponents_array_unique[0].individual_win_rate: ${opponents_array_unique[0].individual_win_rate}`);
-
-
-		//individual win rate bars
-		const maxIndividualWinRateBarHeight = 6;
-		const individual_win_rate_chart = opponents_array_unique.map(opp => {
-			const barHeight = Math.round(opp.individual_win_rate / opp.total_matches) * maxIndividualWinRateBarHeight; // scale height
-			const safeName = String(opp.name).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-			return /*html*/`
-				<div class="flex flex-col items-center">
-					<div class="text-xs mt-1 text-white">${opp.individual_win_rate}%</div>
-					<div class="w-10 bg-gradient-to-t from-purple-600 to-pink-400 rounded" style="height: ${barHeight}px;"></div>
-					<div class="text-xs mt-1 text-white text-center">${safeName}</div>
-				</div>
-				`;
-		});
-		const individual_win_rate_chart_string = individual_win_rate_chart.join('');
-
-		//individual total games bars
-		const maxIndividualBarHeight = 12 * 4;
-		const individual_total_games_chart = opponents_array_unique.map(opp => {
-			const barHeight = Math.round((opp.total_matches / individual_summary_matches.length) * maxIndividualBarHeight); // scale height
-			const safeName = String(opp.name).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-			return /*html*/`
-				<div class="flex flex-col items-center">
-					<div class="text-xs mt-1 text-white">${opp.total_matches}</div>
-					<div class="w-10 bg-gradient-to-t from-purple-600 to-pink-400 rounded" style="height: ${barHeight}px;"></div>
-					<div class="text-xs mt-1 text-white text-center">${safeName}</div>
-				</div>
-				`;
-		});
-		const individual_total_games_chart_string = individual_total_games_chart.join('');
-
 		//total game bars
 		const maxBarHeight = 12 * 4;
 		const filtered_total_games_chart_array = total_games_array.filter(p => p.value !== 0).map(p => {
@@ -187,7 +127,6 @@ export async function renderMatchSummary(root: HTMLElement) {
 			return /*html*/`
 				<div class="flex flex-col items-center">
 					<div class="text-xs mt-1 text-white">${p.value}</div>
-					<!--div class="w-10 h-[${barHeight}px] bg-gradient-to-t from-purple-600 to-pink-400 rounded"></div-->
 					<div class="w-10 bg-gradient-to-t from-purple-600 to-pink-400 rounded" style="height: ${barHeight}px;"></div>
 					<div class="text-xs mt-1 text-white text-center">${safeName}</div>
 				</div>
@@ -252,7 +191,7 @@ export async function renderMatchSummary(root: HTMLElement) {
 					  <div class="text-center text-lg font-semibold pt-4" id="TotalGamesPerPlayer">
 						Total Games Per Player
 					  </div>
-					  <div class="flex items-end space-x-4 overflow-x-auto mt-[180px]">
+					  <div class="absolute bottom-4 left-0 right-0 flex items-end space-x-4 overflow-x-auto px-4 pb-2">
 						${total_games_chart_string}
 					  </div>
 					</div>
@@ -262,7 +201,7 @@ export async function renderMatchSummary(root: HTMLElement) {
 					  <div class="text-center text-lg font-semibold pt-4" id="WinRates">
 						Win Rates
 					  </div>
-					  <div class="flex items-end space-x-4 overflow-x-auto mt-[180px]">
+					  <div class="absolute bottom-4 left-0 right-0 flex items-end space-x-4 overflow-x-auto px-4 pb-2">
 						${win_rate_chart_string}
 					  </div>
 					</div>
@@ -272,20 +211,19 @@ export async function renderMatchSummary(root: HTMLElement) {
 				  	<!-- Total Games for individual Bar Chart -->
 					<div class="relative w-[420px] h-[340px] bg-white/5 rounded text-white">
 					<div class="text-center text-lg font-semibold pt-4" id="TotalGamesPerPlayer">
-					  <span id="TotalGamesOf">Total games of</span> cat
+					  <span id="TotalGamesOf">Total games of</span> <span id="IndividualName"></span>
 					</div>
-					<div class="flex items-end space-x-4 overflow-x-auto mt-[180px]">
-					  ${individual_total_games_chart}
+					<div class="absolute bottom-4 left-0 right-0 flex items-end space-x-4 overflow-x-auto px-4 pb-2" id="IndividualTotalGamesChart">
 					</div>
 				  </div>
+				
 
 				  	<!-- individual win rate Bar Chart -->
 					<div class="relative w-[420px] h-[340px] bg-white/5 rounded text-white">
 					<div class="text-center text-lg font-semibold pt-4" id="TotalGamesPerPlayer">
-					<span id="IndividualWinRateOf">Individual Win Rate of</span> cat
+					<span id="IndividualWinRateOf">Individual Win Rate of</span> <span id="WinRateName"></span>
 					</div>
-					<div class="flex items-end space-x-4 overflow-x-auto mt-[180px]">
-					  ${individual_win_rate_chart}
+					<div class="absolute bottom-4 left-0 right-0 flex items-end space-x-4 overflow-x-auto px-4 pb-2" id="WinRateChart">
 					</div>
 				  </div>
 			  
@@ -309,11 +247,11 @@ export async function renderMatchSummary(root: HTMLElement) {
 						${summary.map((match: fMatchForSummary, index) => `
 						  <tr class="border-t border-white/10 ${index % 2 === 0 ? 'bg-white/5' : 'bg-white/10'} hover:bg-white/20 transition-colors duration-200">
 							<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm truncate max-w-[80px]">${match.matchID}</td>
-							<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm truncate max-w-[80px]">${match.player1_username}</td>
-							<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm truncate max-w-[80px]">${match.player2_username}</td>
+							<td data-player="pl_${match.player1_username}" class="pl_${match.player1_username} py-2 px-2 text-white font-medium text-xs lg:text-sm truncate max-w-[80px]">${match.player1_username}</td>
+							<td data-player="pl_${match.player2_username}" class="pl_${match.player2_username} py-2 px-2 text-white font-medium text-xs lg:text-sm truncate max-w-[80px]">${match.player2_username}</td>
 							<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm">${match.player1_score}</td>
 							<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm">${match.player2_score}</td>
-							<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm">${match.winner_username}</td>
+							<td data-player="pl_${match.winner_username}" class="pl_${match.winner_username} py-2 px-2 text-white font-medium text-xs lg:text-sm">${match.winner_username}</td>
 							<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm">${match.is_tournament_match ? 'Yes' : 'No'}</td>
 							<td class="py-2 px-2 text-gray-300 text-xs hidden lg:table-cell">${new Date(match.played_at).toLocaleString()}</td>
 						  </tr>
@@ -323,12 +261,86 @@ export async function renderMatchSummary(root: HTMLElement) {
 				  </div>
 			  
 				</div>
-
-				
 			  `);
 
-
-
+		//----adding event listener for all the cat
+		chart_profiles.forEach(pr=>
+			{
+				const pr_name : string = pr.username;
+				const class_pr_name : string = ".pl_"+pr.username;
+				const current_el : NodeListOf<Element> = document.querySelectorAll(class_pr_name);
+				current_el.forEach(cl =>cl.addEventListener("mouseover", 
+					()=>
+						{
+							const personal_matches = summary.filter(match=> match.player1_username == pr_name || match.player2_username == pr_name );
+							
+							console.log(`personal_matches ${personal_matches}`);//---we need the two individual charts
+							const op_array : {name:string}[]= [];
+							personal_matches.forEach(match=>{
+								const opponent = match.player1_username === pr_name ? match.player2_username : match.player1_username;
+								op_array.push({name : opponent});
+								// console.log(`${opponent} was pushed`);
+							})
+							var op_array_unique: { name: string, total_matches: number, individual_wins: number, individual_win_rate: number }[] = [];
+							op_array.forEach(
+								op=> {!op_array_unique.some(unique=> unique.name == op.name) ? 
+											op_array_unique.push({name: op.name,total_matches: 0,individual_wins: 0,individual_win_rate: 0}) : null;
+											// console.log (`${op.name} is unique`);
+										
+										})
+							//-- for to be parsed they need the players per persong the matches and the win rates
+							console.log(`Hovered on the ${pr_name}`);
+							//individual total matches
+							op_array_unique.map(op => personal_matches.forEach(match => match.player1_username === op.name || match.player2_username === op.name ? op.total_matches++ : null));
+							//wins
+							op_array_unique.map(op => personal_matches.forEach(match => (match.player1_username === op.name || match.player2_username === op.name) && (match.winner_username === pr_name) ? op.individual_wins++: null));
+							//wins rate
+							op_array_unique.map(op=> op.total_matches !== 0 ? op.individual_win_rate = Math.round(op.individual_wins / op.total_matches) * 100: 0);
+							// individual total games bars
+							const maxPrBarHeight = 12 * 4;
+							const pr_total_games_chrt = op_array_unique.map(op=>{
+								const barHeight = Math.round((op.total_matches / personal_matches.length) * maxPrBarHeight);
+								const safeName = String(op.name).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+								return /*html*/`
+								<div class="flex flex-col items-center">
+									<div class="text-xs mt-1 text-white">${op.total_matches}</div>
+									<div class="w-10 bg-gradient-to-t from-purple-600 to-pink-400 rounded" style="height: ${barHeight}px;"></div>
+									<div class="text-xs mt-1 text-white text-center">${safeName}</div>
+								</div>`;});
+							const pr_total_games_chrt_string : string = pr_total_games_chrt.join('');
+							const individualNameEl = document.getElementById("IndividualName");
+							if (individualNameEl) {
+							individualNameEl.textContent = pr_name;
+							}
+							const IndidualTotalGamesChartEl = document.getElementById("IndividualTotalGamesChart");
+							if (IndidualTotalGamesChartEl) {
+							IndidualTotalGamesChartEl.innerHTML = pr_total_games_chrt_string;
+							}
+							// individual total win rates
+							const maxPrlWinRateBarHeight = 64;
+							const pr_win_rate_chart = op_array_unique.map(opp => {
+								const barHeight = Math.round((opp.individual_win_rate / 100) * maxPrlWinRateBarHeight);
+								const safeName = String(opp.name).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+					
+								return /*html*/`
+									<div class="flex flex-col items-center">
+										<div class="text-xs mt-1 text-white">${opp.individual_win_rate}%</div>
+										<div class="w-10 bg-gradient-to-t from-purple-600 to-pink-400 rounded" style="height: ${barHeight}px;"></div>
+										<div class="text-xs mt-1 text-white text-center">${safeName}</div>
+									</div>
+									`;
+							});
+							const pr_win_rate_chart_string = pr_win_rate_chart.join('');
+							const WinRateNameEl = document.getElementById("WinRateName");
+							if (WinRateNameEl) {
+							WinRateNameEl.textContent = pr_name;
+							}
+							const WinRateChartEl = document.getElementById("WinRateChart");
+							if (WinRateChartEl) {
+							WinRateChartEl.innerHTML = pr_win_rate_chart_string;
+							}
+						}))
+			})
 		addMatchSummaryTranslations(languageStore.language);
 		languageStore.subscribe((lang) => addMatchSummaryTranslations(lang));
 	} catch (e: any) {
