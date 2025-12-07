@@ -119,38 +119,7 @@ export async function renderMatchSummary(root: HTMLElement) {
 		// normal match, tournament match chart
 		var total_tournament_matches = 0;
 		var total_normal_matches = 0;
-		// // add dummy data tournament = true
-		const dummyMatch: fMatchForSummary = {
-			matchID: 14,
-			player1_username: "philipp",
-			player2_username: "LeafiPU",
-			player1_score: 5,
-			player2_score: 4,
-			winner_username: "cat",
-			is_tournament_match: true, // this marks it as a tournament match
-			played_at: "2025-12-06 15:00:00"
-		  };
-		  const dummyMatch_two: fMatchForSummary = {
-			matchID: 15,
-			player1_username: "cat",
-			player2_username: "philipp",
-			player1_score: 5,
-			player2_score: 4,
-			winner_username: "cat",
-			is_tournament_match: true, // this marks it as a tournament match
-			played_at: "2025-12-06 15:00:00"
-		  };
-		  const dummyMatch_three: fMatchForSummary = {
-			matchID: 16,
-			player1_username: "cat",
-			player2_username: "doggo",
-			player1_score: 5,
-			player2_score: 4,
-			winner_username: "cat",
-			is_tournament_match: true, // this marks it as a tournament match
-			played_at: "2025-12-06 15:00:00"
-		  };
-		  summary.unshift(dummyMatch_three, dummyMatch_two ,dummyMatch);
+	
 		var total_matches = summary.length;
 		summary.forEach(m => { m.is_tournament_match ? total_tournament_matches++ : null });
 		console.log(`total_tournament_matches: ${total_tournament_matches}`);
