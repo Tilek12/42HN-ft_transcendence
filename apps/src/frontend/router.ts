@@ -17,7 +17,7 @@ import { renderSettings } from './pages/settings.js';
 import { initGlobalLanguageSelector } from './utils/globalLanguageSelector.js';
 import { renderMatchSummary } from './pages/renderMatchSummary.js';
 
-const protectedRoutes = ['#/profile', '#/game', '#/settings', '#/online-tournament', '#/local-tournament', '#/settings']//, '#/leaderboard'];
+const protectedRoutes = ['#/profile', '#/game', '#/settings', '#/online-tournament', '#/local-tournament', '#/settings', '#/leaderboard'];
 export async function router()
 {
 	const	root = document.getElementById('app')!;
@@ -47,8 +47,8 @@ export async function router()
 				case '#/profile':
 					renderProfile(root);
 					break;
-				// case '#/leaderboard':
-				// 	renderLeaderboard(root);
+				case '#/leaderboard':
+					renderMatchSummary(root);
 					break;
 				case '#/settings':
 					renderSettings(root);
