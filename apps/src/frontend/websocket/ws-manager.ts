@@ -1,6 +1,9 @@
 import { getUser } from '../utils/auth.js';
 import { GameMode, PresenceUser, PresenceCallback } from '../frontendTypes.js';
 import { renderProfile } from '../pages/profile.js';
+import { renderProfiles } from '../pages/renderProfiles.js';
+import { renderFriendRequestsList } from '../pages/renderFriendRequestList.js';
+import { renderFriendsList } from '../pages/renderFriends.js';
 
 
 function setOnlineStatusOffline() {
@@ -145,7 +148,9 @@ class WebSocketManager {
 					else if (msg.type === 'renderUpdate')
 					{
 						console.log('[ RENDERUPDATE ]')
-						renderProfile(document.getElementById('app')!)
+						renderProfiles();
+						renderFriendRequestsList();
+						renderFriendsList();
 					}
 					this.notifyPresenceListeners();
 					onUpdate?.(msg);

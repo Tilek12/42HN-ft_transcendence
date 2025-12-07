@@ -5,5 +5,5 @@ WORKDIR	/app
 COPY	scripts/setup-docker.sh /init/
 RUN		chmod +x /init/setup-docker.sh
 
-
+USER node
 CMD ["/init/setup-docker.sh"]

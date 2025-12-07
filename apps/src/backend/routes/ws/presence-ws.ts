@@ -43,14 +43,15 @@ export const sendRenderUpdate = (id: number) => {
 }
 
 
-export const sendRenderUpdateAll = () => {
+export const sendRenderUpdateAll = (exceptID:number) => {
 	const users = userManager.getOnlineUsers();
+	
 	const msg = JSON.stringify({
 		type: 'renderUpdate',
 	});
 	for (const u of users) {
 		const socket = userManager.getUser(u.id)?.presenceSocket;
-		if (socket && socket.readyState === socket.OPEN) {
+		if (u.id != exceptID && socket && socket.readyState === socket.OPEN) {
 			try { socket.send(msg); } catch (err) { console.warn('Presence send error', err); }
 		}
 	}
