@@ -582,6 +582,7 @@ export function renderLogin(root: HTMLElement) {
 							'Content-Type': 'application/json',
 							'enablejwt': `${response_data.enablejwt}`,
 						},
+						body: JSON.stringify({}),
 
 					});
 					if (!res.ok) {
