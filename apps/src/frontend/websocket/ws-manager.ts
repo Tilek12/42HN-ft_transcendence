@@ -106,6 +106,7 @@ class WebSocketManager {
 			socket.onclose = () => {
 				this.gameSocket = null;
 			}
+			console.log('closing socket on disconnect gamesocket call')
 			socket.close();
 		}
 	}

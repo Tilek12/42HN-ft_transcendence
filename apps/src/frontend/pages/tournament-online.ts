@@ -131,6 +131,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
 	document.getElementById('quit-online-match')!.addEventListener('click', () => {
 		if (gameSocket) {
 			gameSocket.send(JSON.stringify({ type: 'quit' }));
+            console.log('quit button pressed');
 			gameSocket.close();
 			gameSocket = null;
 		}
@@ -265,6 +266,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
 					currentMatch = null;
 					gameState = null;
 					if (gameSocket) {
+                        console.log('closing websocket on tournament end');
 						gameSocket.close();
 						gameSocket = null;
 					}
@@ -555,6 +557,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
 							currentMatch = null;
 							gameState = null;
 							if (gameSocket) {
+                                console.log('closing socket on \'end\' msg type');
 								gameSocket.close();
 								gameSocket = null;
 							}
