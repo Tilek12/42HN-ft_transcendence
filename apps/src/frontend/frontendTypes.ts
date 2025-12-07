@@ -144,6 +144,19 @@ export type matchHistory = {
 //////////////////////////////////////////////////////////////////////
 /// --- Tournament Types (copied from backend for consistency) --- ///
 //////////////////////////////////////////////////////////////////////
+
+export type Tournament = {
+  id: string
+      size: 4 | 8,
+      joined: number,
+      hostId: number,
+      status: number,
+      playerIds: string[],
+}
+
+
+
+
 export type TournamentMessage =
   | JoinOnlineTournamentMessage
   | CreateOnlineTournamentMessage

@@ -129,14 +129,14 @@ class OnlineTournamentManager {
 
 				console.log(`🏆 [ONLINE Tournament: ${tournament.id}] Winner: ${winners[0]!.id}`);
 
-				// Send tournamentEnd message
+				// Send onlineTournamentEnd message
 				const winner = winners[0];
 				// Online: broadcast to participants
 				for (const participant of tournament.participants) {
 					const user = userManager.getUser(Number(participant.id));
 					if (user && user.onlineTournamentSocket?.readyState === WebSocket.OPEN) {
 						user.onlineTournamentSocket.send(JSON.stringify({
-							type: 'tournamentEnd',
+							type: 'onlineTournamentEnd',
 							winner: { id: winner!.id, name: winner!.name }
 						}));
 					}
@@ -188,7 +188,7 @@ class OnlineTournamentManager {
 				const user = userManager.getUser(Number(player.id));
 				if (user && user.onlineTournamentSocket?.readyState === WebSocket.OPEN) {
 					user.onlineTournamentSocket.send(JSON.stringify({
-						type: 'matchStart',
+						type: 'onlineMatchStart',
 						tournamentId: tournament.id,
 						tournamentSize: tournament.size,
 						matchId: match.id,
@@ -252,7 +252,7 @@ class OnlineTournamentManager {
 			const user = userManager.getUser(Number(player.id));
 			if (user?.onlineTournamentSocket?.readyState === WebSocket.OPEN) {
 				user.onlineTournamentSocket.send(JSON.stringify({
-					type: 'matchStart',
+					type: 'onlineMatchStart',
 					tournamentId: tournament.id,
 					tournamentSize: tournament.size,
 					matchId: match.id,
@@ -378,7 +378,7 @@ class OnlineTournamentManager {
 		const tournament = this.onlineTournaments.get(tournamentId);
 		if (!tournament) return;
 		const update = JSON.stringify({
-			type: 'tournamentUpdate',
+			type: 'onlineTournamentUpdate',
 			state: this.getTournamentState(tournament.id)
 		});
 
@@ -511,7 +511,7 @@ class OnlineTournamentManager {
 
 			// Notify all clients about the tournament deletion
 			const update = JSON.stringify({
-				type: 'tournamentDeleted',
+				type: 'onlineTournamentDeleted',
 				id: tournament.id
 			});
 			for (const u of userManager.getOnlineUsers()) {

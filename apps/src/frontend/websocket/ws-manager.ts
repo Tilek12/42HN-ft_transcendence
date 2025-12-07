@@ -1,5 +1,5 @@
 import { getUser } from '../utils/auth.js';
-import { GameMode, PresenceUser, PresenceCallback } from '../frontendTypes.js';
+import { GameMode, PresenceUser, PresenceCallback, Tournament } from '../frontendTypes.js';
 import { renderProfile } from '../pages/profile.js';
 
 
@@ -37,7 +37,7 @@ class WebSocketManager {
 	private retryAttempts = 0;
 	private reconnectTimeout: any = null;
 	private activeUserCount = 0;
-	private activeTournaments: any[] = [];
+	private activeTournaments: Tournament[] = [];
 	private presenceUsers: PresenceUser[] = [];
 	private presenceListeners: PresenceCallback[] = [];
 	constructor() {
@@ -111,6 +111,9 @@ class WebSocketManager {
 	// -------- PRESENCE SOCKET -------- //
 	///////////////////////////////////////
 
+
+
+
 	connectPresenceSocket(onUpdate?: (msg: any) => void) {
 		if (this.presenceSocket) {
 			console.log('already present')
@@ -140,7 +143,7 @@ class WebSocketManager {
 						this.activeUserCount = msg.count || 0;
 						this.presenceUsers = msg.users || [];
 					} else if (msg.type === 'tournamentUpdate') {
-						this.activeTournaments = msg.tournaments || [];
+						this.activeTournaments = msg.tournaments;
 					}
 					else if (msg.type === 'renderUpdate')
 					{

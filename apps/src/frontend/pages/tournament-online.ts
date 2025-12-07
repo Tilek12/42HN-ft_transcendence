@@ -3,6 +3,8 @@ import { getUser } from '../utils/auth.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { COLORS } from '../constants/colors.js';
 import { languageStore, translations_tournament_render, transelate_per_id } from './languages.js';
+import { showToast } from './listenerUpdatePasswordAndUsername.js';
+import { Tournament } from '../frontendTypes.js';
 
 let currentTournamentId: string | null = null;
 let currentMatch: any = null;
@@ -56,14 +58,13 @@ export async function renderOnlineTournament(root: HTMLElement) {
             gameSocket = null;
         }
         document.getElementById('online-tournament-match')!.classList.add('hidden');
-        // document.getElementById('tournament-mode')!.classList.remove('hidden');
         isPlayerInMatch = false;
         currentMatch = null;
         gameState = null;
     });
 
     function handleTournamentMessage(msg: any) {
-        if (msg.type === 'matchStart') {
+        if (msg.type === 'onlineMatchStart') {
 
             if (msg.participants[0].id === userId || msg.participants[1].id === userId) {
                 isPlayerInMatch = true;
@@ -74,7 +75,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
                 // Create game socket first, then signal readiness
                 gameSocket = wsManager.createGameSocket('online-match');
                 if (!gameSocket) {
-                    alert('Failed to create game socket for tournament match');
+                    showToast('Failed to create game socket for tournament match', 'error');
                     return;
                 }
 
@@ -89,7 +90,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
             } else {
                 console.log('🎯 Spectating match in ONLINE Tournament bracket');
             }
-        } else if (msg.type === 'tournamentEnd') {
+        } else if (msg.type === 'onlineTournamentEnd') {
             const isWinner = msg.winner.id === userId;
             const announcementEl = document.getElementById('winner-announcement')!;
 
@@ -121,7 +122,6 @@ export async function renderOnlineTournament(root: HTMLElement) {
 
                 setTimeout(() => {
                     document.getElementById('online-tournament-match')!.classList.add('hidden');
-                    // document.getElementById('tournament-mode')!.classList.remove('hidden');
                     isPlayerInMatch = false;
                     currentMatch = null;
                     gameState = null;
@@ -152,9 +152,12 @@ export async function renderOnlineTournament(root: HTMLElement) {
         const tournaments = wsManager.onlineTournaments;
 
         const user = getUser();
-        const userId = user?.id;
+        if (!user)
+            return;
+        const userId = user.id;
 
-        const userTournament = tournaments.find(t => t.playerIds.includes(userId));
+        const userTournament = tournaments.find(t => t.playerIds.includes(userId.toString()));  // <------ FIX IT. EXPRESSION IS WRONG -----
+
         currentTournamentId = userTournament ? userTournament.id : null;
 
         if (userTournament) {
@@ -176,7 +179,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
             infoBox.querySelector('#quit-tournament-btn')?.addEventListener('click', () => {
                 wsManager.quitOnlineTournament();
                 currentTournamentId = null;
-                alert('🚪 You left the tournament.');
+                showToast('🚪 You left the tournament.', 'error');
                 wsManager.disconnectOnlineTournamentSocket();
                 renderTournamentList();
             });
@@ -194,8 +197,9 @@ export async function renderOnlineTournament(root: HTMLElement) {
 
         for (const t of tournaments) {
             const isFull = t.joined >= t.size;
-            const userInTournament = t.playerIds.includes(userId);
-
+            const userInTournament = t.playerIds.includes(userId.toString());
+            console.log("tournament:", t);
+            console.log("userintournament:", userInTournament, userId);
             const div = document.createElement('div');
             div.className =
                 /*html*/
@@ -254,56 +258,55 @@ export async function renderOnlineTournament(root: HTMLElement) {
 
     function joinTournament(id: string, size: 4 | 8) {
         if (currentTournamentId) {
-            alert(`⚠️ You're already in Tournament ${currentTournamentId}.`);
+            showToast(`⚠️ You're already in ONLINE Tournament ${currentTournamentId}.`, 'error');
             return;
         }
 
         const socket = wsManager.connectOnlineTournamentSocket('join', size, id, (msg) => {
             handleTournamentMessage(msg);
-            if (msg.type === 'tournamentJoined') {
+            if (msg.type === 'onlineTournamentJoined') {
                 currentTournamentId = msg.id;
-                alert('🎮 Joined tournament. Waiting for match...');
+                showToast('🎮 Joined ONLINE tournament. Waiting for match...');
                 renderTournamentList();
-            } else if (msg.type === 'tournamentLeft') {
+            } else if (msg.type === 'onlineTournamentLeft') {
                 currentTournamentId = null;
                 renderTournamentList();
             } else if (msg.type === 'end') {
-                alert(`🏁 Tournament finished! Winner: ${msg.winner}`);
+                showToast(`🏁 ONLINE Tournament finished! Winner: ${msg.winner}`);
                 currentTournamentId = null;
                 wsManager.disconnectOnlineTournamentSocket();
                 renderTournamentList();
             }
         });
 
-        if (!socket) alert('Connection failed');
+        if (!socket) showToast('Connection failed', 'error');
     }
 
     function createTournament(size: 4 | 8) {
         if (currentTournamentId) {
-            alert(`⚠️ You're already in a tournament.`);
+            showToast(`⚠️ You're already in a tournament.`, 'error');
             return;
         }
 
         const socket = wsManager.connectOnlineTournamentSocket('create', size, undefined, (msg) => {
             handleTournamentMessage(msg);
-            if (msg.type === 'tournamentJoined') {
+            if (msg.type === 'onlineTournamentJoined') {
                 currentTournamentId = msg.id;
-                alert(`🎉 Created Tournament ${msg.id}`);
+                showToast(`🎉 Created ONLINE Tournament ${msg.id}`);
                 renderTournamentList();
             } else if (msg.type === 'end') {
-                alert(`🏁 Tournament finished! Winner: ${msg.winner}`);
+                showToast(`🏁 ONLINE Tournament finished! Winner: ${msg.winner}`);
                 currentTournamentId = null;
                 wsManager.disconnectOnlineTournamentSocket();
                 renderTournamentList();
             }
         });
 
-        if (!socket) alert('Failed to create tournament');
+        if (!socket) showToast('Failed to create tournament', 'error');
     }
 
     function startOnlineTournamentMatch(msg: any) {
         // Hide tournament lobby, show match area
-        // document.getElementById('tournament-mode')!.classList.add('hidden');
         document.getElementById('online-section')!.classList.add('hidden');
         document.getElementById('online-tournament-match')!.classList.remove('hidden');
 
@@ -360,7 +363,6 @@ export async function renderOnlineTournament(root: HTMLElement) {
                         document.getElementById('online-status')!.textContent = `Match ended. Winner: ${gameMsg.winner.name}`;
                         setTimeout(() => {
                             document.getElementById('online-tournament-match')!.classList.add('hidden');
-                            // document.getElementById('tournament-mode')!.classList.remove('hidden');
                             isPlayerInMatch = false;
                             currentMatch = null;
                             gameState = null;
@@ -372,9 +374,8 @@ export async function renderOnlineTournament(root: HTMLElement) {
                         break;
 
                     case 'disconnect':
-                        alert('Opponent disconnected');
+                        showToast('Opponent disconnected', 'error');
                         document.getElementById('online-tournament-match')!.classList.add('hidden');
-                        // document.getElementById('tournament-mode')!.classList.remove('hidden');
                         isPlayerInMatch = false;
                         currentMatch = null;
                         gameState = null;
@@ -387,9 +388,8 @@ export async function renderOnlineTournament(root: HTMLElement) {
             };
 
             gameSocket.onerror = () => {
-                alert('Game socket error');
+                showToast('Game socket error', 'error');
                 document.getElementById('online-tournament-match')!.classList.add('hidden');
-                // document.getElementById('tournament-mode')!.classList.remove('hidden');
                 isPlayerInMatch = false;
             };
         }
@@ -425,7 +425,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
             const origOnClose = gameSocket.onclose;
             gameSocket.onclose = (ev) => {
                 cleanup();
-                if (origOnClose) origOnClose.call(gameSocket, ev);
+                if (origOnClose && gameSocket) origOnClose.call(gameSocket, ev);
             };
         }
     }

@@ -19,7 +19,7 @@ function handle_message(text: string, user:User, userId:string, socket:WebSocket
 	if (data.type === 'quitOnlineTournament') {
 		onlineTournamentManager.quitOnlineTournament(userId);
 		userManager.removeOnlineTournamentSocket(user);
-		socket.send(JSON.stringify({ type: 'tournamentLeft' }));
+		socket.send(JSON.stringify({ type: 'onlineTournamentLeft' }));
 	} else if (data.type === 'playerReady') {
 		// Handle player socket ready signal for tournament matches
 		onlineTournamentManager.playerSocketReady(data.tournamentId, data.matchId, userId);
@@ -27,14 +27,18 @@ function handle_message(text: string, user:User, userId:string, socket:WebSocket
 }
 
 const wsOnlineTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
-	fastify.get('/online-tournament', { websocket: true }, (socket: WebSocket, req: FastifyRequest) => {
+
+
+	fastify.get('/online-tournament',
+		 { websocket: true },
+		  (socket: WebSocket, req: FastifyRequest) => {
+
 		const params = new URLSearchParams(req.url?.split('?')[1] || '');
-		const token = params.get('token');
 		const action = params.get('action'); // "create" or "join"
 		const tournamentId = params.get('id');
 		const size = parseInt(params.get('size') || '4') as 4 | 8;
 
-		if (!token || !action || (action === 'join' && !tournamentId)) {
+		if (!action || (action === 'join' && !tournamentId)) {
 			socket.close(4001, '[ONLINE Tournament WS] Missing or invalid parameters');
 			return;
 		}
@@ -42,13 +46,12 @@ const wsOnlineTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 		const buffer: any[] = [];
 		let authenticated = false;
 		let user: User | undefined;
-		let decoded: JWTPayload
+		let decoded = req.user as JWTPayload;
 		let userId: string = "unauthenticated";
 
 		socket.on('message', async (raw: any) => {
 			try {
 				if (!authenticated) {
-					decoded = fastify.jwt.verify(raw) as JWTPayload;
 					user = userManager.getUser(decoded.id)
 					if (!user)
 						throw new Error(`[ONLINE Tournament WS] User not valid: ${decoded.id}`);
@@ -76,7 +79,7 @@ const wsOnlineTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 
 					userManager.setInOnlineTournament(user, true);
 					console.log(`🎯 [ONLINE Tournament WS] Connected: ${userId} (${action})`);
-					socket.send(JSON.stringify({ type: 'tournamentJoined', id: tournament.id }));
+					socket.send(JSON.stringify({ type: 'onlineTournamentJoined', id: tournament.id }));
 					while (buffer.length) {
 						const raw = buffer.shift();
 						handle_message(raw.toString(), user,userId, socket);
