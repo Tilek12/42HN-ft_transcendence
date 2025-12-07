@@ -425,7 +425,7 @@ export const translations_login_page: TranslationSet = {
 
 export const translations_game_render: TranslationSet = {
 	EN: {
-		pong_game_header: 'Pong Game',
+		pong_game_header: 'Pong Arena',
 		play_alone: 'Play Alone',
 		play_online: 'Play Online (1v1)',
 		play_local_tournament: 'Play Local Tournament',
@@ -433,7 +433,7 @@ export const translations_game_render: TranslationSet = {
 		info: 'Choose a game mode to begin'
 	},
 	DE: {
-		pong_game_header: 'Pong-Spiel',
+		pong_game_header: 'Pong-Arena',
 		play_alone: 'Alleine spielen',
 		play_online: 'Online spielen (1v1)',
 		play_local_tournament: 'Lokales Turnier spielen',
@@ -441,7 +441,7 @@ export const translations_game_render: TranslationSet = {
 		info: 'Wähle einen Spielmodus, um zu beginnen'
 	},
 	GR: {
-		pong_game_header: 'Παιχνίδι Pong',
+		pong_game_header: 'Αρένα Pong',
 		play_alone: 'Παίξε Μόνος',
 		play_online: 'Παίξε Online (1v1)',
 		play_local_tournament: 'Παίξε Τοπικό Τουρνουά',
@@ -467,25 +467,52 @@ export const translations_friends_render: TranslationSet = {
 
 export const translations_tournament_render: TranslationSet = {
 	EN: {
-		tournament_lobby_header: '🏆 Tournament Lobby',
+		tournament_lobby_header: '🏆 Local Tournament Lobby',
 		glory_header: 'Join a tournament and compete for glory!',
 		create_four_header: 'Create 4-Player Tournament',
 		create_eight_header: 'Create 8-Player Tournament',
-		empty_p_msg: 'No active tournaments yet.'
+		empty_p_msg: 'No active tournaments yet.',
+		tournament_size: 'Tournament Size',
+		player_names: 'Player Names',
+		create_local_tournament: 'Create Local Tournament',
+		quit_tournament: 'Quit Tournament',
+		waiting: 'Waiting...',
+		player_championship: '🏆 4 Players Championship',
+		elite_tournament: '👑 8 Players Elite Tournament',
+		player: 'Player',
+		enter_player_name: 'Enter player name...'
 	},
 	DE: {
-		tournament_lobby_header: '🏆 Turnierlobby',
+		tournament_lobby_header: '🏆 Lokale Turnierlobby',
 		glory_header: 'Tritt einem Turnier bei und kämpfe um Ruhm!',
 		create_four_header: '4-Spieler-Turnier erstellen',
 		create_eight_header: '8-Spieler-Turnier erstellen',
-		empty_p_msg: 'Noch keine aktiven Turniere.'
+		empty_p_msg: 'Noch keine aktiven Turniere.',
+		tournament_size: 'Turniergröße',
+		player_names: 'Spielernamen',
+		create_local_tournament: 'Lokales Turnier erstellen',
+		quit_tournament: 'Turnier verlassen',
+		waiting: 'Warten...',
+		player_championship: '🏆 4-Spieler-Meisterschaft',
+		elite_tournament: '👑 8-Spieler-Elite-Turnier',
+		player: 'Spieler',
+		enter_player_name: 'Spielernamen eingeben...'
 	},
 	GR: {
-		tournament_lobby_header: '🏆 Λόμπι Τουρνουά',
+		tournament_lobby_header: '🏆 Τοπικό λόμπι τουρνουά',
 		glory_header: 'Μπες σε ένα τουρνουά και αγωνίσου για τη δόξα!',
 		create_four_header: 'Δημ. Τουρνουά 4 Παικτών',
 		create_eight_header: 'Δημ. Τουρνουά 8 Παικτών',
-		empty_p_msg: 'Δεν υπάρχουν ενεργά τουρνουά ακόμα.'
+		empty_p_msg: 'Δεν υπάρχουν ενεργά τουρνουά ακόμα.',
+		tournament_size: 'Μέγεθος Τουρνουά',
+		player_names: 'Ονόματα Παικτών',
+		create_local_tournament: 'Δημιουργία Τοπικού Τουρνουά',
+		quit_tournament: 'Έξοδος από Τουρνουά',
+		waiting: 'Αναμονή...',
+		player_championship: '🏆 Πρωτάθλημα 4 Παικτών',
+		elite_tournament: '👑 Elite Τουρνουά 8 Παικτών',
+		player: 'Παίκτης',
+		enter_player_name: 'Εισάγετε όνομα παίκτη...'
 	}
 };
 

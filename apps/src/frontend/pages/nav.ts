@@ -126,59 +126,132 @@ export function renderNav() {
 		nav.innerHTML =
 			/*html*/
 			`
-			<!-- Logo -->
-				<div class="flex items-center ml-5 space-x-1">
-						<div class="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-lg">
-							<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-							</svg>
+			<!-- Modern Gaming Navigation Bar -->
+			<div class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/80 via-gray-900/70 to-transparent backdrop-blur-xl">
+				<div class="max-w-[1920px] mx-auto px-6 py-4">
+					<div class="flex items-center justify-between">
+						<!-- Logo Section -->
+						<a href="#/" class="flex items-center gap-3 group">
+							<div class="relative">
+								<!-- Glow effect -->
+								<div class="absolute -inset-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl opacity-75 group-hover:opacity-100 blur-lg transition-all duration-300"></div>
+								<!-- Logo icon -->
+								<div class="relative w-14 h-14 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-xl flex items-center justify-center shadow-2xl transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+									<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+									</svg>
+								</div>
+							</div>
+							<div class="flex flex-col">
+								<span class="text-2xl font-black bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent tracking-tight">TRANSCENDENCE</span>
+								<span class="text-xs text-purple-300/60 font-semibold tracking-wider uppercase">Pong Arena</span>
+							</div>
+						</a>
+
+						<!-- Desktop Navigation -->
+						<nav id="navigation" class="hidden lg:flex items-center gap-2">
+							<a id="nav_game" href="#/game" class="group relative px-6 py-3 text-white font-semibold transition-all duration-300 hover:text-purple-300">
+								<span class="relative z-10 flex items-center gap-2">
+									<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+									</svg>
+								</span>
+								<!-- Animated underline -->
+								<span class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+								<!-- Glow on hover -->
+								<span class="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-purple-500/10 to-pink-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></span>
+							</a>
+
+							<a id="nav_local_tournament" href="#/local-tournament" class="group relative px-6 py-3 text-white font-semibold transition-all duration-300 hover:text-purple-300">
+								<span class="relative z-10 flex items-center gap-2">
+									<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+									</svg>
+								</span>
+								<span class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+								<span class="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-purple-500/10 to-pink-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></span>
+							</a>
+
+							<a id="nav_online_tournament" href="#/online-tournament" class="group relative px-6 py-3 text-white font-semibold transition-all duration-300 hover:text-purple-300">
+								<span class="relative z-10 flex items-center gap-2">
+									<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+									</svg>
+								</span>
+								<span class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+								<span class="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-purple-500/10 to-pink-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></span>
+							</a>
+
+							<a id="nav_leaderboard" href="#/leaderboard" class="group relative px-6 py-3 text-white font-semibold transition-all duration-300 hover:text-purple-300">
+								<span class="relative z-10 flex items-center gap-2">
+									<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+									</svg>
+								</span>
+								<span class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+								<span class="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-purple-500/10 to-pink-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></span>
+							</a>
+
+							<a id="nav_profile" href="#/profile" class="group relative px-6 py-3 text-white font-semibold transition-all duration-300 hover:text-purple-300">
+								<span class="relative z-10 flex items-center gap-2">
+									<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+									</svg>
+								</span>
+								<span class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+								<span class="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-purple-500/10 to-pink-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></span>
+							</a>
+
+							<a id="nav_settings" href="#/settings" class="group relative px-6 py-3 text-white font-semibold transition-all duration-300 hover:text-purple-300">
+								<span class="relative z-10 flex items-center gap-2">
+									<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+									</svg>
+								</span>
+								<span class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+								<span class="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-purple-500/10 to-pink-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></span>
+							</a>
+						</nav>
+
+						<!-- Right Side: Online Status & Auth -->
+						<div class="flex items-center gap-4">
+							<!-- Online Users Badge -->
+							<div id="user_list" class="hidden lg:flex group relative items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500/10 to-emerald-500/10 backdrop-blur-sm rounded-full border border-green-400/30 hover:border-green-400/50 transition-all duration-300 cursor-pointer">
+								<div class="relative">
+									<div id="status_symbol" class="w-2 h-2 rounded-full bg-green-400 shadow-lg shadow-green-400/50"></div>
+									<div class="absolute inset-0 w-2 h-2 rounded-full bg-green-400 animate-ping"></div>
+								</div>
+								<span id="active-users-count" class="text-sm font-bold text-green-300">${count}</span>
+								<svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+								</svg>
+								<!-- Dropdown -->
+								<ul id="active-users-list" class="absolute top-full right-0 mt-3 hidden group-hover:block bg-gray-900/98 backdrop-blur-xl text-white text-sm rounded-2xl p-2 min-w-[220px] max-h-80 overflow-y-auto z-50 border border-purple-500/30 shadow-2xl shadow-purple-500/20">
+									<div class="px-3 py-2 text-xs font-bold text-purple-300 uppercase tracking-wider border-b border-white/10 mb-1">Online Players</div>
+									${users.map(u => `<li class="px-3 py-2 hover:bg-purple-500/20 rounded-lg transition-all duration-200 cursor-pointer font-medium">${u.name}</li>`).join('')}
+								</ul>
+							</div>
+
+							<!-- Login/Logout Buttons -->
+							<button type="button" id="login-btn" class="hidden lg:flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-105 hover:-translate-y-0.5">
+								<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+								</svg>
+							</button>
+							
+							<button type="button" id="logout-btn" class="hidden lg:flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold rounded-xl shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all duration-300 transform hover:scale-105 hover:-translate-y-0.5">
+								<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+								</svg>
+							</button>
 						</div>
-							<a href="#/" class="text-white font-bold text-xl hover:underline rounded">Transcendence</a>
 					</div>
-			<!--div class="flex items-center justify-between h-16 2 red-500 dashed"-->
-				<nav id="navigation" class="flex flex-wrap justify-center gap-4 white/20 p-2 z-50 ">
-
-					<!-- Navigation Links -->
-					<div class="flex flex-wrap gap-2" >
-						<a id="nav_game" href="#/game" class=" flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
-						<span class="relative z-10"></span>
-						</a>
-
-						<a id="nav_local_tournament" href="#/local-tournament" class=" flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
-						<span class="relative z-10"></span>
-						</a>
-
-						<a id="nav_online_tournament" href="#/online-tournament" class=" flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
-						<span class="relative z-10"></span>
-						</a>
-
-						<a id="nav_leaderboard" href="#/leaderboard" class="flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
-						<span class="relative z-10"></span>
-						</a>
-
-						<a id="nav_profile" href="#/profile" class="flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10">
-						<span class="relative z-10"></span>
-						</a>
-
-						<a id="nav_settings" href="#/settings" class="flex group relative px-4 py-2 rounded-lg text-white/80 hover:text-white transition-all duration-300 hover:bg-white/10 ">
-						<span class="relative z-10"></span>
-						</a>
-					</div>
-
-					<!-- Online Users -->
-					<div id="user_list" class="group relative text-white cursor-pointer items-center justify-center flex space-x-1">
-						<div id="status_symbol"class="w-3 h-3 rounded-full bg-green-400 animate-pulse">
-						</div>
-						<span id="active-users-count" class="text-sm">${count}</span>
-						<ul id="active-users-list" class="absolute top-full mt-1 hidden group-hover:block bg-white/90 text-black text-sm rounded-lg p-2 max-h-64 overflow-y-auto z-50">
-						${users.map(u => `<li>${u.name}</li>`)}
-						</ul>
-					</div>
-						<!-- Login Button -->
-						<button type="button" id="login-btn" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"></button>
-						<button type="button" id="logout-btn" class="hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-red-700 hover:to-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"></button>
-					</nav>
-					<!--/div-->
+				</div>
+			</div>
+			<!-- Spacer for fixed navbar -->
+			<div class="h-20"></div>
 				`;
 	}
 	languageStore.subscribe((lang) => {
