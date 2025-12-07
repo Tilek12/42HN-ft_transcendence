@@ -70,4 +70,8 @@ async function getUsernameById(id: number): Promise<string | null> {
 	return row?.username || null;
 }
 
+async function getUserList(params:type) {
+	
+}
+
 export { findUserByUsername, findUserById, createUser, deleteUser, log_in, log_out, get_login_token, logout_all_users, isUsername, updateUsername, updatePasswordById, getUsernameById };

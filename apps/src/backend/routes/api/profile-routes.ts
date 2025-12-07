@@ -19,6 +19,7 @@ import {
 	userIsBlocked,
 	parseBlockedMeList,
 	parsePendingRequests,
+	parseProfilesForTotalGamesChart,
 } from '../../database/profile';
 import { verifyPassword, hashPassword } from '../../auth/utils';
 import { JWTPayload } from '../../backendTypes';
@@ -411,7 +412,20 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 						console.log(e);
 					}
 
-				})
-	};
+			})
+
+			fastify.get<{ Querystring: parseProfilesQuery }>
+			('/parse-profiles-for-total-games-charts',
+				{ schema: parseProfilesSchema },
+				async (req, res) => {
+					try {
+						const profiles = await parseProfilesForTotalGamesChart();
+						res.send({ profiles });
+					} catch (err) {
+						res.status(400).send({ message: 'Unauthorized parse_profiles' });
+						console.log(err);
+					}
+			})
+};
 
 	export default profileRoutes;

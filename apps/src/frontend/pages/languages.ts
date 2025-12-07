@@ -568,6 +568,12 @@ export const translations_errors: TranslationSet = {
 
 export const translations_dashboards: TranslationSet = {
 	EN: {
+		normal_matches: 'Normal Matches: ',
+		tournament_matches:'Tournament Matches: ',
+		total_games_per_player: 'Total Games Per Player',
+		win_rates: 'Win Rates', 
+		total_games_of_individual: 'Total Games Of',
+		individual_win_rate_of: 'Individual Win Rate of',
 		match_summary_header: 'Match Summary',
 		match_id: 'Match ID',
 		player1_username: 'Player1',
@@ -579,6 +585,12 @@ export const translations_dashboards: TranslationSet = {
 		played_at: 'Played At'
 	},
 	DE: {
+		normal_matches: 'Normale Spiele: ',
+		tournament_matches: 'Turnierspiele: ',
+		total_games_per_player: 'Gesamtspiele pro Spieler',
+		win_rates: 'Siegesraten',
+		total_games_of_individual: 'Gesamtspiele von',
+  		individual_win_rate_of: 'Individuelle Siegesrate von',
 		match_summary_header: 'Spielübersicht',
 		match_id: 'Spiel-ID',
 		player1_username: 'Spieler 1',
@@ -591,6 +603,12 @@ export const translations_dashboards: TranslationSet = {
 	},
 	
 	GR: {
+		normal_matches: 'Κανονικοί Αγώνες: ',
+		tournament_matches: 'Αγώνες Τουρνουά: ',
+		total_games_per_player: 'Σύνολο Αγώνων ανά Παίκτη',
+		win_rates: 'Ποσοστά Νικών',
+		total_games_of_individual: 'Σύνολο αγώνων του',
+  		individual_win_rate_of: 'Ατομικό ποσοστό νικών του',
 		match_summary_header: 'Σύνοψη Αγώνα',
 		match_id: 'ID Αγώνα',
 		player1_username: 'Παίκτης 1',
