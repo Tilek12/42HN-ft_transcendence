@@ -44,8 +44,6 @@ export async function renderMatchSummary(root: HTMLElement) {
 		const summary = data.summary as fMatchForSummary[];
 
 
-
-
 		// total-games-chart and win rate chart data
 		const res_chart = await apiFetch('/api/private/parse-profiles-for-total-games-charts', {
 			method: 'GET',
@@ -157,7 +155,7 @@ export async function renderMatchSummary(root: HTMLElement) {
 			return /*html*/`
 				<div class="flex flex-col items-center">
 					<div class="text-xs mt-1 text-white">${opp.individual_win_rate}%</div>
-					<div class="w-10 h-[${barHeight}px] bg-gradient-to-t from-purple-600 to-pink-400 rounded"></div>
+					<div class="w-10 bg-gradient-to-t from-purple-600 to-pink-400 rounded" style="height: ${barHeight}px;"></div>
 					<div class="text-xs mt-1 text-white text-center">${safeName}</div>
 				</div>
 				`;
@@ -173,7 +171,7 @@ export async function renderMatchSummary(root: HTMLElement) {
 			return /*html*/`
 				<div class="flex flex-col items-center">
 					<div class="text-xs mt-1 text-white">${opp.total_matches}</div>
-					<div class="w-10 h-[${barHeight}px] bg-gradient-to-t from-purple-600 to-pink-400 rounded"></div>
+					<div class="w-10 bg-gradient-to-t from-purple-600 to-pink-400 rounded" style="height: ${barHeight}px;"></div>
 					<div class="text-xs mt-1 text-white text-center">${safeName}</div>
 				</div>
 				`;
@@ -189,7 +187,8 @@ export async function renderMatchSummary(root: HTMLElement) {
 			return /*html*/`
 				<div class="flex flex-col items-center">
 					<div class="text-xs mt-1 text-white">${p.value}</div>
-					<div class="w-10 h-[${barHeight}px] bg-gradient-to-t from-purple-600 to-pink-400 rounded"></div>
+					<!--div class="w-10 h-[${barHeight}px] bg-gradient-to-t from-purple-600 to-pink-400 rounded"></div-->
+					<div class="w-10 bg-gradient-to-t from-purple-600 to-pink-400 rounded" style="height: ${barHeight}px;"></div>
 					<div class="text-xs mt-1 text-white text-center">${safeName}</div>
 				</div>
 				`;
@@ -206,7 +205,7 @@ export async function renderMatchSummary(root: HTMLElement) {
 			return /*html*/`
 				<div class="flex flex-col items-center">
 					<div class="text-xs mt-1 text-white">${p.win_rate}%</div>
-					<div class="w-10 h-[${barHeight}px] bg-gradient-to-t from-purple-600 to-pink-400 rounded"></div>
+					<div class="w-10 bg-gradient-to-t from-purple-600 to-pink-400 rounded" style="height: ${barHeight}px;"></div>
 					<div class="text-xs mt-1 text-white text-center">${safeName}</div>
 				</div>
 				`;
