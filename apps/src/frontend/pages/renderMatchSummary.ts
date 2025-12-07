@@ -1,4 +1,4 @@
-import { Language, fMatch, fMatchHistory, fMatchForSummary, fMatchSummary, fProfile} from "../frontendTypes.js";
+import { Language, fMatch, fMatchHistory, fMatchForSummary, fMatchSummary, fProfile, fRank} from "../frontendTypes.js";
 import { apiFetch, getUser } from "../utils/auth.js";
 import { renderBackgroundFull } from "../utils/layout.js";
 import { renderConnectionErrorPage } from "./error.js";
@@ -11,8 +11,19 @@ function addMatchSummaryTranslations(lang: Language) {
 	transelate_per_id(translations_dashboards, 'tournament_matches', lang, 'TournamentMatches');
 	transelate_per_id(translations_dashboards, 'total_games_per_player', lang, 'TotalGamesPerPlayer');
 	transelate_per_id(translations_dashboards, 'win_rates', lang, 'WinRates');
+
 	transelate_per_id(translations_dashboards, 'total_games_of_individual', lang, 'TotalGamesOf');
 	transelate_per_id(translations_dashboards, 'individual_win_rate_of', lang, 'IndividualWinRateOf');
+
+	transelate_per_id(translations_dashboards, 'rank_table_header', lang, 'RankTableHeader');
+	transelate_per_id(translations_dashboards, 'rank_id', lang, 'RankID');
+	transelate_per_id(translations_dashboards, 'username', lang, 'Username');
+	transelate_per_id(translations_dashboards, 'wins', lang, 'Wins');
+	transelate_per_id(translations_dashboards, 'trophies', lang, 'Trophies');
+	transelate_per_id(translations_dashboards, 'total_matches', lang, 'TotalMatches');
+	transelate_per_id(translations_dashboards, 'win_rate', lang, 'WinRate');
+
+
 	transelate_per_id(translations_dashboards, 'match_summary_header', lang, 'MatchSummaryHeader');
 	transelate_per_id(translations_dashboards, 'match_id', lang, 'MatchID');
 	transelate_per_id(translations_dashboards, 'player1_username', lang, 'Player1');
@@ -24,6 +35,19 @@ function addMatchSummaryTranslations(lang: Language) {
 	transelate_per_id(translations_dashboards, 'played_at', lang, 'PlayedAt');
 }
 
+const rankTableCreator =
+(rank_array:fRank[]) : string => {
+	return rank_array.map((rank: fRank, index) => `
+	<tr class="border-t border-white/10 ${index % 2 === 0 ? 'bg-white/5' : 'bg-white/10'} hover:bg-white/20 transition-colors duration-200">
+	<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm">${index + 1}</td>
+	<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm truncate max-w-[80px]">${rank.username}</td>
+	<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm">${rank.wins}</td>
+	<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm">${rank.trophies}</td>
+	<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm">${rank.total_matches}</td>
+	<td class="py-2 px-2 text-white font-medium text-xs lg:text-sm">${rank.win_rate}</td>
+	</tr>
+`).join('');
+};
 
 export async function renderMatchSummary(root: HTMLElement) {
 	try {
@@ -72,6 +96,21 @@ export async function renderMatchSummary(root: HTMLElement) {
 
 			console.log(`win rate: ${wins_rate_var}`);
 		})
+
+		// rank table
+		var rank_array: fRank[] = [];
+		chart_profiles.forEach((pr, i)=> {
+			var rank = {} as fRank;
+			rank.rankID = 1;
+			rank.username = pr.username;
+			rank.wins = Number(pr.wins);
+			rank.trophies = Number(pr.trophies);
+			rank.total_matches = Number(pr.wins) + Number(pr.losses);
+			rank.win_rate = rank.total_matches !== 0 ? Math.round(100 * (rank.wins / rank.total_matches)) : 0;
+			rank_array.push(rank);
+			console.log(`rank[${i}] = ${rank.username}, rank.wins : ${rank.wins}, rank.trophies : ${rank.trophies},rank.total_matches: ${rank.total_matches}`);
+		});
+
 		// win rate chart
 		var total_win_rate = 0;
 		wins_rate_array.forEach(v => total_win_rate += v.win_rate);
@@ -227,6 +266,26 @@ export async function renderMatchSummary(root: HTMLElement) {
 					</div>
 				  </div>
 			  
+					<!-- Rank Table -->
+					<div class="overflow-y-auto overflow-x-hidden pr-1 w-full">
+					<span id="RankTableHeader"></span>
+					<table id="RankTable" class="w-full text-left border-collapse text-sm">
+						<thead>
+						<tr class="bg-white/20 backdrop-blur-sm">
+							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="RankID"></th>
+							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="Username"></th>
+							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="Wins"></th>
+							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="Trophies"></th>
+							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="TotalMatches"></th>
+							<th class="py-2 px-2 text-white font-semibold text-xs lg:text-sm" id="WinRate"></th>
+						</tr>
+						</thead>
+						<tbody id="RankTableBody">
+							${rankTableCreator(rank_array)}
+						</tbody>
+					</table>
+					</div>
+
 				  <!-- Match Table -->
 				  <div class="overflow-y-auto overflow-x-hidden pr-1 w-full">
 					<span id="MatchSummaryHeader"></span>
@@ -262,8 +321,25 @@ export async function renderMatchSummary(root: HTMLElement) {
 			  
 				</div>
 			  `);
-
-		//----adding event listener for all the cat
+		//----event listeners for every rank column
+		var  wins = document.getElementById("Wins") as HTMLTableColElement;
+		var trophies = document.getElementById("Trophies") as HTMLTableColElement;
+		var rank_total_matches = document.getElementById("TotalMatches") as HTMLTableColElement;
+		var win_rate = document.getElementById("WinRate") as HTMLTableColElement;
+		var rankTableBody = document.getElementById("RankTableBody") as HTMLTableSectionElement
+		wins.addEventListener("mouseover",
+			()=>rankTableBody.innerHTML = rankTableCreator(rank_array.sort((rank1, rank2)=>rank2.wins -rank1.wins)) //sort ? rank1.wins < rank2.wins => rank2 -rank1 
+		)
+		trophies.addEventListener("mouseover",
+			()=> rankTableBody.innerHTML = rankTableCreator(rank_array.sort((rank1, rank2)=>rank2.trophies -rank1.trophies))
+		)
+		rank_total_matches.addEventListener("mouseover",
+			()=> rankTableBody.innerHTML = rankTableCreator(rank_array.sort((rank1, rank2)=>rank2.total_matches -rank1.total_matches))
+		)
+		win_rate.addEventListener("mouseover",
+			()=> rankTableBody.innerHTML = rankTableCreator(rank_array.sort((rank1, rank2)=>rank2.win_rate -rank1.win_rate))
+		)
+		//----adding event listener for each individual user
 		chart_profiles.forEach(pr=>
 			{
 				const pr_name : string = pr.username;
@@ -341,6 +417,7 @@ export async function renderMatchSummary(root: HTMLElement) {
 							}
 						}))
 			})
+		
 		addMatchSummaryTranslations(languageStore.language);
 		languageStore.subscribe((lang) => addMatchSummaryTranslations(lang));
 	} catch (e: any) {

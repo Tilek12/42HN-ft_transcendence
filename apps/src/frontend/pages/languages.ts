@@ -577,9 +577,19 @@ export const translations_dashboards: TranslationSet = {
 		normal_matches: 'Normal Matches: ',
 		tournament_matches:'Tournament Matches: ',
 		total_games_per_player: 'Total Games Per Player',
-		win_rates: 'Win Rates', 
+		win_rates: 'Win Rates',
+
 		total_games_of_individual: 'Total Games Of',
-		individual_win_rate_of: 'Individual Win Rate of',
+		individual_win_rate_of: 'Individual Win Rate Of',
+
+		rank_table_header: 'Ranking',
+		rank_id: 'Rank',
+		username: 'Username',
+		wins: 'Wins',
+		trophies: 'Trophies',
+		total_matches: 'Total Matches',
+		win_rate: 'Win Rate',
+
 		match_summary_header: 'Match Summary',
 		match_id: 'Match ID',
 		player1_username: 'Player1',
@@ -590,13 +600,24 @@ export const translations_dashboards: TranslationSet = {
 		is_tournament_match: 'Tournament Match',
 		played_at: 'Played At'
 	},
+	
 	DE: {
 		normal_matches: 'Normale Spiele: ',
 		tournament_matches: 'Turnierspiele: ',
 		total_games_per_player: 'Gesamtspiele pro Spieler',
 		win_rates: 'Siegesraten',
+	
 		total_games_of_individual: 'Gesamtspiele von',
-  		individual_win_rate_of: 'Individuelle Siegesrate von',
+		individual_win_rate_of: 'Individuelle Siegesrate von',
+	
+		rank_table_header: 'Rangliste',
+		rank_id: 'Rang',
+		username: 'Benutzername',
+		wins: 'Siege',
+		trophies: 'Trophäen',
+		total_matches: 'Gesamtanzahl Spiele',
+		win_rate: 'Siegesrate',
+	
 		match_summary_header: 'Spielübersicht',
 		match_id: 'Spiel-ID',
 		player1_username: 'Spieler 1',
@@ -613,8 +634,18 @@ export const translations_dashboards: TranslationSet = {
 		tournament_matches: 'Αγώνες Τουρνουά: ',
 		total_games_per_player: 'Σύνολο Αγώνων ανά Παίκτη',
 		win_rates: 'Ποσοστά Νικών',
+	
 		total_games_of_individual: 'Σύνολο αγώνων του',
-  		individual_win_rate_of: 'Ατομικό ποσοστό νικών του',
+		individual_win_rate_of: 'Ατομικό ποσοστό νικών του',
+	
+		rank_table_header: 'Πίνακας Κατάταξης',
+		rank_id: 'Κατάταξη',
+		username: 'Όνομα Χρήστη',
+		wins: 'Νίκες',
+		trophies: 'Τρόπαια',
+		total_matches: 'Σύνολο Αγώνων',
+		win_rate: 'Ποσοστό Νικών',
+	
 		match_summary_header: 'Σύνοψη Αγώνα',
 		match_id: 'ID Αγώνα',
 		player1_username: 'Παίκτης 1',
@@ -625,6 +656,7 @@ export const translations_dashboards: TranslationSet = {
 		is_tournament_match: 'Αγώνας Τουρνουά',
 		played_at: 'Ημερομηνία Αγώνα'
 	}
+	
 };
 
 
