@@ -7,6 +7,7 @@ let currentMatch: any = null;
 let currentMatchId: string | null = null;
 let gameState: any = null;
 let countdownValue: number | null = null;
+let countdownStartTime: number | null = null;
 
 export async function renderLocalTournament(root: HTMLElement) {
 
@@ -26,21 +27,21 @@ export async function renderLocalTournament(root: HTMLElement) {
         <div id="local-section">
             <!-- Tournament Size Selector Card -->
             <div class="mb-6 p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
-                <label class="block text-white text-lg font-semibold mb-3 flex items-center gap-2">
+                <label id="tournament_size_label" class="block text-white text-lg font-semibold mb-3 flex items-center gap-2">
                     <span class="text-2xl">👥</span>
-                    Tournament Size
+                    ${translations_tournament_render[languageStore.language].tournament_size}
                 </label>
                 <select id="local-size" class="w-full bg-gradient-to-r from-purple-600/30 to-pink-600/30 text-white p-4 rounded-xl border border-white/20 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/50 transition-all duration-300 cursor-pointer text-lg font-medium backdrop-blur-sm hover:from-purple-600/40 hover:to-pink-600/40">
-                    <option value="4" class="bg-gray-900">🏆 4 Players Championship</option>
-                    <option value="8" class="bg-gray-900">👑 8 Players Elite Tournament</option>
+                    <option id="tournament_size_4" value="4" class="bg-gray-900">${translations_tournament_render[languageStore.language].player_championship}</option>
+                    <option id="tournament_size_8" value="8" class="bg-gray-900">${translations_tournament_render[languageStore.language].elite_tournament}</option>
                 </select>
             </div>
 
             <!-- Player Names Card -->
             <div class="mb-6 p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
-                <h3 class="text-white text-lg font-semibold mb-4 flex items-center gap-2">
+                <h3 id="player_names_header" class="text-white text-lg font-semibold mb-4 flex items-center gap-2">
                     <span class="text-2xl">🎮</span>
-                    Player Names
+                    ${translations_tournament_render[languageStore.language].player_names}
                 </h3>
                 <div id="name-inputs" class="space-y-3"></div>
             </div>
@@ -48,9 +49,9 @@ export async function renderLocalTournament(root: HTMLElement) {
             <!-- Create Button -->
             <button id="create-local" class="group relative w-full bg-gradient-to-r from-yellow-500 via-orange-500 to-yellow-500 hover:from-yellow-400 hover:via-orange-400 hover:to-yellow-400 text-black px-8 py-4 rounded-xl font-bold text-xl shadow-2xl shadow-yellow-500/30 hover:shadow-yellow-500/50 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] overflow-hidden">
                 <span class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></span>
-                <span class="relative flex items-center justify-center gap-3">
-                    <span class="text-2xl">🚀</span>
-                    Create Local Tournament
+                <span id="create_local_btn_text" class="relative flex items-center justify-center gap-3">
+                    <span class="text-2xl"></span>
+                    ${translations_tournament_render[languageStore.language].create_local_tournament}
                     <span class="text-2xl">🚀</span>
                 </span>
             </button>
@@ -67,12 +68,12 @@ export async function renderLocalTournament(root: HTMLElement) {
         <div class="w-80 bg-gradient-to-b from-gray-900/95 to-gray-800/95 backdrop-blur-xl border-r border-white/20 overflow-y-auto">
             <div class="p-6 space-y-4">
                 <div id="tournament-info" class="text-white text-sm p-3 bg-white/10 rounded-lg border border-white/20"></div>
-                <p id="status" class="text-gray-300 text-sm p-2 bg-white/5 rounded-lg">Waiting...</p>
+                <p id="status" class="text-gray-300 text-sm p-2 bg-white/5 rounded-lg">${translations_tournament_render[languageStore.language].waiting}</p>
                 <div id="matches-table"></div>
                 <button id="quit-local" class="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white px-6 py-3 rounded-lg font-bold shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all hover:scale-105 active:scale-95">
-                    <span class="flex items-center justify-center gap-2">
+                    <span id="quit_tournament_btn_text" class="flex items-center justify-center gap-2">
                         <span>❌</span>
-                        Quit Tournament
+                        ${translations_tournament_render[languageStore.language].quit_tournament}
                     </span>
                 </button>
             </div>
@@ -171,6 +172,20 @@ export async function renderLocalTournament(root: HTMLElement) {
         transelate_per_id(translations_tournament_render, "empty_p_msg", lang, "empty-p-msg");
         transelate_per_id(translations_tournament_render, "create_four_header", lang, "create-tournament-4");
         transelate_per_id(translations_tournament_render, "create_eight_header", lang, "create-tournament-8");
+        transelate_per_id(translations_tournament_render, "player_names", lang, "player_names_header");
+        transelate_per_id(translations_tournament_render, "create_local_tournament", lang, "create_local_btn_text");
+        transelate_per_id(translations_tournament_render, "quit_tournament", lang, "quit_tournament_btn_text");
+        transelate_per_id(translations_tournament_render, "waiting", lang, "status");
+        transelate_per_id(translations_tournament_render, "player_championship", lang, "tournament_size_4");
+        transelate_per_id(translations_tournament_render, "elite_tournament", lang, "tournament_size_8");
+        transelate_per_id(translations_tournament_render, "tournament_size", lang, "tournament_size_label");
+        
+        // Update player name inputs when language changes
+        const sizeSelect = document.getElementById('local-size') as HTMLSelectElement;
+        if (sizeSelect) {
+            const currentSize = parseInt(sizeSelect.value);
+            updateNameInputs(currentSize);
+        }
     });
 
     // ----- Local setup -----
@@ -205,11 +220,16 @@ export async function renderLocalTournament(root: HTMLElement) {
         // show glory header again when we go back to lobby
         const glory = document.getElementById('glory_header');
         if (glory) glory.classList.remove('hidden');
+        
+        // Show navbar when quitting tournament
+        const navbar = document.getElementById('navbar');
+        if (navbar) navbar.classList.remove('hidden');
 
         currentMatch = null;
         currentMatchId = null;
         gameState = null;
         countdownValue = null;
+        countdownStartTime = null;
         const matchesTable = document.getElementById('matches-table');
         if (matchesTable) matchesTable.innerHTML = '';
     });
@@ -217,6 +237,7 @@ export async function renderLocalTournament(root: HTMLElement) {
     function updateNameInputs(size: number) {
         const container = document.getElementById('name-inputs')!;
         container.innerHTML = '';
+        const tr = translations_tournament_render[languageStore.language];
         for (let i = 0; i < size; i += 2) {
             const row = document.createElement('div');
             row.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
@@ -227,9 +248,9 @@ export async function renderLocalTournament(root: HTMLElement) {
                 div.innerHTML = /*html*/`
                     <label class="block text-white font-medium mb-2 text-sm flex items-center gap-2">
                         <span class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center font-bold text-sm shadow-lg">${playerNum}</span>
-                        Player ${playerNum}
+                        ${tr.player} ${playerNum}
                     </label>
-                    <input type="text" class="name-input bg-white/10 text-white p-3 rounded-lg w-full border border-white/20 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/50 focus:bg-white/15 transition-all duration-200 placeholder-gray-400 font-medium" placeholder="Enter player name...">
+                    <input type="text" class="name-input bg-white/10 text-white p-3 rounded-lg w-full border border-white/20 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/50 focus:bg-white/15 transition-all duration-200 placeholder-gray-400 font-medium" placeholder="${tr.enter_player_name}">
                 `;
                 row.appendChild(div);
             }
@@ -282,6 +303,10 @@ export async function renderLocalTournament(root: HTMLElement) {
         // hide glory header after tournament starts
         const glory = document.getElementById('glory_header');
         if (glory) glory.classList.add('hidden');
+        
+        // Hide navbar when tournament is created
+        const navbar = document.getElementById('navbar');
+        if (navbar) navbar.classList.add('hidden');
 
         // Short info only once
         document.getElementById('tournament-info')!.textContent =
@@ -355,10 +380,20 @@ export async function renderLocalTournament(root: HTMLElement) {
             }
             case 'countdown': {
                 countdownValue = msg.value;
+                countdownStartTime = performance.now();
+                
+                // Hide navbar when countdown starts
+                const navbar = document.getElementById('navbar');
+                if (navbar) navbar.classList.add('hidden');
                 break;
             }
             case 'start': {
                 countdownValue = null;
+                countdownStartTime = null;
+                
+                // Keep navbar hidden during gameplay
+                const navbar = document.getElementById('navbar');
+                if (navbar) navbar.classList.add('hidden');
                 break;
             }
             case 'update': {
@@ -373,6 +408,8 @@ export async function renderLocalTournament(root: HTMLElement) {
                 currentMatchId = null;
                 gameState = null;
                 countdownValue = null;
+                countdownStartTime = null;
+                // Don't show navbar here - keep it hidden until tournament is quit
                 break;
             }
             case 'localTournamentEnd': {
@@ -643,11 +680,55 @@ export async function renderLocalTournament(root: HTMLElement) {
 
         // Countdown overlay (only here now)
         if (countdownValue !== null) {
-            ctx.fillStyle = 'white';
-            ctx.font = '64px sans-serif';
+            const currentTime = performance.now();
+            const elapsed = countdownStartTime ? (currentTime - countdownStartTime) / 1000 : 0;
+            
+            // Pulsing scale animation (grows and shrinks)
+            const pulseFreq = 2; // 2 pulses per second
+            const pulseScale = 1 + Math.sin(elapsed * pulseFreq * Math.PI * 2) * 0.15;
+            
+            // Pop-in animation when countdown changes
+            const popScale = Math.min(1, elapsed * 4); // Quick pop-in over 0.25s
+            const totalScale = pulseScale * popScale;
+            
+            // Gradient color based on countdown value
+            const gradient = ctx.createLinearGradient(width / 2 - 100, height / 4 - 50, width / 2 + 100, height / 4 + 50);
+            if (countdownValue === 3) {
+                gradient.addColorStop(0, '#fbbf24'); // yellow-400
+                gradient.addColorStop(1, '#f59e0b'); // yellow-600
+            } else if (countdownValue === 2) {
+                gradient.addColorStop(0, '#fb923c'); // orange-400
+                gradient.addColorStop(1, '#f97316'); // orange-600
+            } else {
+                gradient.addColorStop(0, '#f87171'); // red-400
+                gradient.addColorStop(1, '#ef4444'); // red-600
+            }
+            
+            ctx.save();
+            
+            // Center point for scaling
+            ctx.translate(width / 2, height / 4);
+            ctx.scale(totalScale, totalScale);
+            
+            // Draw glow effect
+            ctx.shadowColor = countdownValue === 1 ? 'rgba(239, 68, 68, 0.8)' : 'rgba(251, 191, 36, 0.6)';
+            ctx.shadowBlur = 40;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            
+            // Draw text
+            ctx.fillStyle = gradient;
+            ctx.font = 'bold 96px sans-serif';
             const text = countdownValue.toString();
             const textWidth = ctx.measureText(text).width;
-            ctx.fillText(text, (width - textWidth) / 2, height / 4);
+            ctx.fillText(text, -textWidth / 2, 32);
+            
+            // Draw outline for extra pop
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 3;
+            ctx.strokeText(text, -textWidth / 2, 32);
+            
+            ctx.restore();
         }
     }
 

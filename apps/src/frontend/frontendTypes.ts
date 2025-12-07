@@ -83,16 +83,14 @@ export type fMatchSummary = {
 	matchesForSummary: fMatchForSummary[],
 }
 
-// frontend fPlayer
-export type fPlayer = {
+// frontend fRank
+export type fRank = {
+  rankID: number,
   username: string,
-  wins:number,
-  losses:number,
-  total_match:number,
-  total_score:number,
-  tournament_games: number,
-  tournament_games_won:number,
-  win_rate:number,
+  wins: number,
+  trophies: number,
+  total_matches: number,
+  win_rate: number,
 }
 
 export type PresenceCallback = (users: number, tournaments: any[]) => void;

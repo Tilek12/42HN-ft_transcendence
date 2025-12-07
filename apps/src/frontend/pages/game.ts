@@ -26,73 +26,73 @@ export async function renderGame(root: HTMLElement) {
     </div>
 
     <!-- Main Content -->
-    <div id="game-content" class="relative z-10 pt-24 pb-12 max-w-5xl mx-auto px-4 transition-all duration-500">
+    <div id="game-content" class="relative z-10 pt-4 pb-4 w-full px-4 transition-all duration-500">
       <!-- Header Section -->
-      <div id="game-header" class="text-center mb-12 space-y-4 transition-all duration-500">
+      <div id="game-header" class="text-center mb-6 space-y-3 transition-all duration-500">
         <div class="inline-block">
-          <h1 id="pong_game_header" class="text-5xl md:text-7xl font-black bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent animate-[pulse_3s_ease-in-out_infinite] tracking-tight">
+          <h1 id="pong_game_header" class="text-7xl md:text-8xl lg:text-9xl font-black bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent animate-[pulse_3s_ease-in-out_infinite] tracking-tight">
             ${tr!.pong_game_header}
           </h1>
           <div class="h-1 w-3/4 mx-auto mt-4 bg-gradient-to-r from-transparent via-white/50 to-transparent rounded-full"></div>
         </div>
-        <p class="text-gray-300 text-lg animate-[fadeIn_1s_ease-in]">Choose a game mode to begin</p>
+        <p id="game_mode_text" class="text-gray-300 text-base animate-[fadeIn_1s_ease-in]">${tr!.info}</p>
       </div>
 
       <!-- Game Mode Buttons -->
-      <div id="game-buttons" class="flex flex-col md:flex-row justify-center items-center gap-6 mb-12 transition-all duration-500">
+      <div id="game-buttons" class="flex flex-col md:flex-row justify-center items-stretch gap-4 mb-6 transition-all duration-500">
         <!-- Play Alone Button -->
-        <button id="play-alone" class="group relative w-full md:w-56 px-8 py-6 bg-gradient-to-br from-[#037a76] to-[#025a57] text-white rounded-2xl shadow-2xl shadow-[#037a76]/30 hover:shadow-[#037a76]/50 hover:scale-105 transition-all duration-300 overflow-hidden">
+        <button id="play-alone" class="group relative w-full md:w-64 min-h-[140px] px-8 py-6 bg-gradient-to-br from-[#037a76] to-[#025a57] text-white rounded-2xl shadow-2xl shadow-[#037a76]/30 hover:shadow-[#037a76]/50 hover:scale-105 transition-all duration-300 overflow-hidden">
           <div class="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-all duration-300"></div>
           <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
             <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_2s_infinite]"></div>
           </div>
-          <div class="relative flex flex-col items-center gap-2">
+          <div class="relative flex flex-col items-center justify-center gap-2 h-full">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
             </svg>
-            <span class="font-bold text-lg">${tr!.play_alone}</span>
+            <span class="font-bold text-lg text-center">${tr!.play_alone}</span>
           </div>
         </button>
 
         <!-- Play Online Button -->
-        <button id="play-online" class="group relative w-full md:w-56 px-8 py-6 bg-gradient-to-br from-[#ed1b76] to-[#c01562] text-white rounded-2xl shadow-2xl shadow-[#ed1b76]/30 hover:shadow-[#ed1b76]/50 hover:scale-105 transition-all duration-300 overflow-hidden">
+        <button id="play-online" class="group relative w-full md:w-64 min-h-[140px] px-8 py-6 bg-gradient-to-br from-[#ed1b76] to-[#c01562] text-white rounded-2xl shadow-2xl shadow-[#ed1b76]/30 hover:shadow-[#ed1b76]/50 hover:scale-105 transition-all duration-300 overflow-hidden">
           <div class="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-all duration-300"></div>
           <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
             <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_2s_infinite]"></div>
           </div>
-          <div class="relative flex flex-col items-center gap-2">
+          <div class="relative flex flex-col items-center justify-center gap-2 h-full">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
             </svg>
-            <span class="font-bold text-lg">${tr!.play_online}</span>
+            <span class="font-bold text-lg text-center">${tr!.play_online}</span>
           </div>
         </button>
 
         <!-- Play Local Tournament Button -->
-        <button id="play-local-tournament" class="group relative w-full md:w-56 px-8 py-6 bg-gradient-to-br from-[#94a3b8] to-[#38bdf8] text-gray-900 rounded-2xl shadow-2xl shadow-[#94a3b8]/30 hover:shadow-[#94a3b8]/50 hover:scale-105 transition-all duration-300 overflow-hidden">
+        <button id="play-local-tournament" class="group relative w-full md:w-64 min-h-[140px] px-8 py-6 bg-gradient-to-br from-[#94a3b8] to-[#38bdf8] text-gray-900 rounded-2xl shadow-2xl shadow-[#94a3b8]/30 hover:shadow-[#94a3b8]/50 hover:scale-105 transition-all duration-300 overflow-hidden">
           <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
           <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
             <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[shimmer_2s_infinite]"></div>
           </div>
-          <div class="relative flex flex-col items-center gap-2">
+          <div class="relative flex flex-col items-center justify-center gap-2 h-full">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
             </svg>
-            <span class="font-bold text-lg">${tr!.play_local_tournament}</span>
+            <span class="font-bold text-lg text-center">${tr!.play_local_tournament}</span>
           </div>
         </button>
 
 		<!-- Play Online Tournament Button -->
-		<button id="play-online-tournament" class="group relative w-full md:w-56 px-8 py-6 bg-gradient-to-br from-[#facc15] to-[#f59e0b] text-gray-900 rounded-2xl shadow-2xl shadow-[#facc15]/30 hover:shadow-[#facc15]/50 hover:scale-105 transition-all duration-300 overflow-hidden">
+		<button id="play-online-tournament" class="group relative w-full md:w-64 min-h-[140px] px-8 py-6 bg-gradient-to-br from-[#facc15] to-[#f59e0b] text-gray-900 rounded-2xl shadow-2xl shadow-[#facc15]/30 hover:shadow-[#facc15]/50 hover:scale-105 transition-all duration-300 overflow-hidden">
 			<div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
 			<div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
 				<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[shimmer_2s_infinite]"></div>
 			</div>
-			<div class="relative flex flex-col items-center gap-2">
+			<div class="relative flex flex-col items-center justify-center gap-2 h-full">
 				<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
 				</svg>
-				<span class="font-bold text-lg">${tr!.play_online_tournament}</span>
+				<span class="font-bold text-lg text-center">${tr!.play_online_tournament}</span>
 			</div>
 		</button>
       </div>
@@ -112,24 +112,29 @@ export async function renderGame(root: HTMLElement) {
       </div>
 
       <!-- Game Canvas -->
-      <!-- DESIGN CHANGE: Removed CSS background gradients/borders from canvas, now uses pure JavaScript rendering -->
-      <div id="canvas-container" class="flex justify-center mb-8">
-        <div class="relative" id="canvas-wrapper">
-          <!-- Left Player Score (Top Left Corner) -->
-          <div id="left-player-score" class="hidden absolute top-2 left-2 z-10 flex flex-col items-start space-y-1">
-            <div id="game-player1-name" class="text-xl font-black text-blue-300 tracking-wide drop-shadow-[0_2px_8px_rgba(107,157,255,0.8)]">Player 1</div>
-            <div id="game-player1-score" class="text-6xl font-black bg-gradient-to-b from-white to-blue-200 bg-clip-text text-transparent drop-shadow-[0_4px_12px_rgba(107,157,255,0.9)]">0</div>
+      <div id="canvas-container" class="flex flex-col items-center justify-start mb-4">
+        <!-- Score Display Above Canvas -->
+        <div id="score-display" class="hidden flex items-center justify-between w-full max-w-5xl mb-4">
+          <!-- Left Player -->
+          <div class="flex flex-col items-center space-y-2 bg-gradient-to-br from-blue-600/20 to-blue-400/20 backdrop-blur-lg border border-blue-400/40 rounded-2xl px-8 py-6 shadow-2xl shadow-blue-500/30">
+            <div id="game-player1-name" class="text-3xl font-black text-blue-300 tracking-wide">Player 1</div>
+            <div id="game-player1-score" class="text-6xl font-black bg-gradient-to-b from-white to-blue-200 bg-clip-text text-transparent">0</div>
           </div>
 
-          <!-- Right Player Score (Top Right Corner) -->
-          <div id="right-player-score" class="hidden absolute top-2 right-2 z-10 flex flex-col items-end space-y-1">
-            <div id="game-player2-name" class="text-xl font-black text-orange-300 tracking-wide drop-shadow-[0_2px_8px_rgba(255,139,107,0.8)]">Player 2</div>
-            <div id="game-player2-score" class="text-6xl font-black bg-gradient-to-b from-white to-orange-200 bg-clip-text text-transparent drop-shadow-[0_4px_12px_rgba(255,139,107,0.9)]">0</div>
+          <!-- VS Text -->
+          <div class="text-6xl font-black bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent animate-pulse tracking-widest" style="font-family: 'Impact', 'Arial Black', sans-serif; text-shadow: 0 0 30px rgba(251, 191, 36, 0.5);">
+            VS
           </div>
 
-          <canvas id="pong" width="1000" height="600" class="hidden rounded-2xl border-4 border-amber-900/50 shadow-[0_0_80px_rgba(255,140,0,0.3),0_0_40px_rgba(255,69,0,0.2)] bg-gradient-to-br from-green-900/30 via-green-800/20 to-green-900/30 backdrop-blur-xl"></canvas>
-          <div class="absolute inset-0 rounded-2xl bg-gradient-to-t from-green-500/5 to-transparent pointer-events-none hidden" id="canvas-glow"></div>
+          <!-- Right Player -->
+          <div class="flex flex-col items-center space-y-2 bg-gradient-to-br from-orange-600/20 to-orange-400/20 backdrop-blur-lg border border-orange-400/40 rounded-2xl px-8 py-6 shadow-2xl shadow-orange-500/30">
+            <div id="game-player2-name" class="text-3xl font-black text-orange-300 tracking-wide">Player 2</div>
+            <div id="game-player2-score" class="text-6xl font-black bg-gradient-to-b from-white to-orange-200 bg-clip-text text-transparent">0</div>
+          </div>
         </div>
+
+        <!-- Canvas -->
+        <canvas id="pong" width="1000" height="600" class="hidden border-4 border-purple-500/50 bg-gradient-to-br from-black/60 to-purple-900/30 rounded-2xl shadow-2xl shadow-purple-500/30"></canvas>
       </div>
 
       <!-- Game Over Modal -->
@@ -212,6 +217,7 @@ export async function renderGame(root: HTMLElement) {
 	languageStore.subscribe((lang) => {
 
 		transelate_per_id(translations_game_render, "pong_game_header", lang, "pong_game_header");
+		transelate_per_id(translations_game_render, "info", lang, "game_mode_text");
 		transelate_per_id(translations_game_render, "play_alone", lang, "play-alone");
 		transelate_per_id(translations_game_render, "play_online", lang, "play-online");
 		transelate_per_id(translations_game_render, "play_local_tournament", lang, "play-local-tournament");
@@ -280,42 +286,19 @@ export async function renderGame(root: HTMLElement) {
 		const modal = document.getElementById('game-over-modal')!;
 		modal.classList.add('hidden');
 
-		// Exit fullscreen game mode - restore normal view
-		const gameContent = document.getElementById('game-content');
+		// Show navbar, header and buttons again
+		const navbar = document.getElementById('navbar');
 		const gameHeader = document.getElementById('game-header');
 		const gameButtons = document.getElementById('game-buttons');
-		const canvasContainer = document.getElementById('canvas-container');
-		const canvasWrapper = document.getElementById('canvas-wrapper');
-
-		if (gameContent && gameHeader && gameButtons && canvasContainer && canvasWrapper) {
-			// Restore normal layout
-			gameContent.classList.remove('fixed', 'inset-0', 'p-0', 'm-0');
-			gameContent.classList.add('pt-24', 'pb-12', 'max-w-5xl', 'mx-auto', 'px-4');
-
-			// Restore canvas container
-			canvasContainer.classList.remove('w-full', 'h-full', 'm-0', 'flex', 'items-center', 'justify-center');
-			canvasContainer.classList.add('mb-8', 'flex', 'justify-center');
-
-			// Reset canvas wrapper and canvas transform
-			canvasWrapper.style.width = '';
-			canvasWrapper.style.height = '';
-			canvasWrapper.style.display = '';
-			canvasWrapper.style.alignItems = '';
-			canvasWrapper.style.justifyContent = '';
-			canvas.style.transform = '';
-			canvas.style.transformOrigin = '';
-
-			// Show header and buttons
-			gameHeader.classList.remove('hidden');
-			gameButtons.classList.remove('hidden');
-		}
+		
+		if (navbar) navbar.classList.remove('hidden');
+		if (gameHeader) gameHeader.classList.remove('hidden');
+		if (gameButtons) gameButtons.classList.remove('hidden');
 
 		// Hide game elements
 		canvas.classList.add('hidden');
 		countdown.classList.add('hidden');
-		document.getElementById('canvas-glow')?.classList.add('hidden');
-		document.getElementById('left-player-score')?.classList.add('hidden');
-		document.getElementById('right-player-score')?.classList.add('hidden');
+		document.getElementById('score-display')?.classList.add('hidden');
 	});
 
 	function startGame(mode: 'solo' | 'duel') {
@@ -366,6 +349,14 @@ export async function renderGame(root: HTMLElement) {
 					countdown.classList.remove('hidden');
 					const countdownNumber = document.getElementById('countdown-number')!;
 
+					// Hide navbar, header, and buttons when countdown starts
+					const navbar = document.getElementById('navbar');
+					const gameHeader = document.getElementById('game-header');
+					const gameButtons = document.getElementById('game-buttons');
+					if (navbar) navbar.classList.add('hidden');
+					if (gameHeader) gameHeader.classList.add('hidden');
+					if (gameButtons) gameButtons.classList.add('hidden');
+
 					// Update number
 					countdownNumber.textContent = msg.value.toString();
 
@@ -387,58 +378,18 @@ export async function renderGame(root: HTMLElement) {
 				} else if (msg.value === 0) {
 					countdown.classList.add('hidden');
 					canvas.classList.remove('hidden');
-					document.getElementById('canvas-glow')?.classList.remove('hidden');
-					document.getElementById('left-player-score')?.classList.remove('hidden');
-					document.getElementById('right-player-score')?.classList.remove('hidden');
+					document.getElementById('score-display')?.classList.remove('hidden');
 
-					// DESIGN CHANGE: Fullscreen game mode - hides header/buttons and scales canvas to 80% of viewport
-					// Enter fullscreen game mode
-						const gameContent = document.getElementById('game-content');
-						const gameHeader = document.getElementById('game-header');
-						const gameButtons = document.getElementById('game-buttons');
-						const canvasContainer = document.getElementById('canvas-container');
-						const canvasWrapper = document.getElementById('canvas-wrapper');
-
-						if (gameContent && gameHeader && gameButtons && canvasContainer && canvasWrapper) {
-							// Hide header and buttons
-							gameHeader.classList.add('hidden');
-							gameButtons.classList.add('hidden');
-
-							// Make game content fill viewport
-							gameContent.classList.remove('pt-24', 'pb-12', 'max-w-5xl', 'mx-auto', 'px-4');
-							gameContent.classList.add('fixed', 'inset-0', 'p-0', 'm-0');
-
-							// Make canvas container fill viewport and center content
-							canvasContainer.classList.remove('mb-8', 'flex', 'justify-center');
-							canvasContainer.classList.add('w-full', 'h-full', 'm-0', 'flex', 'items-center', 'justify-center');
-
-							// Scale canvas to fill viewport while maintaining aspect ratio
-							canvasWrapper.style.width = '100%';
-							canvasWrapper.style.height = '100%';
-							canvasWrapper.style.display = 'flex';
-							canvasWrapper.style.alignItems = 'center';
-							canvasWrapper.style.justifyContent = 'center';
-
-							// Calculate scaling to fit 80% of viewport while maintaining 1000:600 aspect ratio
-							const viewportWidth = window.innerWidth;
-							const viewportHeight = window.innerHeight;
-							const canvasAspect = 1000 / 600;
-							const viewportAspect = viewportWidth / viewportHeight;
-
-							let scale;
-							if (viewportAspect > canvasAspect) {
-								// Viewport is wider - scale by height (80% of viewport)
-								scale = (viewportHeight * 0.8) / 600;
-							} else {
-								// Viewport is taller - scale by width (80% of viewport)
-								scale = (viewportWidth * 0.8) / 1000;
-							}
-
-							canvas.style.transform = `scale(${scale})`;
-							canvas.style.transformOrigin = 'center center';
-						}
-					}
-					break;
+					// Keep navbar, header and buttons hidden during gameplay
+					const navbar = document.getElementById('navbar');
+					const gameHeader = document.getElementById('game-header');
+					const gameButtons = document.getElementById('game-buttons');
+					
+					if (navbar) navbar.classList.add('hidden');
+					if (gameHeader) gameHeader.classList.add('hidden');
+					if (gameButtons) gameButtons.classList.add('hidden');
+				}
+				break;
 				case 'update':
 					gameState = msg.state;
 					if (msg.state?.playerNames) {
@@ -489,7 +440,7 @@ export async function renderGame(root: HTMLElement) {
 			if (heldKeys['ArrowDown']) socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'right' }));
 			if (heldKeys['w']) socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'left' }));
 			if (heldKeys['s']) socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'left' }));
-		}, 50);
+		}, 20);
 	}
 
 	function draw() {
