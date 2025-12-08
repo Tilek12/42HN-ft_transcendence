@@ -117,6 +117,7 @@ export class GameRoom {
 		const newY = currentY + delta;
 		const maxY = this.state.height - PADDLE_HEIGHT;
 		this.state.paddles[playerId] = Math.max(0, Math.min(maxY, newY));
+		console.log(`PADDLE MOVE: Player ${playerId} moved ${direction}, Y: ${currentY.toFixed(1)} -> ${this.state.paddles[playerId].toFixed(1)}`);
 	}
 
 	private startCountdown() {
