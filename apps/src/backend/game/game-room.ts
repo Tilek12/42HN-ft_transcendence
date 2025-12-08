@@ -176,7 +176,9 @@ export class GameRoom {
 			const paddleTop = py;
 			const paddleBottom = py + PADDLE_HEIGHT;
 			
-			const doesHit = ballBottom >= paddleTop && ballTop <= paddleBottom;
+			// Added small tolerance (0.5 units) to account for edge cases and floating point precision
+			const tolerance = 0.5;
+			const doesHit = (ballBottom >= paddleTop - tolerance) && (ballTop <= paddleBottom + tolerance);
 			
 			console.log(`HIT CHECK: Ball(${ballTop.toFixed(1)}-${ballBottom.toFixed(1)}) vs Paddle(${paddleTop.toFixed(1)}-${paddleBottom.toFixed(1)}) = ${doesHit}`);
 			
