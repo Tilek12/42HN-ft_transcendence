@@ -40,7 +40,7 @@ export const listenerUploadPicture = async (root:HTMLElement, e: any) => {
 
 		const file_type = file.name.substring(file.name.lastIndexOf('.') + 1);
 
-		if (file_type !== 'png' && file_type !== 'jpg' && file_type !== 'jpeg' && file_type !== 'webp') return alert('Please select a png or jpeg or jpg. ');
+		if (file_type !== 'png' && file_type !== 'jpg' && file_type !== 'jpeg') return alert('Please select a png or jpeg or jpg. ');
 		if (file.size > 500000) file = await compressFile(file);
 
 		const formData = new FormData();
@@ -56,18 +56,19 @@ export const listenerUploadPicture = async (root:HTMLElement, e: any) => {
 		const result = await res.json();
 		// console.log("result ====>>> FrontEnd", result);
 		if (res.ok) {	
+			showSettingsSuccess(root);
 			const user = getUser();
 			if (user){
 				user.image_blob = result.blob;
 				setUser(user);
-				showSettingsSuccess(root);
-				renderSettings(root);
+				
 			}
 			// location.reload();
 			
 		}
 		else
 			showSettingsError(root, res);
+		renderSettings(root);
 	}
 	catch (e: any) {
 		renderConnectionErrorPage();
