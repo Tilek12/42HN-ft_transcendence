@@ -245,6 +245,7 @@ export async function renderGame(root: HTMLElement) {
 	let moveInterval: any = null;
 	let playerNames: Record<string, string> = {};
 	let animationTime = 0;
+	let myUserId: string | null = null; // Track current user's ID
 
 	const heldKeys: Record<string, boolean> = {};
 
@@ -309,6 +310,9 @@ export async function renderGame(root: HTMLElement) {
 			location.hash = '#/login';
 			return;
 		}
+		
+		// Store current user ID for field orientation
+		myUserId = String(user.id);
 
 		cleanupListeners();
 		// wsManager.disconnectGameSocket();
@@ -542,12 +546,22 @@ export async function renderGame(root: HTMLElement) {
 			const paddleWidth = 16;
 			const cornerRadius = 8;
 			const ids = Object.keys(gameState.paddles);
-			const mainPlayerId = Object.keys(gameState.score)[0];
+			
+			// Determine if we need to flip the field
+			// In duel mode, player 1 (first to join) should see themselves on the right
+			const shouldFlip = myUserId && ids[0] === myUserId;
 
 			ids.forEach((id, index) => {
 				const paddleY = gameState.paddles[id] * scaleY;
-				const paddleX = index === 0 ? 30 : width - paddleWidth - 30;
-				const isMainPlayer = id === mainPlayerId;
+				
+				// Flip paddle positions if current user is player 1
+				let paddleIndex = index;
+				if (shouldFlip) {
+					paddleIndex = index === 0 ? 1 : 0; // Swap left/right
+				}
+				
+				const paddleX = paddleIndex === 0 ? 30 : width - paddleWidth - 30;
+				const isMainPlayer = id === myUserId;
 
 				// Solid colors like reference image
 				const paddleColor = isMainPlayer ? '#6b9dff' : '#ff8b6b';

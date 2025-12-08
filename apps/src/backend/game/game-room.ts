@@ -28,6 +28,7 @@ export class GameRoom {
 	private pendingBroadcast = false;
 	private gameEnded = false;
 	private ballFrozen = false; // Track if ball is frozen after scoring
+	private hasLoggedMapping = false; // Track if we've logged player mapping
 
 	constructor(
 		id: string,
@@ -146,6 +147,12 @@ export class GameRoom {
 	private updatePhysics() {
 		const { ball, paddles, score, width, height } = this.state;
 		const [p1, p2] = this.players;
+
+		// Debug: Log player-to-paddle mapping once
+		if (!this.hasLoggedMapping) {
+			console.log(`🎮 PLAYER MAPPING: LEFT paddle = p1 (ID=${p1.id}, ${p1.name}), RIGHT paddle = p2 (ID=${p2.id}, ${p2.name})`);
+			this.hasLoggedMapping = true;
+		}
 
 		// Skip physics if ball is frozen
 		if (this.ballFrozen) {
