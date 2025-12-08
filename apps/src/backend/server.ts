@@ -79,18 +79,18 @@ const server = Fastify({
 	}
 });
 
-// for testing response payload 
+// for testing response payload
 // server.addHook('onSend', async (request, reply, payload) => {
 //   server.log.info({
 //     resBody: payload,
 // 	reqBody:request.body,
 //   }, 'Response payload');
-//   return payload; 
+//   return payload;
 // });
 
 // server.addHook('preValidation', async (request, reply) => {
 //   console.log(request);
-//   return request;   
+//   return request;
 // });
 
 const jwtOpts: FastifyJWTOptions = {
@@ -108,7 +108,7 @@ async function main() {
 	server.withTypeProvider<JsonSchemaToTsProvider>();			// Support to make Types out of schemas
 	await connectToDB();										// Init DB table
 	await server.register(cookie, { secret: COOKIE_SECRET });	//cookies
-	// await server.register(csrf, { cookieOpts: { signed: true }})//crsf Protection						
+	// await server.register(csrf, { cookieOpts: { signed: true }})//crsf Protection
 	await server.register(fastifyJwt, jwtOpts);					// Create JWT
 	await server.register(websocket, { options: { maxPayload: 1048576, backlog: 10 } });							// Add WebSocket support
 	await server.register(multipart);							// file supposrt for fastify

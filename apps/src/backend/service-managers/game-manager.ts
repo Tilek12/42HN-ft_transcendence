@@ -13,6 +13,8 @@ class GameManager {
 
 	// ===== ROOM MANAGEMENT METHODS =====
 	createGame(mode: GameMode, p1: Player, p2: Player, tournamentId?: string, matchId?: string): GameRoom {
+		console.log('createGame mode:', mode, 'for players:', p1.id, p2.id);
+
 		let isTournament: boolean = tournamentId && matchId ? true : false;
 		let roomId: string;
 		if (isTournament)
@@ -21,32 +23,31 @@ class GameManager {
 			roomId = `g-${this.nextId++}`;
 		const room = new GameRoom(roomId, mode, p1, p2, tournamentId);
 		this.rooms.set(roomId, room);
-
 		// // Auto-remove room when the game ends
-		// room.onEndCallback((winner, loser, winnerScore, loserScore) => {
-		// 	console.log(`🏁 [GameManager] Game ended in room ${room.id}: ${winner.name} (${winnerScore} - ${loserScore}) ${loser.name}`);
+		room.onEndCallback((winner, loser, winnerScore, loserScore) => {
+			console.log(`🏁 [GameManager] Game ended in room ${room.id}: ${winner.name} (${winnerScore} - ${loserScore}) ${loser.name}`);
 
 			// Clean up sockets
-			// userManager.removeGameSocket(Number(winner.id));
-			// userManager.removeGameSocket(Number(loser.id));
+			userManager.removeGameSocket(Number(winner.id));
+			userManager.removeGameSocket(Number(loser.id));
 
-		// 	if (isTournament && tournamentId && matchId) {
-		// 		const tournamentManager = mode === 'online-match'
-		// 			? onlineTournamentManager
-		// 			: localTournamentManager;
-		// 		tournamentManager.onMatchEnd(
-		// 			tournamentId,
-		// 			matchId,
-		// 			{ id: winner.id, name: winner.name },
-		// 			{ id: loser.id, name: loser.name },
-		// 			winnerScore,
-		// 			loserScore
-		// 		);
-		// 	}
+			if (isTournament && tournamentId && matchId) {
+				const tournamentManager = mode === 'online-match'
+					? onlineTournamentManager
+					: localTournamentManager;
+				tournamentManager.onMatchEnd(
+					tournamentId,
+					matchId,
+					{ id: winner.id, name: winner.name },
+					{ id: loser.id, name: loser.name },
+					winnerScore,
+					loserScore
+				);
+			}
 
-		// 	this.rooms.delete(room.id);
-		// 	console.log(`🗑️ [GameManager] Removed room ${room.id}`);
-		// });
+			this.rooms.delete(room.id);
+			console.log(`🗑️ [GameManager] Removed room ${room.id}`);
+		});
 
 		return room;
 	}
@@ -76,20 +77,36 @@ class GameManager {
 
 	// ===== MATCHMAKING METHODS =====
 	async startGame(player: Player, mode: GameMode, tournamentId?: string): Promise<void> {
+		console.log('startGame called with mode:', mode, 'for player:', player.id);
 		if (mode === 'solo') {
 			this.createGame(mode, player, GhostPlayer);
 			return;
 		}
 
-		if (mode === 'online-match' || mode === 'local-match') {
+		// if (mode === 'online-match' || mode === 'local-match') {
+		// 	// The game room should already exist, just update the player's socket
+		// 	const tournamentManager = mode === 'online-match'
+		// 		? onlineTournamentManager
+		// 		: localTournamentManager;
+		// 	const game = tournamentManager.getGameForPlayer(player.id);
+		// 	if (game) {
+		// 		console.log('Updating socket for existing match game for player:', player.id);
+		// 		game.updateSocket(player);
+		// 	}
+		// 	else
+		// 		console.warn(`No existing game found for player ${player.id} in mode ${mode}`);
+		// 	return;
+		// }
+
+		if (mode === 'local-match') {
 			// The game room should already exist, just update the player's socket
-			const tournamentManager = mode === 'online-match'
-				? onlineTournamentManager
-				: localTournamentManager;
-			const game = tournamentManager.getGameForPlayer(player.id);
+			const game = localTournamentManager.getGameForPlayer(player.id);
 			if (game) {
+				console.log('Updating socket for existing match game for player:', player.id);
 				game.updateSocket(player);
 			}
+			else
+				console.warn(`No existing game found for player ${player.id} in mode ${mode}`);
 			return;
 		}
 
@@ -143,14 +160,14 @@ class GameManager {
 					await incrementWinsOrLossesOrTrophies(parseInt(loser.id), "losses");
 
 				//------ Save to matches table -------
-				const isTournamentMatch = mode === 'duel' && !!tournamentId;
+				// const isTournamentMatch = mode === 'duel' && !!tournamentId;
 				// if (isTournamentMatch) {
 					await createMatch(
 						parseInt(winner.id),
 						parseInt(loser.id),
 						winnerScore,
 						loserScore,
-						isTournamentMatch
+						false
 					);
 				// }
 

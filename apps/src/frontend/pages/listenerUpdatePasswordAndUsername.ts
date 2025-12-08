@@ -5,10 +5,10 @@ import {apiFetch, getUser} from '../utils/auth.js'
 export const showToast = (message: string, type: 'success' | 'error' = 'success') => {
 	const toast = document.createElement('div');
 	const bgColor = type === 'success' ? 'from-green-500 to-green-600' : 'from-red-500 to-red-600';
-	const icon = type === 'success' 
+	const icon = type === 'success'
 		? '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
 		: '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
-	
+
 	// DESIGN: Glass-morphism toast with gradient background, auto-dismiss after 3 seconds
 	toast.innerHTML = `
 		<div class="fixed top-24 right-6 z-50 animate-[slideIn_0.3s_ease-out] flex items-center gap-3 bg-gradient-to-r ${bgColor} text-white px-6 py-4 rounded-xl shadow-2xl backdrop-blur-md border border-white/20">
@@ -16,9 +16,9 @@ export const showToast = (message: string, type: 'success' | 'error' = 'success'
 			<span class="font-semibold">${message}</span>
 		</div>
 	`;
-	
+
 	document.body.appendChild(toast);
-	
+
 	setTimeout(() => {
 		toast.firstElementChild?.classList.add('animate-[slideOut_0.3s_ease-in]');
 		setTimeout(() => toast.remove(), 300);
@@ -28,7 +28,7 @@ export const showToast = (message: string, type: 'success' | 'error' = 'success'
 //----------------------Password Listeners-------------------------------
 const listenerPasswordEdit = (
 	password_old_check : HTMLInputElement,
-	 password_new : HTMLInputElement, 
+	 password_new : HTMLInputElement,
 	 password_confirm : HTMLInputElement,
 	password_update_btn : HTMLButtonElement,
 	password_cancel_btn : HTMLButtonElement,
@@ -44,7 +44,7 @@ const listenerPasswordEdit = (
 	}
 const listenerPasswordCancel = (
 	password_old_check : HTMLInputElement,
-	password_new : HTMLInputElement, 
+	password_new : HTMLInputElement,
 	password_confirm : HTMLInputElement,
 	password_update_btn : HTMLButtonElement,
 	password_cancel_btn : HTMLButtonElement,
@@ -60,7 +60,7 @@ const listenerPasswordCancel = (
 	}
 	const listenerPasswordUpdate = async (
 		password_old_check : HTMLInputElement,
-		password_new : HTMLInputElement, 
+		password_new : HTMLInputElement,
 		password_confirm : HTMLInputElement,
 		password_update_btn : HTMLButtonElement,
 		password_cancel_btn : HTMLButtonElement,
@@ -82,7 +82,7 @@ const listenerPasswordCancel = (
 	let data = await res.json();
 	const is_verified = data.answer;
 	console.log("OLD VALUE LENGTH: ", old_value.length);
-	
+
 	// DESIGN CHANGE: Enhanced validation with specific user-friendly toast messages
 	if (!is_verified)
 	{
@@ -120,7 +120,7 @@ const listenerPasswordCancel = (
 			password_confirm.value ='';
 			password_new.value ='';
 		}
-		else 
+		else
 		{
 			showToast('Failed to update password. Please try again!', 'error');
 		}
@@ -135,10 +135,10 @@ const listenerPasswordCancel = (
 //---------------------Username Listeners---------------------------------------------
 
 const listenerUsernameCancel = (
-	username_cancel_btn: HTMLButtonElement, 
-	username_update_btn :HTMLButtonElement, 
-	username_edit_btn: HTMLButtonElement, 
-	username_input_el: HTMLInputElement, 
+	username_cancel_btn: HTMLButtonElement,
+	username_update_btn :HTMLButtonElement,
+	username_edit_btn: HTMLButtonElement,
+	username_input_el: HTMLInputElement,
 	username_par_el: HTMLParagraphElement
 
 ) =>
@@ -150,10 +150,10 @@ const listenerUsernameCancel = (
 	username_edit_btn?.classList.remove('hidden');
 }
 const listenerUsernameEdit = (
-	username_cancel_btn: HTMLButtonElement, 
-	username_update_btn :HTMLButtonElement, 
-	username_edit_btn: HTMLButtonElement, 
-	username_input_el: HTMLInputElement, 
+	username_cancel_btn: HTMLButtonElement,
+	username_update_btn :HTMLButtonElement,
+	username_edit_btn: HTMLButtonElement,
+	username_input_el: HTMLInputElement,
 	username_par_el: HTMLParagraphElement
 
 ) =>
@@ -165,10 +165,10 @@ const listenerUsernameEdit = (
 	username_edit_btn?.classList.add('hidden');
 }
 const listenerUsernameUpdate = async (
-	username_cancel_btn: HTMLButtonElement, 
-	username_update_btn :HTMLButtonElement, 
-	username_edit_btn: HTMLButtonElement, 
-	username_input_el: HTMLInputElement, 
+	username_cancel_btn: HTMLButtonElement,
+	username_update_btn :HTMLButtonElement,
+	username_edit_btn: HTMLButtonElement,
+	username_input_el: HTMLInputElement,
 	username_par_el: HTMLParagraphElement
 
 ) =>
@@ -176,7 +176,7 @@ const listenerUsernameUpdate = async (
 	const new_username = username_input_el.value.trim();
 	console.log(`====> INPUT: $$${new_username}$$$`);
 	console.log(`====> username_par_el: $$${username_par_el.innerText}$$$`);
-	
+
 	// DESIGN CHANGE: Added regex validation with clear error message via toast
 	if (!/^[a-zA-Z0-9]+$/.test(new_username))
 	{

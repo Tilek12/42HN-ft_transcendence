@@ -12,6 +12,7 @@ import {
 import { sendTournamentUpdate } from '../routes/ws/presence-ws';
 import { incrementWinsOrLossesOrTrophies } from '../database/profile';
 import { createTournamentDB, joinTournamentDB } from '../database/tournament';
+import { sleep } from '../utils';
 
 class OnlineTournamentManager {
 	private nextTid = 1;  // Tournament ID starts at 1
@@ -72,9 +73,14 @@ class OnlineTournamentManager {
 
 	/** Create the bracket and schedule round 1 */
 	public async startOnlineTournament(id: string) {
+		console.log('startOnlineTournament called:', id);
 		const tournament = this.onlineTournaments.get(id);
 
-		if (!tournament) return;
+		if (!tournament)
+			{
+				console.log("[startOnlineTournament]: NO TOURNAMENT!");
+				return;
+			}
 
 		tournament.status = 'active';
 
@@ -104,10 +110,11 @@ class OnlineTournamentManager {
 		winnerScore: number,
 		loserScore: number
 	) {
+		console.log('onMatchEnd :', 'tID:',tournamentId, 'mID:',matchId, 'w:',winner, 'l:',loser);
 		const tournament = this.onlineTournaments.get(tournamentId);
-		if (!tournament) return;
+		if (!tournament) { console.log("no tournament return");return};
 		const match = this.findMatch(tournament, matchId);
-		if (!match) return;
+		if (!match) { console.log("no match return"); return};
 
 		match.status = 'finished';
 		match.winnerId = winner.id;
@@ -129,14 +136,14 @@ class OnlineTournamentManager {
 
 				console.log(`🏆 [ONLINE Tournament: ${tournament.id}] Winner: ${winners[0]!.id}`);
 
-				// Send tournamentEnd message
+				// Send onlineTournamentEnd message
 				const winner = winners[0];
 				// Online: broadcast to participants
 				for (const participant of tournament.participants) {
 					const user = userManager.getUser(Number(participant.id));
 					if (user && user.onlineTournamentSocket?.readyState === WebSocket.OPEN) {
 						user.onlineTournamentSocket.send(JSON.stringify({
-							type: 'tournamentEnd',
+							type: 'onlineTournamentEnd',
 							winner: { id: winner!.id, name: winner!.name }
 						}));
 					}
@@ -166,6 +173,7 @@ class OnlineTournamentManager {
 
 	/** Online tournaments: start whole round in parallel with staggered starts */
 	private startRoundSimultaneously(tournament: TournamentState, roundIdx: number) {
+		console.log('startRoundSimultaneously', tournament.id, roundIdx);
 		if (roundIdx === 0) {
 			// First round: wait for ALL players to be ready, then start all matches simultaneously
 			this.startFirstRoundSimultaneously(tournament);
@@ -179,6 +187,7 @@ class OnlineTournamentManager {
 
 	/** Wait for all players in first round to be ready, then start all matches simultaneously */
 	private startFirstRoundSimultaneously(tournament: TournamentState) {
+		console.log('startFirstRoundSimultaneously called:', tournament.id);
 		const round = tournament.rounds[0];
 		if (!round) return;
 
@@ -188,7 +197,7 @@ class OnlineTournamentManager {
 				const user = userManager.getUser(Number(player.id));
 				if (user && user.onlineTournamentSocket?.readyState === WebSocket.OPEN) {
 					user.onlineTournamentSocket.send(JSON.stringify({
-						type: 'matchStart',
+						type: 'onlineMatchStart',
 						tournamentId: tournament.id,
 						tournamentSize: tournament.size,
 						matchId: match.id,
@@ -205,6 +214,7 @@ class OnlineTournamentManager {
 
 	/** Wait for all tournament players to be ready before starting first round matches */
 	private waitForAllPlayersReady(tournamentId: string, matches: Match[]) {
+		console.log('waitForAllPlayersReady', tournamentId);
 		const readyKey = `${tournamentId}-round0`;
 		const expectedPlayers = new Set(matches.flatMap(m => [m.p1.id, m.p2.id]));
 		const timeout = 15000; // 15 second timeout for first round
@@ -245,6 +255,8 @@ class OnlineTournamentManager {
 
 	/** Start one match, wire onEnd → TournamentManager.onMatchEnded */
 	private startOneMatch(tournament: TournamentState, match: Match) {
+``
+		console.log('startOneMatch', tournament.id, match.id, match.p1, match.p2);
 		match.status = 'waiting_for_sockets';
 
 		// Send matchStart to both players' tournament sockets
@@ -252,7 +264,7 @@ class OnlineTournamentManager {
 			const user = userManager.getUser(Number(player.id));
 			if (user?.onlineTournamentSocket?.readyState === WebSocket.OPEN) {
 				user.onlineTournamentSocket.send(JSON.stringify({
-					type: 'matchStart',
+					type: 'onlineMatchStart',
 					tournamentId: tournament.id,
 					tournamentSize: tournament.size,
 					matchId: match.id,
@@ -276,6 +288,8 @@ class OnlineTournamentManager {
 			const readyPlayers = this.playerReadyStates.get(readyKey)?.size || 0;
 
 			if (readyPlayers === 2) {
+				console.log(`🎯 waitForPlayerSockets [ONLINE Tournament ${tournamentId}] Both players ready for match ${match.id}`);
+				sleep(7000);
 				// Both players ready, start the actual game
 				this.startActualMatch(tournamentId, match);
 				this.playerReadyStates.delete(readyKey);
@@ -313,6 +327,7 @@ class OnlineTournamentManager {
 
 	/** Actually start the game after socket readiness is confirmed */
 	private startActualMatch(tournamentId: string, match: Match) {
+		console.log('STARTING ACTUAL MATCH', tournamentId, match.id);
 		const tournament = this.onlineTournaments.get(tournamentId);
 		if (!tournament) return;
 
@@ -333,6 +348,7 @@ class OnlineTournamentManager {
 		const player1 = toPlayer(match.p1);
 		const player2 = toPlayer(match.p2);
 
+		sleep(7000)
 		const game = gameManager.createGame(
 			'online-match',
 			player1,
@@ -378,7 +394,7 @@ class OnlineTournamentManager {
 		const tournament = this.onlineTournaments.get(tournamentId);
 		if (!tournament) return;
 		const update = JSON.stringify({
-			type: 'tournamentUpdate',
+			type: 'onlineTournamentUpdate',
 			state: this.getTournamentState(tournament.id)
 		});
 
@@ -448,6 +464,7 @@ class OnlineTournamentManager {
 
 	/** Handle player socket ready signal */
 	public playerSocketReady(tournamentId: string, matchId: string, playerId: string) {
+		console.log('playerSocketReady called:', 'tID:',tournamentId, 'mID:',matchId, 'pID:',playerId);
 		// Handle both individual match readiness and round-wide readiness
 		const matchReadyKey = `${tournamentId}-${matchId}`;
 		const roundReadyKey = `${tournamentId}-round0`;
@@ -511,7 +528,7 @@ class OnlineTournamentManager {
 
 			// Notify all clients about the tournament deletion
 			const update = JSON.stringify({
-				type: 'tournamentDeleted',
+				type: 'onlineTournamentDeleted',
 				id: tournament.id
 			});
 			for (const u of userManager.getOnlineUsers()) {

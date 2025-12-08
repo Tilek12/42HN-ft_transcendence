@@ -42,6 +42,7 @@ const wsLocalTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 
 
 		if (action !== 'create') {
+			console.log('[LOCAL Tournament WS] Missing or invalid parameters', action);
 			socket.close(4001, '[LOCAL Tournament WS] Missing or invalid parameters');
 			return;
 		}

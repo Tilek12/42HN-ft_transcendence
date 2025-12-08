@@ -64,6 +64,7 @@ export class GameRoom {
 	}
 
 	private setupListeners() {
+		console.log('🔌 [GameRoom] Setting up WebSocket listeners for players', this.players[0].id, 'and', this.players[1].id);
 		for (const player of this.players) {
 			if (player.isGhost) continue;
 
@@ -93,12 +94,14 @@ export class GameRoom {
 						this.move(player.id, m.direction);
 					}
 				} else if (m.type === 'quit') {
+					console.log(`[game room ws handler] Player ${player.id} quit the game`);
 					this.broadcast({ type: 'disconnect', who: player.id });
 					this.end();
 				}
 			});
 
 			(player.socket as any).on('close', () => {
+				console.log('game room handler .onclose():', player.id);
 				this.broadcast({ type: 'disconnect', who: player.id });
 				this.end();
 			});
@@ -273,6 +276,7 @@ export class GameRoom {
 	}
 
 	public updateSocket(player: Player) {
+		console.log(`🔄 [GameRoom] Updating socket for player ${player.id}`);
 		const index = this.players.findIndex(p => p.id === player.id);
 		if (index !== -1) {
 			this.players[index] = player;
