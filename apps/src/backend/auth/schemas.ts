@@ -216,7 +216,18 @@ export const PasswordChangeSchema =
 				oldpassword: PasswordSchema,
 				tfa_token: TFA_token_schema,
 			},
+		},
+		response: {
+			200: {
+				type: 'object',
+				properties: { message: { type: 'string' } }
+			},
+			400: {
+				type: 'object',
+				properties: { message: { type: 'string' } }
+			}
 		}
+
 	} as const;
 export type PasswordChangeBody = FromSchema<typeof PasswordChangeSchema.body>;
 

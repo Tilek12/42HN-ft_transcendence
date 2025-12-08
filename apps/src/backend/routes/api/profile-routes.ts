@@ -407,6 +407,8 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 							await updatePasswordById(id, hashed);
 							res.status(200).send({ message: 'User successfully updated his password!' });
 						}
+						else
+							throw new Error("User not found");
 					} catch (e: any) {
 						res.status(400).send({ message: e.message });
 						console.log(e);
