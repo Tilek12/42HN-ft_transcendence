@@ -107,7 +107,7 @@ class WebSocketManager {
 				this.gameSocket = null;
 			}
 			console.log('closing socket on disconnect gamesocket call')
-			socket.close();
+			socket.close(4020, 'losing socket on disconnect gamesocket call');
 		}
 	}
 
@@ -283,7 +283,7 @@ class WebSocketManager {
 			try {
 				this.localTournamentSocket.send(JSON.stringify({ type: 'quitLocalTournament' }));
 			} catch { }
-			this.localTournamentSocket.close();
+			this.localTournamentSocket.close(4021,'disconnectLocalTournamentSocket' );
 		}
 	}
 
@@ -354,7 +354,7 @@ class WebSocketManager {
 			try {
 				this.onlineTournamentSocket.send(JSON.stringify({ type: 'quitOnlineTournament' }));
 			} catch { }
-			this.onlineTournamentSocket.close();
+			this.onlineTournamentSocket.close(4022, 'disconnectOnlineTournamentSocket');
 		}
 	}
 

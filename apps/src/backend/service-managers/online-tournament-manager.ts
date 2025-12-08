@@ -327,7 +327,7 @@ class OnlineTournamentManager {
 
 	/** Actually start the game after socket readiness is confirmed */
 	private startActualMatch(tournamentId: string, match: Match) {
-		console.log('STARTING ACTUAL MATCH', tournamentId, match.id);
+		console.log('startActualMatch', tournamentId, match.id);
 		const tournament = this.onlineTournaments.get(tournamentId);
 		if (!tournament) return;
 

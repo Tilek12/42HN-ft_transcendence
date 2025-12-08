@@ -9,7 +9,7 @@ import { gameManager } from '../../service-managers/game-manager';
 import { PING_INTERVAL_MS } from '../../constants';
 import { JWTPayload, User } from '../../backendTypes';
 
-function handle_message(text: string, user:User, userId:string, socket:WebSocket) {
+function handle_message(text: string, user: User, userId: string, socket: WebSocket) {
 	if (text === 'pong') {
 		userManager.setInOnlineTournament(user, true);
 		return;
@@ -30,88 +30,89 @@ const wsOnlineTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 
 
 	fastify.get('/online-tournament',
-		 { websocket: true },
-		  (socket: WebSocket, req: FastifyRequest) => {
+		{ websocket: true },
+		(socket: WebSocket, req: FastifyRequest) => {
 
-		const params = new URLSearchParams(req.url?.split('?')[1] || '');
-		const action = params.get('action'); // "create" or "join"
-		const tournamentId = params.get('id');
-		const size = parseInt(params.get('size') || '4') as 4 | 8;
+			const params = new URLSearchParams(req.url?.split('?')[1] || '');
+			const action = params.get('action'); // "create" or "join"
+			const tournamentId = params.get('id');
+			const size = parseInt(params.get('size') || '4') as 4 | 8;
+			console.log()
 
-		if (!action || (action === 'join' && !tournamentId)) {
-			console.log('[LOCAL Tournament WS] Missing or invalid parameters', action, tournamentId);
-			socket.close(4001, '[ONLINE Tournament WS] Missing or invalid parameters');
-			return;
-		}
-
-		const buffer: any[] = [];
-		let authenticated = false;
-		let user: User | undefined;
-		let decoded = req.user as JWTPayload;
-		let userId: string = "unauthenticated";
-
-		socket.on('message', async (raw: any) => {
-			try {
-				if (!authenticated) {
-					user = userManager.getUser(decoded.id)
-					if (!user)
-						throw new Error(`[ONLINE Tournament WS] User not valid: ${decoded.id}`);
-					fastify.log.info(`🟢 [ONLINE Tournament WS] Connected: ${user.username}`);
-					userId = user.id.toString();
-					userManager.setOnlineTournamentSocket(user, socket);
-
-					let tournament: TournamentState | null = null;
-					const participant: Participant = { id: userId, name: user.name };
-
-					if (action === 'create') {
-						tournament = await onlineTournamentManager.createOnlineTournament(
-							participant,
-							size,
-						);
-					} else if (action === 'join') {
-						tournament = await onlineTournamentManager.joinOnlineTournament(tournamentId!, participant);
-					}
-
-					if (!tournament) {
-						console.log('[ONLINE Tournament WS] Could not join or create tournament');
-						socket.send(JSON.stringify({ type: 'error', message: 'Could not join or create tournament' }));
-						socket.close();
-						return;
-					}
-
-					userManager.setInOnlineTournament(user, true);
-					console.log(`🎯 [ONLINE Tournament WS] Connected: ${userId} (${action})`);
-					socket.send(JSON.stringify({ type: 'onlineTournamentJoined', id: tournament.id }));
-					while (buffer.length) {
-						const raw = buffer.shift();
-						handle_message(raw.toString(), user,userId, socket);
-					}
-					authenticated = true;
-				}
-				else if (user) {
-					const text = raw.toString();
-					handle_message(raw.toString(), user, userId, socket);
-				}
-				else {
-					buffer.push(raw.toString())
-				}
-			} catch (err) {
-				fastify.log.warn('📛 [ONLINE Tournament WS] Invalid message:', err);
-				socket.close(4001, '[ONLINE Tournament WS] Unauthorized')
+			if (!action || (action === 'join' && !tournamentId)) {
+				console.log('[LOCAL Tournament WS] Missing or invalid parameters', action, tournamentId);
+				socket.close(4001, '[ONLINE Tournament WS] Missing or invalid parameters');
 				return;
 			}
-		});
 
-		socket.on('close', () => {
-			console.log(`❌ [ONLINE Tournament WS] Disconnected: ${userId}`);
-			onlineTournamentManager.quitOnlineTournament(userId);
-			userManager.removeOnlineTournamentSocket(user);
+			const buffer: any[] = [];
+			let authenticated = false;
+			let user: User | undefined;
+			let decoded = req.user as JWTPayload;
+			let userId: string = "unauthenticated";
+
+			socket.on('message', async (raw: any) => {
+				try {
+					if (!authenticated) {
+						user = userManager.getUser(decoded.id)
+						if (!user)
+							throw new Error(`[ONLINE Tournament WS] User not valid: ${decoded.id}`);
+						console.log(`🟢 [ONLINE Tournament WS] Connected: ${user.username}`);
+						userId = user.id.toString();
+						userManager.setOnlineTournamentSocket(user, socket);
+
+						let tournament: TournamentState | null = null;
+						const participant: Participant = { id: userId, name: user.name };
+
+						if (action === 'create') {
+							tournament = await onlineTournamentManager.createOnlineTournament(
+								participant,
+								size,
+							);
+						} else if (action === 'join') {
+							tournament = await onlineTournamentManager.joinOnlineTournament(tournamentId!, participant);
+						}
+
+						if (!tournament) {
+							console.log('[ONLINE Tournament WS] Could not join or create tournament');
+							socket.send(JSON.stringify({ type: 'error', message: 'Could not join or create tournament' }));
+							socket.close(4006, 'Could not join or create tournament');
+							return;
+						}
+
+						userManager.setInOnlineTournament(user, true);
+						console.log(`🎯 [ONLINE Tournament WS] Connected: ${userId} (${action})`);
+						socket.send(JSON.stringify({ type: 'onlineTournamentJoined', id: tournament.id }));
+						while (buffer.length) {
+							const raw = buffer.shift();
+							handle_message(raw.toString(), user, userId, socket);
+						}
+						authenticated = true;
+					}
+					else if (user) {
+						const text = raw.toString();
+						handle_message(raw.toString(), user, userId, socket);
+					}
+					else {
+						buffer.push(raw.toString())
+					}
+				} catch (err) {
+					console.log('📛 [ONLINE Tournament WS] Invalid message:', err);
+					socket.close(4001, '[ONLINE Tournament WS] Unauthorized')
+					return;
+				}
+			});
+
+			socket.on('close', (code:number, reason:any) => {
+				console.log(`❌ [ONLINE Tournament WS] Disconnected: ${userId}`,'code :',code,'reason: ',reason.toString());
+				onlineTournamentManager.quitOnlineTournament(userId);
+				userManager.removeOnlineTournamentSocket(user);
+			});
+			socket.on('error', (err: any) => {
+				console.log(`⚠️ [ONLINE Tournament WS] Error from ${userId}:`, err);
+				socket.close(4007, `⚠️ [ONLINE Tournament WS] Error from ${userId}:`);
+			});
 		});
-		socket.on('error', (err: any) => {
-			console.log(`⚠️ [ONLINE Tournament WS] Error from ${userId}:`, err);
-			socket.close();
-		});
-	});
 
 	setInterval(() => {
 		userManager.getOnlineUsers().forEach(({ id }) => {
@@ -120,7 +121,7 @@ const wsOnlineTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 
 			if (!user.isInOnlineTournament) {
 				console.log(`💀 [ONLINE Tournament WS] Inactive, closing: ${id}`);
-				user.onlineTournamentSocket.close();
+				user.onlineTournamentSocket.close(4008, `💀 [ONLINE Tournament WS] Inactive, closing: ${id}`);
 				userManager.removeOnlineTournamentSocket(user);
 				return;
 			}

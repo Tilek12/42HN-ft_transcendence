@@ -45,13 +45,13 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 					return res.status(500).send({ message: "DATABASE_ERROR" });
 				let token: string;
 				if (tfa) {
-					token = generateToken(user, Jwt_type.enable, '5min');
+					token = generateToken(user, Jwt_type.enable, '4h');
 					
 					res.status(200).send({ enablejwt:token, tfa: true });
 				}
 				else {
 					token = generateToken(user, Jwt_type.refresh, '1week');
-					setAccessCookie(generateToken(user, Jwt_type.access, '5min'), res);
+					setAccessCookie(generateToken(user, Jwt_type.access, '4h'), res);
 					setRefreshCookie(token, res);
 					await log_in(user.id, token);
 					return res.status(200).send({ tfa: false });
@@ -89,12 +89,12 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 
 				let token: string;
 				if (user.tfa) {
-					token = generateToken(user, Jwt_type.verify, '5min');
+					token = generateToken(user, Jwt_type.verify, '4h');
 					res.status(200).send({ verifyjwt: token, tfa: true });
 				}
 				else {
 					token = generateToken(user, Jwt_type.refresh, '1week');
-					setAccessCookie(generateToken(user, Jwt_type.access, '5min'), res);
+					setAccessCookie(generateToken(user, Jwt_type.access, '4h'), res);
 					setRefreshCookie(token, res);
 					await log_in(user.id, token);
 					return res.status(200).send({ tfa: false });
@@ -156,7 +156,7 @@ const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 			return res.status(401).send({ message: e.message });
 		};
 
-		setAccessCookie(generateToken(user, Jwt_type.access, '5min'), res);
+		setAccessCookie(generateToken(user, Jwt_type.access, '4h'), res);
 		res.status(200)
 	});
 	

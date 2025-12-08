@@ -34,12 +34,12 @@ class UserManager {
 			if (user.presenceSocket?.readyState === WebSocket.OPEN)
 			{
 				console.log(" usermanager removeUser closing presence socket for user", id);
-				user.presenceSocket.close();
+				user.presenceSocket.close(4009,'usermanager removeUser closing presence socket for user' );
 			}
 			console.log(" usermanager removeUser closing game/local/online tournament sockets for user", id);
-			user.gameSocket?.close();
-			user.localTournamentSocket?.close();
-			user.onlineTournamentSocket?.close();
+			user.gameSocket?.close(4010, 'usermanager removeUser closing game/local/online tournament sockets for user');
+			user.localTournamentSocket?.close(4011, 'usermanager removeUser closing game/local/online tournament sockets for user');
+			user.onlineTournamentSocket?.close(4012, 'usermanager removeUser closing game/local/online tournament sockets for user');
 
 			this.users.delete(id);
 		}
@@ -63,6 +63,7 @@ class UserManager {
 	}
 
 	setInGame(id: number, value: boolean) {
+		console.log('setInGame for:', id, value);
 		const user = this.getUser(id);
 		if (user) user.isInGame = value;
 	}
@@ -86,17 +87,18 @@ class UserManager {
 	}
 
 	setGameSocket(id: number, socket: WebSocket) {
+		console.log("setGameSocket for: ", id);
 		const user = this.getUser(id);
 		if (!user) return;
 
 		if (user.gameSocket && user.gameSocket.readyState === WebSocket.OPEN) {
-			console.warn(`User ${id} already has an active game socket`);
+			console.log(`User ${id} already has an active game socket`);
 			socket.close(4005, 'Game already active');
 			return;
 		}
 		if (user.gameSocket) {
 			console.log(`Closing previous game socket for user ${id}`);
-			user.gameSocket.close();
+			user.gameSocket.close(4013, `Closing previous game socket for user ${id}`);
 		}
 		user.gameSocket = socket;
 	}
@@ -105,7 +107,7 @@ class UserManager {
 		const user = this.getUser(id);
 		if (user?.gameSocket) {
 			console.log(`Removing game socket for user ${id}`);
-			user.gameSocket.close();
+			user.gameSocket.close(4002, `Removing game socket for user ${id}`);
 			user.gameSocket = null;
 		}
 	}
@@ -114,14 +116,14 @@ class UserManager {
 		const user = this.getUser(id);
 		if (!user) return;
 
-		user.presenceSocket?.close();
+		user.presenceSocket?.close(4014, 'setPresence');
 		user.presenceSocket = socket;
 	}
 
 	removePresenceSocket(id: number) {
 		const user = this.getUser(id);
 		if (user?.presenceSocket) {
-			user.presenceSocket.close();
+			user.presenceSocket.close(4015, 'removePresence');
 			user.presenceSocket = null;
 		}
 	}
@@ -130,13 +132,13 @@ class UserManager {
 
 		if (!user) return;
 
-		user.localTournamentSocket?.close();
+		user.localTournamentSocket?.close(4016, 'setLocalTournament');
 		user.localTournamentSocket = socket;
 	}
 
 	removeLocalTournamentSocket(user: User | undefined) {
 		if (user && user.localTournamentSocket) {
-			user.localTournamentSocket.close();
+			user.localTournamentSocket.close(4017, 'removeLocalTournament');
 			user.localTournamentSocket = null;
 		}
 	}
@@ -145,13 +147,13 @@ class UserManager {
 
 		if (!user) return;
 
-		user.onlineTournamentSocket?.close();
+		user.onlineTournamentSocket?.close(4018,'setOnlineTournamentSocket');
 		user.onlineTournamentSocket = socket;
 	}
 
 	removeOnlineTournamentSocket(user: User | undefined) {
 		if (user && user.onlineTournamentSocket) {
-			user.onlineTournamentSocket.close();
+			user.onlineTournamentSocket.close(4019, "removeOnlineTournamentSocket");
 			user.onlineTournamentSocket = null;
 		}
 	}

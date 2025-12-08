@@ -158,7 +158,7 @@ const tfa_Routes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 						}
 
 						payload.type = Jwt_type.access;
-						const accessToken = fastify.jwt.sign(payload, { expiresIn: '5min' });
+						const accessToken = fastify.jwt.sign(payload, { expiresIn: '1h' });
 						payload.type = Jwt_type.refresh;
 						const refreshToken = fastify.jwt.sign(payload, { expiresIn: '1week' });
 						log_in(user.id, refreshToken);

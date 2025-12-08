@@ -15,7 +15,7 @@ import { WebsocketHandler } from '@fastify/websocket';
 async function setup(user:User, socket:WebSocket, buffer:string[], mode:string)
 {
 	// set the game socket (this will close previous if exists)
-	console.log("SETUP GAME WS FOR USER", user.id);
+	console.log("setup gmae WS for user", user.id);
 	userManager.setGameSocket(user.id, socket);
 	userManager.setInGame(user.id, true);
 
@@ -67,12 +67,12 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify: any) => {
 					if (!user)
 						throw new Error("User not present");
 					else {
-						await setup(user, socket, buffer, mode);
-						fastify.log.info(`🏓 [Game WS] Connected: ${user.id} (${mode})`);
+						console.log(`🏓 [Game WS] Connected: ${user.id} (${mode})`);
 						authenticated = true;
+						await setup(user, socket, buffer, mode);
 					}
 				}
-				else if (user)
+				if (authenticated && user)
 				{
 					const msg = raw.toString() as string;
 					if (msg === 'pong')
@@ -83,7 +83,7 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify: any) => {
 					{
 						// this execution path is reached only when the user has authenticated so no need for cancelDuelSearch
 						console.log(`🏳️ [Game WS] Quit received from user ${user.id}`);
-						socket.close();
+						socket.close(4000,`🏳️ [Game WS] Quit received from user ${user.id}` );
 					} //else other messages are handled by GameRoom since player.socket is same socket
 				}
 				else
@@ -91,13 +91,13 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify: any) => {
 					buffer.push(raw.toString());
 				}
 			} catch (e:any){
-				fastify.log.warn(`🔴 [Game WS] Error: ${e}`);
+				console.log(`🔴 [Game WS] Error: ${e}`);
 				socket.close(4003, 'Unauthorized')
 			}
 		});
-		socket.on('close', () => {
+		socket.on('close', (code:number, reason:any) => {
+			console.log(`❌ [Game WS] Disconnected: ${user?user.id:'unauthenticated user'}`, 'code:', code, 'reason: ', reason.toString());
 			closed = true;
-			fastify.log.info(`❌ [Game WS] Disconnected: ${user?user.id:'unauthenticated user'}`);
 		});
 		socket.on('error', (err: any) => fastify.log.warn('🔴 [Game WS] socket error', err));
 
@@ -111,7 +111,7 @@ const wsGamePlugin: FastifyPluginAsync = async (fastify: any) => {
 
 			if (!user?.isInGame) {
 				console.log(`💀 [Game WS] Terminating inactive game connection: ${id}`);
-				socket.close();
+				socket.close(4001, `💀 [Game WS] Terminating inactive game connection: ${id}`);
 				userManager.removeGameSocket(id);
 			} else {
 				user.isInGame = false;

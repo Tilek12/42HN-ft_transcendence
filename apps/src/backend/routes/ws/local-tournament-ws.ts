@@ -74,7 +74,7 @@ const wsLocalTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 
 					if (!tournament) {
 						socket.send(JSON.stringify({ type: 'error', message: 'Could not create LOCAL Tournament' }));
-						socket.close();
+						socket.close(4003, 'Could not create LOCAL Tournament');
 						return;
 					}
 
@@ -111,7 +111,7 @@ const wsLocalTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 		});
 		socket.on('error', (err: any) => {
 			console.error(`⚠️ [LOCAL Tournament WS] Error from ${userId}:`, err);
-			socket.close();
+			socket.close(4004, `⚠️ [LOCAL Tournament WS] Error from ${userId}`);
 		});
 	});
 
@@ -122,7 +122,7 @@ const wsLocalTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 
 			if (!user.isInLocalTournament) {
 				console.log(`💀 [LOCAL Tournament WS] Inactive, closing: ${id}`);
-				user.localTournamentSocket.close();
+				user.localTournamentSocket.close(4005, `💀 [LOCAL Tournament WS] Inactive, closing: ${id}`);
 				userManager.removeLocalTournamentSocket(user);
 				return;
 			}

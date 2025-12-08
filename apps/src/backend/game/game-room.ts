@@ -68,7 +68,7 @@ export class GameRoom {
 		for (const player of this.players) {
 			if (player.isGhost) continue;
 
-			(player.socket as any).on('message', (msg: any) => {
+			player.socket.on('message', (msg: any) => {
 				const text = msg.toString();
 				if (text === 'pong' || text === 'quit') return;
 
@@ -100,9 +100,9 @@ export class GameRoom {
 				}
 			});
 
-			(player.socket as any).on('close', () => {
-				console.log('game room handler .onclose():', player.id);
-				this.broadcast({ type: 'disconnect', who: player.id });
+			player.socket.on('close', () => {
+				console.trace('game room handler .onclose():', player.id);
+				// this.broadcast({ type: 'disconnect', who: player.id });
 				this.end();
 			});
 		}
@@ -176,6 +176,8 @@ export class GameRoom {
 
 		// Win condition check
 		if (score[p1.id]! >= WIN_SCORE || score[p2.id]! >= WIN_SCORE) {
+			clearInterval(this.physicsInterval);
+			clearInterval(this.networkInterval);
 			this.handleGameEnd();
 		}
 	}
@@ -198,8 +200,8 @@ export class GameRoom {
 	}
 
 	private handleGameEnd() {
+		console.trace(`handle game end: ${this.players}`)
 		this.gameEnded = true;  // Set flag immediately to stop network updates
-
 		const { score } = this.state;
 		const [p1, p2] = this.players;
 		const p1Score = score[p1.id]!;
@@ -223,7 +225,8 @@ export class GameRoom {
 			loser: { id: this.loser.id, name: this.loser.name, score: this.loserScore }
 		});
 
-		setTimeout(() => this.end(), 1000);
+		// setTimeout(() => this.end(), 1000);
+		this.end()
 	}
 
 	private resetBall(direction: 1 | -1) {
@@ -238,6 +241,7 @@ export class GameRoom {
 	}
 
 	private broadcast(msg: any) {
+		// console.log(`broadcast ${msg} for ${this.players}`)
 		for (const p of this.players) {
 			if (!p.isGhost && p.socket.readyState === WebSocket.OPEN) {
 				try {
@@ -248,10 +252,12 @@ export class GameRoom {
 	}
 
 	private end() {
-		if (this.isEnded()) return;
+		console.trace('GameRoom.end()', this.isEnded())
+		if (this.isEnded()) 
+			return;
 
-		clearInterval(this.physicsInterval);
-		clearInterval(this.networkInterval);
+		// clearInterval(this.physicsInterval);
+		// clearInterval(this.networkInterval);
 		this.state.status = 'ended';
 
 		if (this.onEnd && this.winner && this.loser) {

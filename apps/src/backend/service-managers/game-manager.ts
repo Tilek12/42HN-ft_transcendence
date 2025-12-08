@@ -77,13 +77,17 @@ class GameManager {
 
 	// ===== MATCHMAKING METHODS =====
 	async startGame(player: Player, mode: GameMode, tournamentId?: string): Promise<void> {
+		
 		console.log('startGame called with mode:', mode, 'for player:', player.id);
+		
 		if (mode === 'solo') {
 			this.createGame(mode, player, GhostPlayer);
 			return;
 		}
 
-		// if (mode === 'online-match' || mode === 'local-match') {
+		if (mode === 'online-match') {
+			return;
+		}
 		// 	// The game room should already exist, just update the player's socket
 		// 	const tournamentManager = mode === 'online-match'
 		// 		? onlineTournamentManager

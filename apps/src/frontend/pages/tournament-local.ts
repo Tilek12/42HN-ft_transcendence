@@ -10,6 +10,7 @@ let countdownValue: number | null = null;
 let countdownStartTime: number | null = null;
 
 export async function renderLocalTournament(root: HTMLElement) {
+    // document.getElementById('nav_local_tournament')?.addEventListener('click',()=>renderLocalTournament(root))
 
     root.innerHTML = renderBackgroundFull(/*html*/`
     <div class="max-w-5xl mx-auto m-8 p-8 bg-gradient-to-br from-white/5 via-white/10 to-white/5 rounded-3xl shadow-2xl shadow-purple-500/10 backdrop-blur-xl border border-white/20">

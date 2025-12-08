@@ -71,7 +71,7 @@ const server = Fastify({
 				};
 			}
 		},
-		level:'info', 
+		level:'error', 
 	},
 	https: {
 		key: fs.readFileSync('/run/secrets/ssl_key'),

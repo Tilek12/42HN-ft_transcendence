@@ -14,6 +14,7 @@ let gameSocket: WebSocket | null = null;
 let isPlayerInMatch = false;
 
 export async function renderOnlineTournament(root: HTMLElement) {
+	// document.getElementById('nnav_online_tournament')?.addEventListener('click',()=>renderOnlineTournament(root))
 
     root.innerHTML = renderBackgroundFull(/*html*/`
     <div class="max-w-4xl mx-auto m-8 p-6 bg-white/10 rounded-xl shadow-lg backdrop-blur-md">
@@ -376,7 +377,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
                             gameState = null;
                             if (gameSocket) {
 								console.log('closing socket on \'end\' msg type');
-                                gameSocket.close();
+                                gameSocket.close(4023, 'frontend closed after receiving <end> msg type');
                                 gameSocket = null;
                             }
                         }, 3000);
