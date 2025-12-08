@@ -50,11 +50,13 @@ export class GameRoom {
 		const [p1, p2] = this.players;
 		// Center paddles vertically (middle of field minus half paddle height)
 		const centerY = (FIELD_HEIGHT - PADDLE_HEIGHT) / 2;
+		// IMPORTANT: p1 controls RIGHT paddle, p2 controls LEFT paddle
+		// This way both players see themselves on the right side
 		return {
 			ball: { x: 50, y: 50, vx: BALL_SPEED, vy: 0.5 },
 			paddles: {
-				[p1.id]: centerY,
-				[p2.id]: centerY
+				[p2.id]: centerY,  // p2 = LEFT paddle (rendered first)
+				[p1.id]: centerY   // p1 = RIGHT paddle (rendered second)
 			},
 			score: {
 				[p1.id]: 0,
@@ -150,7 +152,7 @@ export class GameRoom {
 
 		// Debug: Log player-to-paddle mapping once
 		if (!this.hasLoggedMapping) {
-			console.log(`🎮 PLAYER MAPPING: LEFT paddle = p1 (ID=${p1.id}, ${p1.name}), RIGHT paddle = p2 (ID=${p2.id}, ${p2.name})`);
+			console.log(`🎮 PLAYER MAPPING: LEFT paddle = p2 (ID=${p2.id}, ${p2.name}), RIGHT paddle = p1 (ID=${p1.id}, ${p1.name})`);
 			this.hasLoggedMapping = true;
 		}
 
@@ -173,8 +175,9 @@ export class GameRoom {
 			ball.y = Math.max(0, Math.min(height, ball.y));
 		}
 
-		const pad1 = paddles[p1.id]!;
-		const pad2 = paddles[p2.id]!;
+		// SWAPPED: p2 = LEFT paddle, p1 = RIGHT paddle
+		const padLeft = paddles[p2.id]!;   // p2 controls left paddle
+		const padRight = paddles[p1.id]!;  // p1 controls right paddle
 		
 		// Check if ball hits paddle (considering ball radius and paddle dimensions)
 		// Ball center must be within paddle's vertical range (with some tolerance)
@@ -202,19 +205,19 @@ export class GameRoom {
 			
 			// Check if ball crossed into paddle zone
 			if (ball.x - BALL_RADIUS <= paddleRight && prevX - BALL_RADIUS > paddleRight) {
-				console.log(`[LEFT PADDLE] Ball crossed boundary. Ball Y: ${ball.y.toFixed(2)}, Paddle Y: ${pad1.toFixed(2)}-${(pad1 + PADDLE_HEIGHT).toFixed(2)}`);
-				if (hit(pad1)) {
+				console.log(`[LEFT PADDLE] Ball crossed boundary. Ball Y: ${ball.y.toFixed(2)}, Paddle Y: ${padLeft.toFixed(2)}-${(padLeft + PADDLE_HEIGHT).toFixed(2)}`);
+				if (hit(padLeft)) {
 					console.log(`✓ LEFT PADDLE HIT!`);
 					// Hit the paddle - bounce back
 					ball.x = paddleRight + BALL_RADIUS;
 					ball.vx *= -1;
 					// Add some variation to vertical velocity based on where ball hit paddle
-					const hitPos = (ball.y - pad1) / PADDLE_HEIGHT; // 0 to 1
+					const hitPos = (ball.y - padLeft) / PADDLE_HEIGHT; // 0 to 1
 					ball.vy = (hitPos - 0.5) * 1.5; // -0.75 to +0.75
 				} else {
-					console.log(`✗ LEFT PADDLE MISSED! Score for ${p2.name}`);
-					// Missed the paddle, score for player 2
-					score[p2.id]!++;
+					console.log(`✗ LEFT PADDLE MISSED! Score for ${p1.name}`);
+					// Missed the paddle, score for player 1 (right side)
+					score[p1.id]!++;
 					this.resetBall(1);
 					return;
 				}
@@ -223,7 +226,7 @@ export class GameRoom {
 		
 		// Check if ball went out of bounds on left
 		if (ball.x - BALL_RADIUS <= 0) {
-			score[p2.id]!++;
+			score[p1.id]!++;
 			this.resetBall(1);
 			return;
 		}
@@ -235,19 +238,19 @@ export class GameRoom {
 			
 			// Check if ball crossed into paddle zone
 			if (ball.x + BALL_RADIUS >= paddleLeft && prevX + BALL_RADIUS < paddleLeft) {
-				console.log(`[RIGHT PADDLE] Ball crossed boundary. Ball Y: ${ball.y.toFixed(2)}, Paddle Y: ${pad2.toFixed(2)}-${(pad2 + PADDLE_HEIGHT).toFixed(2)}`);
-				if (hit(pad2)) {
+				console.log(`[RIGHT PADDLE] Ball crossed boundary. Ball Y: ${ball.y.toFixed(2)}, Paddle Y: ${padRight.toFixed(2)}-${(padRight + PADDLE_HEIGHT).toFixed(2)}`);
+				if (hit(padRight)) {
 					console.log(`✓ RIGHT PADDLE HIT!`);
 					// Hit the paddle - bounce back
 					ball.x = paddleLeft - BALL_RADIUS;
 					ball.vx *= -1;
 					// Add some variation to vertical velocity based on where ball hit paddle
-					const hitPos = (ball.y - pad2) / PADDLE_HEIGHT; // 0 to 1
+					const hitPos = (ball.y - padRight) / PADDLE_HEIGHT; // 0 to 1
 					ball.vy = (hitPos - 0.5) * 1.5; // -0.75 to +0.75
 				} else {
-					console.log(`✗ RIGHT PADDLE MISSED! Score for ${p1.name}`);
-					// Missed the paddle, score for player 1
-					score[p1.id]!++;
+					console.log(`✗ RIGHT PADDLE MISSED! Score for ${p2.name}`);
+					// Missed the paddle, score for player 2 (left side)
+					score[p2.id]!++;
 					this.resetBall(-1);
 					return;
 				}
@@ -256,7 +259,7 @@ export class GameRoom {
 		
 		// Check if ball went out of bounds on right
 		if (ball.x + BALL_RADIUS >= width) {
-			score[p1.id]!++;
+			score[p2.id]!++;
 			this.resetBall(-1);
 			return;
 		}

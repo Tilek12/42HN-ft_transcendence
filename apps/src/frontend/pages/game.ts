@@ -546,21 +546,10 @@ export async function renderGame(root: HTMLElement) {
 			const paddleWidth = 16;
 			const cornerRadius = 8;
 			const ids = Object.keys(gameState.paddles);
-			
-			// Determine if we need to flip the field
-			// In duel mode, player 1 (first to join) should see themselves on the right
-			const shouldFlip = myUserId && ids[0] === myUserId;
 
 			ids.forEach((id, index) => {
 				const paddleY = gameState.paddles[id] * scaleY;
-				
-				// Flip paddle positions if current user is player 1
-				let paddleIndex = index;
-				if (shouldFlip) {
-					paddleIndex = index === 0 ? 1 : 0; // Swap left/right
-				}
-				
-				const paddleX = paddleIndex === 0 ? 30 : width - paddleWidth - 30;
+				const paddleX = index === 0 ? 30 : width - paddleWidth - 30;
 				const isMainPlayer = id === myUserId;
 
 				// Solid colors like reference image
