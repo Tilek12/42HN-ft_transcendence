@@ -3,7 +3,10 @@ import { Player, GameState, GameMessage, OnGameEnd, GameMode } from './game-type
 const PHYSICS_FRAME_RATE = 1000 / 100; // 60 FPS for physics (original speed)
 const NETWORK_FRAME_RATE = 1000 / 100;  // 30 FPS for network updates
 const PADDLE_HEIGHT = 20;
+const PADDLE_WIDTH = 2; // Virtual paddle width
+const PADDLE_X_OFFSET = 3; // Distance from edge where paddle is positioned
 const BALL_SPEED = 0.6;
+const BALL_RADIUS = 1; // Virtual ball radius
 const FIELD_WIDTH = 100;
 const FIELD_HEIGHT = 100;
 const WIN_SCORE = 5;
@@ -156,49 +159,61 @@ export class GameRoom {
 
 		const pad1 = paddles[p1.id]!;
 		const pad2 = paddles[p2.id]!;
-		const hit = (py: number) => ball.y >= py && ball.y <= py + PADDLE_HEIGHT;
+		
+		// Check if ball hits paddle (considering ball radius and paddle dimensions)
+		const hit = (py: number) => {
+			return ball.y + BALL_RADIUS >= py && ball.y - BALL_RADIUS <= py + PADDLE_HEIGHT;
+		};
 
-		// Left paddle collision (player 1)
+		// Left paddle collision (player 1) - paddle is at x = PADDLE_X_OFFSET
 		if (ball.vx < 0) { // Only check if ball is moving left
-			if (ball.x <= 2 && prevX > 2) { // Ball crossed paddle boundary
+			const paddleLeft = PADDLE_X_OFFSET;
+			const paddleRight = PADDLE_X_OFFSET + PADDLE_WIDTH;
+			
+			// Check if ball crossed into paddle zone
+			if (ball.x - BALL_RADIUS <= paddleRight && prevX - BALL_RADIUS > paddleRight) {
 				if (hit(pad1)) {
-					// Hit the paddle
-					ball.x = 2;
+					// Hit the paddle - bounce back
+					ball.x = paddleRight + BALL_RADIUS;
 					ball.vx *= -1;
 				} else {
 					// Missed the paddle, score for player 2
 					score[p2.id]!++;
 					this.resetBall(1);
-					return; // Exit early after scoring
+					return;
 				}
 			}
 		}
 		
 		// Check if ball went out of bounds on left
-		if (ball.x <= 0) {
+		if (ball.x - BALL_RADIUS <= 0) {
 			score[p2.id]!++;
 			this.resetBall(1);
 			return;
 		}
 
-		// Right paddle collision (player 2)
+		// Right paddle collision (player 2) - paddle is at x = width - PADDLE_X_OFFSET - PADDLE_WIDTH
 		if (ball.vx > 0) { // Only check if ball is moving right
-			if (ball.x >= width - 2 && prevX < width - 2) { // Ball crossed paddle boundary
+			const paddleLeft = width - PADDLE_X_OFFSET - PADDLE_WIDTH;
+			const paddleRight = width - PADDLE_X_OFFSET;
+			
+			// Check if ball crossed into paddle zone
+			if (ball.x + BALL_RADIUS >= paddleLeft && prevX + BALL_RADIUS < paddleLeft) {
 				if (hit(pad2)) {
-					// Hit the paddle
-					ball.x = width - 2;
+					// Hit the paddle - bounce back
+					ball.x = paddleLeft - BALL_RADIUS;
 					ball.vx *= -1;
 				} else {
 					// Missed the paddle, score for player 1
 					score[p1.id]!++;
 					this.resetBall(-1);
-					return; // Exit early after scoring
+					return;
 				}
 			}
 		}
 		
 		// Check if ball went out of bounds on right
-		if (ball.x >= width) {
+		if (ball.x + BALL_RADIUS >= width) {
 			score[p1.id]!++;
 			this.resetBall(-1);
 			return;
