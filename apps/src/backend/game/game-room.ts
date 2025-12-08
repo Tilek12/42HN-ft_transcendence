@@ -140,6 +140,10 @@ export class GameRoom {
 		const { ball, paddles, score, width, height } = this.state;
 		const [p1, p2] = this.players;
 
+		// Store previous position for collision detection
+		const prevX = ball.x;
+		const prevY = ball.y;
+
 		// Ball movement
 		ball.x += ball.vx;
 		ball.y += ball.vy;
@@ -154,21 +158,42 @@ export class GameRoom {
 		const pad2 = paddles[p2.id]!;
 		const hit = (py: number) => ball.y >= py && ball.y <= py + PADDLE_HEIGHT;
 
-		// Paddle collisions and scoring
-		if (ball.x <= 2 && hit(pad1)) {
-			ball.x = 2;
-			ball.vx *= -1;
-		} else if (ball.x <= 0) {
-			score[p2.id]!++;
-			this.resetBall(1);
+		// Left paddle collision (player 1)
+		if (ball.vx < 0) { // Only check if ball is moving left
+			if (ball.x <= 2 && prevX > 2) { // Ball crossed paddle boundary
+				if (hit(pad1)) {
+					// Hit the paddle
+					ball.x = 2;
+					ball.vx *= -1;
+				} else if (ball.x <= 0) {
+					// Missed the paddle, score for player 2
+					score[p2.id]!++;
+					this.resetBall(1);
+				}
+			} else if (ball.x <= 0) {
+				// Ball went past the left edge without hitting paddle
+				score[p2.id]!++;
+				this.resetBall(1);
+			}
 		}
 
-		if (ball.x >= width - 2 && hit(pad2)) {
-			ball.x = width - 2;
-			ball.vx *= -1;
-		} else if (ball.x >= width) {
-			score[p1.id]!++;
-			this.resetBall(-1);
+		// Right paddle collision (player 2)
+		if (ball.vx > 0) { // Only check if ball is moving right
+			if (ball.x >= width - 2 && prevX < width - 2) { // Ball crossed paddle boundary
+				if (hit(pad2)) {
+					// Hit the paddle
+					ball.x = width - 2;
+					ball.vx *= -1;
+				} else if (ball.x >= width) {
+					// Missed the paddle, score for player 1
+					score[p1.id]!++;
+					this.resetBall(-1);
+				}
+			} else if (ball.x >= width) {
+				// Ball went past the right edge without hitting paddle
+				score[p1.id]!++;
+				this.resetBall(-1);
+			}
 		}
 
 		// Win condition check

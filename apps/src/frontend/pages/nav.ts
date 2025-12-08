@@ -9,13 +9,20 @@ let presenceUnsub: (() => void) | null = null;
 
 
 export async function initNav() {
-	const loginButton = document.getElementById('login-btn');
-	const logoutButton = document.getElementById('logout-btn');
-	if (loginButton)
-		loginButton.addEventListener('click', () => { location.hash = '/login' });
-	if (logoutButton)
-		logoutButton.addEventListener('click', listenerLogoutBtn);
-	changeLoginButton(true);
+	const authButton = document.getElementById('auth-btn');
+	if (authButton) {
+		authButton.addEventListener('click', () => {
+			const user = getUser();
+			if (user) {
+				// User is logged in, perform logout
+				listenerLogoutBtn({ preventDefault: () => {} });
+			} else {
+				// User is not logged in, go to login page
+				location.hash = '/login';
+			}
+		});
+	}
+	changeLoginButton(!getUser());
 };
 
 async function updateOnlineUsers() {
@@ -35,24 +42,25 @@ async function updateOnlineUsers() {
 	if (list) list.innerHTML = users.map(u => `<li>${u.name || u.id}</li>`).join('');
 };
 
-export function changeLoginButton(login: boolean) {
-	const loginButton = document.getElementById('login-btn');
-	const logoutButton = document.getElementById('logout-btn');
-
+export function changeLoginButton(showLogin: boolean) {
+	const authButton = document.getElementById('auth-btn');
+	const authText = document.getElementById('auth-text');
+	const authIcon = document.getElementById('auth-icon');
 	const userlist = document.getElementById('user_list');
 
-
-	if (logoutButton && loginButton && userlist) {
-		if (!login) {
-			logoutButton.classList.remove("hidden");
-			loginButton.classList.add("hidden");
-			userlist.classList.remove("hidden");
-
-		}
-		else {
-			loginButton.classList.remove("hidden")
-			logoutButton.classList.add("hidden");
-			userlist.classList.add("hidden");
+	if (authButton && authText && authIcon) {
+		if (showLogin) {
+			// Show login button
+			authText.textContent = 'Login';
+			authButton.className = 'lg:flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-105 hover:-translate-y-0.5';
+			authIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>';
+			if (userlist) userlist.classList.add("hidden");
+		} else {
+			// Show logout button
+			authText.textContent = 'Logout';
+			authButton.className = 'lg:flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold rounded-xl shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all duration-300 transform hover:scale-105 hover:-translate-y-0.5';
+			authIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>';
+			if (userlist) userlist.classList.remove("hidden");
 		}
 	}
 }
@@ -64,7 +72,6 @@ export function logoutFrontend() {
 	wsManager.clearPresenceData();
 	wsManager.disconnectAllSockets();
 	changeLoginButton(true);
-
 }
 
 const listenerLogoutBtn = async (e: any) => {
@@ -234,17 +241,12 @@ export function renderNav() {
 								</ul>
 							</div>
 
-							<!-- Login/Logout Buttons -->
-							<button type="button" id="login-btn" class="hidden lg:flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-105 hover:-translate-y-0.5">
-								<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<!-- Auth Button -->
+							<button type="button" id="auth-btn" class="lg:flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-105 hover:-translate-y-0.5">
+								<svg id="auth-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
 								</svg>
-							</button>
-							
-							<button type="button" id="logout-btn" class="hidden lg:flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold rounded-xl shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all duration-300 transform hover:scale-105 hover:-translate-y-0.5">
-								<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-								</svg>
+								<span id="auth-text">Login</span>
 							</button>
 						</div>
 					</div>
@@ -263,10 +265,15 @@ export function renderNav() {
 		transelate_per_id(translations_nav, "profile", lang, "nav_profile");
 		transelate_per_id(translations_nav, "settings", lang, "nav_settings");
 		transelate_per_id(translations_nav, "online_users", lang, "active-users-list");
-		transelate_per_id(translations_nav, "login", lang, "login-btn");
-		transelate_per_id(translations_nav, "logout", lang, "logout-btn");
+		// Update auth button text based on current state
+		const authText = document.getElementById('auth-text');
+		if (authText) {
+			const isLogin = authText.textContent === 'Login';
+			transelate_per_id(translations_nav, isLogin ? "login" : "logout", lang, "auth-text");
+		}
 	});
 
-
-
+	// Set initial button state based on user login status
+	const isLoggedIn = getUser() !== null;
+	changeLoginButton(!isLoggedIn);
 }
