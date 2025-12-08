@@ -5,7 +5,7 @@ const NETWORK_FRAME_RATE = 1000 / 100;  // 30 FPS for network updates
 const PADDLE_HEIGHT = 20;
 const PADDLE_WIDTH = 2; // Virtual paddle width
 const PADDLE_X_OFFSET = 3; // Distance from edge where paddle is positioned
-const BALL_SPEED = 0.6;
+const BALL_SPEED = 0.4;
 const BALL_RADIUS = 1; // Virtual ball radius
 const FIELD_WIDTH = 100;
 const FIELD_HEIGHT = 100;
@@ -27,6 +27,7 @@ export class GameRoom {
 	private onEnd: OnGameEnd | null = null;
 	private pendingBroadcast = false;
 	private gameEnded = false;
+	private ballFrozen = false; // Track if ball is frozen after scoring
 
 	constructor(
 		id: string,
@@ -46,11 +47,13 @@ export class GameRoom {
 
 	private initState(): GameState {
 		const [p1, p2] = this.players;
+		// Center paddles vertically (middle of field minus half paddle height)
+		const centerY = (FIELD_HEIGHT - PADDLE_HEIGHT) / 2;
 		return {
 			ball: { x: 50, y: 50, vx: BALL_SPEED, vy: 0.5 },
 			paddles: {
-				[p1.id]: 50,
-				[p2.id]: 50
+				[p1.id]: centerY,
+				[p2.id]: centerY
 			},
 			score: {
 				[p1.id]: 0,
@@ -143,6 +146,11 @@ export class GameRoom {
 		const { ball, paddles, score, width, height } = this.state;
 		const [p1, p2] = this.players;
 
+		// Skip physics if ball is frozen
+		if (this.ballFrozen) {
+			return;
+		}
+
 		// Store previous position for collision detection
 		const prevX = ball.x;
 		const prevY = ball.y;
@@ -161,8 +169,15 @@ export class GameRoom {
 		const pad2 = paddles[p2.id]!;
 		
 		// Check if ball hits paddle (considering ball radius and paddle dimensions)
+		// Ball center must be within paddle's vertical range (with some tolerance)
 		const hit = (py: number) => {
-			return ball.y + BALL_RADIUS >= py && ball.y - BALL_RADIUS <= py + PADDLE_HEIGHT;
+			const ballTop = ball.y - BALL_RADIUS;
+			const ballBottom = ball.y + BALL_RADIUS;
+			const paddleTop = py;
+			const paddleBottom = py + PADDLE_HEIGHT;
+			
+			// Check if ball overlaps with paddle vertically
+			return ballBottom >= paddleTop && ballTop <= paddleBottom;
 		};
 
 		// Left paddle collision (player 1) - paddle is at x = PADDLE_X_OFFSET
@@ -176,6 +191,9 @@ export class GameRoom {
 					// Hit the paddle - bounce back
 					ball.x = paddleRight + BALL_RADIUS;
 					ball.vx *= -1;
+					// Add some variation to vertical velocity based on where ball hit paddle
+					const hitPos = (ball.y - pad1) / PADDLE_HEIGHT; // 0 to 1
+					ball.vy = (hitPos - 0.5) * 1.5; // -0.75 to +0.75
 				} else {
 					// Missed the paddle, score for player 2
 					score[p2.id]!++;
@@ -203,6 +221,9 @@ export class GameRoom {
 					// Hit the paddle - bounce back
 					ball.x = paddleLeft - BALL_RADIUS;
 					ball.vx *= -1;
+					// Add some variation to vertical velocity based on where ball hit paddle
+					const hitPos = (ball.y - pad2) / PADDLE_HEIGHT; // 0 to 1
+					ball.vy = (hitPos - 0.5) * 1.5; // -0.75 to +0.75
 				} else {
 					// Missed the paddle, score for player 1
 					score[p1.id]!++;
@@ -272,14 +293,27 @@ export class GameRoom {
 	}
 
 	private resetBall(direction: 1 | -1) {
-		const vyDirection = Math.random() > 0.5 ? 1 : -1;
-		const vyVariation = 0.4 + Math.random() * 0.6;
+		// Freeze ball at center
+		this.ballFrozen = true;
 		this.state.ball = {
 			x: 50,
 			y: 50,
-			vx: BALL_SPEED * direction,
-			vy: 0.5 * vyDirection * vyVariation
+			vx: 0,
+			vy: 0
 		};
+
+		// Wait 2 seconds before launching ball
+		setTimeout(() => {
+			const vyDirection = Math.random() > 0.5 ? 1 : -1;
+			const vyVariation = 0.4 + Math.random() * 0.6;
+			this.state.ball = {
+				x: 50,
+				y: 50,
+				vx: BALL_SPEED * direction,
+				vy: 0.5 * vyDirection * vyVariation
+			};
+			this.ballFrozen = false;
+		}, 2000);
 	}
 
 	private broadcast(msg: any) {
