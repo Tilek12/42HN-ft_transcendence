@@ -291,7 +291,7 @@ export async function renderGame(root: HTMLElement) {
 		const navbar = document.getElementById('navbar');
 		const gameHeader = document.getElementById('game-header');
 		const gameButtons = document.getElementById('game-buttons');
-		
+
 		if (navbar) navbar.classList.remove('hidden');
 		if (gameHeader) gameHeader.classList.remove('hidden');
 		if (gameButtons) gameButtons.classList.remove('hidden');
@@ -310,7 +310,7 @@ export async function renderGame(root: HTMLElement) {
 			location.hash = '#/login';
 			return;
 		}
-		
+
 		// Store current user ID for field orientation
 		myUserId = String(user.id);
 
@@ -388,7 +388,7 @@ export async function renderGame(root: HTMLElement) {
 					const navbar = document.getElementById('navbar');
 					const gameHeader = document.getElementById('game-header');
 					const gameButtons = document.getElementById('game-buttons');
-					
+
 					if (navbar) navbar.classList.add('hidden');
 					if (gameHeader) gameHeader.classList.add('hidden');
 					if (gameButtons) gameButtons.classList.add('hidden');
@@ -545,9 +545,11 @@ export async function renderGame(root: HTMLElement) {
 			const paddleHeight = PADDLE_HEIGHT * scaleY;
 			const paddleWidth = 16;
 			const cornerRadius = 8;
-			const ids = Object.keys(gameState.paddles);
-
-			ids.forEach((id, index) => {
+			// Use playerRoles if available (reliable), otherwise fall back to Object.keys (less reliable)
+            const leftPlayerId = gameState.playerRoles?.left || Object.keys(gameState.paddles)[0];
+            const rightPlayerId = gameState.playerRoles?.right || Object.keys(gameState.paddles)[1];
+            [leftPlayerId, rightPlayerId].forEach((id, index) => {
+                if (!id || gameState.paddles[id] === undefined) return;
 				const paddleY = gameState.paddles[id] * scaleY;
 				const paddleX = index === 0 ? 30 : width - paddleWidth - 30;
 				const isMainPlayer = id === myUserId;

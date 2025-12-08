@@ -68,6 +68,10 @@ export class GameRoom {
 			playerNames: {
 				[p1.id]: p1.name,
 				[p2.id]: p2.name
+			},
+			playerRoles: {
+				left: p2.id,
+				right: p1.id
 			}
 		};
 	}
@@ -178,7 +182,7 @@ export class GameRoom {
 		// SWAPPED: p2 = LEFT paddle, p1 = RIGHT paddle
 		const padLeft = paddles[p2.id]!;   // p2 controls left paddle
 		const padRight = paddles[p1.id]!;  // p1 controls right paddle
-		
+
 		// Check if ball hits paddle (considering ball radius and paddle dimensions)
 		// Ball center must be within paddle's vertical range (with some tolerance)
 		const hit = (py: number) => {
@@ -186,14 +190,14 @@ export class GameRoom {
 			const ballBottom = ball.y + BALL_RADIUS;
 			const paddleTop = py;
 			const paddleBottom = py + PADDLE_HEIGHT;
-			
+
 			// Add generous tolerance (2 units) to make the game more forgiving
 			// This accounts for ball speed, network lag, and edge cases
 			const tolerance = 2;
 			const doesHit = (ballBottom >= paddleTop - tolerance) && (ballTop <= paddleBottom + tolerance);
-			
+
 			console.log(`HIT CHECK: Ball(${ballTop.toFixed(1)}-${ballBottom.toFixed(1)}) vs Paddle(${paddleTop.toFixed(1)}-${paddleBottom.toFixed(1)}) = ${doesHit}`);
-			
+
 			// Check if ball overlaps with paddle vertically
 			return doesHit;
 		};
@@ -202,7 +206,7 @@ export class GameRoom {
 		if (ball.vx < 0) { // Only check if ball is moving left
 			const paddleLeft = PADDLE_X_OFFSET;
 			const paddleRight = PADDLE_X_OFFSET + PADDLE_WIDTH;
-			
+
 			// Check if ball crossed into paddle zone
 			if (ball.x - BALL_RADIUS <= paddleRight && prevX - BALL_RADIUS > paddleRight) {
 				console.log(`[LEFT PADDLE] Ball crossed boundary. Ball Y: ${ball.y.toFixed(2)}, Paddle Y: ${padLeft.toFixed(2)}-${(padLeft + PADDLE_HEIGHT).toFixed(2)}`);
@@ -223,7 +227,7 @@ export class GameRoom {
 				}
 			}
 		}
-		
+
 		// Check if ball went out of bounds on left
 		if (ball.x - BALL_RADIUS <= 0) {
 			score[p1.id]!++;
@@ -235,7 +239,7 @@ export class GameRoom {
 		if (ball.vx > 0) { // Only check if ball is moving right
 			const paddleLeft = width - PADDLE_X_OFFSET - PADDLE_WIDTH;
 			const paddleRight = width - PADDLE_X_OFFSET;
-			
+
 			// Check if ball crossed into paddle zone
 			if (ball.x + BALL_RADIUS >= paddleLeft && prevX + BALL_RADIUS < paddleLeft) {
 				console.log(`[RIGHT PADDLE] Ball crossed boundary. Ball Y: ${ball.y.toFixed(2)}, Paddle Y: ${padRight.toFixed(2)}-${(padRight + PADDLE_HEIGHT).toFixed(2)}`);
@@ -256,7 +260,7 @@ export class GameRoom {
 				}
 			}
 		}
-		
+
 		// Check if ball went out of bounds on right
 		if (ball.x + BALL_RADIUS >= width) {
 			score[p2.id]!++;
