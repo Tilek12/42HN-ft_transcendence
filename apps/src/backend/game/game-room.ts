@@ -165,16 +165,20 @@ export class GameRoom {
 					// Hit the paddle
 					ball.x = 2;
 					ball.vx *= -1;
-				} else if (ball.x <= 0) {
+				} else {
 					// Missed the paddle, score for player 2
 					score[p2.id]!++;
 					this.resetBall(1);
+					return; // Exit early after scoring
 				}
-			} else if (ball.x <= 0) {
-				// Ball went past the left edge without hitting paddle
-				score[p2.id]!++;
-				this.resetBall(1);
 			}
+		}
+		
+		// Check if ball went out of bounds on left
+		if (ball.x <= 0) {
+			score[p2.id]!++;
+			this.resetBall(1);
+			return;
 		}
 
 		// Right paddle collision (player 2)
@@ -184,16 +188,20 @@ export class GameRoom {
 					// Hit the paddle
 					ball.x = width - 2;
 					ball.vx *= -1;
-				} else if (ball.x >= width) {
+				} else {
 					// Missed the paddle, score for player 1
 					score[p1.id]!++;
 					this.resetBall(-1);
+					return; // Exit early after scoring
 				}
-			} else if (ball.x >= width) {
-				// Ball went past the right edge without hitting paddle
-				score[p1.id]!++;
-				this.resetBall(-1);
 			}
+		}
+		
+		// Check if ball went out of bounds on right
+		if (ball.x >= width) {
+			score[p1.id]!++;
+			this.resetBall(-1);
+			return;
 		}
 
 		// Win condition check
