@@ -7,7 +7,7 @@ ft_transcendence/
 │   │   ├── auth/                      # 🔐 Authentication logic
 │   │   │   ├── routes.ts              # /api/login, /api/register, /api/auth/google
 │   │   │   ├── schemas.ts             # Zod or custom Fastify schemas
-│   │   │   ├── strategies/            # Passport, 2FA logic, or OAuth strategies
+│   │   │   ├── strategies/            # Passport, 2FA logic
 │   │   │   └── utils.ts               # token generation, hash helpers, etc.
 │   │   ├── game/                      # 🕹️ Pong logic
 │   │   │   ├── api/                   # Optional: REST endpoints like /api/match-history
@@ -44,4 +44,4 @@ ft_transcendence/
 │   └── tailwind.config.js
 │
 ├── docker-compose.yml
-└── .env                          # Secrets (JWT, DB path)
+└── .env                          # Secrets (JWT, Ports)

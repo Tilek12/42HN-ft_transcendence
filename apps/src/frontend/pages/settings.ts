@@ -75,7 +75,7 @@ export function showSettingsSuccess(root: HTMLElement,) {
 	// error?.classList.add('text-green-600');
 	// if (error)
 		// error.innerText = `${translations_register_page[languageStore.language].success}`;
-	showToast(`${translations_register_page[languageStore.language].success}`, 'error');
+	showToast(`${translations_register_page[languageStore.language].success}`);
 	//  renderSettings(root);
 }
 
