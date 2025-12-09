@@ -1,4 +1,5 @@
 import { apiFetch, getUser } from '../utils/auth.js'
+import { languageStore, translations_register_page, translations_settings } from './languages.js';
 
 // DESIGN CHANGE: Added modern toast notification system with animations and gradient backgrounds
 // Replaces basic alert() messages with sleek notifications
@@ -68,15 +69,15 @@ const listenerPasswordUpdate = async (
 	let new_value = password_new.value;
 	let confirm_value = password_confirm.value;
 	if (new_value !== confirm_value) {
-		showToast('New password and confirmation do not match!', 'error');
+		showToast(translations_settings[languageStore.language].toast_failure_pw_no_match, 'error');
 		return;
 	}
 	if (new_value.length < 8) {
-		showToast('Password must be at least 8 characters long!', 'error');
+		showToast(translations_settings[languageStore.language].toast_failure_pw_min_eight, 'error');
 		return;
 	}
 	if (new_value === old_value) {
-		showToast('New password must be different from old password!', 'error');
+		showToast(translations_settings[languageStore.language].toast_failure_pw_same, 'error');
 		return;
 	}
 	let res = await apiFetch('/api/private/update-password',
@@ -90,10 +91,10 @@ const listenerPasswordUpdate = async (
 	let data = await res.json();
 	if (!res.ok)
 	{
-		showToast(`Failed to update password. ${data.message?data.message:''}`, 'error');
+		showToast(`${translations_settings[languageStore.language].toast_failure_pw_update}`, 'error');
 	}
 	else {
-		showToast('Password updated successfully! 🎉', 'success');
+		showToast(translations_settings[languageStore.language].toast_success_pw_update, 'success');
 		password_old_check.value = '';
 		password_confirm.value = '';
 		password_new.value = '';
@@ -145,12 +146,12 @@ const listenerUsernameUpdate = async (
 
 ) => {
 	const new_username = username_input_el.value.trim();
-	console.log(`====> INPUT: $$${new_username}$$$`);
-	console.log(`====> username_par_el: $$${username_par_el.innerText}$$$`);
+	// console.log(`====> INPUT: $$${new_username}$$$`);
+	// console.log(`====> username_par_el: $$${username_par_el.innerText}$$$`);
 
 	// DESIGN CHANGE: Added regex validation with clear error message via toast
 	if (!/^[a-zA-Z0-9]+$/.test(new_username)) {
-		showToast('Username must have contain only letters and numbers!', 'error');
+		showToast(translations_settings[languageStore.language].toast_failure_username_update_for_letters_numbers, 'error');
 		return;
 	}
 	try {
@@ -164,10 +165,10 @@ const listenerUsernameUpdate = async (
 		)
 		const data = await res.json();
 		if (!res.ok) {
-			showToast(data.error || 'Failed to update username. Please try again!', 'error');
+			showToast(translations_settings[languageStore.language].toast_failure_username_update, 'error');
 			return
 		}
-		showToast('Username updated successfully! 🎉', 'success');
+		showToast(`${translations_settings[`${languageStore.language}`].toast_success_username_update}`, 'success');
 		username_par_el.textContent = data.new_username;
 		username_par_el.classList.remove('hidden');
 		username_edit_btn.classList.remove('hidden');
@@ -176,7 +177,7 @@ const listenerUsernameUpdate = async (
 		username_input_el.classList.add('hidden');
 	} catch (e) {
 		console.error(e);
-		showToast('Error updating username. Please try again!', 'error');
+			showToast(translations_settings[languageStore.language].toast_failure_username_update, 'error');
 	}
 }
 export { listenerPasswordEdit, listenerPasswordCancel, listenerPasswordUpdate, listenerUsernameCancel, listenerUsernameUpdate, listenerUsernameEdit };
