@@ -69,15 +69,15 @@ const listenerPasswordUpdate = async (
 	let new_value = password_new.value;
 	let confirm_value = password_confirm.value;
 	if (new_value !== confirm_value) {
-		showToast(translations_settings[languageStore.language].toast_failure_pw_no_match, 'error');
+		showToast(translations_settings[languageStore.language].toast_failure_pw_no_match!, 'error');
 		return;
 	}
 	if (new_value.length < 8) {
-		showToast(translations_settings[languageStore.language].toast_failure_pw_min_eight, 'error');
+		showToast(translations_settings[languageStore.language].toast_failure_pw_min_eight!, 'error');
 		return;
 	}
 	if (new_value === old_value) {
-		showToast(translations_settings[languageStore.language].toast_failure_pw_same, 'error');
+		showToast(translations_settings[languageStore.language].toast_failure_pw_same!, 'error');
 		return;
 	}
 	let res = await apiFetch('/api/private/update-password',
@@ -91,10 +91,10 @@ const listenerPasswordUpdate = async (
 	let data = await res.json();
 	if (!res.ok)
 	{
-		showToast(`${translations_settings[languageStore.language].toast_failure_pw_update}`, 'error');
+		showToast(`${translations_settings[languageStore.language].toast_failure_pw_update!}`, 'error');
 	}
 	else {
-		showToast(translations_settings[languageStore.language].toast_success_pw_update, 'success');
+		showToast(translations_settings[languageStore.language].toast_success_pw_update!, 'success');
 		password_old_check.value = '';
 		password_confirm.value = '';
 		password_new.value = '';
@@ -151,7 +151,7 @@ const listenerUsernameUpdate = async (
 
 	// DESIGN CHANGE: Added regex validation with clear error message via toast
 	if (!/^[a-zA-Z0-9]+$/.test(new_username)) {
-		showToast(translations_settings[languageStore.language].toast_failure_username_update_for_letters_numbers, 'error');
+		showToast(translations_settings[languageStore.language].toast_failure_username_update_for_letters_numbers!, 'error');
 		return;
 	}
 	try {
@@ -165,10 +165,10 @@ const listenerUsernameUpdate = async (
 		)
 		const data = await res.json();
 		if (!res.ok) {
-			showToast(translations_settings[languageStore.language].toast_failure_username_update, 'error');
+			showToast(translations_settings[languageStore.language].toast_failure_username_update!, 'error');
 			return
 		}
-		showToast(`${translations_settings[`${languageStore.language}`].toast_success_username_update}`, 'success');
+		showToast(`${translations_settings[`${languageStore.language}`].toast_success_username_update!}`, 'success');
 		username_par_el.textContent = data.new_username;
 		username_par_el.classList.remove('hidden');
 		username_edit_btn.classList.remove('hidden');
@@ -177,7 +177,7 @@ const listenerUsernameUpdate = async (
 		username_input_el.classList.add('hidden');
 	} catch (e) {
 		console.error(e);
-			showToast(translations_settings[languageStore.language].toast_failure_username_update, 'error');
+			showToast(translations_settings[languageStore.language].toast_failure_username_update!, 'error');
 	}
 }
 export { listenerPasswordEdit, listenerPasswordCancel, listenerPasswordUpdate, listenerUsernameCancel, listenerUsernameUpdate, listenerUsernameEdit };
