@@ -13,8 +13,8 @@ class LocalTournamentManager {
 
     private nextTid = 1;  // next tournament ID
     private nextMid = 1;  // next match ID
-    private localTournaments = new Map<string, TournamentState>();  // all active local tournaments
-    private localControlSockets = new Map<string, WebSocket>();
+    private localTournaments = new Map<number, TournamentState>();  // all active local tournaments
+    private localControlSockets = new Map<number, WebSocket>();
 
     /** Create a new local tournament */
     async createLocalTournament(
@@ -23,14 +23,14 @@ class LocalTournamentManager {
         hostSocket: WebSocket,
         participantNames: string[] = [],
     ) {
-        const id = `t-local-${host.id}-${this.nextTid++}`;
+        const id = this.nextTid++;
         let participants: Participant[] = [];
         let tournament: TournamentState;
         let nextUid = 1;
 
         for (const name of participantNames) {
             participants.push({
-                id: `local-${nextUid++}`,
+                id: nextUid++,
                 name
             });
         }
@@ -52,7 +52,7 @@ class LocalTournamentManager {
     }
 
     /** Create the bracket and schedule round 1 */
-    public async startLocalTournament(id: string) {
+    public async startLocalTournament(id: number) {
         const tournament = this.localTournaments.get(id);
 
         if (!tournament) return;
@@ -79,7 +79,7 @@ class LocalTournamentManager {
 
     private makeMatch(t: TournamentState, roundIdx: number, p1: Participant, p2: Participant): Match {
         return {
-            id: `m-${this.nextMid++}`,
+            id: this.nextMid++,
             roundIndex: roundIdx,
             p1,
             p2,
@@ -122,7 +122,7 @@ class LocalTournamentManager {
     }
 
     /** Actually start the game after socket readiness is confirmed */
-    private startActualMatch(tournamentId: string, match: Match, localSocket?: WebSocket) {
+    private startActualMatch(tournamentId: number, match: Match, localSocket?: WebSocket) {
         const tournament = this.localTournaments.get(tournamentId);
         if (!tournament) return;
 
@@ -133,7 +133,7 @@ class LocalTournamentManager {
             if (localSocket) {
                 return { id: player.id, name: player.name, socket: localSocket } as Player;
             }
-            const user = userManager.getUser(Number(player.id));
+            const user = userManager.getUser(player.id);
             if (!user) {
                 // Fall back to ghost socket to avoid crash; will be updated when game socket connects
                 return GhostPlayer;
@@ -171,7 +171,7 @@ class LocalTournamentManager {
     }
 
     /** push updates to UIs (tournament lobby + participants) */
-    private broadcastLocalTournamentUpdate(tournamentId: string) {
+    private broadcastLocalTournamentUpdate(tournamentId: number) {
         const tournament = this.localTournaments.get(tournamentId);
         if (!tournament) return;
 
@@ -186,7 +186,7 @@ class LocalTournamentManager {
         ctrlSocket.send(update);
     }
 
-    getTournamentState(id: string) {
+    getTournamentState(id: number) {
         const tournament = this.localTournaments.get(id);
         if (!tournament) return null;
         return {
@@ -208,7 +208,7 @@ class LocalTournamentManager {
         };
     }
 
-    quitLocalTournament(userId: string) {
+    quitLocalTournament(userId: number) {
         const tournament = this.getTournamentParticipant(userId);
         if (!tournament) return;
 
@@ -220,7 +220,7 @@ class LocalTournamentManager {
         console.log(`❌ [LOCAL Tournament: ${tournament.id}] Stopped`);
     }
 
-    getTournamentParticipant(userId: string): TournamentState | null {
+    getTournamentParticipant(userId: number): TournamentState | null {
         for (const tournament of this.localTournaments.values()) {
             if (tournament.participants.some(player => player.id === userId))
                 return tournament;
@@ -230,8 +230,8 @@ class LocalTournamentManager {
 
     /** Called by GameManager when one game ends */
     async onMatchEnd(
-        tournamentId: string,
-        matchId: string,
+        tournamentId: number,
+        matchId: number,
         winner: Participant,
         loser: Participant,
         winnerScore: number,
@@ -297,7 +297,7 @@ class LocalTournamentManager {
         }
     }
 
-    private findMatch(tournament: TournamentState, matchId: string) {
+    private findMatch(tournament: TournamentState, matchId: number) {
         for (const round of tournament.rounds) {
             const match = round.find(x => x.id === matchId);
             if (match) return match;
@@ -305,7 +305,7 @@ class LocalTournamentManager {
         return undefined;
     }
 
-    getUserTournament(userId: string): TournamentState | null {
+    getUserTournament(userId: number): TournamentState | null {
         for (const tournament of this.localTournaments.values()) {
             if (tournament.participants.some(p => p.id === userId)) {
                 return tournament;
@@ -314,7 +314,7 @@ class LocalTournamentManager {
         return null;
     }
 
-    getGameForPlayer(playerId: string): any {
+    getGameForPlayer(playerId: number): any {
         const tournament = this.getTournamentParticipant(playerId);
         if (!tournament) return null;
 

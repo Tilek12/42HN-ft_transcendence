@@ -6,7 +6,7 @@
 export type GameMode = 'solo' | 'duel' | 'local-match' | 'online-match';
 
 export interface PresenceUser {
-  id: string;
+  id: number;
   name?: string;
 }
 
@@ -144,12 +144,12 @@ export type matchHistory = {
 //////////////////////////////////////////////////////////////////////
 
 export type Tournament = {
-  id: string
+  id: number
       size: 4 | 8,
       joined: number,
       hostId: number,
       status: number,
-      playerIds: string[],
+      playerIds: number[],
 }
 
 
@@ -171,7 +171,7 @@ export type TournamentMessage =
 
 // Base participant structure (consistent for local/online)
 export interface TournamentParticipant {
-  id: string;  // User ID or local ephemeral ID
+  id: number;  // User ID or local ephemeral ID
   name: string;
 }
 
@@ -185,7 +185,7 @@ export interface CreateOnlineTournamentMessage {
 // Join ONLINE Tournament joined confirmation
 export interface JoinOnlineTournamentMessage {
   type: 'onlineTournamentJoined';
-  id: string;  // Tournament ID
+  id: number;  // Tournament ID
 }
 
 // Create LOCAL Tournament with participants
@@ -208,8 +208,8 @@ export interface LocalTournamentLeftMessage {
 // Match starting (unified for local/online)
 export interface MatchStartMessage {
   type: 'matchStart';
-  tournamentId: string;
-  matchId: string;
+  tournamentId: number;
+  matchId: number;
   size: 4 | 8;  // Tournament size
   participants: [TournamentParticipant, TournamentParticipant];  // Always objects, not IDs
 }
@@ -217,8 +217,8 @@ export interface MatchStartMessage {
 // Match ended
 export interface MatchEndMessage {
   type: 'matchEnd';
-  tournamentId: string;
-  matchId: string;
+  tournamentId: number;
+  matchId: number;
   winner: TournamentParticipant;
   loser: TournamentParticipant;
 }
@@ -238,8 +238,8 @@ export interface TournamentUpdateMessage {
 // Player signals readiness for match
 export interface PlayerReadyMessage {
   type: 'playerReady';
-  tournamentId: string;
-  matchId: string;
+  tournamentId: number;
+  matchId: number;
 }
 
 // User quits tournament

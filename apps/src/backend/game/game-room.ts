@@ -10,10 +10,10 @@ const WIN_SCORE = 5;
 const FREEZE = 5;
 
 export class GameRoom {
-	public readonly id: string;
+	public readonly id: number;
 	private players: [Player, Player];
 	private mode: GameMode;
-	private tournamentId?: string;
+	private tournamentId?: number;
 	private state: GameState;
 	private physicsInterval!: NodeJS.Timeout;
 	private networkInterval!: NodeJS.Timeout;
@@ -26,17 +26,22 @@ export class GameRoom {
 	private gameEnded = false;
 
 	constructor(
-		id: string,
+		id: number,
 		mode: GameMode,
 		player1: Player,
 		player2: Player,
-		tournamentId?: string
+		tournamentId?: number
 	) {
 		this.id = id;
 		this.players = [player1, player2 ];
 		this.mode = mode;
 		if (tournamentId) this.tournamentId = tournamentId;
 		this.state = this.initState();
+
+    // mark the initial sockets as having listeners
+    // (this.players[0].socket as any).__gameRoomListenersAttached = true;
+    // (this.players[1].socket as any).__gameRoomListenersAttached = true;
+
 		this.setupListeners();
 		this.startCountdown();
 	}
@@ -108,7 +113,7 @@ export class GameRoom {
 		}
 	}
 
-	private move(playerId: string, direction: 'up' | 'down') {
+	private move(playerId: number, direction: 'up' | 'down') {
 		const delta = direction === 'up' ? -2 : 2;
 		const currentY = this.state.paddles[playerId] ?? 50;
 		const newY = currentY + delta;
@@ -271,7 +276,7 @@ export class GameRoom {
 		return this.state.status === 'ended';
 	}
 
-	public handleMove(playerId: string, direction: 'up' | 'down', side?: 'left' | 'right') {
+	public handleMove(playerId: number, direction: 'up' | 'down', side?: 'left' | 'right') {
 		this.move(playerId, direction);
 	}
 
@@ -283,5 +288,34 @@ export class GameRoom {
 			// Re-setup listeners for the updated socket
 			this.setupListeners();
 		}
-	}
+    // public updateSocket(player: Player) {
+    //     console.log(`🔄 [GameRoom] Updating socket for player ${player.id}`);
+    //     const index = this.players.findIndex(p => p.id === player.id);
+    //     if (index === -1) {
+    //         console.warn(`[GameRoom] Tried to update socket for unknown player ${player.id}`);
+    //         return;
+    //     }
+
+    //     const existing = this.players[index];
+    //     if (!existing) {
+    //         console.warn(`[GameRoom] Existing player slot is undefined for index ${index}, id ${player.id}`);
+    //         return;
+    //     }
+
+    //     // If socket is already the same, nothing to do
+    //     if (existing.socket === player.socket) {
+    //         console.log(`[GameRoom] Socket for player ${player.id} is already up to date.`);
+    //         return;
+    //     }
+
+    //     // Update the socket reference
+    //     existing.socket = player.socket;
+
+    //     // Attach listeners only once per socket instance
+    //     const sock: any = existing.socket;
+    //     if (!sock.__gameRoomListenersAttached) {
+    //         sock.__gameRoomListenersAttached = true;
+    //         this.setupListeners();
+    //     }
+    }
 }

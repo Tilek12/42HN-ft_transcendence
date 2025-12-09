@@ -3,20 +3,20 @@ import  WebSocket from 'ws';
 
 export type Player =
 	| {
-		id: string;
+		id: number;
 		name: string;
 		socket: WebSocket;
 		isGhost?: false;
 	}
 	| {
-		id: '__ghost';
+		id: -1;
 		name: '__ghost';
 		socket: null;
 		isGhost: true;
 	};
 
 export const GhostPlayer: Player = {
-	id: '__ghost',
+	id: -1,
 	name: '__ghost',
 	socket: null,
 	isGhost: true,
@@ -24,12 +24,12 @@ export const GhostPlayer: Player = {
 
 export interface GameState {
 	ball: { x: number; y: number; vx: number; vy: number };
-	paddles: { [id: string]: number }; // Y position
-	score: { [id: string]: number };
+	paddles: { [id: number]: number }; // Y position
+	score: { [id: number]: number };
 	width: number;
 	height: number;
 	status: 'playing' | 'ended';
-	playerNames: { [id: string]: string };
+	playerNames: { [id: number]: string };
 }
 
 export interface MoveMessage {
@@ -47,7 +47,7 @@ export type GameMessage =
 	| { type: 'countdown'; value: number }
 	| { type: 'start' }
 	| { type: 'update'; state: GameState }
-	| { type: 'end'; winner: { id: string; name: string }; loser: { id: string; name: string } };
+	| { type: 'end'; winner: { id: number; name: string }; loser: { id: number; name: string } };
 
 export type OnGameEnd = (
 	winner: Player,

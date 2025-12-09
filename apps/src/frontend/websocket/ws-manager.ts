@@ -302,7 +302,7 @@ class WebSocketManager {
 	connectOnlineTournamentSocket(
 		action: 'join' | 'create',
 		size: 4 | 8,
-		id?: string,
+		id?: number,
 		onMessage?: (msg: any) => void,
 	): WebSocket | null {
 		if (this.onlineTournamentSocket) this.disconnectOnlineTournamentSocket();
