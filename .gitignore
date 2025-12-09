@@ -1,7 +1,7 @@
 *test*
 # *.db
 database
-.env*
+.env
 profile_pics/user*
 node_modules
 secrets
