@@ -33,7 +33,7 @@ Use Makefile commands to work with the program.
 
 ## :green_circle: Modules
 
-To achieve 100% project completion, a minimum of **7 major modules is required**.
+To achieve 100% project completion, a minimum of **14 points in a combination of major and minor modules**.
 
 :warning: **`1 Major Module = 2 Minor Modules`**
 
@@ -41,13 +41,15 @@ To achieve 100% project completion, a minimum of **7 major modules is required**
 
 \# | Module | Point | Description
 |:---|:---|:---|:---|
-**1** | Major | (1)   |	**Use a framework to build the backend.**
-**2** | Minor | (0,5) |	**Use a framework or a toolkit to build the frontend.**
-**3** | Minor | (0,5) | **Use a database for the backend.**
-**4** | Major | (1)   |	**Standard user management, authentication, users across tournaments.**
-**5** | Major | (1)   |	**Remote players.**
-**6** | Major | (1)   |	**Implement Two-Factor Authentication (2FA) and JWT.**
-**7** | Major | (1)   |	**Replace basic Pong with server-side Pong and implement an API.**
+**1** | Major | (1)   |	**backend framework. (Fastify)**
+**3** | Minor | (1) | **database (SQLITE).**
+**4** | Major | (2)   |	**Standard user management, authentication, users across tournaments.**
+**5** | Major | (2)   |	**Remote players.**
+**6** | Minor | (1)   |	**Implement Two-Factor Authentication (2FA).**
+**7** | Minor | (1)   |	**JWT & CyberSecurity.**
+**8** | Major | (2)   |	**Replace basic Pong with server-side Pong and implement an API.**
+**9** | Minor | (1) |	**Supports multiple languages.**
+**10** | Minor | (1) | **Expanding browser compatibility. + 2 browsers (3 browsers in total)**
 | | **Total Major Modules:** | **(6)** | |
 
 
@@ -57,10 +59,4 @@ Module | Point | Description
 |:---|:---|:---|
 Major | (1)   |	**Use advanced 3D techniques.**
 Minor | (0,5) |	**Support on all devices.**
-Minor | (0,5) |	**Expanding browser compatibility.**
-Minor | (0,5) |	**Supports multiple languages.**
 Minor | (0,5) |	**Game customization options.**
-
-
-
-
