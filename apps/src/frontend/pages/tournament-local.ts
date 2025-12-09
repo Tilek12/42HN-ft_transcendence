@@ -6,7 +6,7 @@ import { translations_tournament_render, translations_local_tournament, translat
 import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 
 let currentMatch: any = null;
-let currentMatchId: string | null = null;
+let currentMatchId: number | null = null;
 let gameState: any = null;
 let countdownValue: number | null = null;
 let countdownStartTime: number | null = null;
@@ -63,7 +63,7 @@ export async function renderLocalTournament(root: HTMLElement) {
         <div id="local-tournament" class="hidden">
         </div>
     </div>
-    
+
     <!-- Full Screen Game Layout (shown when tournament starts) -->
     <div id="tournament-game-view" class="hidden fixed inset-0 z-40 flex">
         <!-- LEFT SIDEBAR - Information Panel -->
@@ -115,7 +115,7 @@ export async function renderLocalTournament(root: HTMLElement) {
             <div class="text-center mb-6">
                 <div class="text-9xl animate-bounce">🏆</div>
             </div>
-            
+
             <!-- Congratulations Text -->
             <div class="text-center space-y-4 mb-8">
                 <h2 class="text-5xl font-black bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-300 bg-clip-text text-transparent animate-pulse">
@@ -181,8 +181,6 @@ export async function renderLocalTournament(root: HTMLElement) {
         transelate_per_id(translations_tournament_render, "player_championship", lang, "tournament_size_4");
         transelate_per_id(translations_tournament_render, "elite_tournament", lang, "tournament_size_8");
         transelate_per_id(translations_tournament_render, "tournament_size", lang, "tournament_size_label");
-		
-        transelate_per_id(translations_game, "vs", lang, "vs_translation_loc_tourn");
 
         // Update player name inputs when language changes
         const sizeSelect = document.getElementById('local-size') as HTMLSelectElement;
@@ -224,7 +222,7 @@ export async function renderLocalTournament(root: HTMLElement) {
         // show glory header again when we go back to lobby
         const glory = document.getElementById('glory_header');
         if (glory) glory.classList.remove('hidden');
-        
+
         // Show navbar when quitting tournament
         const navbar = document.getElementById('navbar');
         if (navbar) navbar.classList.remove('hidden');
@@ -307,7 +305,7 @@ export async function renderLocalTournament(root: HTMLElement) {
         // hide glory header after tournament starts
         const glory = document.getElementById('glory_header');
         if (glory) glory.classList.add('hidden');
-        
+
         // Hide navbar when tournament is created
         const navbar = document.getElementById('navbar');
         if (navbar) navbar.classList.add('hidden');
@@ -388,7 +386,7 @@ export async function renderLocalTournament(root: HTMLElement) {
             case 'countdown': {
                 countdownValue = msg.value;
                 countdownStartTime = performance.now();
-                
+
                 // Hide navbar when countdown starts
                 const navbar = document.getElementById('navbar');
                 if (navbar) navbar.classList.add('hidden');
@@ -397,7 +395,7 @@ export async function renderLocalTournament(root: HTMLElement) {
             case 'start': {
                 countdownValue = null;
                 countdownStartTime = null;
-                
+
                 // Keep navbar hidden during gameplay
                 const navbar = document.getElementById('navbar');
                 if (navbar) navbar.classList.add('hidden');
@@ -427,7 +425,7 @@ export async function renderLocalTournament(root: HTMLElement) {
                 const championModal = document.getElementById('champion-modal');
                 if (championNameEl) championNameEl.textContent = msg.winner.name;
                 if (championModal) championModal.classList.remove('hidden');
-                
+
                 // Also update status text
                 document.getElementById('status')!.innerHTML = /*html*/`
                     <span style="color: gold; font-weight: bold;">
@@ -446,11 +444,11 @@ export async function renderLocalTournament(root: HTMLElement) {
 
     // --- Matches table renderer (simple view) ---
 
-    function renderMatchesTable(state: any, highlightMatchId: string | null) {
+    function renderMatchesTable(state: any, highlightMatchId: number | null) {
         const container = document.getElementById('matches-table');
         if (!container) return;
 
-        const participants: { id: string; name: string }[] = state.participants || [];
+        const participants: { id: number; name: string }[] = state.participants || [];
         const rounds: any[][] = state.rounds || [];
 
         if (!rounds.length) {
@@ -458,7 +456,7 @@ export async function renderLocalTournament(root: HTMLElement) {
             return;
         }
 
-        const lookupName = (id: string | undefined) => {
+        const lookupName = (id: number | undefined) => {
             if (!id) return 'TBD';
             const p = participants.find(p => p.id === id);
             return p ? p.name : 'TBD';
@@ -649,7 +647,7 @@ export async function renderLocalTournament(root: HTMLElement) {
         ids.forEach((id, index) => {
             const paddleY = gameState.paddles[id] * scaleY;
             const paddleX = index === 0 ? 30 : width - paddleWidth - 30;
-            
+
             // Use player colors
             const paddleColor = index === 0 ? '#6b9dff' : '#ff8b6b';
             const glowColor = index === 0 ? '#4a7dd9' : '#e56847';
@@ -693,15 +691,15 @@ export async function renderLocalTournament(root: HTMLElement) {
         if (countdownValue !== null) {
             const currentTime = performance.now();
             const elapsed = countdownStartTime ? (currentTime - countdownStartTime) / 1000 : 0;
-            
+
             // Pulsing scale animation (grows and shrinks)
             const pulseFreq = 2; // 2 pulses per second
             const pulseScale = 1 + Math.sin(elapsed * pulseFreq * Math.PI * 2) * 0.15;
-            
+
             // Pop-in animation when countdown changes
             const popScale = Math.min(1, elapsed * 4); // Quick pop-in over 0.25s
             const totalScale = pulseScale * popScale;
-            
+
             // Gradient color based on countdown value
             const gradient = ctx.createLinearGradient(width / 2 - 100, height / 4 - 50, width / 2 + 100, height / 4 + 50);
             if (countdownValue === 3) {
@@ -714,31 +712,31 @@ export async function renderLocalTournament(root: HTMLElement) {
                 gradient.addColorStop(0, '#f87171'); // red-400
                 gradient.addColorStop(1, '#ef4444'); // red-600
             }
-            
+
             ctx.save();
-            
+
             // Center point for scaling
             ctx.translate(width / 2, height / 4);
             ctx.scale(totalScale, totalScale);
-            
+
             // Draw glow effect
             ctx.shadowColor = countdownValue === 1 ? 'rgba(239, 68, 68, 0.8)' : 'rgba(251, 191, 36, 0.6)';
             ctx.shadowBlur = 40;
             ctx.shadowOffsetX = 0;
             ctx.shadowOffsetY = 0;
-            
+
             // Draw text
             ctx.fillStyle = gradient;
             ctx.font = 'bold 96px sans-serif';
             const text = countdownValue.toString();
             const textWidth = ctx.measureText(text).width;
             ctx.fillText(text, -textWidth / 2, 32);
-            
+
             // Draw outline for extra pop
             ctx.strokeStyle = 'white';
             ctx.lineWidth = 3;
             ctx.strokeText(text, -textWidth / 2, 32);
-            
+
             ctx.restore();
         }
     }

@@ -4,25 +4,25 @@ export type TournamentStatus = 'waiting' | 'active' | 'finished';
 
 export type MatchStatus = 'scheduled' | 'waiting_for_sockets' | 'running' | 'finished';
 
-export interface Participant { id: string; name: string; }
+export interface Participant { id: number; name: string; }
 
 export interface Match {
-	id: string;
+	id: number;
 	roundIndex: number;
 	p1: Participant;
 	p2: Participant;
 	status: MatchStatus;
-	gameId?: string;				// set after game is created
-	winnerId?: string;
-	loserId?: string;
+	gameId?: number;				// set after game is created
+	winnerId?: number;
+	loserId?: number;
 	winnerScore?: number;
 	loserScore?: number;
 }
 
 export interface TournamentState {
-	id: string;
+	id: number;
 	size: TournamentSize;
-	hostId: string;					// creator's id
+	hostId: number;					// creator's id
   // hostSocket: WebSocket;	// creator's control socket
 	status: TournamentStatus;
 	participants: Participant[];	// length = size
@@ -47,7 +47,7 @@ export type TournamentMessage =
 
 // Base participant structure (consistent for local/online)
 export interface TournamentParticipant {
-  id: string;  // User ID or local ephemeral ID
+  id: number;  // User ID or local ephemeral ID
   name: string;
 }
 
@@ -61,7 +61,7 @@ export interface CreateOnlineTournamentMessage {
 // Join ONLINE Tournament joined confirmation
 export interface JoinOnlineTournamentMessage {
   type: 'onlineTournamentJoined';
-  id: string;  // Tournament ID
+  id: number;  // Tournament ID
 }
 
 // Create LOCAL Tournament with participants
@@ -84,8 +84,8 @@ export interface LocalTournamentLeftMessage {
 // Match starting (unified for local/online)
 export interface MatchStartMessage {
   type: 'matchStart';
-  tournamentId: string;
-  matchId: string;
+  tournamentId: number;
+  matchId: number;
   size: 4 | 8;  // Tournament size
   participants: [TournamentParticipant, TournamentParticipant];  // Always objects, not IDs
 }
@@ -93,8 +93,8 @@ export interface MatchStartMessage {
 // Match ended
 export interface MatchEndMessage {
   type: 'matchEnd';
-  tournamentId: string;
-  matchId: string;
+  tournamentId: number;
+  matchId: number;
   winner: TournamentParticipant;
   loser: TournamentParticipant;
 }
@@ -114,8 +114,8 @@ export interface TournamentUpdateMessage {
 // Player signals readiness for match
 export interface PlayerReadyMessage {
   type: 'playerReady';
-  tournamentId: string;
-  matchId: string;
+  tournamentId: number;
+  matchId: number;
 }
 
 // User quits tournament

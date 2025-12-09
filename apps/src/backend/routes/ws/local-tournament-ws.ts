@@ -11,7 +11,7 @@ import { JWTPayload, User } from '../../backendTypes';
 import { TournamentWebsocketQuery, TournamentWebsocketSchema } from './WebsocketSchemas';
 import { findUserById } from '../../database/user';
 
-function handle_message(text: string, user: User, userId: string, socket: WebSocket) {
+function handle_message(text: string, user: User, userId: number, socket: WebSocket) {
     if (text === 'pong') {
         userManager.setInLocalTournament(user, true);
         return;
@@ -51,7 +51,7 @@ const wsLocalTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 		let authenticated = false;
 		let user: User | undefined;
 		let decoded = req.user as JWTPayload;
-		let userId: string = "unauthenticated";
+		let userId: number = -100;
 
 		socket.on('message', async (raw: any) => {
 			try {
@@ -60,7 +60,7 @@ const wsLocalTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 					if (!user)
 						throw new Error(`[LOCAL Tournament WS] User not valid: ${decoded.id}`);
 					fastify.log.info(`🟢 [LOCAL Tournament WS] Connected: ${user.username}`);
-					userId = user.id.toString();
+					userId = user.id;
 					userManager.setLocalTournamentSocket(user, socket);
 
 					const participant: Participant = { id: userId, name: user.name };

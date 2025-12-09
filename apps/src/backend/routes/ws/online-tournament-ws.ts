@@ -9,7 +9,7 @@ import { gameManager } from '../../service-managers/game-manager';
 import { PING_INTERVAL_MS } from '../../constants';
 import { JWTPayload, User } from '../../backendTypes';
 
-function handle_message(text: string, user:User, userId:string, socket:WebSocket) {
+function handle_message(text: string, user:User, userId: number, socket:WebSocket) {
 	if (text === 'pong') {
 		userManager.setInOnlineTournament(user, true);
 		return;
@@ -35,7 +35,7 @@ const wsOnlineTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 
 		const params = new URLSearchParams(req.url?.split('?')[1] || '');
 		const action = params.get('action'); // "create" or "join"
-		const tournamentId = params.get('id');
+		const tournamentId = Number(params.get('id'));
 		const size = parseInt(params.get('size') || '4') as 4 | 8;
 
 		if (!action || (action === 'join' && !tournamentId)) {
@@ -48,7 +48,7 @@ const wsOnlineTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 		let authenticated = false;
 		let user: User | undefined;
 		let decoded = req.user as JWTPayload;
-		let userId: string = "unauthenticated";
+		let userId: number = -100;
 
 		socket.on('message', async (raw: any) => {
 			try {
@@ -57,7 +57,7 @@ const wsOnlineTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
 					if (!user)
 						throw new Error(`[ONLINE Tournament WS] User not valid: ${decoded.id}`);
 					fastify.log.info(`🟢 [ONLINE Tournament WS] Connected: ${user.username}`);
-					userId = user.id.toString();
+					userId = user.id;
 					userManager.setOnlineTournamentSocket(user, socket);
 
 					let tournament: TournamentState | null = null;

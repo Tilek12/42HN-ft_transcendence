@@ -7,20 +7,20 @@ import { incrementWinsOrLossesOrTrophies } from '../database/profile';
 import { createMatch } from '../database/match';
 
 class GameManager {
-	private rooms = new Map<string, GameRoom>();
-	private waitingDuel = new Map<string, Player>();
+	private rooms = new Map<number, GameRoom>();
+	private waitingDuel = new Map<number, Player>();
 	private nextId = 1;
 
 	// ===== ROOM MANAGEMENT METHODS =====
-	createGame(mode: GameMode, p1: Player, p2: Player, tournamentId?: string, matchId?: string): GameRoom {
+	createGame(mode: GameMode, p1: Player, p2: Player, tournamentId?: number, matchId?: number): GameRoom {
 		console.log('createGame mode:', mode, 'for players:', p1.id, p2.id);
 
 		let isTournament: boolean = tournamentId && matchId ? true : false;
-		let roomId: string;
-		if (isTournament)
-			roomId = `[${tournamentId}]:[${matchId}]:[g-${this.nextId++}]`;
-		else
-			roomId = `g-${this.nextId++}`;
+		let roomId: number;
+		// if (isTournament)
+		// 	roomId = this.nextId++;
+		// else
+			roomId = this.nextId++;
 		const room = new GameRoom(roomId, mode, p1, p2, tournamentId);
 		this.rooms.set(roomId, room);
 		// // Auto-remove room when the game ends
@@ -52,11 +52,11 @@ class GameManager {
 		return room;
 	}
 
-	getRoom(roomId: string): GameRoom | undefined {
+	getRoom(roomId: number): GameRoom | undefined {
 		return this.rooms.get(roomId);
 	}
 
-	getRoomByPlayerId(playerId: string): GameRoom | undefined {
+	getRoomByPlayerId(playerId: number): GameRoom | undefined {
 		return this.getAllRooms().find(room =>
 			room.getPlayers().some(player => player.id === playerId)
 		);
@@ -76,31 +76,20 @@ class GameManager {
 	}
 
 	// ===== MATCHMAKING METHODS =====
-	async startGame(player: Player, mode: GameMode, tournamentId?: string): Promise<void> {
+	async startGame(player: Player, mode: GameMode, tournamentId?: number): Promise<void> {
 		console.log('startGame called with mode:', mode, 'for player:', player.id);
+
 		if (mode === 'solo') {
 			this.createGame(mode, player, GhostPlayer);
 			return;
 		}
 
-		// if (mode === 'online-match' || mode === 'local-match') {
-		// 	// The game room should already exist, just update the player's socket
-		// 	const tournamentManager = mode === 'online-match'
-		// 		? onlineTournamentManager
-		// 		: localTournamentManager;
-		// 	const game = tournamentManager.getGameForPlayer(player.id);
-		// 	if (game) {
-		// 		console.log('Updating socket for existing match game for player:', player.id);
-		// 		game.updateSocket(player);
-		// 	}
-		// 	else
-		// 		console.warn(`No existing game found for player ${player.id} in mode ${mode}`);
-		// 	return;
-		// }
-
-		if (mode === 'local-match') {
+		if (mode === 'online-match' || mode === 'local-match') {
 			// The game room should already exist, just update the player's socket
-			const game = localTournamentManager.getGameForPlayer(player.id);
+			const tournamentManager = mode === 'online-match'
+				? onlineTournamentManager
+				: localTournamentManager;
+			const game = tournamentManager.getGameForPlayer(player.id);
 			if (game) {
 				console.log('Updating socket for existing match game for player:', player.id);
 				game.updateSocket(player);
@@ -109,6 +98,18 @@ class GameManager {
 				console.warn(`No existing game found for player ${player.id} in mode ${mode}`);
 			return;
 		}
+
+		// if (mode === 'local-match') {
+		// 	// The game room should already exist, just update the player's socket
+		// 	const game = localTournamentManager.getGameForPlayer(player.id);
+		// 	if (game) {
+		// 		console.log('Updating socket for existing match game for player:', player.id);
+		// 		game.updateSocket(player);
+		// 	}
+		// 	else
+		// 		console.warn(`No existing game found for player ${player.id} in mode ${mode}`);
+		// 	return;
+		// }
 
 		if (mode !== 'duel') {
 			console.warn(`🚫 Invalid game mode: ${mode}`);
@@ -151,20 +152,20 @@ class GameManager {
 				// 	);
 				// }
 
-				this.rooms.delete(room.id);
+				// this.rooms.delete(room.id);
 				console.log(`🗑️ [GameManager] Removed room ${room.id}`);
 				//------Thomas code-------
 				if (winner)
-					await incrementWinsOrLossesOrTrophies(parseInt(winner.id), "wins");
+					await incrementWinsOrLossesOrTrophies(winner.id, "wins");
 				if (loser)
-					await incrementWinsOrLossesOrTrophies(parseInt(loser.id), "losses");
+					await incrementWinsOrLossesOrTrophies(loser.id, "losses");
 
 				//------ Save to matches table -------
 				// const isTournamentMatch = mode === 'duel' && !!tournamentId;
 				// if (isTournamentMatch) {
 					await createMatch(
-						parseInt(winner.id),
-						parseInt(loser.id),
+						winner.id,
+						loser.id,
 						winnerScore,
 						loserScore,
 						false
@@ -181,7 +182,7 @@ class GameManager {
 		}
 	}
 
-	cancelDuelSearch(userId: string) {
+	cancelDuelSearch(userId: number) {
 		if (this.getWaitingDuel().has(userId)) {
 			this.removeWaitingDuelPlayer(userId);
 			console.log(`🛑 [GameManager] Removed ${userId} from duel queue`);
@@ -193,11 +194,11 @@ class GameManager {
 		return this.waitingDuel;
 	}
 
-	setWaitingDuelPlayer(id: string, player: Player) {
+	setWaitingDuelPlayer(id: number, player: Player) {
 		this.waitingDuel.set(id, player);
 	}
 
-	removeWaitingDuelPlayer(id: string ) {
+	removeWaitingDuelPlayer(id: number ) {
 		this.waitingDuel.delete(id);
 	}
 }

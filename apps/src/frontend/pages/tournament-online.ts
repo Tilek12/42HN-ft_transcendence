@@ -8,7 +8,7 @@ import { showToast } from './listenerUpdatePasswordAndUsername.js';
 import { Tournament } from '../frontendTypes.js';
 import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 
-let currentTournamentId: string | null = null;
+let currentTournamentId: number | null = null;
 let currentMatch: any = null;
 let gameState: any = null;
 let countdownValue: number | null = null;
@@ -50,7 +50,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
     wsManager.subscribeToPresence(renderTournamentList);
 
     const user = getUser();
-    const userId = user?.id.toString();
+    const userId: number | undefined = user?.id;
 
     // Quit online match
     document.getElementById('quit-online-match')!.addEventListener('click', () => {
@@ -167,7 +167,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
             return;
         const userId = user.id;
 
-        const userTournament = tournaments.find(t => t.playerIds.includes(userId.toString()));  // <------ FIX IT. EXPRESSION IS WRONG -----
+        const userTournament = tournaments.find(t => t.playerIds.includes(userId));  // <------ FIX IT. EXPRESSION IS WRONG -----
 
         currentTournamentId = userTournament ? userTournament.id : null;
 
@@ -208,7 +208,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
 
         for (const t of tournaments) {
             const isFull = t.joined >= t.size;
-            const userInTournament = t.playerIds.includes(userId.toString());
+            const userInTournament = t.playerIds.includes(userId);
             console.log("tournament:", t);
             console.log("userintournament:", userInTournament, userId);
             const div = document.createElement('div');
@@ -267,7 +267,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
         list.appendChild(createDiv);
     }
 
-    function joinTournament(id: string, size: 4 | 8) {
+    function joinTournament(id: number, size: 4 | 8) {
         if (currentTournamentId) {
             showToast(`⚠️ You're already in ONLINE Tournament ${currentTournamentId}.`, 'error');
             return;

@@ -20,7 +20,7 @@ async function setup(user:User, socket:WebSocket, buffer:string[], mode:string)
 	userManager.setInGame(user.id, true);
 
 	// create Player with this socket and start matchmaking / game
-	const player: Player = { id: user.id.toString(), name: user.username, socket };
+	const player: Player = { id: user.id, name: user.username, socket };
 	await gameManager.startGame(player, mode as GameMode);
 
 	// while (buffer.length)
@@ -39,7 +39,7 @@ async function setup(user:User, socket:WebSocket, buffer:string[], mode:string)
 	// attach final close handler to cleanup (will be appended to the close handlers )
 	socket.on('close', () => {
 		console.log(`setup close handler ${user.id}`);
-		gameManager.cancelDuelSearch(user.id.toString()); // TODO change id everywhere to number type
+		gameManager.cancelDuelSearch(user.id); // TODO change id everywhere to number type
 		userManager.removeGameSocket(user.id);
 		userManager.setInGame(user.id, false);
 	});

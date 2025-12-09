@@ -12,21 +12,20 @@ import {
 import { sendTournamentUpdate } from '../routes/ws/presence-ws';
 import { incrementWinsOrLossesOrTrophies } from '../database/profile';
 import { createTournamentDB, joinTournamentDB } from '../database/tournament';
-import { sleep } from '../utils';
 
 class OnlineTournamentManager {
 	private nextTid = 1;  // Tournament ID starts at 1
 	private nextMid = 1;  // Match ID starts at 1
 	private nextUid = 2;  // User ID starts at 2 (1 is reserved for host)
-	private onlineTournaments = new Map<string, TournamentState>();  // all active online tournaments
-	private playerReadyStates = new Map<string, Set<string>>();  // matchKey -> Set<playerId>
+	private onlineTournaments = new Map<number, TournamentState>();  // all active online tournaments
+	private playerReadyStates = new Map<string, Set<number>>();  // matchKey -> Set<playerId>
 
 	/** Create a new online tournament */
 	async createOnlineTournament(
 		host: Participant,
 		size: TournamentSize,
 	) {
-		const id = `t-online-${this.nextTid++}`;
+		const id = this.nextTid++;
 		let participants: Participant[] = [];
 		let tournament: TournamentState;
 
@@ -42,7 +41,7 @@ class OnlineTournamentManager {
 			createdAt: Date.now()
 		});
 
-		await createTournamentDB(`Tournament ${id}`, parseInt(host.id));
+		await createTournamentDB(`Tournament ${id}`, host.id);
 
 		console.log(`🏆 [ONLINE Tournament: ${tournament.id}] Created by: `, host);
 
@@ -51,7 +50,7 @@ class OnlineTournamentManager {
 	}
 
 	/** Join an existing online tournament */
-	async joinOnlineTournament(id: string, participant: Participant) {
+	async joinOnlineTournament(id: number, participant: Participant) {
 		const tournament = this.onlineTournaments.get(id);
 
 		if (!tournament || tournament.status !== 'waiting') return null;
@@ -59,7 +58,7 @@ class OnlineTournamentManager {
 		if (tournament.participants.length >= tournament.size) return null;
 
 		tournament.participants.push(participant);
-		await joinTournamentDB(Number(tournament.id.split('-')[1]), Number(participant.id));
+		await joinTournamentDB(tournament.id, participant.id);
 
 		console.log(`🏆 [ONLINE Tournament: ${id}] Participant joined: `, participant);
 
@@ -72,7 +71,7 @@ class OnlineTournamentManager {
 	}
 
 	/** Create the bracket and schedule round 1 */
-	public async startOnlineTournament(id: string) {
+	public async startOnlineTournament(id: number) {
 		console.log('startOnlineTournament called:', id);
 		const tournament = this.onlineTournaments.get(id);
 
@@ -98,13 +97,13 @@ class OnlineTournamentManager {
 		console.log(`🏆 [ONLINE Tournament: ${tournament.id}] Started`);
 
 		sendTournamentUpdate();
-		this.broadcastTournamentUpdate(tournament.id);
+		// this.broadcastTournamentUpdate(tournament.id);
 	}
 
 	/** Called by GameManager when one game ends */
 	onMatchEnd(
-		tournamentId: string,
-		matchId: string,
+		tournamentId: number,
+		matchId: number,
 		winner: Participant,
 		loser: Participant,
 		winnerScore: number,
@@ -132,7 +131,7 @@ class OnlineTournamentManager {
 			if (winners.length === 1) {
 				// tournament finished
 				tournament.status = 'finished';
-				void incrementWinsOrLossesOrTrophies(parseInt(winners[0]!.id), 'trophies');
+				void incrementWinsOrLossesOrTrophies(winners[0]!.id, 'trophies');
 
 				console.log(`🏆 [ONLINE Tournament: ${tournament.id}] Winner: ${winners[0]!.id}`);
 
@@ -149,7 +148,7 @@ class OnlineTournamentManager {
 					}
 				}
 
-				this.broadcastTournamentUpdate(tournament.id);
+				// this.broadcastTournamentUpdate(tournament.id);
 
 				// Cleanup: remove finished tournament from memory
 				this.onlineTournaments.delete(tournament.id);
@@ -168,7 +167,7 @@ class OnlineTournamentManager {
 			this.startRoundSimultaneously(tournament, nextIdx);
 		}
 
-		this.broadcastTournamentUpdate(tournament.id);
+		// this.broadcastTournamentUpdate(tournament.id);
 	}
 
 	/** Online tournaments: start whole round in parallel with staggered starts */
@@ -194,7 +193,7 @@ class OnlineTournamentManager {
 		// Send matchStart to all players in the first round
 		round.forEach(match => {
 			[match.p1, match.p2].forEach(player => {
-				const user = userManager.getUser(Number(player.id));
+				const user = userManager.getUser(player.id);
 				if (user && user.onlineTournamentSocket?.readyState === WebSocket.OPEN) {
 					user.onlineTournamentSocket.send(JSON.stringify({
 						type: 'onlineMatchStart',
@@ -213,7 +212,7 @@ class OnlineTournamentManager {
 	}
 
 	/** Wait for all tournament players to be ready before starting first round matches */
-	private waitForAllPlayersReady(tournamentId: string, matches: Match[]) {
+	private waitForAllPlayersReady(tournamentId: number, matches: Match[]) {
 		console.log('waitForAllPlayersReady', tournamentId);
 		const readyKey = `${tournamentId}-round0`;
 		const expectedPlayers = new Set(matches.flatMap(m => [m.p1.id, m.p2.id]));
@@ -261,7 +260,7 @@ class OnlineTournamentManager {
 
 		// Send matchStart to both players' tournament sockets
 		[match.p1, match.p2].forEach(player => {
-			const user = userManager.getUser(Number(player.id));
+			const user = userManager.getUser(player.id);
 			if (user?.onlineTournamentSocket?.readyState === WebSocket.OPEN) {
 				user.onlineTournamentSocket.send(JSON.stringify({
 					type: 'onlineMatchStart',
@@ -279,7 +278,7 @@ class OnlineTournamentManager {
 	}
 
 	/** Wait for both players to signal their game sockets are ready */
-	private waitForPlayerSockets(tournamentId: string, match: Match) {
+	private waitForPlayerSockets(tournamentId: number, match: Match) {
 		const readyKey = `${tournamentId}-${match.id}`;
 		const timeout = 10000; // 10 second timeout
 		const startTime = Date.now();
@@ -289,7 +288,6 @@ class OnlineTournamentManager {
 
 			if (readyPlayers === 2) {
 				console.log(`🎯 waitForPlayerSockets [ONLINE Tournament ${tournamentId}] Both players ready for match ${match.id}`);
-				sleep(7000);
 				// Both players ready, start the actual game
 				this.startActualMatch(tournamentId, match);
 				this.playerReadyStates.delete(readyKey);
@@ -326,7 +324,7 @@ class OnlineTournamentManager {
 	}
 
 	/** Actually start the game after socket readiness is confirmed */
-	private startActualMatch(tournamentId: string, match: Match) {
+	private startActualMatch(tournamentId: number, match: Match) {
 		console.log('STARTING ACTUAL MATCH', tournamentId, match.id);
 		const tournament = this.onlineTournaments.get(tournamentId);
 		if (!tournament) return;
@@ -335,7 +333,7 @@ class OnlineTournamentManager {
 
 		const toPlayer = (player: Participant) => {
 			// Online: use each user's game socket from userManager
-			const user = userManager.getUser(Number(player.id));
+			const user = userManager.getUser(player.id);
 			if (!user) {
 				// Fall back to ghost socket to avoid crash; will be updated when game socket connects
 				return GhostPlayer;
@@ -348,7 +346,6 @@ class OnlineTournamentManager {
 		const player1 = toPlayer(match.p1);
 		const player2 = toPlayer(match.p2);
 
-		sleep(7000)
 		const game = gameManager.createGame(
 			'online-match',
 			player1,
@@ -361,7 +358,7 @@ class OnlineTournamentManager {
 
 		// For online tournaments, update sockets if players already connected their game sockets
 		[match.p1, match.p2].forEach(p => {
-			const user = userManager.getUser(Number(p.id));
+			const user = userManager.getUser(p.id);
 			if (user?.gameSocket) {
 				game.updateSocket({ id: p.id, name: p.name, socket: user.gameSocket as any });
 			}
@@ -372,7 +369,7 @@ class OnlineTournamentManager {
 
 	private makeMatch(t: TournamentState, roundIdx: number, p1: Participant, p2: Participant): Match {
 		return {
-			id: `m-${this.nextMid++}`,
+			id: this.nextMid++,
 			roundIndex: roundIdx,
 			p1,
 			p2,
@@ -381,7 +378,7 @@ class OnlineTournamentManager {
 		// (Persist: create match row linked to tournamentId)
 	}
 
-	private findMatch(tournament: TournamentState, matchId: string) {
+	private findMatch(tournament: TournamentState, matchId: number) {
 		for (const round of tournament.rounds) {
 			const match = round.find(x => x.id === matchId);
 			if (match) return match;
@@ -389,24 +386,24 @@ class OnlineTournamentManager {
 		return undefined;
 	}
 
-	/** push updates to UIs (tournament lobby + participants) */
-	private broadcastTournamentUpdate(tournamentId: string) {
-		const tournament = this.onlineTournaments.get(tournamentId);
-		if (!tournament) return;
-		const update = JSON.stringify({
-			type: 'onlineTournamentUpdate',
-			state: this.getTournamentState(tournament.id)
-		});
+	// /** push updates to UIs (tournament lobby + participants) */
+	// private broadcastTournamentUpdate(tournamentId: number) {
+	// 	const tournament = this.onlineTournaments.get(tournamentId);
+	// 	if (!tournament) return;
+	// 	const update = JSON.stringify({
+	// 		type: 'onlineTournamentUpdate',
+	// 		state: this.getTournamentState(tournament.id)
+	// 	});
 
-		for (const participant of tournament.participants) {
-			const user = userManager.getUser(Number(participant.id));
-			if (user?.onlineTournamentSocket?.readyState === WebSocket.OPEN) {
-				user.onlineTournamentSocket.send(update);
-			}
-		}
-	}
+	// 	for (const participant of tournament.participants) {
+	// 		const user = userManager.getUser(Number(participant.id));
+	// 		if (user?.onlineTournamentSocket?.readyState === WebSocket.OPEN) {
+	// 			user.onlineTournamentSocket.send(update);
+	// 		}
+	// 	}
+	// }
 
-	getTournamentState(id: string) {
+	getTournamentState(id: number) {
 		const tournament = this.onlineTournaments.get(id);
 		if (!tournament) return null;
 		return {
@@ -440,7 +437,7 @@ class OnlineTournamentManager {
 			}));
 	}
 
-	getTournamentParticipant(userId: string): TournamentState | null {
+	getTournamentParticipant(userId: number): TournamentState | null {
 		for (const tournament of this.onlineTournaments.values()) {
 			if (tournament.participants.some(player => player.id === userId))
 				return tournament;
@@ -448,7 +445,7 @@ class OnlineTournamentManager {
 		return null;
 	}
 
-	getGameForPlayer(playerId: string): any {
+	getGameForPlayer(playerId: number): any {
 		const tournament = this.getTournamentParticipant(playerId);
 		if (!tournament) return null;
 
@@ -463,7 +460,7 @@ class OnlineTournamentManager {
 	}
 
 	/** Handle player socket ready signal */
-	public playerSocketReady(tournamentId: string, matchId: string, playerId: string) {
+	public playerSocketReady(tournamentId: number, matchId: number, playerId: number) {
 		console.log('playerSocketReady called:', 'tID:',tournamentId, 'mID:',matchId, 'pID:',playerId);
 		// Handle both individual match readiness and round-wide readiness
 		const matchReadyKey = `${tournamentId}-${matchId}`;
@@ -487,7 +484,7 @@ class OnlineTournamentManager {
 		console.log(`🎯 [ONLINE Tournament ${tournamentId}] Player ${playerId} ready for match ${matchId}`);
 	}
 
-	quitOnlineTournament(userId: string) {
+	quitOnlineTournament(userId: number) {
 		const tournament = this.getTournamentParticipant(userId);
 		if (!tournament) return;
 
@@ -551,7 +548,7 @@ class OnlineTournamentManager {
 		sendTournamentUpdate();
 
 		// If the tournament is not empty, broadcast the update
-		this.broadcastTournamentUpdate(tournament.id);
+		// this.broadcastTournamentUpdate(tournament.id);
 	}
 }
 
