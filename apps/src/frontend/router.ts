@@ -23,7 +23,7 @@ export async function router()
 	const	root = document.getElementById('app')!;
 	let		route = location.hash || '#/';
 	const	isLoggedIn = getUser() !== null || await validateLogin();
-	console.log("getUser() !== null:",getUser() !== null )
+	// console.log("getUser() !== null:",getUser() !== null )
 	changeLoginButton(!isLoggedIn);
 	unhideNav();
 
@@ -98,7 +98,5 @@ export async function router()
 		// ensuring consistent language toggle availability throughout the entire application
 
 	}
-	initGlobalLanguageSelector();
-
 
 }

@@ -68,7 +68,7 @@ export function renderUserProfile()
 	return renderBackgroundFull(
 		/*html*/
 		`
-		<div class="min-h-screen w-full">
+		<div class="h-full w-full">
 			<div class="max-w-[1800px] mx-auto px-4 py-8">
 				<!-- DESIGN: 3-column responsive grid using Tailwind's 12-column system -->
 				<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-8">

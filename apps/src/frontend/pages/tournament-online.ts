@@ -5,6 +5,7 @@ import { COLORS } from '../constants/colors.js';
 import { languageStore, translations_tournament_render, transelate_per_id } from './languages.js';
 import { showToast } from './listenerUpdatePasswordAndUsername.js';
 import { Tournament } from '../frontendTypes.js';
+import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 
 let currentTournamentId: string | null = null;
 let currentMatch: any = null;
@@ -149,6 +150,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
                 renderTournamentList();
             }, 7000);
         }
+        initGlobalLanguageSelector();
     }
 
     function renderTournamentList() {

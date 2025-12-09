@@ -2,6 +2,7 @@ import { renderBackgroundFull } from '../utils/layout.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { COLORS } from '../constants/colors.js';
 import { languageStore, translations_tournament_render, transelate_per_id } from './languages.js';
+import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 
 let currentMatch: any = null;
 let currentMatchId: string | null = null;
@@ -431,6 +432,8 @@ export async function renderLocalTournament(root: HTMLElement) {
                 console.warn('Unknown local tournament message type:', msg);
             }
         }
+        initGlobalLanguageSelector();
+        
     }
 
     // --- Matches table renderer (simple view) ---
