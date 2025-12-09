@@ -76,6 +76,7 @@ export function showSettingsSuccess(root: HTMLElement,) {
 	// if (error)
 		// error.innerText = `${translations_register_page[languageStore.language].success}`;
 	showToast(`${translations_register_page[languageStore.language].success}`);
+	// console.log(`------>${translations_register_page[languageStore.language]}`)
 	//  renderSettings(root);
 }
 

@@ -211,6 +211,14 @@ export const translations_settings: TranslationSet =
 		tfa_token_placeholder: '6 digit code',
 		password_placeholder: 'Password',
 		tfa_submit: 'Submit',
+		toast_success_username_update: 'Username updated successfully! 🎉',
+		toast_success_pw_update: 'Password updated successfully! 🎉',
+		toast_failure_username_update: 'Failed to update username. Please try again!',
+		toast_failure_username_update_for_letters_numbers: 'Username must have contain only letters and numbers!',
+		toast_failure_pw_no_match: 'New password and confirmation do not match!',
+		toast_failure_pw_min_eight: 'Password must be at least 8 characters long!',
+		toast_failure_pw_same: 'New password must be different from old password!',
+		toast_failure_pw_update: 'Failed to update password. Please try again!'
 	},
 	DE: {
 		tfa_header: '2 Faktor Authentifizierung:',
@@ -237,6 +245,14 @@ export const translations_settings: TranslationSet =
 		tfa_token_placeholder: '6 stelliger Code',
 		password_placeholder: 'Passwort ',
 		tfa_submit: 'Bestätigen',
+		toast_success_username_update: 'Benutzername erfolgreich aktualisiert! 🎉',
+		toast_success_pw_update: 'Passwort erfolgreich aktualisiert! 🎉',
+		toast_failure_username_update: 'Fehler beim Aktualisieren des Benutzernamens. Bitte versuche es erneut!',
+		toast_failure_username_update_for_letters_numbers: 'Der Benutzername darf nur Buchstaben und Zahlen enthalten!',
+		toast_failure_pw_no_match: 'Neues Passwort und Bestätigung stimmen nicht überein!',
+		toast_failure_pw_min_eight: 'Das Passwort muss mindestens 8 Zeichen lang sein!',
+		toast_failure_pw_same: 'Das neue Passwort muss sich vom alten unterscheiden!',
+		toast_failure_pw_update: 'Fehler beim Aktualisieren des Passworts. Bitte versuche es erneut!'
 
 	},
 	GR: {
@@ -264,6 +280,16 @@ export const translations_settings: TranslationSet =
 		tfa_token_placeholder: '6ψήφιος κωδικός',
 		password_placeholder: 'Κωδικός',
 		tfa_submit: 'Υποβολή',
+		toast_success_username_update: 'Το όνομα χρήστη ενημερώθηκε επιτυχώς! 🎉',
+		toast_success_pw_update: 'Ο κωδικός ενημερώθηκε επιτυχώς| 🎉',
+		toast_failure_username_update: 'Αποτυχία ενημέρωσης ονόματος χρήστη. Παρακαλώ δοκιμάστε ξανά!',
+		toast_failure_username_update_for_letters_numbers: 'Το όνομα χρήστη πρέπει να περιέχει μόνο γράμματα και αριθμούς!',		
+		toast_failure_pw_no_match: 'Ο νέος κωδικός και η επιβεβαίωση δεν ταιριάζουν!',
+		toast_failure_pw_min_eight: 'Ο κωδικός πρέπει να έχει τουλάχιστον 8 χαρακτήρες!',
+		toast_failure_pw_same: 'Ο νέος κωδικός πρέπει να είναι διαφορετικός από τον παλιό!',
+
+		toast_failure_pw_update: 'Αποτυχία ενημέρωσης κωδικού. Παρακαλώ δοκιμάστε ξανά!'
+
 	}
 }
 
