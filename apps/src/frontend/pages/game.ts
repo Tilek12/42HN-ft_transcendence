@@ -318,8 +318,8 @@ export async function renderGame(root: HTMLElement) {
 
 		info.textContent =
 			mode === 'solo'
-				? 'Solo mode: Use W/S for left paddle, ↑/↓ for right paddle'
-				: 'Online mode: Use ↑/↓ arrows. Waiting for opponent...';
+				? translations_game_render[languageStore.language].solo_mode_text!
+				: translations_game_render[languageStore.language].online_mode_text!;
 		const pong_status = document.getElementById('pong_status');
 		socket = wsManager.createGameSocket(mode);
 		if (!socket) {

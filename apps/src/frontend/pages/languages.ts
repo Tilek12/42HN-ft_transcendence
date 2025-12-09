@@ -459,7 +459,9 @@ export const translations_game_render: TranslationSet = {
 		play_online: 'Play Online (1v1)',
 		play_local_tournament: 'Play Local Tournament',
 		play_online_tournament: 'Play Online Tournament',
-		info: 'Choose a game mode to begin'
+		info: 'Choose a game mode to begin',
+		solo_mode_text: 'Solo mode: Use W/S for left paddle, ↑/↓ for right paddle',
+		online_mode_text: 'Online mode: Use ↑/↓ arrows. Waiting for opponent...'
 	},
 	DE: {
 		pong_game_header: 'Pong-Arena',
@@ -467,7 +469,10 @@ export const translations_game_render: TranslationSet = {
 		play_online: 'Online spielen (1v1)',
 		play_local_tournament: 'Lokales Turnier spielen',
 		play_online_tournament: 'Online-Turnier spielen',
-		info: 'Wähle einen Spielmodus, um zu beginnen'
+		info: 'Wähle einen Spielmodus, um zu beginnen',
+		solo_mode_text: 'Solo-Modus: Verwende W/S für den linken Schläger, ↑/↓ für den rechten Schläger',
+		online_mode_text: 'Online-Modus: Verwende die Pfeiltasten ↑/↓. Warte auf einen Gegner...'
+
 	},
 	GR: {
 		pong_game_header: 'Αρένα Pong',
@@ -475,7 +480,9 @@ export const translations_game_render: TranslationSet = {
 		play_online: 'Παίξε Online (1v1)',
 		play_local_tournament: 'Παίξε Τοπικό Τουρνουά',
 		play_online_tournament: 'Παίξε Διαδικτυακό Τουρνουά',
-		info: 'Επίλεξε λειτουργία παιχνιδιού για να ξεκινήσεις'
+		info: 'Επίλεξε λειτουργία παιχνιδιού για να ξεκινήσεις',
+		solo_mode_text: 'Σόλο λειτουργία: Χρησιμοποιήστε W/S για την αριστερή ρακέτα και ↑/↓ για τη δεξιά ρακέτα',
+		online_mode_text: 'Διαδικτυακή λειτουργία: Χρησιμοποιήστε τα βελάκια ↑/↓. Αναμονή για αντίπαλο...'
 	}
 };
 
