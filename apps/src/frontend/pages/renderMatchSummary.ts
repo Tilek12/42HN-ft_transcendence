@@ -1,5 +1,6 @@
 import { Language, fMatch, fMatchHistory, fMatchForSummary, fMatchSummary, fProfile, fRank} from "../frontendTypes.js";
 import { apiFetch, getUser } from "../utils/auth.js";
+import { initGlobalLanguageSelector } from "../utils/globalLanguageSelector.js";
 import { renderBackgroundFull } from "../utils/layout.js";
 import { renderConnectionErrorPage } from "./error.js";
 import { languageStore, transelate_per_id, translations_dashboards } from "./languages.js";
@@ -420,6 +421,8 @@ export async function renderMatchSummary(root: HTMLElement) {
 		
 		addMatchSummaryTranslations(languageStore.language);
 		languageStore.subscribe((lang) => addMatchSummaryTranslations(lang));
+		initGlobalLanguageSelector();
+		
 	} catch (e: any) {
 		alert(e.message);
 		renderConnectionErrorPage();

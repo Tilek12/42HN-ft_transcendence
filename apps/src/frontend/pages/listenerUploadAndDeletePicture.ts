@@ -2,6 +2,8 @@ import { apiFetch, getUser, setUser } from '../utils/auth.js'
 import { defaultPicture } from '../utils/constants.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { renderConnectionErrorPage } from './error.js';
+import { languageStore, translations_errors, translations_settings } from './languages.js';
+import { showToast } from './listenerUpdatePasswordAndUsername.js';
 import { renderSettings, showSettingsError, showSettingsSuccess } from './settings.js';
 
 
@@ -86,20 +88,28 @@ export const listenerDeletePicture = async (root:HTMLElement, e: any) => {
 			}
 		)
 		const data = await res.json();
-		if (res.ok) {
-			const user = getUser();
+		const user = getUser();
+		console.log("before: ", user);
+		if (user && !user.image_blob)
+		{
+			showToast(`${translations_settings[languageStore.language].no_picture}`,'error');
+
+		}
+		else if (res.ok) {
 			if (user)
 			{
 				user.image_blob = undefined;
 				setUser(user);
 				showSettingsSuccess(root);
+				const img = document.getElementById('profile-pic');
+				if (img)
+					(img as HTMLImageElement).src = defaultPicture;
 			}
+			console.log("after: ", getUser());
 
 		}
-		else
-			showSettingsError(root, res);
 	} catch (e: any) {
-		renderConnectionErrorPage();
+		renderConnectionErrorPage(e.message);
 	}
 }
 

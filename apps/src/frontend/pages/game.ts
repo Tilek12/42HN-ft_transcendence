@@ -4,14 +4,16 @@ import { wsManager } from '../websocket/ws-manager.js';
 import { getUser } from '../utils/auth.js';
 import { COLORS } from '../constants/colors.js';
 import { languageStore, translations_game_render, transelate_per_id } from './languages.js';
+import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 
 
 export async function renderGame(root: HTMLElement) {
 	const tr = translations_game_render[languageStore.language];
 
 	root.innerHTML = renderBackgroundFull(/*html*/`
+		
     <!-- Animated Pong Background -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="fixed inset-0 overflow-hidden pointer-events-none ">
       <!-- Background Pong Game Canvas -->
       <canvas id="bg-pong" class="absolute inset-0 w-full h-full opacity-10"></canvas>
 
@@ -441,6 +443,8 @@ export async function renderGame(root: HTMLElement) {
 			if (heldKeys['w']) socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'left' }));
 			if (heldKeys['s']) socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'left' }));
 		}, 20);
+		initGlobalLanguageSelector();
+		
 	}
 
 	function draw() {

@@ -1,6 +1,7 @@
 import { Language } from '../frontendTypes.js';
 import { apiFetch, fetchUser, getUser, setUser } from '../utils/auth.js';
 import { defaultPicture } from '../utils/constants.js';
+import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 import { renderBackgroundFull } from '../utils/layout.js'
 import { renderConnectionErrorPage } from './error.js';
 import { languageStore, transelate_per_id, translations_settings, translations_login_page, translations_register_page, translations_errors } from './languages.js';
@@ -536,4 +537,6 @@ export async function renderSettings(root: HTMLElement) {
 	document.getElementById('nav_settings')?.addEventListener('click', () => { renderSettings(root) });
 	update_text(languageStore.language);
 	languageStore.subscribe((lang: Language) => update_text(lang))
+	initGlobalLanguageSelector();
+	
 }

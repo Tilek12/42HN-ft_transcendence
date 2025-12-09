@@ -12,6 +12,7 @@ import { fetchFriends, renderFriendsList } from './renderFriends.js';
 import { renderFriendRequestsList } from './renderFriendRequestList.js';
 import { friendsRequestListener } from './listenerFriendRequests.js';
 import { renderMatchHistory } from './renderMatchHistory.js'
+import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 let i = 0;
 
 // let profilesList: fProfile[];
@@ -114,4 +115,6 @@ export async function renderProfile(root: HTMLElement) {
 	catch (e: any) {
 		renderConnectionErrorPage();
 	}
+	initGlobalLanguageSelector();
+	
 }

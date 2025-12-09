@@ -4,6 +4,7 @@ import { getUser } from '../utils/auth.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore, translations_login_page, transelate_per_id, translations_errors, translations_nav, translations_register_page } from './languages.js';
 import type { Language } from '../frontendTypes.js';
+import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 
 
 // DESIGN change: Unified login/register page with tab switching instead of separate pages
@@ -248,7 +249,7 @@ export function renderLogin(root: HTMLElement) {
       </div>
     </div>
   `);
-
+	initGlobalLanguageSelector();
 	// Hide navigation
 	const navigation = document.getElementById('navigation');
 	if (navigation)
@@ -313,6 +314,7 @@ export function renderLogin(root: HTMLElement) {
 				loginFormContainer.style.transform = 'translateX(0)';
 			}, 50);
 		}, 300);
+		
 	};
 
 	const switchToRegister = () => {
@@ -532,6 +534,7 @@ export function renderLogin(root: HTMLElement) {
 			errorText.textContent = error as any;
 			errorContainer.classList.remove('hidden');
 		} finally {
+			
 			setTimeout(() => {
 				submitBtn.innerHTML = originalText;
 				submitBtn.disabled = false;

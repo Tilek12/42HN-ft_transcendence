@@ -1,4 +1,5 @@
 
+import { initGlobalLanguageSelector } from "../utils/globalLanguageSelector.js";
 import { renderBackgroundFull } from "../utils/layout.js"
 import {languageStore, translations_main_page, transelate_per_id} from './languages.js';
 
@@ -22,4 +23,5 @@ export function renderMainPage(root: HTMLElement) {
 		transelate_per_id(translations_main_page,"main_subtitle", lang, "main_subtitle");
 		transelate_per_id(translations_main_page,"main_view_game_btn", lang, "main_view_game_btn");
 	});
+	initGlobalLanguageSelector();
 }

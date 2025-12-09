@@ -44,15 +44,15 @@ export function changeLoginButton(login: boolean) {
 
 	if (logoutButton && loginButton && userlist) {
 		if (!login) {
-			logoutButton.classList.remove("hidden");
-			loginButton.classList.add("hidden");
-			userlist.classList.remove("hidden");
+			logoutButton.classList.remove("hidden", "lg:hidden");
+			loginButton.classList.add("hidden", "lg:hidden");
+			userlist.classList.remove("hidden", "lg:hidden");
 
 		}
 		else {
-			loginButton.classList.remove("hidden")
-			logoutButton.classList.add("hidden");
-			userlist.classList.add("hidden");
+			loginButton.classList.remove("hidden", "lg:hidden");
+			logoutButton.classList.add("hidden", "lg:hidden");
+			userlist.classList.add("hidden", "lg:hidden");
 		}
 	}
 }
@@ -157,10 +157,7 @@ export function renderNav() {
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 									</svg>
 								</span>
-								<!-- Animated underline -->
-								<span class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-								<!-- Glow on hover -->
-								<span class="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-purple-500/10 to-pink-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></span>
+								
 							</a>
 
 							<a id="nav_local_tournament" href="#/local-tournament" class="group relative px-6 py-3 text-white font-semibold transition-all duration-300 hover:text-purple-300">
@@ -215,33 +212,66 @@ export function renderNav() {
 							</a>
 						</nav>
 
-						<!-- Right Side: Online Status & Auth -->
-						<div class="flex items-center gap-4">
-							<!-- Online Users Badge -->
-							<div id="user_list" class="hidden lg:flex group relative items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500/10 to-emerald-500/10 backdrop-blur-sm rounded-full border border-green-400/30 hover:border-green-400/50 transition-all duration-300 cursor-pointer">
-								<div class="relative">
-									<div id="status_symbol" class="w-2 h-2 rounded-full bg-green-400 shadow-lg shadow-green-400/50"></div>
-									<div class="absolute inset-0 w-2 h-2 rounded-full bg-green-400 animate-ping"></div>
+					<!-- Right Side: Online Status & Auth -->
+							<div class="flex items-center gap-4">
+								<!-- Online Users Badge -->
+								<div id="user_list"
+									class="hidden lg:flex group relative items-center gap-2 px-4 py-2 
+										w-56
+										bg-gradient-to-r from-blue-600/20 to-purple-600/20 
+										backdrop-blur-sm rounded-full border border-blue-400/30 
+										hover:border-purple-400/50 transition-all duration-300 cursor-pointer">
+
+									<!-- Status Light -->
+									<div class="relative">
+										<div id="status_symbol" class="w-2 h-2 rounded-full bg-blue-400 shadow-lg shadow-blue-400/60"></div>
+										<div class="absolute inset-0 w-2 h-2 rounded-full bg-blue-400 animate-ping"></div>
+									</div>
+
+									<!-- Count -->
+									<span id="active-users-count" class="text-sm font-bold text-blue-300">
+										${count}
+									</span>
+
+									<!-- Arrow -->
+									<svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+									</svg>
+
+									<!-- Dropdown -->
+									<ul
+										id="active-users-list"
+										class="absolute top-full right-0 mt-3 hidden group-hover:block
+											w-56
+											bg-gradient-to-b from-blue-900/95 to-purple-900/95
+											backdrop-blur-xl text-white text-sm
+											rounded-2xl p-2 max-h-80 overflow-y-auto z-50
+											border border-purple-500/40 shadow-2xl shadow-purple-500/30
+											transition-all duration-300">
+
+										<div class="px-3 py-2 text-xs font-bold text-purple-300 uppercase tracking-wider border-b border-purple-400/20 mb-1">
+											Aktive Benutzer
+										</div>
+
+										${users.map(u => `
+											<li class="px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer font-medium
+													hover:bg-purple-500/20 hover:text-purple-200">
+												${u.name}
+											</li>`
+										).join("")}
+
+									</ul>
 								</div>
-								<span id="active-users-count" class="text-sm font-bold text-green-300">${count}</span>
-								<svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-								</svg>
-								<!-- Dropdown -->
-								<ul id="active-users-list" class="absolute top-full right-0 mt-3 hidden group-hover:block bg-gray-900/98 backdrop-blur-xl text-white text-sm rounded-2xl p-2 min-w-[220px] max-h-80 overflow-y-auto z-50 border border-purple-500/30 shadow-2xl shadow-purple-500/20">
-									<div class="px-3 py-2 text-xs font-bold text-purple-300 uppercase tracking-wider border-b border-white/10 mb-1">Online Players</div>
-									${users.map(u => `<li class="px-3 py-2 hover:bg-purple-500/20 rounded-lg transition-all duration-200 cursor-pointer font-medium">${u.name}</li>`).join('')}
-								</ul>
-							</div>
+</div>
 
 							<!-- Login/Logout Buttons -->
-							<button type="button" id="login-btn" class="hidden lg:flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-105 hover:-translate-y-0.5">
+							<button type="button" id="login-btn" class="hidden lg:hidden lg:flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-105 hover:-translate-y-0.5">
 								<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
 								</svg>
 							</button>
 							
-							<button type="button" id="logout-btn" class="hidden lg:flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold rounded-xl shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all duration-300 transform hover:scale-105 hover:-translate-y-0.5">
+							<button type="button" id="logout-btn" class="hidden lg:hidden lg:flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold rounded-xl shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all duration-300 transform hover:scale-105 hover:-translate-y-0.5">
 								<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
 								</svg>
