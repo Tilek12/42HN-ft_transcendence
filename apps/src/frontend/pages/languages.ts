@@ -478,6 +478,23 @@ export const translations_game_render: TranslationSet = {
 		info: 'Επίλεξε λειτουργία παιχνιδιού για να ξεκινήσεις'
 	}
 };
+export const translations_game: TranslationSet = {
+	EN: {
+		vs: "VS",
+		continue: "CONTINUE",
+		game_over: "GAME OVER"
+	},
+	DE: {
+		vs: "GEGEN",
+		continue: 'WEITER',
+		game_over: 'SPIEL ENDE',
+	},
+	GR: {
+		vs: "ΕΝΑΝΤΙΟΝ",
+		continue: 'ΣΥΝΕΧΕΙΑ',
+		game_over: 'ΤΕΛΟΣ ΠΑΙΧΝΙΔΙΟΥ',
+	},
+};
 
 export const translations_friends_render: TranslationSet = {
 	EN: {

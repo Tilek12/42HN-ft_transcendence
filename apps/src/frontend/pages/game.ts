@@ -3,7 +3,7 @@ import { renderBackgroundFull } from '../utils/layout.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { getUser } from '../utils/auth.js';
 import { COLORS } from '../constants/colors.js';
-import { languageStore, translations_game_render, transelate_per_id } from './languages.js';
+import { languageStore, translations_game_render, transelate_per_id, translations_game } from './languages.js';
 import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 
 
@@ -124,9 +124,9 @@ export async function renderGame(root: HTMLElement) {
           </div>
 
           <!-- VS Text -->
-          <div class="text-6xl font-black bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent animate-pulse tracking-widest" style="font-family: 'Impact', 'Arial Black', sans-serif; text-shadow: 0 0 30px rgba(251, 191, 36, 0.5);">
-            VS
-          </div>
+          <div id="vs_translation"class="text-6xl font-black bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent animate-pulse tracking-widest" style="font-family: 'Impact', 'Arial Black', sans-serif; text-shadow: 0 0 30px rgba(251, 191, 36, 0.5);">
+          ${translations_game[languageStore.language].vs}
+		  </div>
 
           <!-- Right Player -->
           <div class="flex flex-col items-center space-y-2 bg-gradient-to-br from-orange-600/20 to-orange-400/20 backdrop-blur-lg border border-orange-400/40 rounded-2xl px-8 py-6 shadow-2xl shadow-orange-500/30">
@@ -145,12 +145,11 @@ export async function renderGame(root: HTMLElement) {
       <div id="game-over-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
         <div class="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl shadow-2xl border-4 border-white/10 p-8 max-w-md w-full mx-4 animate-[scaleIn_0.3s_ease-out]">
           <div class="text-center space-y-6">
-            <div class="text-7xl font-black bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent">
-              GAME<br>OVER
-            </div>
-            <button id="close-game-over" class="w-full px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold text-xl rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105">
-              Continue
-            </button>
+            <div id="game_over_translation"class="text-7xl font-black bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent">
+            ${translations_game[languageStore.language].game_over}
+			</div>
+            <button id="close-game-over" class="w-full px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold text-xl rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105">    
+			${translations_game[languageStore.language].continue}</button>
           </div>
         </div>
       </div>
@@ -225,6 +224,11 @@ export async function renderGame(root: HTMLElement) {
 		transelate_per_id(translations_game_render, "play_local_tournament", lang, "play-local-tournament");
 		transelate_per_id(translations_game_render, "play_online_tournament", lang, "play-online-tournament");
 		transelate_per_id(translations_game_render, "info", lang, "info");
+		transelate_per_id(translations_game, "vs", lang, "vs_translation");
+		transelate_per_id(translations_game, "game_over", lang, "game_over_translation");
+		transelate_per_id(translations_game, "continue", lang, "close-game-over");
+
+
 
 	})
 
