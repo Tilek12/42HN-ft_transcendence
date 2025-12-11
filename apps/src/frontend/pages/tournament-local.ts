@@ -11,9 +11,9 @@ let countdownValue: number | null = null;
 let countdownStartTime: number | null = null;
 
 export async function renderLocalTournament(root: HTMLElement) {
-
+    initGlobalLanguageSelector();
     root.innerHTML = renderBackgroundFull(/*html*/`
-    <div class="max-w-5xl mx-auto m-8 p-8 bg-gradient-to-br from-white/5 via-white/10 to-white/5 rounded-3xl shadow-2xl shadow-purple-500/10 backdrop-blur-xl border border-white/20">
+    <div class="max-w-5xl mx-auto m-8 p-8 bg-gradient-to-br from-white/5 via-white/10 to-white/5 rounded-3xl shadow-2xl shadow-purple-500/10 backdrop-blur-xl border border-black/20">
         <!-- Header with gradient text -->
         <div class="mb-8">
             <h1 id="tournament_lobby_header" class="text-5xl md:text-6xl font-black mb-3 text-center bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent animate-[pulse_3s_ease-in-out_infinite]">
@@ -27,19 +27,19 @@ export async function renderLocalTournament(root: HTMLElement) {
         <!-- Local only UI -->
         <div id="local-section">
             <!-- Tournament Size Selector Card -->
-            <div class="mb-6 p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
+            <div class="mb-6 p-6 bg-white/5 rounded-2xl border border-black/10 backdrop-blur-sm">
                 <label id="tournament_size_label" class="block text-white text-lg font-semibold mb-3 flex items-center gap-2">
                     <span class="text-2xl">👥</span>
                     ${translations_tournament_render[languageStore.language].tournament_size}
                 </label>
-                <select id="local-size" class="w-full bg-gradient-to-r from-purple-600/30 to-pink-600/30 text-white p-4 rounded-xl border border-white/20 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/50 transition-all duration-300 cursor-pointer text-lg font-medium backdrop-blur-sm hover:from-purple-600/40 hover:to-pink-600/40">
+                <select id="local-size" class="w-full bg-gradient-to-r from-purple-600/30 to-pink-600/30 text-white p-4 rounded-xl border border-white/10 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/50 transition-all duration-300 cursor-pointer text-lg font-medium backdrop-blur-sm hover:from-purple-600/40 hover:to-pink-600/40">
                     <option id="tournament_size_4" value="4" class="bg-gray-900">${translations_tournament_render[languageStore.language].player_championship}</option>
                     <option id="tournament_size_8" value="8" class="bg-gray-900">${translations_tournament_render[languageStore.language].elite_tournament}</option>
                 </select>
             </div>
 
             <!-- Player Names Card -->
-            <div class="mb-6 p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
+            <div class="mb-6 p-6 bg-white/5 rounded-2xl border border-black/10 backdrop-blur-sm">
                 <h3 id="player_names_header" class="text-white text-lg font-semibold mb-4 flex items-center gap-2">
                     <span class="text-2xl">🎮</span>
                     ${translations_tournament_render[languageStore.language].player_names}

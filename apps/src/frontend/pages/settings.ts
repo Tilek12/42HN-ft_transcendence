@@ -98,7 +98,7 @@ export async function renderSettings(root: HTMLElement) {
 					<!-- Profile Information Section -->
 						<!-- Username, Email, Join Date -->
 						<!-- DESIGN: Glass-morphism card with SVG icons -->
-						<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20 transition-all duration-200 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+						<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-black/20 transition-all duration-200 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
 							<h2 class="text-2xl font-bold text-white mb-6 flex items-center">
 								<svg class="w-7 h-7 mr-3 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -113,7 +113,7 @@ export async function renderSettings(root: HTMLElement) {
 									<span class="text-gray-300 text-lg font-medium mr-3" id="username_header"></span>
 									<span class="text-white text-lg font-semibold" id="username"></span>
 								</div>
-								<input id="username-input" type="text" class="hidden w-full bg-white/20 text-white border border-white/30 rounded-lg px-4 py-3 text-base mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+								<input id="username-input" type="text" class="hidden w-full bg-white/20 text-white border border-black/10 rounded-lg px-4 py-3 text-base mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
 								<div class="flex space-x-3">
 									<button id="username-edit-btn" class="flex-1 px-5 py-3 bg-gray-600 hover:bg-gray-700 text-white text-base font-semibold rounded-xl transition-all duration-200 hover:scale-105 shadow-md"><span id="edit_username_header"></span></button>
 									<button id="username-update-btn" class="hidden flex-1 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold rounded-xl transition-all duration-200 hover:scale-105 shadow-md"><span id="update_username_header"></span></button>
@@ -139,7 +139,7 @@ export async function renderSettings(root: HTMLElement) {
 <!-- Security Settings Section -->
 						<!-- Update Password functionality -->
 						<!-- DESIGN: Glass-morphism card with hidden input fields that toggle on edit -->
-						<div class="flex flex-col bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 mt-8 border border-white/20 transition-all duration-200 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+						<div class="flex flex-col bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 mt-8 border border-black/20 transition-all duration-200 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
 							<h2 class="text-2xl font-bold text-white mb-6 flex items-center">
 								<svg class="w-7 h-7 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
@@ -150,9 +150,9 @@ export async function renderSettings(root: HTMLElement) {
 							<h2 class="text-xl text-white mb-2	mt-8 flex items-center">
 								<span id="password_header"></span> 
 								</h2>
-								<input id="password-old-check" type="password" placeholder="" class="hidden w-full bg-white/20 text-white border border-white/30 rounded-xl px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400"/>
-								<input id="password-new" type="password" placeholder="" class="hidden w-full bg-white/20 text-white border border-white/30 rounded-xl px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400"/>
-								<input id="password-confirm" type="password" placeholder="" class="hidden w-full bg-white/20 text-white border border-white/30 rounded-xl px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400"/>
+								<input id="password-old-check" type="password" placeholder="" class="hidden w-full bg-white/20 text-white border border-black/10 rounded-xl px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400"/>
+								<input id="password-new" type="password" placeholder="" class="hidden w-full bg-white/20 text-white border border-black/10 rounded-xl px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400"/>
+								<input id="password-confirm" type="password" placeholder="" class="hidden w-full bg-white/20 text-white border border-black/10 rounded-xl px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400"/>
 								<div class="flex items-center">
 									<button id="password-edit-btn"   class="flex-1 px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white text-base font-semibold rounded-xl transition-all duration-200 hover:scale-105 shadow-md"><span id="new_password_header"></span></button>
 									<button id="password-update-btn" class="hidden flex-1 mr-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold rounded-xl transition-all duration-200 hover:scale-105 shadow-md"><span id="update_pass_header"></span></button>
@@ -178,7 +178,7 @@ export async function renderSettings(root: HTMLElement) {
 					<!-- ========== RIGHT COLUMN: Profile Picture ========== -->
 					<div class="lg:col-span-8">
 							<!-- DESIGN: Glass-morphism card with hover shadow effect -->
-						<div class="bg-white/10 items-center backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20 transition-all duration-200 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+						<div class="bg-white/10 items-center backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-black/20 transition-all duration-200 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
 							
 							<!-- Profile Picture Section -->
 							<!-- Upload, update, and delete profile picture -->

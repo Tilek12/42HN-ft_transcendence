@@ -8,6 +8,7 @@ import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 
 
 export async function renderGame(root: HTMLElement) {
+	initGlobalLanguageSelector();
 	const tr = translations_game_render[languageStore.language];
 
 	root.innerHTML = renderBackgroundFull(/*html*/`
