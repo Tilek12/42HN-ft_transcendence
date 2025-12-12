@@ -7,9 +7,11 @@ import { languageStore, translations_game_render, transelate_per_id, translation
 import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 
 
+var global_variable_mod = -1;
+
 export async function renderGame(root: HTMLElement) {
 	const tr = translations_game_render[languageStore.language];
-
+	// find the element
 	root.innerHTML = renderBackgroundFull(/*html*/`
 		
     <!-- Animated Pong Background -->
@@ -157,7 +159,7 @@ export async function renderGame(root: HTMLElement) {
       <!-- Info Text -->
       <div class="text-center">
         <p id="info" class="text-gray-300 text-base md:text-lg px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 inline-block animate-[fadeIn_1s_ease-in_0.5s] animate-fill-both">
-          ${tr!.info}
+			${tr!.info}
         </p>
       </div>
     </div>
@@ -223,13 +225,15 @@ export async function renderGame(root: HTMLElement) {
 		transelate_per_id(translations_game_render, "play_online", lang, "play-online");
 		transelate_per_id(translations_game_render, "play_local_tournament", lang, "play-local-tournament");
 		transelate_per_id(translations_game_render, "play_online_tournament", lang, "play-online-tournament");
-		transelate_per_id(translations_game_render, "info", lang, "info");
+		transelate_per_id(translations_game,global_variable_mod === 1 ? "solo_mode" : "online_mode", lang, "info");
+		console.log(`text: ${global_variable_mod === 1 ? translations_game[languageStore.language].solo_mode : translations_game[languageStore.language].online_mode}`)
+		console.log(`gl_variable= ${global_variable_mod}`)
+		
 		transelate_per_id(translations_game, "vs", lang, "vs_translation");
 		transelate_per_id(translations_game, "game_over", lang, "game_over_translation");
 		transelate_per_id(translations_game, "continue", lang, "close-game-over");
-
-
-
+		// transelate_per_id(translations_game_render, global_variable_mod === 1 ? "solo_mode" : "online_mode", lang, "info");
+		
 	})
 
 	const canvas = document.getElementById('pong') as HTMLCanvasElement;
@@ -319,11 +323,12 @@ export async function renderGame(root: HTMLElement) {
 		cleanupListeners();
 		// wsManager.disconnectGameSocket();
 		gameState = null;
-
+		global_variable_mod = Number(mode === 'solo');
 		info.textContent =
 			mode === 'solo'
-				? 'Solo mode: Use W/S for left paddle, ↑/↓ for right paddle'
-				: 'Online mode: Use ↑/↓ arrows. Waiting for opponent...';
+				? translations_game[languageStore.language].solo_mode!
+				: translations_game[languageStore.language].online_mode!;
+		console.log(`global_variable_mod: ${global_variable_mod}`)
 		const pong_status = document.getElementById('pong_status');
 		socket = wsManager.createGameSocket(mode);
 		if (!socket) {
@@ -448,7 +453,6 @@ export async function renderGame(root: HTMLElement) {
 			if (heldKeys['s']) socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'left' }));
 		}, 20);
 		initGlobalLanguageSelector();
-		
 	}
 
 	function draw() {

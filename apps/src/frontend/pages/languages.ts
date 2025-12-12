@@ -482,17 +482,25 @@ export const translations_game: TranslationSet = {
 	EN: {
 		vs: "VS",
 		continue: "CONTINUE",
-		game_over: "GAME OVER"
+		game_over: "GAME OVER",
+		solo_mode: 'Solo mode: Use W/S for left paddle, ↑/↓ for right paddle',
+		online_mode: 'Online mode: Use ↑/↓ arrows. Waiting for opponent...',
 	},
 	DE: {
 		vs: "GEGEN",
 		continue: 'WEITER',
 		game_over: 'SPIEL ENDE',
+		solo_mode: 'Solo-Modus: Verwende W/S für den linken Schläger und ↑/↓ für den rechten Schläger',
+		online_mode: 'Online-Modus: Verwende die Pfeiltasten ↑/↓. Warte auf einen Gegner...',
+
 	},
 	GR: {
 		vs: "ΕΝΑΝΤΙΟΝ",
 		continue: 'ΣΥΝΕΧΕΙΑ',
 		game_over: 'ΤΕΛΟΣ ΠΑΙΧΝΙΔΙΟΥ',
+		solo_mode: 'Σόλο λειτουργία: Χρησιμοποιήστε W/S για την αριστερή ρακέτα, ↑/↓ για τη δεξιά ρακέτα',
+		online_mode: 'Διαδικτυακή λειτουργία: Χρησιμοποιήστε τα βελάκια ↑/↓. Αναμονή για αντίπαλο...',
+
 	},
 };
 
