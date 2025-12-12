@@ -2,7 +2,8 @@ import { apiFetch, getUser, setUser } from '../utils/auth.js'
 import { defaultPicture } from '../utils/constants.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { renderConnectionErrorPage } from './error.js';
-import { languageStore, translations_errors, translations_settings } from './languages.js';
+import { languageStore } from './languages.js';
+import { translations_errors, translations_settings } from './languages_i18n.js';
 import { showToast } from './listenerUpdatePasswordAndUsername.js';
 import { renderSettings, showSettingsError, showSettingsSuccess } from './settings.js';
 

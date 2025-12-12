@@ -3,7 +3,8 @@ import { fProfile } from '../frontendTypes.js';
 import { apiFetch, getUser } from '../utils/auth.js'
 import { defaultPicture } from '../utils/constants.js';
 import { wsManager } from '../websocket/ws-manager.js';
-import { languageStore, translations_errors, translations_profile } from './languages.js';
+import { languageStore } from './languages.js';
+import { translations_errors, translations_profile } from './languages_i18n.js';
 import { showError } from './renderProfiles.js';
 
 let counter:number = 0;

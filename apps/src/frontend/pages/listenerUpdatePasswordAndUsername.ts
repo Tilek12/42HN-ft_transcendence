@@ -1,5 +1,6 @@
 import { apiFetch, getUser } from '../utils/auth.js'
-import { languageStore, translations_register_page, translations_settings } from './languages.js';
+import { languageStore } from './languages.js';
+import { translations_register_page, translations_settings } from './languages_i18n.js';
 
 // DESIGN CHANGE: Added modern toast notification system with animations and gradient backgrounds
 // Replaces basic alert() messages with sleek notifications

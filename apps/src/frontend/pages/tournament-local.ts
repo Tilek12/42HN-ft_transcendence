@@ -1,7 +1,8 @@
 import { renderBackgroundFull } from '../utils/layout.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { COLORS } from '../constants/colors.js';
-import { languageStore, translations_tournament_render, transelate_per_id, translations_local_tournament } from './languages.js';
+import { languageStore, transelate_per_id } from './languages.js';
+import { translations_tournament_render, translations_local_tournament } from './languages_i18n.js';
 import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 
 let currentMatch: any = null;

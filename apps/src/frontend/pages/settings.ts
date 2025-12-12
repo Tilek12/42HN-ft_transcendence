@@ -4,7 +4,8 @@ import { defaultPicture } from '../utils/constants.js';
 import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 import { renderBackgroundFull } from '../utils/layout.js'
 import { renderConnectionErrorPage } from './error.js';
-import { languageStore, transelate_per_id, translations_settings, translations_login_page, translations_register_page, translations_errors } from './languages.js';
+import { languageStore, transelate_per_id } from './languages.js';
+import { translations_settings, translations_login_page, translations_register_page, translations_errors } from './languages_i18n.js';
 import { listenerPasswordCancel, listenerPasswordEdit, listenerPasswordUpdate, listenerUsernameCancel, listenerUsernameEdit, listenerUsernameUpdate, showToast } from './listenerUpdatePasswordAndUsername.js';
 import { listenerDeletePicture, listenerUploadPicture } from './listenerUploadAndDeletePicture.js';
 

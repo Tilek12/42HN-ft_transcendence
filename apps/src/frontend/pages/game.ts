@@ -3,7 +3,8 @@ import { renderBackgroundFull } from '../utils/layout.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { getUser } from '../utils/auth.js';
 import { COLORS } from '../constants/colors.js';
-import { languageStore, translations_game_render, transelate_per_id, translations_game } from './languages.js';
+import { languageStore, transelate_per_id } from './languages.js';
+import { translations_game_render, translations_game } from './languages_i18n.js';
 import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 
 

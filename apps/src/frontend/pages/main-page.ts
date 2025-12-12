@@ -1,7 +1,8 @@
 
 import { initGlobalLanguageSelector } from "../utils/globalLanguageSelector.js";
 import { renderBackgroundFull } from "../utils/layout.js"
-import {languageStore, translations_main_page, transelate_per_id} from './languages.js';
+import {languageStore, transelate_per_id} from './languages.js';
+import {translations_main_page } from './languages_i18n.js';
 
 
 export function renderMainPage(root: HTMLElement) {

@@ -2,7 +2,8 @@ import { renderNav, changeLoginButton, hideNav } from './nav.js'
 import { renderBackgroundFull } from '../utils/layout.js';
 import { getUser } from '../utils/auth.js';
 import { wsManager } from '../websocket/ws-manager.js';
-import { languageStore, translations_login_page, transelate_per_id, translations_errors, translations_nav, translations_register_page } from './languages.js';
+import { languageStore, transelate_per_id } from './languages.js';
+import { translations_login_page, translations_errors, translations_nav, translations_register_page } from './languages_i18n.js';
 import type { Language } from '../frontendTypes.js';
 import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 

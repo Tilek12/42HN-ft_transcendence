@@ -3,7 +3,8 @@ import { fProfileList, fProfileListEntry } from '../frontendTypes.js';
 import { apiFetch, getUser } from '../utils/auth.js'
 import { defaultPicture } from '../utils/constants.js';
 import { wsManager } from '../websocket/ws-manager.js';
-import { languageStore, translations_errors, translations_friends } from './languages.js';
+import { languageStore } from './languages.js';
+import { translations_errors, translations_friends } from './languages_i18n.js';
 
 
 // let lastPresence: any[] | undefined = [];

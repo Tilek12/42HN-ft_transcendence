@@ -3,7 +3,8 @@ import { apiFetch, getUser } from "../utils/auth.js";
 import { initGlobalLanguageSelector } from "../utils/globalLanguageSelector.js";
 import { renderBackgroundFull } from "../utils/layout.js";
 import { renderConnectionErrorPage } from "./error.js";
-import { languageStore, transelate_per_id, translations_dashboards } from "./languages.js";
+import { languageStore, transelate_per_id } from "./languages.js";
+import { translations_dashboards } from "./languages_i18n.js";
 
 
 

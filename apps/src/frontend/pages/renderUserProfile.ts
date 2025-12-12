@@ -2,7 +2,8 @@ import { renderBackgroundFull } from '../utils/layout.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import type { Language, fUser } from '../frontendTypes.js';
 import { defaultPicture } from '../utils/constants.js';
-import { languageStore, translations_profile, transelate_per_id } from './languages.js'
+import { languageStore, transelate_per_id } from './languages.js'
+import { translations_profile } from './languages_i18n.js'
 import { getUser } from '../utils/auth.js';
 
 

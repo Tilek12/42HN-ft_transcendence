@@ -1,6 +1,7 @@
 
 import { renderBackgroundFull } from '../utils/layout.js'
-import {languageStore, translations_leaderboards, transelate_per_id} from './languages.js';
+import { translations_leaderboards } from './languages_i18n.js';
+import {languageStore, transelate_per_id} from './languages.js';
 import { apiFetch } from '../utils/auth.js'
 
 

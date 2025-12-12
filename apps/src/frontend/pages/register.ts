@@ -1,6 +1,7 @@
 
 import { renderBackgroundFull } from '../utils/layout.js';
-import { languageStore, translations_register_page, transelate_per_id, translations_errors } from './languages.js';
+import { languageStore, transelate_per_id } from './languages.js';
+import { translations_register_page, translations_errors } from './languages_i18n.js';
 import type { Language } from '../frontendTypes.js';
 
 

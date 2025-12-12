@@ -1,7 +1,8 @@
 import { apiFetch, getUser } from '../utils/auth.js'
 import { defaultPicture } from '../utils/constants.js';
 import { wsManager } from '../websocket/ws-manager.js';
-import { languageStore, translations_errors, translations_friends_render, translations_profile } from './languages.js';
+import { languageStore } from './languages.js';
+import { translations_errors, translations_friends_render, translations_profile } from './languages_i18n.js';
 import type { fProfile, fProfileList, fProfileListEntry } from '../frontendTypes.js'
 import { showError } from './renderProfiles.js';
 import { renderConnectionErrorPage } from './error.js';

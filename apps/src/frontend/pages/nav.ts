@@ -1,6 +1,7 @@
 import { wsManager } from '../websocket/ws-manager.js';
-import { languageStore, transelate_per_id, translations_nav } from './languages.js';
 import { getUser, clearUser, apiFetch } from '../utils/auth.js'
+import { languageStore, transelate_per_id } from './languages.js';
+import { translations_nav } from './languages_i18n.js';
 import { renderConnectionErrorPage } from './error.js';
 import { clearUserList } from './renderProfiles.js';
 

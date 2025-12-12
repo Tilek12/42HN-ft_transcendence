@@ -1,7 +1,8 @@
 import { Language, fMatch, fMatchHistory } from "../frontendTypes.js";
 import { apiFetch, getUser } from "../utils/auth.js";
 import { renderConnectionErrorPage } from "./error.js";
-import { languageStore, transelate_per_id, translations_profile } from "./languages.js";
+import { languageStore, transelate_per_id } from "./languages.js";
+import { translations_profile } from "./languages_i18n.js";
 import { showError } from "./renderProfiles.js";
 
 
