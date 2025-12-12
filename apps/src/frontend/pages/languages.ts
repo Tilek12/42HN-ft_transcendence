@@ -133,7 +133,7 @@ export const translations_profile: TranslationSet =
 		friends_list: 'Meine Freunde',
 		request_list: 'Meine Freundschaftsanfragen',
 		logged_in: 'Eingeloggt',
-		opponent: 'Opponent',
+		opponent: 'Gegner',
 		score: 'Spielstand',
 		result: 'Ergebnis',
 		played_at: 'Zeitpunkt',

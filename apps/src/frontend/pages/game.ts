@@ -10,6 +10,7 @@ import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 var solo_or_local_mod = -1;
 
 export async function renderGame(root: HTMLElement) {
+	initGlobalLanguageSelector();
 	const tr = translations_game_render[languageStore.language];
 	// find the element
 	root.innerHTML = renderBackgroundFull(/*html*/`

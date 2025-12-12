@@ -237,22 +237,10 @@ export function renderNav() {
 									<svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
 									</svg>
-
 									<!-- Dropdown -->
-									<ul
-										id="active-users-list"
-										class="absolute top-full right-0 mt-3 hidden group-hover:block
-											w-56
-											bg-gradient-to-b from-blue-900/95 to-purple-900/95
-											backdrop-blur-xl text-white text-sm
-											rounded-2xl p-2 max-h-80 overflow-y-auto z-50
-											border border-purple-500/40 shadow-2xl shadow-purple-500/30
-											transition-all duration-300">
-
+									<ul	id="active-users-list" class="absolute top-full right-0 mt-3 hidden group-hover:block w-56 bg-gradient-to-b from-blue-900/95 to-purple-900/95 backdrop-blur-xl text-white text-sm rounded-2xl p-2 max-h-80 overflow-y-auto z-50 border border-purple-500/40 shadow-2xl shadow-purple-500/30 transition-all duration-300">
 										<div class="px-3 py-2 text-xs font-bold text-purple-300 uppercase tracking-wider border-b border-purple-400/20 mb-1">
-											Aktive Benutzer
 										</div>
-
 										${users.map(u => `
 											<li class="px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer font-medium
 													hover:bg-purple-500/20 hover:text-purple-200">
@@ -262,7 +250,7 @@ export function renderNav() {
 
 									</ul>
 								</div>
-</div>
+							</div>
 
 							<!-- Login/Logout Buttons -->
 							<button type="button" id="login-btn" class="hidden lg:hidden lg:flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-105 hover:-translate-y-0.5">
