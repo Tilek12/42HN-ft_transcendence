@@ -504,6 +504,8 @@ export const translations_game: TranslationSet = {
 	},
 };
 
+
+
 export const translations_friends_render: TranslationSet = {
 	EN: {
 		friends_list_header: 'Friends List',
@@ -518,7 +520,48 @@ export const translations_friends_render: TranslationSet = {
 		request_list_header: 'Λίστα Αιτημάτων'
 	}
 };
-
+export const translations_local_tournament: TranslationSet=
+{
+	EN:
+	{
+		local_tournament_in_progress_text: 'Tournament in progress',
+		local_tournament_players_text: 'players',
+		local_tournament_vs_header_text: 'VS',
+		local_tournament_congrats_text: 'Congratulations',
+		local_tournament_is_the_champion_text: 'is the champion',
+		local_tournament_congrats_banner_text: 'CONGRATULATIONS',
+		local_tournament_is_the_champion_banner_text: 'is the CHAMPION',
+		local_tournament_matches_text: 'Matches',
+		local_tournament_vs_text: 'vs',
+		local_tournament_close_champion_modal: 'Continue'
+	},
+	DE:
+	{
+		local_tournament_in_progress_text: 'Turnier läuft',
+		local_tournament_players_text: 'Spieler',
+		local_tournament_vs_header_text: 'Gegen',
+		local_tournament_congrats_text: 'Herzlichen Glückwunsch',
+		local_tournament_is_the_champion_text: 'ist der Champion',
+		local_tournament_congrats_banner_text: 'GLÜCKWUNSCH',
+		local_tournament_is_the_champion_banner_text: 'ist der CHAMPION',
+		local_tournament_matches_text: 'Spiele',
+		local_tournament_vs_text: 'gegen',
+		local_tournament_close_champion_modal: 'Weiter'
+	},
+	GR:
+	{
+		local_tournament_in_progress_text: 'Το τουρνουά είναι σε εξέλιξη',
+		local_tournament_players_text: 'παίκτες',
+		local_tournament_vs_header_text: 'Εναντίον',
+		local_tournament_congrats_text: 'Συγχαρητήρια',
+		local_tournament_is_the_champion_text: 'είναι ο πρωταθλητής',
+		local_tournament_congrats_banner_text: 'ΣΥΓΧΑΡΗΤΗΡΙΑ',
+		local_tournament_is_the_champion_banner_text: 'είναι ο ΠΡΩΤΑΘΛΗΤΗΣ',
+		local_tournament_matches_text: 'Αγώνες',
+		local_tournament_vs_text: 'εναντίον',
+		local_tournament_close_champion_modal: 'Συνέχεια'
+	},
+}
 export const translations_tournament_render: TranslationSet = {
 	EN: {
 		tournament_lobby_header: '🏆 Local Tournament Lobby',
@@ -534,7 +577,8 @@ export const translations_tournament_render: TranslationSet = {
 		player_championship: '🏆 4 Players Championship',
 		elite_tournament: '👑 8 Players Elite Tournament',
 		player: 'Player',
-		enter_player_name: 'Enter player name...'
+		enter_player_name: 'Enter player name...',
+		matches_text: "Matches"
 	},
 	DE: {
 		tournament_lobby_header: '🏆 Lokale Turnierlobby',

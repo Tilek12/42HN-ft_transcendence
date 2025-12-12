@@ -1,7 +1,7 @@
 import { renderBackgroundFull } from '../utils/layout.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { COLORS } from '../constants/colors.js';
-import { languageStore, translations_tournament_render, transelate_per_id } from './languages.js';
+import { languageStore, translations_tournament_render, transelate_per_id, translations_local_tournament } from './languages.js';
 import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 
 let currentMatch: any = null;
@@ -118,13 +118,13 @@ export async function renderLocalTournament(root: HTMLElement) {
             <!-- Congratulations Text -->
             <div class="text-center space-y-4 mb-8">
                 <h2 class="text-5xl font-black bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-300 bg-clip-text text-transparent animate-pulse">
-                    CONGRATULATIONS!
+                    <span id="local-tournament-congrats-banner-text">${translations_local_tournament[languageStore.language].local_tournament_congrats_banner_text}</span>!
                 </h2>
                 <div id="champion-name" class="text-7xl font-black bg-gradient-to-r from-white via-yellow-200 to-white bg-clip-text text-transparent py-4">
                     Champion
                 </div>
                 <p class="text-3xl font-bold text-yellow-300">
-                    is the CHAMPION!
+                    <span id="local-tournament-is-the-champion-banner-text">${translations_local_tournament[languageStore.language].local_tournament_is_the_champion_banner_text}</span>!
                 </p>
             </div>
 
@@ -338,7 +338,7 @@ export async function renderLocalTournament(root: HTMLElement) {
                 }
                 // Do not show detailed "t-local-X, status: active" text
                 document.getElementById('tournament-info')!.textContent =
-                    `Tournament in progress: ${t.participants.length} players.`;
+                    `${translations_local_tournament[languageStore.language].local_tournament_in_progress_text}: ${t.participants.length} ${translations_local_tournament[languageStore.language].local_tournament_players_text}.`;
                 renderMatchesTable(t, currentMatchId);
                 break;
             }
@@ -374,7 +374,7 @@ export async function renderLocalTournament(root: HTMLElement) {
                 };
                 document.getElementById('status')!.innerHTML = /*html*/`
                     <div style="font-size: 18px; font-weight: bold; color: white; text-align: center;">
-                        ${p1.name} VS ${p2.name}
+                        ${p1.name} <span id="local-tournament-vs-header-text">${translations_local_tournament[languageStore.language].local_tournament_vs_header_text}</span> ${p2.name}
                     </div>
                 `;
                 break;
@@ -423,7 +423,7 @@ export async function renderLocalTournament(root: HTMLElement) {
                 // Also update status text
                 document.getElementById('status')!.innerHTML = /*html*/`
                     <span style="color: gold; font-weight: bold;">
-                        🏆 Congratulations! ${msg.winner.name} is the champion! 🏆
+                        🏆 <span id="local-tournament-congrats-text">${translations_local_tournament[languageStore.language].local_tournament_congrats_text}</span>! ${msg.winner.name} <span id="local-tournament-is-the-champion-text">${translations_local_tournament[languageStore.language].local_tournament_is_the_champion_text}</span>! 🏆
                     </span>
                 `;
                 break;
@@ -459,7 +459,7 @@ export async function renderLocalTournament(root: HTMLElement) {
         let html = `
             <div class="bg-white/5 rounded-lg border border-white/10 p-3">
                 <h3 class="text-white text-sm font-bold mb-3 flex items-center gap-2">
-                    ⚔️ Matches
+                    ⚔️ <span id="local-tournament-matches-text">${translations_local_tournament[languageStore.language].local_tournament_matches_text}</span>
                 </h3>
                 <div class="space-y-2">
         `;
@@ -487,7 +487,7 @@ export async function renderLocalTournament(root: HTMLElement) {
                         </div>
                         <div class="text-white space-y-0.5">
                             <div class="${p1Name === winnerName && winnerName !== 'TBD' ? 'text-green-400 font-bold' : ''}">${p1Name}</div>
-                            <div class="text-gray-500 text-center">vs</div>
+                            <div class="text-gray-500 text-center" id="local-tournament-vs-text">${translations_local_tournament[languageStore.language].local_tournament_vs_text}</div>
                             <div class="${p2Name === winnerName && winnerName !== 'TBD' ? 'text-green-400 font-bold' : ''}">${p2Name}</div>
                         </div>
                         ${winnerName !== 'TBD' ? `<div class="text-green-400 text-xs mt-1">🏆 ${winnerName}</div>` : ''}
