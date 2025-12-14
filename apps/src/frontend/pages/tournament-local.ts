@@ -2,7 +2,7 @@ import { renderBackgroundFull } from '../utils/layout.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { COLORS } from '../constants/colors.js';
 import { languageStore, transelate_per_id } from './languages.js';
-import { translations_tournament_render, translations_local_tournament } from './languages_i18n.js';
+import { translations_tournament_render, translations_local_tournament, translations_game } from './languages_i18n.js';
 import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 
 let currentMatch: any = null;
@@ -92,8 +92,8 @@ export async function renderLocalTournament(root: HTMLElement) {
                 </div>
 
                 <!-- VS Text -->
-                <div class="text-6xl font-black bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent animate-pulse tracking-widest" style="font-family: 'Impact', 'Arial Black', sans-serif; text-shadow: 0 0 30px rgba(251, 191, 36, 0.5);">
-                    VS
+                <div id="vs_translation_loc_tourn" class="text-6xl font-black bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent animate-pulse tracking-widest" style="font-family: 'Impact', 'Arial Black', sans-serif; text-shadow: 0 0 30px rgba(251, 191, 36, 0.5);">
+                    ${translations_game[languageStore.language].vs}
                 </div>
 
                 <!-- Right Player -->
@@ -181,7 +181,9 @@ export async function renderLocalTournament(root: HTMLElement) {
         transelate_per_id(translations_tournament_render, "player_championship", lang, "tournament_size_4");
         transelate_per_id(translations_tournament_render, "elite_tournament", lang, "tournament_size_8");
         transelate_per_id(translations_tournament_render, "tournament_size", lang, "tournament_size_label");
-        
+		
+        transelate_per_id(translations_game, "vs", lang, "vs_translation_loc_tourn");
+
         // Update player name inputs when language changes
         const sizeSelect = document.getElementById('local-size') as HTMLSelectElement;
         if (sizeSelect) {
@@ -434,7 +436,7 @@ export async function renderLocalTournament(root: HTMLElement) {
             }
         }
         initGlobalLanguageSelector();
-        
+
     }
 
     // --- Matches table renderer (simple view) ---

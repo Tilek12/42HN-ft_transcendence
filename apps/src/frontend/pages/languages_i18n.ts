@@ -400,7 +400,7 @@ export const translations_game_render: TranslationSet = {
 		play_online: 'Play Online (1v1)',
 		play_local_tournament: 'Play Local Tournament',
 		play_online_tournament: 'Play Online Tournament',
-		info: 'Choose a game mode to begin'
+		info: 'Choose a game mode to begin',
 	},
 	DE: {
 		pong_game_header: 'Pong-Arena',
@@ -408,7 +408,7 @@ export const translations_game_render: TranslationSet = {
 		play_online: 'Online spielen (1v1)',
 		play_local_tournament: 'Lokales Turnier spielen',
 		play_online_tournament: 'Online-Turnier spielen',
-		info: 'Wähle einen Spielmodus, um zu beginnen'
+		info: 'Wähle einen Spielmodus, um zu beginnen',
 	},
 	GR: {
 		pong_game_header: 'Αρένα Pong',
@@ -416,7 +416,7 @@ export const translations_game_render: TranslationSet = {
 		play_online: 'Παίξε Online (1v1)',
 		play_local_tournament: 'Παίξε Τοπικό Τουρνουά',
 		play_online_tournament: 'Παίξε Διαδικτυακό Τουρνουά',
-		info: 'Επίλεξε λειτουργία παιχνιδιού για να ξεκινήσεις'
+		info: 'Επίλεξε λειτουργία παιχνιδιού για να ξεκινήσεις',
 	}
 };
 export const translations_game: TranslationSet = {
@@ -466,7 +466,7 @@ export const translations_local_tournament: TranslationSet=
 	{
 		local_tournament_in_progress_text: 'Tournament in progress',
 		local_tournament_players_text: 'players',
-		local_tournament_vs_header_text: 'VS',
+		local_tournament_vs_header_text: 'TEST',
 		local_tournament_congrats_text: 'Congratulations',
 		local_tournament_is_the_champion_text: 'is the champion',
 		local_tournament_congrats_banner_text: 'CONGRATULATIONS',

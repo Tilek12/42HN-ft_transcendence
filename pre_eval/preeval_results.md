@@ -41,8 +41,7 @@
 
 
 **More Issues:**
-- after changing profile pic, nav bar is not showing, I can not leave the profile page, I can not play the game -> refresh the page make the nav bar appearing again
-- after registering a new user, nav bar is not showing, I can not leave the profile page, I can not play the game -> refresh the page make the nav bar appearing again
+- after changing profile pic, nav bar is not showing, I can not leave the profile page, I can not play the game -> refresh the page make the nav bar appearing again ✅issue fixed
+- after registering a new user, nav bar is not showing, I can not leave the profile page, I can not play the game -> refresh the page make the nav bar appearing again ✅issue fixed
 - move QR Code in sign up into the middle of the card, atm it is left
-
-language selector on login page
+- language dropdown on local tournament game not working
