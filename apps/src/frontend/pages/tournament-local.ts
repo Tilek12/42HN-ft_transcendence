@@ -331,6 +331,7 @@ export async function renderLocalTournament(root: HTMLElement) {
                 document.getElementById('tournament-info')!.textContent =
                     `Tournament created with ${t.participants.length} players.`;
                 renderMatchesTable(t, currentMatchId);
+                initGlobalLanguageSelector();
                 break;
             }
             case 'localTournamentUpdate': {
@@ -343,6 +344,7 @@ export async function renderLocalTournament(root: HTMLElement) {
                 document.getElementById('tournament-info')!.textContent =
                     `${translations_local_tournament[languageStore.language].local_tournament_in_progress_text}: ${t.participants.length} ${translations_local_tournament[languageStore.language].local_tournament_players_text}.`;
                 renderMatchesTable(t, currentMatchId);
+                initGlobalLanguageSelector();
                 break;
             }
             case 'localMatchStart': {
@@ -380,6 +382,7 @@ export async function renderLocalTournament(root: HTMLElement) {
                         ${p1.name} <span id="local-tournament-vs-header-text">${translations_local_tournament[languageStore.language].local_tournament_vs_header_text}</span> ${p2.name}
                     </div>
                 `;
+                initGlobalLanguageSelector();
                 break;
             }
             case 'countdown': {
@@ -398,6 +401,7 @@ export async function renderLocalTournament(root: HTMLElement) {
                 // Keep navbar hidden during gameplay
                 const navbar = document.getElementById('navbar');
                 if (navbar) navbar.classList.add('hidden');
+                    initGlobalLanguageSelector();
                 break;
             }
             case 'update': {
@@ -414,6 +418,7 @@ export async function renderLocalTournament(root: HTMLElement) {
                 countdownValue = null;
                 countdownStartTime = null;
                 // Don't show navbar here - keep it hidden until tournament is quit
+                initGlobalLanguageSelector();
                 break;
             }
             case 'localTournamentEnd': {
@@ -429,13 +434,13 @@ export async function renderLocalTournament(root: HTMLElement) {
                         🏆 <span id="local-tournament-congrats-text">${translations_local_tournament[languageStore.language].local_tournament_congrats_text}</span>! ${msg.winner.name} <span id="local-tournament-is-the-champion-text">${translations_local_tournament[languageStore.language].local_tournament_is_the_champion_text}</span>! 🏆
                     </span>
                 `;
+                initGlobalLanguageSelector();
                 break;
             }
             default: {
                 console.warn('Unknown local tournament message type:', msg);
             }
         }
-        initGlobalLanguageSelector();
 
     }
 
