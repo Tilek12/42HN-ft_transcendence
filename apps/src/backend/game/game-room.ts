@@ -1,7 +1,7 @@
 import { Player, GameState, GameMessage, OnGameEnd, GameMode } from './game-types';
 
-const PHYSICS_FRAME_RATE = 1000 / 100; // 60 FPS for physics (original speed)
-const NETWORK_FRAME_RATE = 1000 / 100;  // 30 FPS for network updates
+const PHYSICS_FRAME_RATE = 1000 / 100; // 100 FPS for physics (original speed)
+const NETWORK_FRAME_RATE = 1000 / 90;  // 90 FPS for network updates
 const PADDLE_HEIGHT = 20;
 const BALL_SPEED = 0.6;
 const FIELD_WIDTH = 100;
@@ -38,11 +38,7 @@ export class GameRoom {
 		if (tournamentId) this.tournamentId = tournamentId;
 		this.state = this.initState();
 
-    // mark the initial sockets as having listeners
-    // (this.players[0].socket as any).__gameRoomListenersAttached = true;
-    // (this.players[1].socket as any).__gameRoomListenersAttached = true;
-
-		this.setupListeners();
+		if (this.mode !== 'online-match') this.setupListeners();
 		this.startCountdown();
 	}
 
@@ -134,10 +130,10 @@ export class GameRoom {
 	}
 
 	private start() {
-		// Physics loop at 60 FPS
+		// Physics loop at 100 FPS
 		this.physicsInterval = setInterval(() => this.updatePhysics(), PHYSICS_FRAME_RATE);
 
-		// Network updates at 30 FPS
+		// Network updates at 90 FPS
 		this.networkInterval = setInterval(() => this.sendNetworkUpdate(), NETWORK_FRAME_RATE);
 
 		console.log(`🕹️ [GameRoom] Game started!`);
@@ -280,42 +276,25 @@ export class GameRoom {
 		this.move(playerId, direction);
 	}
 
+	// Add explicit quit handler for tournament WS driven input
+	public handleQuit(playerId: number) {
+        // Same behavior as receiving {type:'quit'} from socket
+        const quitter = this.players.find(p => p.id === playerId) ?? null;
+        if (!quitter) return;
+        console.log(`🚪 [GameRoom] Player ${playerId} quit`);
+        this.end();
+    }
+
 	public updateSocket(player: Player) {
 		console.log(`🔄 [GameRoom] Updating socket for player ${player.id}`);
 		const index = this.players.findIndex(p => p.id === player.id);
-		if (index !== -1) {
-			this.players[index] = player;
-			// Re-setup listeners for the updated socket
-			this.setupListeners();
-		}
-    // public updateSocket(player: Player) {
-    //     console.log(`🔄 [GameRoom] Updating socket for player ${player.id}`);
-    //     const index = this.players.findIndex(p => p.id === player.id);
-    //     if (index === -1) {
-    //         console.warn(`[GameRoom] Tried to update socket for unknown player ${player.id}`);
-    //         return;
-    //     }
+        if (index !== -1) {
+            this.players[index] = player;
 
-    //     const existing = this.players[index];
-    //     if (!existing) {
-    //         console.warn(`[GameRoom] Existing player slot is undefined for index ${index}, id ${player.id}`);
-    //         return;
-    //     }
-
-    //     // If socket is already the same, nothing to do
-    //     if (existing.socket === player.socket) {
-    //         console.log(`[GameRoom] Socket for player ${player.id} is already up to date.`);
-    //         return;
-    //     }
-
-    //     // Update the socket reference
-    //     existing.socket = player.socket;
-
-    //     // Attach listeners only once per socket instance
-    //     const sock: any = existing.socket;
-    //     if (!sock.__gameRoomListenersAttached) {
-    //         sock.__gameRoomListenersAttached = true;
-    //         this.setupListeners();
-    //     }
-    }
+            // For tournament games, we do not attach listeners at all.
+            if (this.mode !== 'online-match') {
+                this.setupListeners();
+            }
+        }
+	}
 }

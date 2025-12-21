@@ -254,7 +254,6 @@ class OnlineTournamentManager {
 
 	/** Start one match, wire onEnd → TournamentManager.onMatchEnded */
 	private startOneMatch(tournament: TournamentState, match: Match) {
-``
 		console.log('startOneMatch', tournament.id, match.id, match.p1, match.p2);
 		match.status = 'waiting_for_sockets';
 
@@ -334,12 +333,12 @@ class OnlineTournamentManager {
 		const toPlayer = (player: Participant) => {
 			// Online: use each user's game socket from userManager
 			const user = userManager.getUser(player.id);
-			if (!user) {
+			if (!user || !user.onlineTournamentSocket) {
 				// Fall back to ghost socket to avoid crash; will be updated when game socket connects
 				return GhostPlayer;
 			}
 			else {
-				return { id: player.id, name: player.name, socket: user.gameSocket } as Player;
+				return { id: player.id, name: player.name, socket: user.onlineTournamentSocket } as Player;
 			}
 		};
 
@@ -356,13 +355,13 @@ class OnlineTournamentManager {
 
 		match.gameId = game.id;
 
-		// For online tournaments, update sockets if players already connected their game sockets
-		[match.p1, match.p2].forEach(p => {
-			const user = userManager.getUser(p.id);
-			if (user?.gameSocket) {
-				game.updateSocket({ id: p.id, name: p.name, socket: user.gameSocket as any });
-			}
-		});
+		// // For online tournaments, update sockets if players already connected their game sockets
+		// [match.p1, match.p2].forEach(p => {
+		// 	const user = userManager.getUser(p.id);
+		// 	if (user?.gameSocket) {
+		// 		game.updateSocket({ id: p.id, name: p.name, socket: user.gameSocket as any });
+		// 	}
+		// });
 
 		console.log(`🎮 [ONLINE Tournament ${tournament.id}] Match started: ${match.id}`);
 	}
