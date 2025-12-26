@@ -199,6 +199,7 @@ export class GameRoom {
 	}
 
 	private handleGameEnd() {
+		if (this.gameEnded) return;
 		this.gameEnded = true;  // Set flag immediately to stop network updates
 
 		const { score } = this.state;

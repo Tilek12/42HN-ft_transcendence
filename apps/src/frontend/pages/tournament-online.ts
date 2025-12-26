@@ -5,7 +5,6 @@ import { COLORS } from '../constants/colors.js';
 import { languageStore, transelate_per_id } from './languages.js';
 import { translations_tournament_render } from './languages_i18n.js';
 import { showToast } from './listenerUpdatePasswordAndUsername.js';
-import { Tournament } from '../frontendTypes.js';
 import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 
 let currentTournamentId: number | null = null;
@@ -15,9 +14,18 @@ let countdownValue: number | null = null;
 let gameSocket: WebSocket | null = null;
 let isPlayerInMatch = false;
 
-export async function renderOnlineTournament(root: HTMLElement) {
+// page cleanup between SPA navigations/rerenders
+let cleanupOnlineTournamentPage: (() => void) | null = null;
 
-    root.innerHTML = renderBackgroundFull(/*html*/`
+// per-match controls cleanup (so it doesn’t stack between rounds)
+let cleanupCurrentMatchControls: (() => void) | null = null;
+
+export async function renderOnlineTournament(root: HTMLElement) {
+    // cleanup previous instance
+    cleanupOnlineTournamentPage?.();
+    cleanupOnlineTournamentPage = null;
+
+    root.innerHTML = renderBackgroundFull(/*html*/ `
     <div class="max-w-4xl mx-auto m-8 p-6 bg-white/10 rounded-xl shadow-lg backdrop-blur-md">
         <h1 id="tournament_lobby_header"class="text-3xl font-bold mb-4 text-center text-white">${translations_tournament_render[languageStore.language]!.tournament_lobby_header}</h1>
         <p id="glory_header"class="text-center text-gray-400 mb-6">${translations_tournament_render[languageStore.language]!.glory_header}</p>
@@ -39,11 +47,11 @@ export async function renderOnlineTournament(root: HTMLElement) {
     `);
 
     languageStore.subscribe((lang) => {
-        transelate_per_id(translations_tournament_render, "tournament_lobby_header", lang, "tournament_lobby_header");
-        transelate_per_id(translations_tournament_render, "glory_header", lang, "glory_header");
-        transelate_per_id(translations_tournament_render, "empty_p_msg", lang, "empty-p-msg");
-        transelate_per_id(translations_tournament_render, "create_four_header", lang, "create-tournament-4");
-        transelate_per_id(translations_tournament_render, "create_eight_header", lang, "create-tournament-8");
+        transelate_per_id(translations_tournament_render, 'tournament_lobby_header', lang, 'tournament_lobby_header');
+        transelate_per_id(translations_tournament_render, 'glory_header', lang, 'glory_header');
+        transelate_per_id(translations_tournament_render, 'empty_p_msg', lang, 'empty-p-msg');
+        transelate_per_id(translations_tournament_render, 'create_four_header', lang, 'create-tournament-4');
+        transelate_per_id(translations_tournament_render, 'create_eight_header', lang, 'create-tournament-8');
     });
 
     renderTournamentList();
@@ -52,99 +60,157 @@ export async function renderOnlineTournament(root: HTMLElement) {
     const user = getUser();
     const userId: number | undefined = user?.id;
 
+    const enterLobbyView = () => {
+        document.getElementById('online-tournament-match')!.classList.add('hidden');
+        document.getElementById('online-section')!.classList.remove('hidden');
+    };
+
+    const enterMatchView = () => {
+        document.getElementById('online-section')!.classList.add('hidden');
+        document.getElementById('online-tournament-match')!.classList.remove('hidden');
+    };
+
+    const resetMatchUI = () => {
+        countdownValue = null;
+        gameState = null;
+
+        const countdownEl = document.getElementById('online-countdown')!;
+        const canvasEl = document.getElementById('online-pong')!;
+        const statusEl = document.getElementById('online-status')!;
+
+        countdownEl.classList.add('hidden');
+        canvasEl.classList.add('hidden');
+        statusEl.textContent = 'Match starting...';
+    };
+
     // Quit online match
     document.getElementById('quit-online-match')!.addEventListener('click', () => {
-        // if (gameSocket) {
-        //     gameSocket.send(JSON.stringify({ type: 'quit' }));
-        //     gameSocket.close();
-        //     gameSocket = null;
-        // }
+        // Stop local controls immediately (socket persists)
+        cleanupCurrentMatchControls?.();
+        cleanupCurrentMatchControls = null;
+
         if (gameSocket) {
-            // NEW: send quitMatch over tournament WS (no socket close)
             try {
-                gameSocket.send(JSON.stringify({
-                    type: 'quitMatch',
-                    tournamentId: currentTournamentId,
-                    matchId: currentMatch?.id,
-                }));
+                gameSocket.send(
+                    JSON.stringify({
+                        type: 'quitMatch',
+                        tournamentId: currentTournamentId,
+                        matchId: currentMatch?.id
+                    })
+                );
             } catch {}
         }
 
-        // UI: return to lobby, but keep tournament connection
-        document.getElementById('online-tournament-match')!.classList.add('hidden');
-        document.getElementById('online-section')!.classList.remove('hidden');
-
         isPlayerInMatch = false;
         currentMatch = null;
-        gameState = null;
+        resetMatchUI();
+        enterLobbyView();
     });
 
     function handleTournamentMessage(msg: any) {
-        // NEW: if we're in a match, game frames now arrive here (same socket)
-        if (msg.type === 'countdown' || msg.type === 'start' || msg.type === 'update' || msg.type === 'end' || msg.type === 'disconnect') {
-            // reuse your existing switch body by calling a helper
+        // Game frames arrive on same socket
+        if (msg.type === 'countdown' ||
+            msg.type === 'start' ||
+            msg.type === 'update' ||
+            msg.type === 'end' ||
+            msg.type === 'disconnect'
+        ) {
             handleGameMessage(msg);
             initGlobalLanguageSelector();
             return;
         }
 
         if (msg.type === 'onlineMatchStart') {
-            const message = {
-                type: msg.type,
-                tournamentId: msg.tournamentId,
-                tournamentSize: msg.tournamentSize,
-                matchId: msg.matchId,
-                player1: msg.player1,
-                player2: msg.player2,
-            }
+            const tryEnterMatch = () => {
+              const liveUser = getUser();
+              const uid = Number(liveUser?.id);
+              const p1 = Number(msg.player1?.id);
+              const p2 = Number(msg.player2?.id);
 
-            if (message.player1.id === userId || message.player2.id == userId) {
-                isPlayerInMatch = true;
-                currentMatch = {
-                    id: message.matchId,
-                    p1: message.player1,
-                    p2: message.player2,
-                };
-                // // Create game socket first, then signal readiness
-                // gameSocket = wsManager.createGameSocket('online-match');
-                // if (!gameSocket) {
-                //     showToast('Failed to create game socket for tournament match', 'error');
-                //     return;
-                // }
+              console.log('[tournament-online] matchStart participants check', {
+                uid, p1, p2, shouldEnter: p1 === uid || p2 === uid
+            });
 
-                // NEW: "gameSocket" is the tournament socket (persistent)
-                gameSocket = wsManager.onlineTournamentWS;
-                if (!gameSocket) {
-                    showToast('Tournament socket not available', 'error');
-                    return;
+              if (!Number.isFinite(uid)) return false;
+
+              if (p1 !== uid && p2 !== uid) return true; // user resolved but not participant
+
+              // participant path
+              cleanupCurrentMatchControls?.();
+              cleanupCurrentMatchControls = null;
+
+              currentTournamentId = msg.tournamentId;
+              isPlayerInMatch = true;
+              currentMatch = { id: msg.matchId, p1: msg.player1, p2: msg.player2 };
+
+              gameSocket = wsManager.onlineTournamentWS;
+              if (!gameSocket) {
+                showToast('Tournament socket not available', 'error');
+                return true;
+              }
+
+              resetMatchUI();
+              enterMatchView();
+              startOnlineTournamentMatchControls();
+              return true;
+            };
+
+            // attempt now
+            if (!tryEnterMatch()) {
+              // one quick retry to handle auth timing
+              setTimeout(() => {
+                if (!tryEnterMatch()) {
+                  showToast('User not resolved yet. Please refresh and re-join tournament.', 'error');
                 }
-
-                // Signal that our game socket is ready
-                wsManager.onlineTournamentWS?.send(JSON.stringify({
-                    type: 'playerReady',
-                    tournamentId: msg.tournamentId,
-                    matchId: msg.matchId
-                }));
-
-                startOnlineTournamentMatch(msg);
-            } else {
-                console.log('🎯 Spectating match in ONLINE Tournament bracket');
+              }, 250);
             }
-        } else if (msg.type === 'onlineTournamentEnd') {
-            const isWinner = msg.winner.id === userId;
+
+            initGlobalLanguageSelector();
+            return;
+        }
+
+        if (msg.type === 'onlineMatchForfeit') {
+            // optional: show a message; backend already ends match and advances bracket
+            // Keep minimal UI behavior: update status if we are in that match.
+            if (currentMatch?.id === msg.matchId) {
+                document.getElementById('online-status')!.textContent = 'Match ended by forfeit.';
+            }
+            return;
+        }
+
+        if (msg.type === 'onlineTournamentCancelled') {
+            // Only active participants receive this (as requested)
+            showToast('Tournament cancelled: not enough active players', 'error');
+            currentTournamentId = null;
+
+            // reset match state/UI
+            cleanupCurrentMatchControls?.();
+            cleanupCurrentMatchControls = null;
+            isPlayerInMatch = false;
+            currentMatch = null;
+            resetMatchUI();
+            enterLobbyView();
+
+            wsManager.disconnectOnlineTournamentSocket();
+            renderTournamentList();
+            return;
+        }
+
+        if (msg.type === 'onlineTournamentEnd') {
+            const uid = getUser()?.id;
+            const isWinner = msg.winner.id === uid;
             const announcementEl = document.getElementById('winner-announcement')!;
 
-            if (isWinner) {
-                announcementEl.innerHTML = /*html*/`
+            announcementEl.innerHTML = isWinner
+                ? /*html*/ `
             <div style="color: gold; font-size: 32px; font-weight: bold; text-align: center; margin: 20px 0;">
             🏆 CONGRATULATIONS! You are the CHAMPION! 🏆
             </div>
             <div style="color: white; font-size: 18px; text-align: center;">
-            You won the tournament! 🎉
+            You won the tournament!
             </div>
-        `;
-            } else {
-                announcementEl.innerHTML = /*html*/`
+        `
+                : /*html*/ `
             <div style="color: gold; font-size: 24px; font-weight: bold; text-align: center; margin: 20px 0;">
             🏆 Tournament Complete! 🏆
             </div>
@@ -152,24 +218,22 @@ export async function renderOnlineTournament(root: HTMLElement) {
             Winner: ${msg.winner.name}
             </div>
         `;
-            }
 
             announcementEl.classList.remove('hidden');
 
-            // If player is currently in a match, also show on match screen and return to lobby
+            // If player is currently in a match, show message and return to lobby view
             if (isPlayerInMatch) {
                 document.getElementById('online-status')!.innerHTML = announcementEl.innerHTML;
 
                 setTimeout(() => {
-                    document.getElementById('online-tournament-match')!.classList.add('hidden');
+                    cleanupCurrentMatchControls?.();
+                    cleanupCurrentMatchControls = null;
+
                     isPlayerInMatch = false;
                     currentMatch = null;
-                    gameState = null;
-                    // if (gameSocket) {
-                    //     gameSocket.close();
-                    //     gameSocket = null;
-                    // }
-                }, 7000);
+                    resetMatchUI();
+                    enterLobbyView();
+                }, 2500);
             }
 
             // Hide announcement after 7s and reset tournament state
@@ -180,32 +244,31 @@ export async function renderOnlineTournament(root: HTMLElement) {
                 wsManager.disconnectOnlineTournamentSocket();
                 renderTournamentList();
             }, 7000);
+
+            initGlobalLanguageSelector();
+            return;
         }
-        initGlobalLanguageSelector();
     }
 
     function renderTournamentList() {
         const list = document.getElementById('tournament-list');
-        if (!list)
-            return;
+        if (!list) return;
         list.innerHTML = '';
 
         const tournaments = wsManager.onlineTournaments;
 
         const user = getUser();
-        if (!user)
-            return;
+        if (!user) return;
         const userId = user.id;
 
-        const userTournament = tournaments.find(t => t.playerIds.includes(userId));  // <------ FIX IT. EXPRESSION IS WRONG -----
+        // Presence list can lag; keep it only for UI display, not for match logic.
+        const userTournament = tournaments.find((t) => t.playerIds.includes(userId));
 
-        currentTournamentId = userTournament ? userTournament.id : null;
+        currentTournamentId = userTournament ? userTournament.id : currentTournamentId;
 
         if (userTournament) {
             const infoBox = document.createElement('div');
-            infoBox.innerHTML =
-                /*html*/
-                `
+            infoBox.innerHTML = /*html*/ `
         <div class="text-center text-green-400 mb-4">
             ✅ You have joined Tournament <strong>${userTournament.id}</strong> (${userTournament.joined}/${userTournament.size})
         </div>
@@ -220,7 +283,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
             infoBox.querySelector('#quit-tournament-btn')?.addEventListener('click', () => {
                 wsManager.quitOnlineTournament();
                 currentTournamentId = null;
-                showToast('🚪 You left the tournament.', 'error');
+                showToast('You left the tournament.', 'error');
                 wsManager.disconnectOnlineTournamentSocket();
                 renderTournamentList();
             });
@@ -228,23 +291,19 @@ export async function renderOnlineTournament(root: HTMLElement) {
 
         if (tournaments.length === 0) {
             const emptyMsg = document.createElement('p');
-            emptyMsg.id = "empty-p-msg";
+            emptyMsg.id = 'empty-p-msg';
             emptyMsg.className = 'text-center text-gray-400';
             const text = translations_tournament_render[languageStore.language].empty_p_msg;
-            if (text)
-                emptyMsg.textContent = text;
+            if (text) emptyMsg.textContent = text;
             list.appendChild(emptyMsg);
         }
 
         for (const t of tournaments) {
             const isFull = t.joined >= t.size;
             const userInTournament = t.playerIds.includes(userId);
-            console.log("tournament:", t);
-            console.log("userintournament:", userInTournament, userId);
+
             const div = document.createElement('div');
-            div.className =
-                /*html*/
-                'border border-white/20 p-4 rounded-lg bg-black/30 flex justify-between items-center';
+            div.className = 'border border-white/20 p-4 rounded-lg bg-black/30 flex justify-between items-center';
 
             div.innerHTML = `
         <div>
@@ -275,7 +334,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
         const createDiv = document.createElement('div');
         createDiv.className = 'text-center mt-6';
 
-        createDiv.innerHTML = /*html*/`
+        createDiv.innerHTML = /*html*/ `
         <button class="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold"
         id="create-tournament-4" ${userTournament ? 'disabled' : ''}>
         ${translations_tournament_render[languageStore.language]!.create_four_header}
@@ -304,18 +363,10 @@ export async function renderOnlineTournament(root: HTMLElement) {
         }
 
         const socket = wsManager.connectOnlineTournamentSocket('join', size, id, (msg) => {
-            handleTournamentMessage(msg);
+            // Keep this callback minimal: rely on the subscribed handler for everything.
             if (msg.type === 'onlineTournamentJoined') {
                 currentTournamentId = msg.id;
-                showToast('🎮 Joined ONLINE tournament. Waiting for match...');
-                renderTournamentList();
-            } else if (msg.type === 'onlineTournamentLeft') {
-                currentTournamentId = null;
-                renderTournamentList();
-            } else if (msg.type === 'end') {
-                showToast(`🏁 ONLINE Tournament finished! Winner: ${msg.winner}`);
-                currentTournamentId = null;
-                wsManager.disconnectOnlineTournamentSocket();
+                showToast('Joined ONLINE tournament. Waiting for match...');
                 renderTournamentList();
             }
         });
@@ -330,15 +381,10 @@ export async function renderOnlineTournament(root: HTMLElement) {
         }
 
         const socket = wsManager.connectOnlineTournamentSocket('create', size, undefined, (msg) => {
-            handleTournamentMessage(msg);
+            // Keep this callback minimal: rely on the subscribed handler for everything.
             if (msg.type === 'onlineTournamentJoined') {
                 currentTournamentId = msg.id;
-                showToast(`🎉 Created ONLINE Tournament ${msg.id}`);
-                renderTournamentList();
-            } else if (msg.type === 'end') {
-                showToast(`🏁 ONLINE Tournament finished! Winner: ${msg.winner}`);
-                currentTournamentId = null;
-                wsManager.disconnectOnlineTournamentSocket();
+                showToast(`Created ONLINE Tournament ${msg.id}`);
                 renderTournamentList();
             }
         });
@@ -346,98 +392,8 @@ export async function renderOnlineTournament(root: HTMLElement) {
         if (!socket) showToast('Failed to create tournament', 'error');
     }
 
-    function startOnlineTournamentMatch(msg: any) {
-        // Hide tournament lobby, show match area
-        document.getElementById('online-section')!.classList.add('hidden');
-        document.getElementById('online-tournament-match')!.classList.remove('hidden');
-
-        // Clear any previous match status messages
-        document.getElementById('online-status')!.textContent = 'Waiting for both players to be ready...';
-        // if (gameSocket) {
-        //     gameSocket.onmessage = (event) => {
-        //         if (event.data === 'ping') {
-        //             gameSocket?.send('pong');
-        //             return;
-        //         }
-
-        //         let gameMsg: any;
-        //         try {
-        //             gameMsg = JSON.parse(event.data);
-        //         } catch {
-        //             console.warn('Invalid game message:', event.data);
-        //             return;
-        //         }
-
-        //         switch (gameMsg.type) {
-        //             case 'countdown':
-        //                 document.getElementById('online-countdown')!.classList.remove('hidden');
-        //                 document.getElementById('online-countdown')!.textContent = gameMsg.value;
-        //                 if (gameMsg.value === 0) {
-        //                     document.getElementById('online-countdown')!.classList.add('hidden');
-        //                     document.getElementById('online-pong')!.classList.remove('hidden');
-        //                 }
-        //                 break;
-
-        //             case 'start':
-        //                 document.getElementById('online-countdown')!.classList.add('hidden');
-        //                 document.getElementById('online-pong')!.classList.remove('hidden');
-        //                 if (currentMatch) {
-        //                     document.getElementById('online-status')!.innerHTML =/*html*/ `<div style="font-size: 24px; font-weight: bold; color: white; text-align: center; margin: 10px 0;">${currentMatch.p1.name || currentMatch.p1.id} VS ${currentMatch.p2.name || currentMatch.p2.id}</div>`;
-        //                 }
-        //                 break;
-
-        //             case 'update':
-        //                 gameState = gameMsg.state;
-        //                 if (document.getElementById('online-pong')!.classList.contains('hidden')) {
-        //                     document.getElementById('online-pong')!.classList.remove('hidden');
-        //                 }
-        //                 if (gameState?.playerNames && currentMatch) {
-        //                     const p1Name = gameState.playerNames[currentMatch.p1.id] || currentMatch.p1.name || currentMatch.p1.id;
-        //                     const p2Name = gameState.playerNames[currentMatch.p2.id] || currentMatch.p2.name || currentMatch.p2.id;
-        //                     document.getElementById('online-status')!.innerHTML = /*html*/`<div style="font-size: 24px; font-weight: bold; color: white; text-align: center; margin: 10px 0;">${p1Name} VS ${p2Name}</div>`;
-        //                 }
-        //                 drawOnlineGame();
-        //                 break;
-
-        //             case 'end':
-        //                 document.getElementById('online-pong')!.classList.add('hidden');
-        //                 document.getElementById('online-status')!.textContent = `Match ended. Winner: ${gameMsg.winner.name}`;
-        //                 setTimeout(() => {
-        //                     document.getElementById('online-tournament-match')!.classList.add('hidden');
-        //                     isPlayerInMatch = false;
-        //                     currentMatch = null;
-        //                     gameState = null;
-        //                     if (gameSocket) {
-		// 						console.log('closing socket on \'end\' msg type');
-        //                         gameSocket.close();
-        //                         gameSocket = null;
-        //                     }
-        //                 }, 3000);
-        //                 break;
-
-        //             case 'disconnect':
-        //                 showToast('Opponent disconnected', 'error');
-        //                 console.log('got disconnect message');
-        //                 document.getElementById('online-tournament-match')!.classList.add('hidden');
-        //                 isPlayerInMatch = false;
-        //                 currentMatch = null;
-        //                 gameState = null;
-        //                 if (gameSocket) {
-        //                     gameSocket.close();
-        //                     gameSocket = null;
-        //                 }
-        //                 break;
-        //         }
-        //     };
-
-        //     gameSocket.onerror = () => {
-        //         showToast('Game socket error', 'error');
-        //         document.getElementById('online-tournament-match')!.classList.add('hidden');
-        //         isPlayerInMatch = false;
-        //     };
-        // }
-
-        // Set up keyboard controls for this online match
+    function startOnlineTournamentMatchControls() {
+        // Attach controls only; view/state handled elsewhere
         const heldKeys: Record<string, boolean> = {};
         const keydownHandler = (e: KeyboardEvent) => {
             heldKeys[e.key] = true;
@@ -457,99 +413,34 @@ export async function renderOnlineTournament(root: HTMLElement) {
 
         const moveInterval = setInterval(sendMove, 50);
 
-        // Clean up listeners/interval when match ends or socket closes
-        const cleanup = () => {
+        cleanupCurrentMatchControls = () => {
             document.removeEventListener('keydown', keydownHandler);
             document.removeEventListener('keyup', keyupHandler);
             clearInterval(moveInterval);
         };
-
-        if (gameSocket) {
-            const origOnClose = gameSocket.onclose;
-            gameSocket.onclose = (ev) => {
-                cleanup();
-                if (origOnClose && gameSocket) origOnClose.call(gameSocket, ev);
-            };
-        }
     }
 
-    // NEW helper: extracted from your existing gameSocket.onmessage switch
     function handleGameMessage(gameMsg: any) {
-        // switch (gameMsg.type) {
-        //     case 'countdown':
-        //         document.getElementById('online-countdown')!.classList.remove('hidden');
-        //         document.getElementById('online-countdown')!.textContent = gameMsg.value;
-        //         if (gameMsg.value === 0) {
-        //             document.getElementById('online-countdown')!.classList.add('hidden');
-        //             document.getElementById('online-pong')!.classList.remove('hidden');
-        //         }
-        //         break;
-        //     case 'start':
-        //         document.getElementById('online-countdown')!.classList.add('hidden');
-        //         document.getElementById('online-pong')!.classList.remove('hidden');
-        //         if (currentMatch) {
-        //             document.getElementById('online-status')!.innerHTML =/*html*/ `<div style="font-size: 24px; font-weight: bold; color: white; text-align: center; margin: 10px 0;">${currentMatch.p1.name || currentMatch.p1.id} VS ${currentMatch.p2.name || currentMatch.p2.id}</div>`;
-        //         }
-        //         break;
-        //     case 'update':
-        //         gameState = gameMsg.state;
-        //         if (document.getElementById('online-pong')!.classList.contains('hidden')) {
-        //             document.getElementById('online-pong')!.classList.remove('hidden');
-        //         }
-        //         if (gameState?.playerNames && currentMatch) {
-        //             const p1Name = gameState.playerNames[currentMatch.p1.id] || currentMatch.p1.name || currentMatch.p1.id;
-        //             const p2Name = gameState.playerNames[currentMatch.p2.id] || currentMatch.p2.name || currentMatch.p2.id;
-        //             document.getElementById('online-status')!.innerHTML = /*html*/`<div style="font-size: 24px; font-weight: bold; color: white; text-align: center; margin: 10px 0;">${p1Name} VS ${p2Name}</div>`;
-        //         }
-        //         drawOnlineGame();
-        //         break;
-        //     case 'end':
-        //         document.getElementById('online-pong')!.classList.add('hidden');
-        //         document.getElementById('online-status')!.textContent = `Match ended. Winner: ${gameMsg.winner.name}`;
-        //         setTimeout(() => {
-        //             document.getElementById('online-tournament-match')!.classList.add('hidden');
-        //             isPlayerInMatch = false;
-        //             currentMatch = null;
-        //             gameState = null;
-        //             }, 3000);
-        //         break;
-        //     case 'disconnect':
-        //         showToast('Opponent disconnected', 'error');
-        //         console.log('got disconnect message');
-        //         document.getElementById('online-tournament-match')!.classList.add('hidden');
-        //         isPlayerInMatch = false;
-        //         currentMatch = null;
-        //         gameState = null;
-        //         break;
-        // }
-
         switch (gameMsg.type) {
-            case 'countdown': {
-                countdownValue = gameMsg.value;
-                const countdownEl = document.getElementById('online-countdown')!;
-                countdownEl.classList.remove('hidden');
-                countdownEl.textContent = String(gameMsg.value);
-
+            case 'countdown':
+                // countdownValue = Number(gameMsg.value);
+                document.getElementById('online-countdown')!.classList.remove('hidden');
+                document.getElementById('online-countdown')!.textContent = gameMsg.value;
                 if (gameMsg.value === 0) {
-                    countdownEl.classList.add('hidden');
+                    document.getElementById('online-countdown')!.classList.add('hidden');
                     document.getElementById('online-pong')!.classList.remove('hidden');
-                    countdownValue = null;
                 }
                 break;
-            }
-            case 'start': {
-                countdownValue = null;
+
+            case 'start':
                 document.getElementById('online-countdown')!.classList.add('hidden');
                 document.getElementById('online-pong')!.classList.remove('hidden');
                 if (currentMatch) {
-                    document.getElementById('online-status')!.innerHTML = /*html*/`
-                        <div style="font-size: 24px; font-weight: bold; color: white; text-align: center; margin: 10px 0;">
-                            ${currentMatch.p1.name || currentMatch.p1.id} VS ${currentMatch.p2.name || currentMatch.p2.id}
-                        </div>`;
+                    document.getElementById('online-status')!.innerHTML = /*html*/ `<div style="font-size: 24px; font-weight: bold; color: white; text-align: center; margin: 10px 0;">${currentMatch.p1.name || currentMatch.p1.id} VS ${currentMatch.p2.name || currentMatch.p2.id}</div>`;
                 }
                 break;
-            }
-            case 'update': {
+
+            case 'update':
                 gameState = gameMsg.state;
                 if (document.getElementById('online-pong')!.classList.contains('hidden')) {
                     document.getElementById('online-pong')!.classList.remove('hidden');
@@ -557,49 +448,71 @@ export async function renderOnlineTournament(root: HTMLElement) {
                 if (gameState?.playerNames && currentMatch) {
                     const p1Name = gameState.playerNames[currentMatch.p1.id] || currentMatch.p1.name || currentMatch.p1.id;
                     const p2Name = gameState.playerNames[currentMatch.p2.id] || currentMatch.p2.name || currentMatch.p2.id;
-                    document.getElementById('online-status')!.innerHTML = /*html*/`
-                        <div style="font-size: 24px; font-weight: bold; color: white; text-align: center; margin: 10px 0;">
-                            ${p1Name} VS ${p2Name}
-                        </div>`;
+                    document.getElementById('online-status')!.innerHTML = /*html*/ `<div style="font-size: 24px; font-weight: bold; color: white; text-align: center; margin: 10px 0;">${p1Name} VS ${p2Name}</div>`;
                 }
                 break;
-            }
-            case 'end': {
+
+            case 'end':
+                console.log('[tournament-online] match end', { matchId: currentMatch?.id });
+
+                // cleanup
+                cleanupCurrentMatchControls?.();
+                cleanupCurrentMatchControls = null;
+
                 document.getElementById('online-pong')!.classList.add('hidden');
                 document.getElementById('online-status')!.textContent = `Match ended. Winner: ${gameMsg.winner.name}`;
 
+                // return to lobby UI; next round will come via onlineMatchStart
                 setTimeout(() => {
-                    document.getElementById('online-tournament-match')!.classList.add('hidden');
-                    document.getElementById('online-section')!.classList.remove('hidden');
-
                     isPlayerInMatch = false;
                     currentMatch = null;
-                    gameState = null;
-                    countdownValue = null;
-
-                    // IMPORTANT: do NOT close the socket.
-                }, 3000);
+                    resetMatchUI();
+                    enterLobbyView();
+                }, 1200);
                 break;
-            }
-            case 'disconnect': {
+
+            case 'disconnect':
+                // cleanup
+                cleanupCurrentMatchControls?.();
+                cleanupCurrentMatchControls = null;
+
                 showToast('Opponent disconnected', 'error');
-                document.getElementById('online-tournament-match')!.classList.add('hidden');
-                document.getElementById('online-section')!.classList.remove('hidden');
 
                 isPlayerInMatch = false;
                 currentMatch = null;
-                gameState = null;
-                countdownValue = null;
-
-                // IMPORTANT: do NOT close the socket.
+                resetMatchUI();
+                enterLobbyView();
                 break;
-            }
         }
     }
+
+    // ----- single RAF loop per page instance -----
+    let rafId: number | null = null;
+    const drawLoop = () => {
+        if (isPlayerInMatch) drawOnlineGame();
+        rafId = requestAnimationFrame(drawLoop);
+    };
+    drawLoop();
+
+    // subscribe current page instance
+    wsManager.subscribeToOnlineTournament(handleTournamentMessage);
+
+    // cleanup for next render/navigation
+    cleanupOnlineTournamentPage = () => {
+        cleanupCurrentMatchControls?.();
+        cleanupCurrentMatchControls = null;
+
+        if (rafId !== null) cancelAnimationFrame(rafId);
+        wsManager.unsubscribeFromOnlineTournament(handleTournamentMessage);
+
+        // IMPORTANT: remove presence listener to avoid stacking across renders
+        // wsManager.unsubscribeFromPresence(renderTournamentList);
+    };
 
     function drawOnlineGame() {
         if (!currentMatch) return;
         if (!gameState) return;
+
         const canvas = document.getElementById('online-pong') as HTMLCanvasElement;
         const ctx = canvas.getContext('2d')!;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -635,7 +548,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
             ctx.fillRect(x, y, paddleWidth, paddleHeight);
         });
 
-        // Draw player names on top, closer to sides
+        // Names
         ctx.fillStyle = 'white';
         ctx.font = '16px sans-serif';
         const names = gameState.playerNames || {};
@@ -644,7 +557,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
         ctx.fillText(p1Name, 20, 20);
         ctx.fillText(p2Name, width - ctx.measureText(p2Name).width - 20, 20);
 
-        // Draw scores in top middle
+        // Scores
         const p1Score = gameState.score[currentMatch.p1.id] || 0;
         const p2Score = gameState.score[currentMatch.p2.id] || 0;
         const scoreText = `${p1Score} - ${p2Score}`;
@@ -652,7 +565,7 @@ export async function renderOnlineTournament(root: HTMLElement) {
         const scoreWidth = ctx.measureText(scoreText).width;
         ctx.fillText(scoreText, (width - scoreWidth) / 2, 25);
 
-        // Draw countdown in top half if active
+        // Countdown
         if (countdownValue !== null) {
             ctx.fillStyle = 'white';
             ctx.font = '64px sans-serif';
@@ -661,13 +574,4 @@ export async function renderOnlineTournament(root: HTMLElement) {
             ctx.fillText(text, (width - textWidth) / 2, height / 4);
         }
     }
-
-    function draw() {
-        if (isPlayerInMatch) {
-            drawOnlineGame();
-        }
-        requestAnimationFrame(draw);
-    }
-
-    draw();
 }

@@ -137,8 +137,10 @@ class GameManager {
 				console.log(`🏁 [GameManager] Game ended in room ${room.id}: ${winner.name} (${winnerScore} - ${loserScore}) ${loser.name}`);
 
 				// Clean up sockets
-				userManager.removeGameSocket(Number(winner.id));
-				userManager.removeGameSocket(Number(loser.id));
+				if (mode === 'duel' || mode === 'solo' || mode === 'local-match') {
+					userManager.removeGameSocket(Number(winner.id));
+					userManager.removeGameSocket(Number(loser.id));
+				}
 
 				// if (isTournament && tournamentId && matchId) {
 				// 	const tournamentManager = mode === 'online-match'
