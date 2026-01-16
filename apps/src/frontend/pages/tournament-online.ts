@@ -285,7 +285,6 @@ export async function renderOnlineTournament(root: HTMLElement) {
                 currentTournamentId = null;
                 showToast('You left the tournament.', 'error');
                 wsManager.disconnectOnlineTournamentSocket();
-                renderTournamentList();
             });
         }
 

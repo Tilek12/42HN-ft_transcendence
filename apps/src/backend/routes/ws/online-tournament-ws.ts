@@ -75,7 +75,7 @@ function handle_message(text: string, user:User, userId: number, socket:WebSocke
 const wsOnlineTournamentPlugin: FastifyPluginAsync = async (fastify: any) => {
     // If a user's tournament WS drops, avoid instant forfeit. Give time to reconnect.
     const pendingQuit = new Map<number, NodeJS.Timeout>();
-    const DISCONNECT_GRACE_MS = 15000;
+    const DISCONNECT_GRACE_MS = 150000;
 
 	fastify.get('/online-tournament',
 		 { websocket: true },
