@@ -8,17 +8,15 @@ import { translations_game_render, translations_game } from './languages_i18n.js
 import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
 import { showToast } from './listenerUpdatePasswordAndUsername.js';
 
-
 var solo_or_local_mod = -1;
 
 export async function renderGame(root: HTMLElement) {
 	initGlobalLanguageSelector();
 	const tr = translations_game_render[languageStore.language];
-	// find the element
+
 	root.innerHTML = renderBackgroundFull(/*html*/`
-		
     <!-- Animated Pong Background -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none ">
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
       <!-- Background Pong Game Canvas -->
       <canvas id="bg-pong" class="absolute inset-0 w-full h-full opacity-10"></canvas>
 
@@ -76,7 +74,7 @@ export async function renderGame(root: HTMLElement) {
         </button>
 
         <!-- Play Local Tournament Button -->
-        <button id="play-local-tournament" class="group relative w-full md:w-64 min-h-[140px] px-8 py-6 bg-gradient-to-br from-[#facc15] to-[#f59e0b] text-gray-900 rounded-2xl shadow-2xl shadow-[#94a3b8]/30 hover:shadow-[#94a3b8]/50 hover:scale-105 transition-all duration-300 overflow-hidden">
+        <button id="play-local-tournament" class="group relative w-full md:w-64 min-h-[140px] px-8 py-6 bg-gradient-to-br from-[#94a3b8] to-[#38bdf8] text-gray-900 rounded-2xl shadow-2xl shadow-[#94a3b8]/30 hover:shadow-[#94a3b8]/50 hover:scale-105 transition-all duration-300 overflow-hidden">
           <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
           <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
             <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[shimmer_2s_infinite]"></div>
@@ -154,7 +152,8 @@ export async function renderGame(root: HTMLElement) {
             ${translations_game[languageStore.language].game_over}
 			</div>
             <button id="close-game-over" class="w-full px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold text-xl rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105">    
-			${translations_game[languageStore.language].continue}</button>
+			${translations_game[languageStore.language].continue}
+			</button>
           </div>
         </div>
       </div>
@@ -162,7 +161,7 @@ export async function renderGame(root: HTMLElement) {
       <!-- Info Text -->
       <div class="text-center">
         <p id="info" class="text-gray-300 text-base md:text-lg px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 inline-block animate-[fadeIn_1s_ease-in_0.5s] animate-fill-both">
-			${tr!.info}
+          ${tr!.info}
         </p>
       </div>
     </div>
@@ -227,7 +226,8 @@ export async function renderGame(root: HTMLElement) {
 		transelate_per_id(translations_game_render, "play_alone", lang, "play-alone");
 		transelate_per_id(translations_game_render, "play_online", lang, "play-online");
 		transelate_per_id(translations_game_render, "play_local_tournament", lang, "play-local-tournament");
-		transelate_per_id(translations_game_render, "play_online_tournament", lang, "play-online-tournament");
+		// transelate_per_id(translations_game_render, "play_online_tournament", lang, "play-online-tournament");
+		transelate_per_id(translations_game_render, "info", lang, "info");
 		transelate_per_id(translations_game,solo_or_local_mod === 1 ? "solo_mode" : "online_mode", lang, "info");
 		// console.log(`text: ${solo_or_local_mod === 1 ? translations_game[languageStore.language].solo_mode : translations_game[languageStore.language].online_mode}`)
 		// console.log(`gl_variable= ${solo_or_local_mod}`)
@@ -236,7 +236,7 @@ export async function renderGame(root: HTMLElement) {
 		transelate_per_id(translations_game, "game_over", lang, "game_over_translation");
 		transelate_per_id(translations_game, "continue", lang, "close-game-over");
 		// transelate_per_id(translations_game_render, solo_or_local_mod === 1 ? "solo_mode" : "online_mode", lang, "info");
-		
+
 	})
 
 	const canvas = document.getElementById('pong') as HTMLCanvasElement;
@@ -330,12 +330,12 @@ export async function renderGame(root: HTMLElement) {
 		cleanupListeners();
 		wsManager.disconnectGameSocket();
 		gameState = null;
-		solo_or_local_mod = Number(mode === 'solo');
+		solo_or_local_mod = Number(mode === 'solo');  //Needs to check later
+
 		info.textContent =
 			mode === 'solo'
 				? translations_game[languageStore.language].solo_mode!
 				: translations_game[languageStore.language].online_mode!;
-		// console.log(`solo_or_local_mod: ${solo_or_local_mod}`)
 		const pong_status = document.getElementById('pong_status');
 		socket = await wsManager.createGameSocket(mode);
 		if (!socket) {
@@ -454,10 +454,11 @@ export async function renderGame(root: HTMLElement) {
 		moveInterval = setInterval(() => {
 			if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
-			if (heldKeys['ArrowUp']) socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'right' }));
-			if (heldKeys['ArrowDown']) socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'right' }));
-			if (heldKeys['w']) socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'left' }));
-			if (heldKeys['s']) socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'left' }));
+			// Swap: Arrow keys now control LEFT, W/S control RIGHT
+			if (heldKeys['ArrowUp']) socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'left' }));
+			if (heldKeys['ArrowDown']) socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'left' }));
+			if (heldKeys['w']) socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'right' }));
+			if (heldKeys['s']) socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'right' }));
 		}, 20);
 		initGlobalLanguageSelector();
 	}
@@ -560,14 +561,22 @@ export async function renderGame(root: HTMLElement) {
 			const paddleHeight = PADDLE_HEIGHT * scaleY;
 			const paddleWidth = 16;
 			const cornerRadius = 8;
-			// Use playerRoles if available (reliable), otherwise fall back to Object.keys (less reliable)
-			const ids = Object.keys(gameState.paddles);
-			const mainPlayerId = Object.keys(gameState.score)[0];
-
-			ids.forEach((id, index) => {
+			//Needs to be fixed later
+			// Use playerRoles if available (reliable), otherwise fall back to Object.keys (less reliable) 
+            const leftPlayerId = gameState.playerRoles?.left || Object.keys(gameState.paddles)[1];
+            const rightPlayerId = gameState.playerRoles?.right || Object.keys(gameState.paddles)[0];
+            [leftPlayerId, rightPlayerId].forEach((id, index) => {
+                if (!id || gameState.paddles[id] === undefined) return;
 				const paddleY = gameState.paddles[id] * scaleY;
 				const paddleX = index === 0 ? 30 : width - paddleWidth - 30;
-				const isMainPlayer = id === mainPlayerId;
+				const isMainPlayer = id === myUserId;
+			// const ids = Object.keys(gameState.paddles);
+			// const mainPlayerId = Object.keys(gameState.score)[0];
+
+			// ids.forEach((id, index) => {
+			// 	const paddleY = gameState.paddles[id] * scaleY;
+			// 	const paddleX = index === 0 ? 30 : width - paddleWidth - 30;
+			// 	const isMainPlayer = id === mainPlayerId;
 
 				// Solid colors like reference image
 				const paddleColor = isMainPlayer ? '#6b9dff' : '#ff8b6b';
