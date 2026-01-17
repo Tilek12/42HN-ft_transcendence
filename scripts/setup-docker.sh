@@ -11,7 +11,7 @@ if [ "$NODE_ENV" = "development" ]; then
 elif [ "$NODE_ENV" = "production" ]; then
 	# npm run prod;
 	 npm run prod
-	exec node dist/backend/server.js 
+	exec node dist/backend/server.js
 
 else
 	echo "Unknown NODE_ENV: $NODE_ENV"
