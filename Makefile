@@ -50,7 +50,7 @@ re: clean start		## 🔄 Restart everything
 
 up:		## 🐳 Start containers with build
 	@printf "$(BLUE)🐳 Starting Docker containers...$(RESET)\n"
-	@cp -n .env.example .env
+
 	@printf "$(RED)🐳 BE AWARE, THIS IS PRODUCTION MODE!$(RESET)\n"
 	$(PROD) $(COMPOSE) up --build || true
 	@printf "$(RED)🛑 Container stopped$(RESET)\n"
@@ -91,10 +91,7 @@ ps:			## 📊 Show container status
 	$(COMPOSE) ps
 
 env-check:	## 🔍 Verify environment file exist
-	@if [ ! -f $(ENV_FILE) ]; then \
-		printf "$(RED)❌ Missing required .env in project root$(RESET)\n"; \
-		exit 1; \
-	fi
+	@cp -n .env.example .env
 
 help:		## 🆘 Display this help message
 	@printf "\n$(BLUE)🏓 Pong Game Management$(RESET)\n\n"
