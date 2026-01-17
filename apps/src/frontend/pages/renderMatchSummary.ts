@@ -48,11 +48,11 @@ const rankTableCreator =
 	</td>
 	<td class="py-4 px-4 text-white font-semibold text-sm lg:text-base truncate max-w-[120px] group-hover:text-purple-300 transition-colors">${rank.username}</td>
 	<td class="py-4 px-4 text-center text-green-400 font-medium text-sm lg:text-base">${rank.wins}</td>
-	<td class="py-4 px-4 text-center">
+	<!--td class="py-4 px-4 text-center">
 		<span class="inline-flex items-center gap-1 text-yellow-400 font-medium text-sm lg:text-base">
 			🏆 ${rank.trophies}
 		</span>
-	</td>
+	</td-->
 	<td class="py-4 px-4 text-center text-blue-300 font-medium text-sm lg:text-base">${rank.total_matches}</td>
 	<td class="py-4 px-4 text-center">
 		<span class="inline-flex items-center justify-center px-3 py-1 rounded-full ${rank.win_rate >= 70 ? 'bg-green-500/20 text-green-400' : rank.win_rate >= 50 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'} font-semibold text-sm">
@@ -133,7 +133,7 @@ export async function renderMatchSummary(root: HTMLElement) {
 		// normal match, tournament match chart
 		var total_tournament_matches = 0;
 		var total_normal_matches = 0;
-	
+
 		var total_matches = summary.length;
 		summary.forEach(m => { m.is_tournament_match ? total_tournament_matches++ : null });
 		console.log(`total_tournament_matches: ${total_tournament_matches}`);
@@ -173,9 +173,9 @@ export async function renderMatchSummary(root: HTMLElement) {
 		}).join('');
 
 		root.innerHTML = renderBackgroundFull(/*html*/ `
-				<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
-				  
-				  <!-- Match Statistics Pie Chart -->
+			<!-- Match Statistics Pie Chart | Pie Chart | Legend -->
+				<!--div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
 				  <div class="overflow-hidden rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl max-w-2xl mx-auto">
 					<div class="bg-gradient-to-r from-indigo-600/30 to-purple-600/30 px-6 py-4 border-b border-white/20">
 						<h2 class="text-2xl font-bold text-white flex items-center gap-3">
@@ -186,15 +186,13 @@ export async function renderMatchSummary(root: HTMLElement) {
 						</h2>
 					</div>
 					<div class="p-8 flex flex-col items-center justify-center space-y-6">
-						<!-- Pie Chart -->
 						<div class="w-48 h-48 rounded-full shadow-2xl shadow-purple-500/20"
 							style="background: conic-gradient(
-								#8b5cf6 0% ${Math.round((total_normal_matches / total_matches) * 100)}%, 
+								#8b5cf6 0% ${Math.round((total_normal_matches / total_matches) * 100)}%,
 								#facc15 ${Math.round((total_normal_matches / total_matches) * 100)}% 100%
 							);">
 						</div>
-						
-						<!-- Legend -->
+
 						<div class="flex flex-col gap-3 w-full max-w-xs">
 							<div class="flex items-center justify-between p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
 								<div class="flex items-center gap-3">
@@ -212,215 +210,214 @@ export async function renderMatchSummary(root: HTMLElement) {
 							</div>
 						</div>
 					</div>
-				  </div>
+				  </div-->
 
-				  <!-- Player Statistics Charts -->
-				  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-					<!-- Total Games Bar Chart -->
-					<div class="overflow-hidden rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl">
-						<div class="bg-gradient-to-r from-teal-600/30 to-cyan-600/30 px-6 py-4 border-b border-white/20">
-							<h2 class="text-xl font-bold text-white flex items-center gap-3">
-								<svg class="w-6 h-6 text-teal-400" fill="currentColor" viewBox="0 0 20 20">
-									<path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
-								</svg>
-								<span id="TotalGamesPerPlayer">Total Games Per Player</span>
-							</h2>
-						</div>
-						<div class="p-6 flex items-end justify-around h-64 overflow-x-auto">
-							${total_games_chart_string}
-						</div>
-					</div>
-			  
-					<!-- Win Rate Bar Chart -->
-					<div class="overflow-hidden rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl">
-						<div class="bg-gradient-to-r from-pink-600/30 to-rose-600/30 px-6 py-4 border-b border-white/20">
-							<h2 class="text-xl font-bold text-white flex items-center gap-3">
-								<svg class="w-6 h-6 text-pink-400" fill="currentColor" viewBox="0 0 20 20">
-									<path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/>
-								</svg>
-								<span id="WinRates">Win Rates</span>
-							</h2>
-						</div>
-						<div class="p-6 flex items-end justify-around h-64 overflow-x-auto">
-							${win_rate_chart_string}
-						</div>
-					</div>
-				  </div>
+				  <!-- Pop up Individual Stats Modal -->
+				<div id="individual-stats-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm">
+					<div id="modal-content" class="relative bg-white/5 rounded p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto text-white shadow-2xl">
+						<!-- Close hint -->
+						<div class="absolute top-4 right-4 text-gray-400 text-xs">Click anywhere to close</div>
 
-				  	<!-- Pop up Individual Stats Modal -->
-					<div id="individual-stats-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm">
-						<div id="modal-content" class="relative bg-white/5 rounded p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto text-white shadow-2xl">
-							<!-- Close hint -->
-							<div class="absolute top-4 right-4 text-gray-400 text-xs">Click anywhere to close</div>
-							
-							<!-- Player name header -->
-							<div class="mb-6 text-center">
-								<h2 id="modal-player-name" class="text-3xl font-bold text-white"></h2>
-								<p class="text-gray-400 text-sm mt-1">Individual Statistics</p>
+						<!-- Player name header -->
+						<div class="mb-6 text-center">
+							<h2 id="modal-player-name" class="text-3xl font-bold text-white"></h2>
+							<p class="text-gray-400 text-sm mt-1">Individual Statistics</p>
+						</div>
+
+						<!-- Charts grid -->
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<!-- Total Games Chart -->
+							<div class="bg-white/5 p-5 rounded">
+								<h3 class="text-white font-semibold text-base mb-4">Total Games vs <span id="modal-individual-name" class="text-gray-300"></span></h3>
+								<div id="modal-individual-total-games-chart" class="flex justify-around items-end h-48 pt-4"></div>
 							</div>
-							
-							<!-- Charts grid -->
-							<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-								<!-- Total Games Chart -->
-								<div class="bg-white/5 p-5 rounded">
-									<h3 class="text-white font-semibold text-base mb-4">Total Games vs <span id="modal-individual-name" class="text-gray-300"></span></h3>
-									<div id="modal-individual-total-games-chart" class="flex justify-around items-end h-48 pt-4"></div>
-								</div>
-								
-								<!-- Win Rate Chart -->
-								<div class="bg-white/5 p-5 rounded">
-									<h3 class="text-white font-semibold text-base mb-4">Win Rate of <span id="modal-win-rate-name" class="text-gray-300"></span></h3>
-									<div id="modal-win-rate-chart" class="flex justify-around items-end h-48 pt-4"></div>
-								</div>
+
+							<!-- Win Rate Chart -->
+							<div class="bg-white/5 p-5 rounded">
+								<h3 class="text-white font-semibold text-base mb-4">Win Rate of <span id="modal-win-rate-name" class="text-gray-300"></span></h3>
+								<div id="modal-win-rate-chart" class="flex justify-around items-end h-48 pt-4"></div>
 							</div>
 						</div>
 					</div>
-			  
-					<!-- Rank Table -->
-					<div class="overflow-hidden rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl">
-						<div class="bg-gradient-to-r from-purple-600/30 to-pink-600/30 px-6 py-4 border-b border-white/20">
-							<h2 class="text-2xl font-bold text-white flex items-center gap-3">
-								<svg class="w-7 h-7 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-									<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-								</svg>
-								<span id="RankTableHeader">Leaderboard Rankings</span>
-							</h2>
-						</div>
-						<div class="overflow-x-auto">
-							<table id="RankTable" class="w-full text-left border-collapse">
-								<thead>
-									<tr class="bg-white/10 border-b border-white/20">
-										<th class="py-3 px-4 text-white font-bold text-xs lg:text-sm text-center" id="RankID">Rank</th>
-										<th class="py-3 px-4 text-white font-bold text-xs lg:text-sm" id="Username">Player</th>
-										<th class="py-3 px-4 text-white font-bold text-xs lg:text-sm text-center cursor-pointer select-none hover:bg-white/10 active:bg-white/20 transition-colors duration-150" id="Wins">
-											<div class="flex items-center justify-center gap-1">
-												<span id="WinsText">Wins</span>
-												<svg id="WinsSortIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 opacity-50 transition-transform duration-150">
-													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-												</svg>
-											</div>
-										</th>
-										<th class="py-3 px-4 text-white font-bold text-xs lg:text-sm text-center cursor-pointer select-none hover:bg-white/10 active:bg-white/20 transition-colors duration-150" id="Trophies">
-											<div class="flex items-center justify-center gap-1">
-												<span id="TrophiesText">Trophies</span>
-												<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 opacity-50 transition-transform duration-150">
-													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-												</svg>
-											</div>
-										</th>
-										<th class="py-3 px-4 text-white font-bold text-xs lg:text-sm text-center cursor-pointer select-none hover:bg-white/10 active:bg-white/20 transition-colors duration-150" id="TotalMatches">
-											<div class="flex items-center justify-center gap-1">
-												<span id="TotalMatchesText">Matches</span>
-												<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 opacity-50 transition-transform duration-150">
-													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-												</svg>
-											</div>
-										</th>
-										<th class="py-3 px-4 text-white font-bold text-xs lg:text-sm text-center cursor-pointer select-none hover:bg-white/10 active:bg-white/20 transition-colors duration-150" id="WinRate">
-											<div class="flex items-center justify-center gap-1">
-												<span id="WinRateText">Win Rate</span>
-												<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 opacity-50 transition-transform duration-150">
-													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-												</svg>
-											</div>
-										</th>
-									</tr>
-								</thead>
-								<tbody id="RankTableBody">
-									${rankTableCreator(rank_array)}
-								</tbody>
-							</table>
-						</div>
-					</div>
-
-				  <!-- Match History Table - Full Width -->
-				  <div class="overflow-hidden rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl">
-					<div class="bg-gradient-to-r from-blue-600/30 to-purple-600/30 px-6 py-4 border-b border-white/20">
-						<h2 class="text-2xl font-bold text-white flex items-center gap-3">
-							<svg class="w-7 h-7 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-								<path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-							</svg>
-							<span id="MatchSummaryHeader">Match History</span>
-						</h2>
-					</div>
-					<div class="overflow-x-auto">
-						<table id="MatchTable" class="w-full text-left border-collapse">
-						  <thead>
-							<tr class="bg-white/10 border-b border-white/20">
-							  <th class="py-3 px-4 text-white font-bold text-xs lg:text-sm text-center" id="MatchID">ID</th>
-							  <th class="py-3 px-4 text-white font-bold text-xs lg:text-sm" id="Player1">Player 1</th>
-							  <th class="py-3 px-4 text-white font-bold text-xs lg:text-sm" id="Player2">Player 2</th>
-							  <th class="py-3 px-4 text-white font-bold text-xs lg:text-sm text-center" id="Player1Score">Score</th>
-							  <th class="py-3 px-4 text-white font-bold text-xs lg:text-sm text-center" id="Player2Score">Score</th>
-							  <th class="py-3 px-4 text-white font-bold text-xs lg:text-sm" id="Winner">Winner</th>
-							  <th class="py-3 px-4 text-white font-bold text-xs lg:text-sm text-center" id="IsTournamentMatch">Type</th>
-							  <th class="py-3 px-4 text-white font-bold text-xs lg:text-sm hidden lg:table-cell" id="PlayedAt">Played At</th>
-							</tr>
-						  </thead>
-						  <tbody>
-							${summary.map((match: fMatchForSummary, index) => `
-							  <tr class="border-b border-white/10 hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 transition-all duration-300 group">
-								<td class="py-4 px-4 text-center">
-									<span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white/10 text-white font-semibold text-xs">
-										${match.matchID}
-									</span>
-								</td>
-								<td data-player="pl_${match.player1_username}" class="pl_${match.player1_username} cursor-pointer py-4 px-4 text-white font-semibold text-sm lg:text-base truncate max-w-[120px] hover:text-blue-300 transition-colors">${match.player1_username}</td>
-								<td data-player="pl_${match.player2_username}" class="pl_${match.player2_username} cursor-pointer py-4 px-4 text-white font-semibold text-sm lg:text-base truncate max-w-[120px] hover:text-purple-300 transition-colors">${match.player2_username}</td>
-								<td class="py-4 px-4 text-center">
-									<span class="inline-flex items-center justify-center w-10 h-10 rounded-lg ${match.player1_score > match.player2_score ? 'bg-green-500/20 text-green-400 font-bold' : 'bg-red-500/20 text-red-400'} text-sm lg:text-base">
-										${match.player1_score}
-									</span>
-								</td>
-								<td class="py-4 px-4 text-center">
-									<span class="inline-flex items-center justify-center w-10 h-10 rounded-lg ${match.player2_score > match.player1_score ? 'bg-green-500/20 text-green-400 font-bold' : 'bg-red-500/20 text-red-400'} text-sm lg:text-base">
-										${match.player2_score}
-									</span>
-								</td>
-								<td data-player="pl_${match.winner_username}" class="pl_${match.winner_username} cursor-pointer py-4 px-4">
-									<span class="inline-flex items-center gap-1 text-yellow-400 font-semibold text-sm lg:text-base hover:text-yellow-300 transition-colors">
-										👑 ${match.winner_username}
-									</span>
-								</td>
-								<td class="py-4 px-4 text-center">
-									<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${match.is_tournament_match ? 'bg-purple-500/20 text-purple-300' : 'bg-blue-500/20 text-blue-300'}">
-										${match.is_tournament_match ? '🏆 Tournament' : '🎮 Normal'}
-									</span>
-								</td>
-								<td class="py-4 px-4 text-gray-400 text-xs hidden lg:table-cell">${new Date(match.played_at).toLocaleString()}</td>
-							  </tr>
-							`).join('')}
-						  </tbody>
-						</table>
-				  </div>
-			  
 				</div>
+				  <!-- Player Statistics Charts Container-->
+				  <div class= "grid grid-cols-1 gap-6 max-w-7xl mx-auto px-4 py-6">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<!-- Total Games Bar Chart -->
+							<div class="overflow-hidden rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl">
+								<div class="bg-gradient-to-r from-teal-600/30 to-cyan-600/30 px-6 py-4 border-b border-white/20">
+									<h2 class="text-xl font-bold text-white flex items-center gap-3">
+										<svg class="w-6 h-6 text-teal-400" fill="currentColor" viewBox="0 0 20 20">
+											<path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+										</svg>
+										<span id="TotalGamesPerPlayer">Total Games Per Player</span>
+									</h2>
+								</div>
+								<div class="p-6 flex items-end justify-around h-64 overflow-x-auto">
+									${total_games_chart_string}
+								</div>
+							</div>
+
+							<!-- Win Rate Bar Chart -->
+							<div class="overflow-hidden rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl">
+								<div class="bg-gradient-to-r from-pink-600/30 to-rose-600/30 px-6 py-4 border-b border-white/20">
+									<h2 class="text-xl font-bold text-white flex items-center gap-3">
+										<svg class="w-6 h-6 text-pink-400" fill="currentColor" viewBox="0 0 20 20">
+											<path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/>
+										</svg>
+										<span id="WinRates">Win Rates</span>
+									</h2>
+								</div>
+								<div class="p-6 flex items-end justify-around h-64 overflow-x-auto">
+									${win_rate_chart_string}
+								</div>
+							</div>
+						</div>
+						<!-- Rank Table -->
+						<div class="overflow-hidden rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl">
+							<div class="bg-gradient-to-r from-purple-600/30 to-pink-600/30 px-6 py-4 border-b border-white/20">
+								<h2 class="text-2xl font-bold text-white flex items-center gap-3">
+									<svg class="w-7 h-7 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+										<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+									</svg>
+									<span id="RankTableHeader">Leaderboard Rankings</span>
+								</h2>
+							</div>
+							<div class="overflow-x-auto">
+								<table id="RankTable" class="w-full text-left border-collapse">
+									<thead>
+										<tr class="bg-white/10 border-b border-white/20">
+											<th class="py-3 px-4 text-white font-bold text-xs lg:text-sm text-center" id="RankID">Rank</th>
+											<th class="py-3 px-4 text-white font-bold text-xs lg:text-sm" id="Username">Player</th>
+											<th class="py-3 px-4 text-white font-bold text-xs lg:text-sm text-center cursor-pointer select-none hover:bg-white/10 active:bg-white/20 transition-colors duration-150" id="Wins">
+												<div class="flex items-center justify-center gap-1">
+													<span id="WinsText">Wins</span>
+													<svg id="WinsSortIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 opacity-50 transition-transform duration-150">
+														<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+													</svg>
+												</div>
+											</th>
+											<!--th class="py-3 px-4 text-white font-bold text-xs lg:text-sm text-center cursor-pointer select-none hover:bg-white/10 active:bg-white/20 transition-colors duration-150" id="Trophies">
+												<div class="flex items-center justify-center gap-1">
+													<span id="TrophiesText">Trophies</span>
+													<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 opacity-50 transition-transform duration-150">
+														<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+													</svg>
+												</div>
+											</th-->
+											<th class="py-3 px-4 text-white font-bold text-xs lg:text-sm text-center cursor-pointer select-none hover:bg-white/10 active:bg-white/20 transition-colors duration-150" id="TotalMatches">
+												<div class="flex items-center justify-center gap-1">
+													<span id="TotalMatchesText">Matches</span>
+													<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 opacity-50 transition-transform duration-150">
+														<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+													</svg>
+												</div>
+											</th>
+											<th class="py-3 px-4 text-white font-bold text-xs lg:text-sm text-center cursor-pointer select-none hover:bg-white/10 active:bg-white/20 transition-colors duration-150" id="WinRate">
+												<div class="flex items-center justify-center gap-1">
+													<span id="WinRateText">Win Rate</span>
+													<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 opacity-50 transition-transform duration-150">
+														<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+													</svg>
+												</div>
+											</th>
+										</tr>
+									</thead>
+									<tbody id="RankTableBody">
+										${rankTableCreator(rank_array.sort((a, b) => b.wins - a.wins))}
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<!-- Match History Table - Full Width -->
+						<div class="overflow-hidden rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl">
+						  <div class="bg-gradient-to-r from-blue-600/30 to-purple-600/30 px-6 py-4 border-b border-white/20">
+							  <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+								  <svg class="w-7 h-7 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+									  <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+								  </svg>
+								  <span id="MatchSummaryHeader">Match History</span>
+							  </h2>
+						  </div>
+						  <div class="overflow-x-auto">
+							  <table id="MatchTable" class="w-full text-left border-collapse">
+								<thead>
+								  <tr class="bg-white/10 border-b border-white/20">
+									<th class="py-3 px-4 text-white font-bold text-xs lg:text-sm text-center" id="MatchID">ID</th>
+									<th class="py-3 px-4 text-white font-bold text-xs lg:text-sm" id="Player1">Player 1</th>
+									<th class="py-3 px-4 text-white font-bold text-xs lg:text-sm" id="Player2">Player 2</th>
+									<th class="py-3 px-4 text-white font-bold text-xs lg:text-sm text-center" id="Player1Score">Score</th>
+									<th class="py-3 px-4 text-white font-bold text-xs lg:text-sm text-center" id="Player2Score">Score</th>
+									<th class="py-3 px-4 text-white font-bold text-xs lg:text-sm" id="Winner">Winner</th>
+									<th class="py-3 px-4 text-white font-bold text-xs lg:text-sm text-center" id="IsTournamentMatch">Type</th>
+									<th class="py-3 px-4 text-white font-bold text-xs lg:text-sm hidden lg:table-cell" id="PlayedAt">Played At</th>
+								  </tr>
+								</thead>
+								<tbody>
+								  ${summary.map((match: fMatchForSummary, index) => `
+									<tr class="border-b border-white/10 hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 transition-all duration-300 group">
+									  <td class="py-4 px-4 text-center">
+										  <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white/10 text-white font-semibold text-xs">
+											  ${match.matchID}
+										  </span>
+									  </td>
+									  <td data-player="pl_${match.player1_username}" class="pl_${match.player1_username} cursor-pointer py-4 px-4 text-white font-semibold text-sm lg:text-base truncate max-w-[120px] hover:text-blue-300 transition-colors">${match.player1_username}</td>
+									  <td data-player="pl_${match.player2_username}" class="pl_${match.player2_username} cursor-pointer py-4 px-4 text-white font-semibold text-sm lg:text-base truncate max-w-[120px] hover:text-purple-300 transition-colors">${match.player2_username}</td>
+									  <td class="py-4 px-4 text-center">
+										  <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg ${match.player1_score > match.player2_score ? 'bg-green-500/20 text-green-400 font-bold' : 'bg-red-500/20 text-red-400'} text-sm lg:text-base">
+											  ${match.player1_score}
+										  </span>
+									  </td>
+									  <td class="py-4 px-4 text-center">
+										  <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg ${match.player2_score > match.player1_score ? 'bg-green-500/20 text-green-400 font-bold' : 'bg-red-500/20 text-red-400'} text-sm lg:text-base">
+											  ${match.player2_score}
+										  </span>
+									  </td>
+									  <td data-player="pl_${match.winner_username}" class="pl_${match.winner_username} cursor-pointer py-4 px-4">
+										  <span class="inline-flex items-center gap-1 text-yellow-400 font-semibold text-sm lg:text-base hover:text-yellow-300 transition-colors">
+											  👑 ${match.winner_username}
+										  </span>
+									  </td>
+									  <td class="py-4 px-4 text-center">
+										  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${match.is_tournament_match ? 'bg-purple-500/20 text-purple-300' : 'bg-blue-500/20 text-blue-300'}">
+											  ${match.is_tournament_match ? '🏆 Tournament' : '🎮 Normal'}
+										  </span>
+									  </td>
+									  <td class="py-4 px-4 text-gray-400 text-xs hidden lg:table-cell">${new Date(match.played_at).toLocaleString()}</td>
+									</tr>
+								  `).join('')}
+								</tbody>
+							  </table>
+						</div>
+
+					  </div>
+				  </div>
 			  `);
 		//----adding event listener for each individual user
 		const modal = document.getElementById("individual-stats-modal")!;
 		const modalContent = document.getElementById("modal-content")!;
-		
+
 		// Close modal when clicking outside the content
 		modal.addEventListener("click", (e) => {
 			modal.classList.add("hidden");
 			modal.classList.remove("flex");
 		});
-		
+
 		// Prevent closing when clicking inside the modal content
 		modalContent.addEventListener("click", (e) => {
 			e.stopPropagation();
 		});
-		
+
 		chart_profiles.forEach(pr=>
 			{
 				const pr_name : string = pr.username;
 				const class_pr_name : string = ".pl_"+pr.username;
 				const current_el : NodeListOf<Element> = document.querySelectorAll(class_pr_name);
-				current_el.forEach(cl =>cl.addEventListener("click", 
+				current_el.forEach(cl =>cl.addEventListener("click",
 					()=>
 						{
 							const personal_matches = summary.filter(match=> match.player1_username == pr_name || match.player2_username == pr_name );
-							
+
 							console.log(`personal_matches ${personal_matches}`);//---we need the two individual charts
 							const op_array : {name:string}[]= [];
 							personal_matches.forEach(match=>{
@@ -429,7 +426,7 @@ export async function renderMatchSummary(root: HTMLElement) {
 							})
 							var op_array_unique: { name: string, total_matches: number, individual_wins: number, individual_win_rate: number }[] = [];
 							op_array.forEach(
-								op=> {!op_array_unique.some(unique=> unique.name == op.name) ? 
+								op=> {!op_array_unique.some(unique=> unique.name == op.name) ?
 											op_array_unique.push({name: op.name,total_matches: 0,individual_wins: 0,individual_win_rate: 0}) : null;
 										})
 							console.log(`Clicked on the ${pr_name}`);
@@ -439,7 +436,7 @@ export async function renderMatchSummary(root: HTMLElement) {
 							op_array_unique.map(op => personal_matches.forEach(match => (match.player1_username === op.name || match.player2_username === op.name) && (match.winner_username === pr_name) ? op.individual_wins++: null));
 							//wins rate
 							op_array_unique.map(op=> op.total_matches !== 0 ? op.individual_win_rate = Math.round(op.individual_wins / op.total_matches) * 100: 0);
-							
+
 							// individual total games bars
 							const maxPrBarHeight = 12 * 4;
 							const pr_total_games_chrt = op_array_unique.map(op=>{
@@ -452,13 +449,13 @@ export async function renderMatchSummary(root: HTMLElement) {
 									<div class="text-xs mt-1 text-white text-center">${safeName}</div>
 								</div>`;});
 							const pr_total_games_chrt_string : string = pr_total_games_chrt.join('');
-							
+
 							// individual total win rates
 							const maxPrlWinRateBarHeight = 64;
 							const pr_win_rate_chart = op_array_unique.map(opp => {
 								const barHeight = Math.round((opp.individual_win_rate / 100) * maxPrlWinRateBarHeight);
 								const safeName = String(opp.name).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-					
+
 								return /*html*/`
 									<div class="flex flex-col items-center">
 										<div class="text-xs mt-1 text-white">${opp.individual_win_rate}%</div>
@@ -468,26 +465,26 @@ export async function renderMatchSummary(root: HTMLElement) {
 									`;
 							});
 							const pr_win_rate_chart_string = pr_win_rate_chart.join('');
-							
+
 							// Update modal content
 							const modalPlayerName = document.getElementById("modal-player-name");
 							const modalIndividualName = document.getElementById("modal-individual-name");
 							const modalWinRateName = document.getElementById("modal-win-rate-name");
 							const modalTotalGamesChart = document.getElementById("modal-individual-total-games-chart");
 							const modalWinRateChart = document.getElementById("modal-win-rate-chart");
-							
+
 							if (modalPlayerName) modalPlayerName.textContent = pr_name;
 							if (modalIndividualName) modalIndividualName.textContent = pr_name;
 							if (modalWinRateName) modalWinRateName.textContent = pr_name;
 							if (modalTotalGamesChart) modalTotalGamesChart.innerHTML = pr_total_games_chrt_string;
 							if (modalWinRateChart) modalWinRateChart.innerHTML = pr_win_rate_chart_string;
-							
+
 							// Show modal
 							modal.classList.remove("hidden");
 							modal.classList.add("flex");
 						}))
 			})
-		
+
 		// Add sorting functionality to Rank Table
 		const rankTableBody = document.getElementById("RankTableBody");
 		const wins = document.getElementById("Wins");
@@ -522,11 +519,11 @@ export async function renderMatchSummary(root: HTMLElement) {
 				rankTableBody.innerHTML = rankTableCreator(rank_array);
 			});
 		}
-		
+
 		addMatchSummaryTranslations(languageStore.language);
 		languageStore.subscribe((lang) => addMatchSummaryTranslations(lang));
 		initGlobalLanguageSelector();
-		
+
 	} catch (e: any) {
 		alert(e.message);
 		renderConnectionErrorPage();

@@ -58,7 +58,7 @@ export const update_langauge_headers_user_profile = (lang: Language) => {
 }
 export function renderUserProfile()
 {
-	
+
 	// DESIGN CHANGE: Complete 3-column layout redesign with glass-morphism and larger sizing
 	// - Changed from compact layout to full-screen (95% width)
 	// - Added pt-24 for header spacing
@@ -73,26 +73,26 @@ export function renderUserProfile()
 			<div class="max-w-[1800px] mx-auto px-4 py-8">
 				<!-- DESIGN: 3-column responsive grid using Tailwind's 12-column system -->
 				<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-8">
-					
+
 					<!-- ========== LEFT COLUMN: Profile Picture + Stats + Logout ========== -->
 					<!-- DESIGN: Takes 3/12 columns (25% width) -->
 					<div class="lg:col-span-3 w-full">
 						<!-- DESIGN: Glass-morphism card with hover shadow effect -->
 						<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-4 lg:p-6 border border-black/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
-							
+
 							<!-- Profile Picture Section -->
 							<!-- Upload, update, and delete profile picture -->
 							<!-- DESIGN: Large circular image (224px) with online indicator -->
-				
+
 								<div class="relative w-40 h-40 lg:w-48 lg:h-48 mx-auto mb-6">
 									<img id="profile_picture" src="" alt="Profile" class="w-full h-full object-cover rounded-full border-4 border-white/30 shadow-xl transition-all duration-300 hover:scale-105">
 									<div id="logged_in" class="absolute bottom-1 right-1 w-6 h-6 lg:w-8 lg:h-8 bg-green-500 rounded-full border-4 border-white shadow-lg animate-pulse "></div>
 								</div>
-							
+
 							<!-- Stats Section -->
 							<!-- Wins, Losses, Trophies display -->
 							<!-- DESIGN: Color-coded stats (green/red/yellow) with large numbers (text-4xl) -->
-							<div class="grid grid-cols-3 gap-2 lg:gap-3">
+							<div class="grid grid-cols-2 gap-2 lg:gap-3">
 								<div class="bg-green-500/20 rounded-xl p-3 lg:p-4 text-center transition-all duration-300 hover:scale-105 hover:bg-green-500/30">
 									<div class="text-2xl lg:text-3xl font-bold text-green-400" id="wins"></div>
 									<div class="text-xs lg:text-sm text-gray-300 mt-1" id="wins_header"></div>
@@ -101,7 +101,7 @@ export function renderUserProfile()
 									<div class="text-2xl lg:text-3xl font-bold text-red-400" id="losses"></div>
 									<div class="text-xs lg:text-sm text-gray-300 mt-1" id="losses_header"></div>
 								</div>
-								<div class="bg-yellow-500/20 rounded-xl p-3 lg:p-4 text-center transition-all duration-300 hover:scale-105 hover:bg-yellow-500/30">
+								<div class="bg-yellow-500/20 rounded-xl p-3 lg:p-4 text-center transition-all duration-300 hover:scale-105 hover:bg-yellow-500/30 hidden">
 									<div class="text-2xl lg:text-3xl font-bold text-yellow-400" id="trophies"></div>
 									<div class="text-xs lg:text-sm text-gray-300 mt-1" id="trophies_header"></div>
 								</div>
@@ -116,16 +116,16 @@ export function renderUserProfile()
 								<span id="friend_requests_header"></span>
 							</h2>
 							<div id="friend-requests-list"></div>
-							<span id="no_requests_span" class="text-xl hidden font-bold text-gray-300 mb-4 flex items-center"></span>	
-							<span id="friend_requests_error" class="text-xl hidden font-bold text-red-600 mb-4 flex items-center"></span>	
-						</div>	
-						
+							<span id="no_requests_span" class="text-xl hidden font-bold text-gray-300 mb-4 flex items-center"></span>
+							<span id="friend_requests_error" class="text-xl hidden font-bold text-red-600 mb-4 flex items-center"></span>
+						</div>
+
 					</div>
-					
+
 					<!-- ========== MIDDLE COLUMN: Profile Info + Security ========== -->
 					<!-- DESIGN: Takes 5/12 columns (42% width) - largest column for main content -->
 					<div class="lg:col-span-5 w-full space-y-6">
-						
+
 						<!-- Profile Information Section -->
 						<!-- Username, Email, Join Date -->
 						<!-- DESIGN: Glass-morphism card with SVG icons -->
@@ -135,7 +135,7 @@ export function renderUserProfile()
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
 								</svg>
 							</h2>
-							
+
 							<!-- Update Username Section -->
 							<!-- DESIGN: Inline edit with show/hide toggle, border highlight on hover -->
 							<div class="bg-white/5 rounded-xl p-5 mb-4 border-l-4 border-transparent hover:border-blue-500 transition-all duration-300">
@@ -158,7 +158,7 @@ export function renderUserProfile()
 							</div>
 						</div>
 
-						
+
 						<!-- Friends List -->
 						<div class="bg-white/10 rounded-2xl shadow-2xl p-4 lg:p-6 border border-black/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
 							<h2 class="text-xl font-bold text-white mb-4 flex items-center">
@@ -169,15 +169,15 @@ export function renderUserProfile()
 							</h2>
 							 <!--button id="triggerfriendrequest" class ="bg-black-500 tranform hover:scale-105 ">trigger '/friends' request </button-->
 							<div id="friend-list"></div>
-							<span id="no_friends_span" class="text-xl hidden font-bold text-gray-300 mb-4 flex items-center"></span>	
-							<span id="friend_list_error" class="text-xl hidden font-bold text-red-600 mb-4 flex items-center"></span>						
+							<span id="no_friends_span" class="text-xl hidden font-bold text-gray-300 mb-4 flex items-center"></span>
+							<span id="friend_list_error" class="text-xl hidden font-bold text-red-600 mb-4 flex items-center"></span>
 						</div>
 					</div>
 
 					<!-- ========== RIGHT COLUMN: Match History + Users List ========== -->
 					<!-- DESIGN: Takes 4/12 columns (33% width) - scrollable sections -->
 					<div class="lg:col-span-4 w-full space-y-6">
-						
+
 						<!-- Match History Section -->
 						<!-- Scrollable list of past matches -->
 						<!-- DESIGN: Sticky header, max-height 350px with scroll, populated by profile.ts -->
@@ -190,8 +190,8 @@ export function renderUserProfile()
 							</h2>
 							<!-- DESIGN: Scrollable container with custom scrollbar styling -->
 							<div id="match-history" class="max-h-[300px] lg:max-h-[350px] overflow-y-auto overflow-x-hidden pr-1">
-								<span id="no_match_history_span" class="text-xl hidden font-bold text-gray-300 mb-4 flex items-center"></span>	
-								<span id="match_history_error" class="text-xl hidden font-bold text-red-600 mb-4 flex items-center"></span>	
+								<span id="no_match_history_span" class="text-xl hidden font-bold text-gray-300 mb-4 flex items-center"></span>
+								<span id="match_history_error" class="text-xl hidden font-bold text-red-600 mb-4 flex items-center"></span>
 							</div>
 						</div>
 
@@ -200,7 +200,7 @@ export function renderUserProfile()
 						<!-- DESIGN: Scrollable list (320px) with gradient "Load More" button -->
 						<div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-4 lg:p-6 border border-black/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
 							<!-- DESIGN: User profiles populated by renderProfiles.ts -->
-							
+
 							<h2 class="text-xl font-bold text-white mb-4 flex items-center">
 								<svg class="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -213,14 +213,14 @@ export function renderUserProfile()
 							<!--button id="more-profiles-btn" class="w-full px-4 py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white text-base font-bold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-2xl">
 								<span id="load_more_header"></span>
 							</button-->
-							<span id="no_user_list_span" class="text-xl hidden font-bold text-gray-300 mb-4 flex items-center"></span>	
+							<span id="no_user_list_span" class="text-xl hidden font-bold text-gray-300 mb-4 flex items-center"></span>
 							<span id="user_list_error" class="text-xl hidden font-bold text-red-600 mb-4 flex items-center"></span>
 						</div>
 					</div>
 				</div>
 			</div>
         </div>`);
-	
+
 		// requestAnimationFrame(()=>renderUserProfile(backend_url,data));
 	// END OF DESIGN CHANGES - Summary:
 	// Layout: 3-column grid (3-5-4 ratio) replacing previous compact design

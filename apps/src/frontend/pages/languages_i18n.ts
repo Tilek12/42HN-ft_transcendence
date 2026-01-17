@@ -227,7 +227,7 @@ export const translations_settings: TranslationSet =
 		toast_success_username_update: 'Το όνομα χρήστη ενημερώθηκε επιτυχώς! 🎉',
 		toast_success_pw_update: 'Ο κωδικός ενημερώθηκε επιτυχώς| 🎉',
 		toast_failure_username_update: 'Αποτυχία ενημέρωσης ονόματος χρήστη. Παρακαλώ δοκιμάστε ξανά!',
-		toast_failure_username_update_for_letters_numbers: 'Το όνομα χρήστη πρέπει να περιέχει μόνο γράμματα και αριθμούς!',		
+		toast_failure_username_update_for_letters_numbers: 'Το όνομα χρήστη πρέπει να περιέχει μόνο γράμματα και αριθμούς!',
 		toast_failure_pw_no_match: 'Ο νέος κωδικός και η επιβεβαίωση δεν ταιριάζουν!',
 		toast_failure_pw_min_eight: 'Ο κωδικός πρέπει να έχει τουλάχιστον 8 χαρακτήρες!',
 		toast_failure_pw_same: 'Ο νέος κωδικός πρέπει να είναι διαφορετικός από τον παλιό!',
@@ -662,19 +662,19 @@ export const translations_dashboards: TranslationSet = {
 		player1_score: 'Score Player1',
 		player2_score: 'Score Player2',
 		winner_username: 'Winner',
-		is_tournament_match: 'Tournament Match',
+		is_tournament_match: 'Match Type',
 		played_at: 'Played At'
 	},
-	
+
 	DE: {
 		normal_matches: 'Normale Spiele: ',
 		tournament_matches: 'Turnierspiele: ',
 		total_games_per_player: 'Gesamtspiele pro Spieler',
 		win_rates: 'Siegesraten',
-	
+
 		total_games_of_individual: 'Gesamtspiele von',
 		individual_win_rate_of: 'Individuelle Siegesrate von',
-	
+
 		rank_table_header: 'Rangliste',
 		rank_id: 'Rang',
 		username: 'Benutzername',
@@ -682,7 +682,7 @@ export const translations_dashboards: TranslationSet = {
 		trophies: 'Trophäen',
 		total_matches: 'Gesamtanzahl Spiele',
 		win_rate: 'Siegesrate',
-	
+
 		match_summary_header: 'Spielübersicht',
 		match_id: 'Spiel-ID',
 		player1_username: 'Spieler 1',
@@ -690,19 +690,19 @@ export const translations_dashboards: TranslationSet = {
 		player1_score: 'Punkte Spieler 1',
 		player2_score: 'Punkte Spieler 2',
 		winner_username: 'Sieger',
-		is_tournament_match: 'Turnierspiel',
+		is_tournament_match: 'Match-Typ',
 		played_at: 'Gespielt am'
 	},
-	
+
 	GR: {
 		normal_matches: 'Κανονικοί Αγώνες: ',
 		tournament_matches: 'Αγώνες Τουρνουά: ',
 		total_games_per_player: 'Σύνολο Αγώνων ανά Παίκτη',
 		win_rates: 'Ποσοστά Νικών',
-	
+
 		total_games_of_individual: 'Σύνολο αγώνων του',
 		individual_win_rate_of: 'Ατομικό ποσοστό νικών του',
-	
+
 		rank_table_header: 'Πίνακας Κατάταξης',
 		rank_id: 'Κατάταξη',
 		username: 'Όνομα Χρήστη',
@@ -710,7 +710,7 @@ export const translations_dashboards: TranslationSet = {
 		trophies: 'Τρόπαια',
 		total_matches: 'Σύνολο Αγώνων',
 		win_rate: 'Ποσοστό Νικών',
-	
+
 		match_summary_header: 'Σύνοψη Αγώνα',
 		match_id: 'ID Αγώνα',
 		player1_username: 'Παίκτης 1',
@@ -718,10 +718,10 @@ export const translations_dashboards: TranslationSet = {
 		player1_score: 'Σκορ Παίκτης 1',
 		player2_score: 'Σκορ Παίκτης 2',
 		winner_username: 'Νικητής',
-		is_tournament_match: 'Αγώνας Τουρνουά',
+		is_tournament_match: 'Τύπος αγώνα',
 		played_at: 'Ημερομηνία Αγώνα'
 	}
-	
+
 };
 
 
