@@ -1,5 +1,5 @@
 import { renderMainPage } from './pages/main-page.js';
-import { renderOnlineTournament } from './pages/tournament-online.js';
+// import { renderOnlineTournament } from './pages/tournament-online.js';
 import { renderLocalTournament } from './pages/tournament-local.js';
 import { renderGame } from './pages/game.js';
 import { renderProfile } from './pages/profile.js';
@@ -17,7 +17,7 @@ import { renderSettings } from './pages/settings.js';
 import { initGlobalLanguageSelector } from './utils/globalLanguageSelector.js';
 import { renderMatchSummary } from './pages/renderMatchSummary.js';
 
-const protectedRoutes = ['#/profile', '#/game', '#/settings', '#/online-tournament', '#/local-tournament', '#/settings', '#/leaderboard'];
+const protectedRoutes = ['#/profile', '#/game', '#/settings', '#/local-tournament', '#/settings', '#/leaderboard'];
 export async function router()
 {
 	const	root = document.getElementById('app')!;
@@ -28,16 +28,18 @@ export async function router()
 	unhideNav();
 
 	if (isLoggedIn)
+	{
 		wsManager.connectPresenceSocket();
+		wsManager.disconnectGameSocket();
+		wsManager.disconnectLocalTournamentSocket();
+
+	}
 
 	if (protectedRoutes.includes(route)) {
 		if (isLoggedIn)
 		{
 			console.log("first switch");
 			switch (route) {
-				case '#/online-tournament':
-					renderOnlineTournament(root);
-					break;
 				case '#/local-tournament':
 					renderLocalTournament(root);
 					break;

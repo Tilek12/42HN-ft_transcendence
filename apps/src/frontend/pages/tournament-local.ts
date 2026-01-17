@@ -4,6 +4,7 @@ import { COLORS } from '../constants/colors.js';
 import { languageStore, transelate_per_id } from './languages.js';
 import { translations_tournament_render, translations_local_tournament, translations_game } from './languages_i18n.js';
 import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
+import { showToast } from './listenerUpdatePasswordAndUsername.js';
 
 let currentMatch: any = null;
 let currentMatchId: string | null = null;
@@ -204,7 +205,7 @@ export async function renderLocalTournament(root: HTMLElement) {
     });
 
     // Create local tournament
-    document.getElementById('create-local')!.addEventListener('click', () => createLocalTournament());
+    document.getElementById('create-local')!.addEventListener('click', async() => createLocalTournament());
 
     // Close champion modal
     document.getElementById('close-champion-modal')!.addEventListener('click', () => {
@@ -262,7 +263,7 @@ export async function renderLocalTournament(root: HTMLElement) {
         }
     }
 
-    function createLocalTournament() {
+    async function createLocalTournament() {
         const size = Number((document.getElementById('local-size') as HTMLSelectElement).value);
         const names: string[] = [];
         let hasEmpty = false;
@@ -285,7 +286,7 @@ export async function renderLocalTournament(root: HTMLElement) {
             return;
         }
 
-        const socket = wsManager.connectLocalTournamentSocket(
+        const socket = await wsManager.connectLocalTournamentSocket(
             size === 4 ? 4 : 8,
             (msg) => {
                 try {
@@ -298,7 +299,7 @@ export async function renderLocalTournament(root: HTMLElement) {
         );
 
         if (!socket) {
-            alert('Failed to create local tournament (no user or connection error).');
+            showToast('Failed to create local tournament (no user or connection error).', 'error');
             return;
         }
 
@@ -318,7 +319,7 @@ export async function renderLocalTournament(root: HTMLElement) {
     }
 
     function handleLocalMessage(msg: any) {
-        console.log('Local tournament message:', msg);
+        // console.log('Local tournament message:', msg);
 
         switch (msg.type) {
             case 'localTournamentCreated': {
@@ -406,7 +407,7 @@ export async function renderLocalTournament(root: HTMLElement) {
             }
             case 'update': {
                 gameState = msg.state;
-                drawGame();
+                // drawGame();
                 break;
             }
             case 'end': {

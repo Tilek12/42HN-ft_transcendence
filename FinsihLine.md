@@ -85,3 +85,12 @@ make script not block forever
 
 Password:
 Aa1!aaaa
+
+
+
+
+fixes from 17.01.26:
+
+local tournament: invert paddel controls fix boundaries for ball
+
+game: 

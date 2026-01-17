@@ -127,7 +127,7 @@ export class GameRoom {
 		const newY = currentY + delta;
 		const maxY = this.state.height - PADDLE_HEIGHT;
 		this.state.paddles[playerId] = Math.max(0, Math.min(maxY, newY));
-		console.log(`PADDLE MOVE: Player ${playerId} moved ${direction}, Y: ${currentY.toFixed(1)} -> ${this.state.paddles[playerId].toFixed(1)}`);
+		// console.log(`PADDLE MOVE: Player ${playerId} moved ${direction}, Y: ${currentY.toFixed(1)} -> ${this.state.paddles[playerId].toFixed(1)}`);
 	}
 
 	private startCountdown() {
@@ -159,7 +159,7 @@ export class GameRoom {
 
 		// Debug: Log player-to-paddle mapping once
 		if (!this.hasLoggedMapping) {
-			console.log(`🎮 PLAYER MAPPING: LEFT paddle = p2 (ID=${p2.id}, ${p2.name}), RIGHT paddle = p1 (ID=${p1.id}, ${p1.name})`);
+			// console.log(`🎮 PLAYER MAPPING: LEFT paddle = p2 (ID=${p2.id}, ${p2.name}), RIGHT paddle = p1 (ID=${p1.id}, ${p1.name})`);
 			this.hasLoggedMapping = true;
 		}
 
@@ -199,7 +199,7 @@ export class GameRoom {
 			const tolerance = 2;
 			const doesHit = (ballBottom >= paddleTop - tolerance) && (ballTop <= paddleBottom + tolerance);
 
-			console.log(`HIT CHECK: Ball(${ballTop.toFixed(1)}-${ballBottom.toFixed(1)}) vs Paddle(${paddleTop.toFixed(1)}-${paddleBottom.toFixed(1)}) = ${doesHit}`);
+			// console.log(`HIT CHECK: Ball(${ballTop.toFixed(1)}-${ballBottom.toFixed(1)}) vs Paddle(${paddleTop.toFixed(1)}-${paddleBottom.toFixed(1)}) = ${doesHit}`);
 
 			// Check if ball overlaps with paddle vertically
 			return doesHit;
@@ -212,9 +212,9 @@ export class GameRoom {
 
 			// Check if ball crossed into paddle zone
 			if (ball.x - BALL_RADIUS <= paddleRight && prevX - BALL_RADIUS > paddleRight) {
-				console.log(`[LEFT PADDLE] Ball crossed boundary. Ball Y: ${ball.y.toFixed(2)}, Paddle Y: ${padLeft.toFixed(2)}-${(padLeft + PADDLE_HEIGHT).toFixed(2)}`);
+				// console.log(`[LEFT PADDLE] Ball crossed boundary. Ball Y: ${ball.y.toFixed(2)}, Paddle Y: ${padLeft.toFixed(2)}-${(padLeft + PADDLE_HEIGHT).toFixed(2)}`);
 				if (hit(padLeft)) {
-					console.log(`✓ LEFT PADDLE HIT!`);
+					// console.log(`✓ LEFT PADDLE HIT!`);
 					// Hit the paddle - bounce back
 					ball.x = paddleRight + BALL_RADIUS;
 					ball.vx *= -1;
@@ -222,7 +222,7 @@ export class GameRoom {
 					const hitPos = (ball.y - padLeft) / PADDLE_HEIGHT; // 0 to 1
 					ball.vy = (hitPos - 0.5) * 1.5; // -0.75 to +0.75
 				} else {
-					console.log(`✗ LEFT PADDLE MISSED! Score for ${p1.name}`);
+					// console.log(`✗ LEFT PADDLE MISSED! Score for ${p1.name}`);
 					// Missed the paddle, score for player 1 (right side)
 					score[p1.id]!++;
 					this.resetBall(1);
@@ -245,9 +245,9 @@ export class GameRoom {
 
 			// Check if ball crossed into paddle zone
 			if (ball.x + BALL_RADIUS >= paddleLeft && prevX + BALL_RADIUS < paddleLeft) {
-				console.log(`[RIGHT PADDLE] Ball crossed boundary. Ball Y: ${ball.y.toFixed(2)}, Paddle Y: ${padRight.toFixed(2)}-${(padRight + PADDLE_HEIGHT).toFixed(2)}`);
+				// console.log(`[RIGHT PADDLE] Ball crossed boundary. Ball Y: ${ball.y.toFixed(2)}, Paddle Y: ${padRight.toFixed(2)}-${(padRight + PADDLE_HEIGHT).toFixed(2)}`);
 				if (hit(padRight)) {
-					console.log(`✓ RIGHT PADDLE HIT!`);
+					// console.log(`✓ RIGHT PADDLE HIT!`);
 					// Hit the paddle - bounce back
 					ball.x = paddleLeft - BALL_RADIUS;
 					ball.vx *= -1;
@@ -255,7 +255,7 @@ export class GameRoom {
 					const hitPos = (ball.y - padRight) / PADDLE_HEIGHT; // 0 to 1
 					ball.vy = (hitPos - 0.5) * 1.5; // -0.75 to +0.75
 				} else {
-					console.log(`✗ RIGHT PADDLE MISSED! Score for ${p2.name}`);
+					// console.log(`✗ RIGHT PADDLE MISSED! Score for ${p2.name}`);
 					// Missed the paddle, score for player 2 (left side)
 					score[p2.id]!++;
 					this.resetBall(-1);

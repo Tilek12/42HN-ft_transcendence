@@ -1,9 +1,10 @@
-import { getUser } from '../utils/auth.js';
+import { apiFetch, getUser, validateLogin } from '../utils/auth.js';
 import { GameMode, PresenceUser, PresenceCallback, Tournament } from '../frontendTypes.js';
 import { renderProfile } from '../pages/profile.js';
 import { renderProfiles } from '../pages/renderProfiles.js';
 import { renderFriendRequestsList } from '../pages/renderFriendRequestList.js';
 import { renderFriendsList } from '../pages/renderFriends.js';
+import { showToast } from '../pages/listenerUpdatePasswordAndUsername.js';
 
 
 function setOnlineStatusOffline() {
@@ -50,7 +51,7 @@ class WebSocketManager {
 	// -------- GAME SOCKET -------- //
 	///////////////////////////////////
 
-	createGameSocket(mode: GameMode): WebSocket | null {
+	async createGameSocket(mode: GameMode): Promise< WebSocket | null> {
 		if (this.gameSocket && this.gameSocket.readyState === WebSocket.OPEN) {
 			console.warn('🕹️ [Game WS] Already connected');
 			return this.gameSocket;
@@ -61,7 +62,9 @@ class WebSocketManager {
 
 		let url = `/ws/game?mode=${mode}`;
 
-
+		const ret = await validateLogin();
+		if (!ret)
+			return null;
 		const socket = new WebSocket(url);
 		this.gameSocket = socket;
 
@@ -136,7 +139,7 @@ class WebSocketManager {
 
 		socket.onmessage = (e) => {
 			console.log(e)
-			if (e.data === 'ping'){
+			if (e.data === 'ping') {
 				socket.send('pong');
 			}
 			else {
@@ -149,8 +152,7 @@ class WebSocketManager {
 					} else if (msg.type === 'tournamentUpdate') {
 						this.activeTournaments = msg.tournaments;
 					}
-					else if (msg.type === 'renderUpdate')
-					{
+					else if (msg.type === 'renderUpdate') {
 						console.log('[ RENDERUPDATE ]')
 						renderProfiles();
 						renderFriendRequestsList();
@@ -169,7 +171,7 @@ class WebSocketManager {
 			this.presenceSocket = null;
 			this.disconnectGameSocket();
 			this.disconnectLocalTournamentSocket();
-			this.disconnectOnlineTournamentSocket();
+			// this.disconnectOnlineTournamentSocket();
 			if (e.code === 4003) return;
 
 			setOnlineStatusOffline();
@@ -229,11 +231,11 @@ class WebSocketManager {
 	// -------- LOCAL TOURNAMENT SOCKET -------- //
 	///////////////////////////////////////////////
 
-	connectLocalTournamentSocket(
+	async connectLocalTournamentSocket(
 		size: 4 | 8,
 		onMessage?: (msg: any) => void,
 		names?: string[]
-	): WebSocket | null {
+	): Promise<WebSocket | null> {
 		if (this.localTournamentSocket) this.disconnectLocalTournamentSocket();
 
 		const action = 'create';
@@ -242,6 +244,9 @@ class WebSocketManager {
 
 		let url = `/ws/local-tournament?action=${action}&size=${size}&names=${encodeURIComponent(JSON.stringify(names))}`;
 
+		const ret = await validateLogin();
+		if (!ret)
+			return null;
 		const socket = new WebSocket(url);
 		this.localTournamentSocket = socket;
 
@@ -251,13 +256,13 @@ class WebSocketManager {
 		}
 
 		socket.onmessage = (e) => {
-			if (e.data === 'ping'){
+			if (e.data === 'ping') {
 				socket.send('pong');
 			}
 			else {
 				try {
 					const msg = JSON.parse(e.data);
-					console.log('🎯 [LOCAL Tournament WS] Message:', msg);
+					// console.log('🎯 [LOCAL Tournament WS] Message:', msg);
 					onMessage?.(msg);
 				} catch {
 					console.warn('🎯 [LOCAL Tournament WS] Message:', e.data);
@@ -299,72 +304,75 @@ class WebSocketManager {
 	// -------- ONLINE TOURNAMENT SOCKET -------- //
 	////////////////////////////////////////////////
 
-	connectOnlineTournamentSocket(
-		action: 'join' | 'create',
-		size: 4 | 8,
-		id?: string,
-		onMessage?: (msg: any) => void,
-	): WebSocket | null {
-		if (this.onlineTournamentSocket) this.disconnectOnlineTournamentSocket();
+	// async connectOnlineTournamentSocket(
+	// 	action: 'join' | 'create',
+	// 	size: 4 | 8,
+	// 	id?: string,
+	// 	onMessage?: (msg: any) => void,
+	// ): Promise< WebSocket | null> {
+	// 	if (this.onlineTournamentSocket) this.disconnectOnlineTournamentSocket();
 
-		const user = getUser();
-		if (!user) return null;
+	// 	const user = getUser();
+	// 	if (!user) return null;
 
-		let url = `/ws/online-tournament?action=${action}&size=${size}`;
-		if (action === 'join' && id) url += `&id=${id}`;
+	// 	let url = `/ws/online-tournament?action=${action}&size=${size}`;
+	// 	if (action === 'join' && id) url += `&id=${id}`;
 
-		const socket = new WebSocket(url);
-		this.onlineTournamentSocket = socket;
+	// 	const ret = await validateLogin();
+	// 	if (!ret)
+	// 		return null;
+	// 	const socket = new WebSocket(url);
+	// 	this.onlineTournamentSocket = socket;
 
-		socket.onopen = () => {
-			console.log('🎯 [ONLINE Tournament WS] Connected:', url);
-			socket.send('pong');
-		}
+	// 	socket.onopen = () => {
+	// 		console.log('🎯 [ONLINE Tournament WS] Connected:', url);
+	// 		socket.send('pong');
+	// 	}
 
-		socket.onmessage = (e) => {
-			if (e.data === 'ping'){
-				socket.send('pong');
-			}
-			else {
-				try {
-					const msg = JSON.parse(e.data);
-					console.log('🎯 [ONLINE Tournament WS] Message:', msg);
-					onMessage?.(msg);
-				} catch {
-					console.warn('🎯 [ONLINE Tournament WS] Message:', e.data);
-				}
-			}
-		};
+	// 	socket.onmessage = (e) => {
+	// 		if (e.data === 'ping'){
+	// 			socket.send('pong');
+	// 		}
+	// 		else {
+	// 			try {
+	// 				const msg = JSON.parse(e.data);
+	// 				console.log('🎯 [ONLINE Tournament WS] Message:', msg);
+	// 				onMessage?.(msg);
+	// 			} catch {
+	// 				console.warn('🎯 [ONLINE Tournament WS] Message:', e.data);
+	// 			}
+	// 		}
+	// 	};
 
-		socket.onerror = (err) => {
-			console.error('🎯 [ONLINE Tournament WS] Error:', err);
-		};
+	// 	socket.onerror = (err) => {
+	// 		console.error('🎯 [ONLINE Tournament WS] Error:', err);
+	// 	};
 
-		socket.onclose = () => {
-			console.log('🎯 [ONLINE Tournament WS] Disconnected');
-			this.onlineTournamentSocket = null;
-		};
+	// 	socket.onclose = () => {
+	// 		console.log('🎯 [ONLINE Tournament WS] Disconnected');
+	// 		this.onlineTournamentSocket = null;
+	// 	};
 
-		return socket;
-	}
+	// 	return socket;
+	// }
 
-	disconnectOnlineTournamentSocket() {
-		if (this.onlineTournamentSocket) {
-			console.log('🎯 [ONLINE Tournament WS] Manually disconnecting');
-			try {
-				this.onlineTournamentSocket.send(JSON.stringify({ type: 'quitOnlineTournament' }));
-			} catch { }
-			this.onlineTournamentSocket.close();
-		}
-	}
+	// disconnectOnlineTournamentSocket() {
+	// 	if (this.onlineTournamentSocket) {
+	// 		console.log('🎯 [ONLINE Tournament WS] Manually disconnecting');
+	// 		try {
+	// 			this.onlineTournamentSocket.send(JSON.stringify({ type: 'quitOnlineTournament' }));
+	// 		} catch { }
+	// 		this.onlineTournamentSocket.close();
+	// 	}
+	// }
 
-	quitOnlineTournament() {
-		console.log("quitOnlineTournament", this.onlineTournamentSocket)
-		if (this.onlineTournamentSocket?.readyState === WebSocket.OPEN) {
-			this.onlineTournamentSocket.send(JSON.stringify({ type: 'quitOnlineTournament' }));
-			console.log('🎯 [ONLINE Tournament WS] Sending quitOnlineTournament');
-		}
-	}
+	// quitOnlineTournament() {
+	// 	console.log("quitOnlineTournament", this.onlineTournamentSocket)
+	// 	if (this.onlineTournamentSocket?.readyState === WebSocket.OPEN) {
+	// 		this.onlineTournamentSocket.send(JSON.stringify({ type: 'quitOnlineTournament' }));
+	// 		console.log('🎯 [ONLINE Tournament WS] Sending quitOnlineTournament');
+	// 	}
+	// }
 
 	/////////////////////////////////
 	// -------- ACCESSORS -------- //
@@ -382,9 +390,9 @@ class WebSocketManager {
 		return this.localTournamentSocket;
 	}
 
-	get onlineTournamentWS() {
-		return this.onlineTournamentSocket;
-	}
+	// get onlineTournamentWS() {
+	// 	return this.onlineTournamentSocket;
+	// }
 
 	get onlineUserCount() {
 		return this.activeUserCount;
@@ -406,7 +414,7 @@ class WebSocketManager {
 		this.disconnectPresenceSocket();
 		this.disconnectGameSocket();
 		this.disconnectLocalTournamentSocket();
-		this.disconnectOnlineTournamentSocket();
+		// this.disconnectOnlineTournamentSocket();
 	}
 }
 

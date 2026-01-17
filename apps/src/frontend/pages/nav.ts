@@ -171,7 +171,7 @@ export function renderNav() {
 								<span class="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-purple-500/10 to-pink-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></span>
 							</a>
 
-							<a id="nav_online_tournament" href="#/online-tournament" class="group relative px-6 py-3 text-white font-semibold transition-all duration-300 hover:text-purple-300">
+							<!-- id="nav_online_tournament" href="#/online-tournament" class="group relative px-6 py-3 text-white font-semibold transition-all duration-300 hover:text-purple-300">
 								<span class="relative z-10 flex items-center gap-2">
 									<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
@@ -179,7 +179,7 @@ export function renderNav() {
 								</span>
 								<span class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
 								<span class="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-purple-500/10 to-pink-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></span>
-							</a>
+							</a-->
 
 							<a id="nav_leaderboard" href="#/leaderboard" class="group relative px-6 py-3 text-white font-semibold transition-all duration-300 hover:text-purple-300">
 								<span class="relative z-10 flex items-center gap-2">
@@ -277,7 +277,7 @@ export function renderNav() {
 		console.log("language callback")
 		transelate_per_id(translations_nav, "game", lang, "nav_game");
 		transelate_per_id(translations_nav, "local_tournament", lang, "nav_local_tournament");
-		transelate_per_id(translations_nav, "online_tournament", lang, "nav_online_tournament");
+		// transelate_per_id(translations_nav, "online_tournament", lang, "nav_online_tournament");
 		transelate_per_id(translations_nav, "leaderboard", lang, "nav_leaderboard");
 		transelate_per_id(translations_nav, "profile", lang, "nav_profile");
 		transelate_per_id(translations_nav, "settings", lang, "nav_settings");
