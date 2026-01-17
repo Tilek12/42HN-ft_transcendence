@@ -22,21 +22,26 @@
 
 | Team Member | Role(s) | Responsibilities |
 |-------------|---------|------------------|
-| **Philipp Strohal** (pstrohal) | <!-- TODO: need to add role --> | <!-- TODO: Add responsibilities --> |
-| **Thomas Nakas** (tnakas) | <!-- TODO: need to add role --> | <!-- TODO: Add responsibilities --> |
-| **Rustamjon Yusupov** (ryusupov) | <!-- TODO: need to add role --> | <!-- TODO: Add responsibilities --> |
-| **Tilek Kubanychbekov** (tkubanyc) | <!-- TODO: need to add role --> | <!-- TODO: Add responsibilities --> |
-| **Linda Lacsivy** (llacsivy) | <!-- TODO: need to add role --> | <!-- TODO: Add responsibilities --> |
+| **Philipp Strohal** (pstrohal) | PM | Project planning and timeline management; coordination between stakeholders and team; sprint organization; risk management; ensuring delivery of milestones and documentation. |
+| **Thomas Nakas** (tnakas) | PO | Definition of product vision and requirements; backlog prioritization; acceptance criteria; validation of features; communication of business needs to development team. |
+| **Rustamjon Yusupov** (ryusupov) | Developer | Frontend UI/UX implementation; real-time game interface; authentication flows; state management; integration with backend services. |
+| **Tilek Kubanychbekov** (tkubanyc) | Developer | Backend and frontend feature development; WebSocket game logic; API integration; bug fixing; unit tests; collaboration on architecture decisions. |
+| **Linda Lacsivy** (llacsivy) | Tech Lead | Technical architecture design; code reviews; DevOps and deployment pipeline; security and performance; mentoring developers and enforcing best practices. |
 
 ## Project Management
 
 ### Team Organization
 
-- **Task Distribution**: <!-- TODO: Describe how tasks were distributed -->
-- **Communication Channels**: <!-- TODO: List channels used (Discord, Slack, etc.) -->
-- **Meeting Schedule**: <!-- TODO: Describe meeting frequency and format -->
+- **Task Distribution**: Tasks were divided based on expertise in frontend, backend, and DevOps. Core features were broken into user stories and technical tasks, assigned during sprint planning, with workload balanced to ensure parallel development of game logic, authentication, and UI.
+
+- **Communication Channels**: Discord for daily communication and quick support; GitHub for technical discussions and code reviews; in-person meetings at campus for architectural decisions.
+
+- **Meeting Schedule**: Weekly sprint planning and review meetings, with short daily stand-ups to track progress, blockers, and next steps; additional ad-hoc meetings for complex integration topics.
+
 - **Version Control**: Git with feature branch workflow and pull request reviews
-- **Project Management Tools**: <!-- TODO: List tools used (GitHub Issues, Trello, etc.) -->
+
+- **Project Management Tools**: GitHub Issues for task tracking, GitHub Projects for sprint board, and pull requests for code review and quality assurance.
+
 
 ### Development Workflow
 
@@ -225,7 +230,6 @@ User blocking functionality.
 | **Multi-language Support** | <!-- TODO: Add member --> | Interface translation (EN, DE, RU, FR), persistent language preference |
 | **Game Customization** | <!-- TODO: Add member --> | Customizable game settings (ball speed, paddle size, etc.) |
 | **Responsive Design** | <!-- TODO: Add member --> | Mobile-friendly UI, cross-browser compatibility, touch support |
-| **Admin Panel** | <!-- TODO: Add member --> | Admin user management, system monitoring, user role management |
 | **Profile Picture Upload** | <!-- TODO: Add member --> | Image upload with Sharp processing, size optimization, format validation |
 | **Settings Management** | <!-- TODO: Add member --> | Password change, username update, 2FA toggle, language preferences |
 | **API Documentation** | <!-- TODO: Add member --> | Swagger/OpenAPI documentation for all API endpoints |
@@ -292,7 +296,6 @@ This creates:
 - `cert/key.pem` - SSL private key
 - `cert/jwt_secret.txt` - JWT signing secret
 - `cert/cookie_secret.txt` - Cookie encryption secret
-- `cert/admin_password.txt` - Admin account password
 
 #### 4. Start the Application
 
@@ -357,20 +360,24 @@ The application will be available at:
 
 ## Module Implementation
 
-### Mandatory Modules (14 points total)
+### Mandatory Modules (18 points total)
 
-| Module | Type | Points | Status | Implementation |
-|--------|------|--------|--------|----------------|
-| Backend Framework | Major | 2 | ✅ | Fastify with TypeScript |
-| Frontend Framework | Minor | 1 | ✅ | Vite + TypeScript |
-| Database (ORM) | Minor | 1 | ✅ | SQLite3 with custom query layer |
-| Standard User Management | Major | 2 | ✅ | JWT + sessions + user profiles |
-| Remote Players | Major | 2 | ✅ | WebSocket real-time multiplayer |
-| 2FA & JWT | Major | 2 | ✅ | TOTP-based 2FA + JWT auth |
-| Server-side Pong + API | Major | 2 | ✅ | Fastify API + server game logic |
-| Multi-language Support | Minor | 1 | ✅ | EN, DE, RU, FR translations |
-| Game Customization | Minor | 1 | ✅ | Configurable game settings |
-| **Total** | | **14** | ✅ | |
+| Module | Type | Points | Description |
+|-------|------|--------|-------------|
+| Backend Framework | MINOR | 1 | Core backend built with Fastify/TypeScript architecture |
+| WebSocket Technology | MAJOR | 2 | Real-time communication layer for game and presence |
+| Notification System | MINOR | 1 | Toast-based in-app notifications for user feedback |
+| Multi-language Support | MINOR | 1 | Interface translations and language preference |
+| Additional Browser Support | MINOR | 1 | Cross-browser compatibility and polyfills |
+| Standard User Management & Auth | MAJOR | 2 | Registration, login, profiles, permissions |
+| Game Stats & Match History | MINOR | 1 | Persistent statistics and match records |
+| 2FA System | MINOR | 1 | TOTP-based two factor authentication |
+| Complete Web-based Game | MAJOR | 2 | Fully playable Pong in browser |
+| Remote Players | MAJOR | 2 | Online multiplayer with synchronization |
+| Tournament System | MINOR | 1 | Brackets and tournament management |
+| Single Page Application | MAJOR | 2 | SPA architecture without page reloads |
+| JWT Session Auth | MINOR | 1 | Token-based session handling |
+
 
 ### Architecture Highlights
 
@@ -400,9 +407,6 @@ The application will be available at:
 - [Secure Authentication Best Practices (OWASP)](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)
 - [Docker Best Practices](https://docs.docker.com/develop/dev-best-practices/)
 
-### AI Usage
-
-AI tools (GitHub Copilot, ChatGPT, Claude) were used throughout this project to assist with:
 
 #### Code Generation & Implementation
 - Boilerplate code for API routes and database queries
