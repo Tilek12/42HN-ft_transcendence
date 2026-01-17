@@ -9,7 +9,7 @@ import helmet from '@fastify/helmet'
 import dotenv from 'dotenv';
 
 import { connectToDB, db } from './database/client';
-import { logout_all_users } from './database/user'
+import { deleteUser, logout_all_users } from './database/user'
 import protected_validate_hook from './scopes/protected_scope';
 import authRoutes from './routes/auth/auth-routes';
 import tfa_Routes from './routes/auth/2fa-routes';
@@ -148,7 +148,6 @@ async function main() {
 			cacheControl: false,
 		});
 	}
-
 	// Public routes
 	await server.register(authRoutes, { prefix: '/api' });			// Public routes (login/register)
 

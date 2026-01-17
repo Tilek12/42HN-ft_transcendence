@@ -1,20 +1,14 @@
 import { renderMainPage } from './pages/main-page.js';
-// import { renderOnlineTournament } from './pages/tournament-online.js';
 import { renderLocalTournament } from './pages/tournament-local.js';
 import { renderGame } from './pages/game.js';
 import { renderProfile } from './pages/profile.js';
 import { renderLogin } from './pages/login.js';
 import { renderRegister } from './pages/register.js';
-// import { renderFriends } from './pages/friends.js';
-import { renderLeaderboard } from './pages/leaderboard.js';
 import { renderNotFound } from './pages/not-found.js';
 import { getUser, validateLogin } from './utils/auth.js';
 import { changeLoginButton, unhideNav } from './pages/nav.js';
 import { wsManager } from './websocket/ws-manager.js';
-import { renderQrcode } from './pages/2fa.js';
 import { renderSettings } from './pages/settings.js';
-// DESIGN change: Import global language selector initializer to enable floating language toggle on all pages
-import { initGlobalLanguageSelector } from './utils/globalLanguageSelector.js';
 import { renderMatchSummary } from './pages/renderMatchSummary.js';
 
 const protectedRoutes = ['#/profile', '#/game', '#/settings', '#/local-tournament', '#/settings', '#/leaderboard'];
@@ -23,7 +17,6 @@ export async function router()
 	const	root = document.getElementById('app')!;
 	let		route = location.hash || '#/';
 	const	isLoggedIn = getUser() !== null || await validateLogin();
-	// console.log("getUser() !== null:",getUser() !== null )
 	changeLoginButton(!isLoggedIn);
 	unhideNav();
 
@@ -32,7 +25,6 @@ export async function router()
 		wsManager.connectPresenceSocket();
 		wsManager.disconnectGameSocket();
 		wsManager.disconnectLocalTournamentSocket();
-
 	}
 
 	if (protectedRoutes.includes(route)) {

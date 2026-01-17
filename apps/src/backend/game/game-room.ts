@@ -115,7 +115,13 @@ export class GameRoom {
 
 			(player.socket as any).on('close', () => {
 				console.log('game room handler .onclose():', player.id);
+				
 				this.broadcast({ type: 'disconnect', who: player.id });
+				this.loser = player;
+				this.winner = this.players[0].id === player.id?this.players[1]:this.players[0];
+				// console.log("winner: ",this.winner.id);
+				// console.log("loser: ", this.loser.id);
+
 				this.end();
 			});
 		}
@@ -366,6 +372,9 @@ export class GameRoom {
 
 		if (this.onEnd && this.winner && this.loser) {
 			this.onEnd(this.winner, this.loser, this.winnerScore, this.loserScore);
+		}
+		else{
+			console.log(this.onEnd, this.winner, this.loser);
 		}
 	}
 

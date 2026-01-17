@@ -5,6 +5,7 @@ import { renderBackgroundFull } from "../utils/layout.js";
 import { renderConnectionErrorPage } from "./error.js";
 import { languageStore, transelate_per_id } from "./languages.js";
 import { translations_dashboards } from "./languages_i18n.js";
+import { showToast } from "./listenerUpdatePasswordAndUsername.js";
 
 
 
@@ -73,10 +74,11 @@ export async function renderMatchSummary(root: HTMLElement) {
 		})
 		const data = await res.json();
 		if (!res.ok) {
-			alert(data.message)
+			// alert(data.message)
+			return;
 		}
 		if (!data.summary) {
-			alert(`no summary`)
+			// alert(`no summary`)
 			return;
 		}
 		const summary = data.summary as fMatchForSummary[];
@@ -89,7 +91,7 @@ export async function renderMatchSummary(root: HTMLElement) {
 		});
 		const data_chart = await res_chart.json();
 		if (!res_chart.ok) {
-			alert(data_chart.message)
+			showToast(data_chart.message, 'error')
 		}
 		// total-games-chart
 		console.log(`data: ${data_chart.profiles}`);
@@ -99,7 +101,7 @@ export async function renderMatchSummary(root: HTMLElement) {
 		chart_profiles.forEach(pr => console.log(`${pr.username}`));
 		const wins_rate_array: { name: string; win_rate: number }[] = [];
 		if (!chart_profiles) {
-			alert(`no chart_profiles`)
+			console.log(`no chart_profiles`, )
 			return;
 		}
 		chart_profiles.forEach((row: any, i: number) => {
@@ -525,7 +527,7 @@ export async function renderMatchSummary(root: HTMLElement) {
 		initGlobalLanguageSelector();
 
 	} catch (e: any) {
-		alert(e.message);
+		showToast(e.message, 'error');
 		renderConnectionErrorPage();
 	};
 

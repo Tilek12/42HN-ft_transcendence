@@ -277,12 +277,11 @@ export async function renderLocalTournament(root: HTMLElement) {
         });
 
         if (hasEmpty) {
-            alert('All player names must be filled.');
+            showToast('All player names must be filled.', 'error');
             return;
         }
         if (names.length !== size) {
             console.error('Name count does not match size', { size, namesCount: names.length });
-            alert('Internal error: player count mismatch.');
             return;
         }
 // Needs to be checked
@@ -760,18 +759,18 @@ export async function renderLocalTournament(root: HTMLElement) {
 
         // Right paddle controlled by Arrow Up/Down keys
         if (keys['ArrowUp']) {
-            socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'right' }));
+            socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'left' }));
         }
         if (keys['ArrowDown']) {
-            socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'right' }));
+            socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'left' }));
         }
 
         // Left paddle controlled by W/S keys
         if (keys['w'] || keys['W']) {
-            socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'left' }));
+            socket.send(JSON.stringify({ type: 'move', direction: 'up', side: 'right' }));
         }
         if (keys['s'] || keys['S']) {
-            socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'left' }));
+            socket.send(JSON.stringify({ type: 'move', direction: 'down', side: 'right' }));
         }
     }
     setInterval(sendMoveIntervalBased, 50);

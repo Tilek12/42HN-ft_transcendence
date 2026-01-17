@@ -1,6 +1,6 @@
-import { apiFetch, getUser } from '../utils/auth.js'
+import { apiFetch, getUser, isValidPassword } from '../utils/auth.js'
 import { languageStore } from './languages.js';
-import { translations_register_page, translations_settings } from './languages_i18n.js';
+import { translations_errors, translations_register_page, translations_settings } from './languages_i18n.js';
 
 // DESIGN CHANGE: Added modern toast notification system with animations and gradient backgrounds
 // Replaces basic alert() messages with sleek notifications
@@ -81,6 +81,11 @@ const listenerPasswordUpdate = async (
 		showToast(translations_settings[languageStore.language].toast_failure_pw_same!, 'error');
 		return;
 	}
+	if (!isValidPassword(new_value) || !isValidPassword(old_value))
+	{
+		showToast(translations_errors[languageStore.language].error_invalid_password!, 'error');
+		return;
+	}
 	let res = await apiFetch('/api/private/update-password',
 		{
 			method: 'POST',
@@ -151,8 +156,8 @@ const listenerUsernameUpdate = async (
 	// console.log(`====> username_par_el: $$${username_par_el.innerText}$$$`);
 
 	// DESIGN CHANGE: Added regex validation with clear error message via toast
-	if (!/^[a-zA-Z0-9]+$/.test(new_username)) {
-		showToast(translations_settings[languageStore.language].toast_failure_username_update_for_letters_numbers!, 'error');
+	if (!/^[a-zA-Z0-9].{3,30}$/.test(new_username)) {
+		showToast(translations_errors[languageStore.language].error_username_min_len!, 'error');
 		return;
 	}
 	try {

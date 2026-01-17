@@ -1,11 +1,12 @@
 import { renderNav, changeLoginButton, hideNav } from './nav.js'
 import { renderBackgroundFull } from '../utils/layout.js';
-import { getUser } from '../utils/auth.js';
+import { getUser, isValidPassword, isValidToken, isValidUsername } from '../utils/auth.js';
 import { wsManager } from '../websocket/ws-manager.js';
 import { languageStore, transelate_per_id } from './languages.js';
 import { translations_login_page, translations_errors, translations_nav, translations_register_page } from './languages_i18n.js';
 import type { Language } from '../frontendTypes.js';
 import { initGlobalLanguageSelector } from '../utils/globalLanguageSelector.js';
+import { showToast } from './listenerUpdatePasswordAndUsername.js';
 
 
 // DESIGN change: Unified login/register page with tab switching instead of separate pages
@@ -147,7 +148,7 @@ export function renderLogin(root: HTMLElement) {
                       id="reg-username" 
                       placeholder="${register_translation.username_placeholder}"
                       class="relative w-full bg-white/5 border border-white/10 text-white placeholder-gray-500 px-5 py-4 rounded-xl focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all duration-300"
-                      required 
+                      required
                     />
                   </div>
                 </div>
@@ -164,7 +165,7 @@ export function renderLogin(root: HTMLElement) {
                       id="reg-password" 
                       placeholder="${register_translation.password_placeholder}"
                       class="relative w-full bg-white/5 border border-white/10 text-white placeholder-gray-500 px-5 py-4 rounded-xl focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all duration-300"
-                      required 
+					  required 
                     />
                   </div>
                 </div>
@@ -315,7 +316,7 @@ export function renderLogin(root: HTMLElement) {
 				loginFormContainer.style.transform = 'translateX(0)';
 			}, 50);
 		}, 300);
-		
+
 	};
 
 	const switchToRegister = () => {
@@ -433,7 +434,15 @@ export function renderLogin(root: HTMLElement) {
 		submitBtn.disabled = true;
 
 		const username = (document.getElementById('username') as HTMLInputElement).value;
+		if (!isValidUsername(username)) {
+			showToast(error_trans.error_username_min_len!, 'error');
+			return renderLogin(root);
+		}
 		const password = (document.getElementById('password') as HTMLInputElement).value;
+		if (!isValidPassword(password)) {
+			showToast(error_trans.error_invalid_password!, 'error');
+			return renderLogin(root);
+		}
 		try {
 			const res = await fetch('/api/login', {
 				method: 'POST',
@@ -444,17 +453,7 @@ export function renderLogin(root: HTMLElement) {
 
 			const response_data = await res.json();
 			if (!res.ok) {
-				let error_message = response_data.message;
-				switch (error_message) {
-					case 'INVALID_PASSWORD': error_message = error_trans.error_invalid_password; break;
-					default: 'Login failed';
-				}
-				errorText.textContent = error_message;
-				errorContainer.classList.remove('hidden');
-
-				setTimeout(() => {
-					errorContainer.classList.add('hidden');
-				}, 2000);
+				throw new Error(response_data.message);
 			} else {
 				if (response_data.tfa) {
 					if (!response_data.verifyjwt)
@@ -466,11 +465,13 @@ export function renderLogin(root: HTMLElement) {
 					tfa_container.classList.remove('hidden');
 					const tokeninput = document.getElementById('2fa_token');
 					if (tokeninput)
-						(tokeninput as HTMLInputElement).addEventListener('input',()=>{(tokeninput as HTMLInputElement).value =  (tokeninput as HTMLInputElement).value.replace(/\D/g, '')})
-					
+						(tokeninput as HTMLInputElement).addEventListener('input', () => { (tokeninput as HTMLInputElement).value = (tokeninput as HTMLInputElement).value.replace(/\D/g, '') })
 					tfa_container.addEventListener('submit', async (e) => {
 						e.preventDefault();
 						const tfa_token = (document.getElementById('2fa_token') as HTMLInputElement).value;
+						if (!isValidToken(tfa_token)) {
+							throw new Error(error_trans.error_2fa_verify!);
+						}
 						const button = document.getElementById('token_submit') as HTMLButtonElement;
 						const res = await fetch('/2fa/verify', {
 							method: 'POST',
@@ -482,23 +483,7 @@ export function renderLogin(root: HTMLElement) {
 						});
 						const res2faverify = await res.json();
 						if (!res.ok) {
-							let error_message = res2faverify.message;
-							switch (res2faverify.message) {
-								case "INVALID_USER": error_message = error_trans.error_invalid_user; break;
-								case "INVALID_NO_TOKEN": error_message = error_trans.error_no_token; break;
-								case "INVALID_USER_LOGGED_IN": error_message = error_trans.error_logged_in; break;
-								case "INVALID_TOKEN": error_message = error_trans.error_invalid_token; break;
-								default: error_message = error_message; break;
-							}
-							errorText.textContent = error_message;
-							errorContainer.classList.remove('hidden');
-
-							setTimeout(() => {
-								errorContainer.classList.add('hidden');
-								renderLogin(root);
-							}, 3000);
-							return;
-
+							throw new Error(res2faverify.message);
 						} else {
 							button.innerHTML = /*html*/
 								`<div class="flex items-center justify-center space-x-2">
@@ -531,15 +516,27 @@ export function renderLogin(root: HTMLElement) {
 					changeLoginButton(false);
 				}
 			}
-		} catch (error) {
-			errorText.textContent = error as any;
+		} catch (error: any) {
+			let error_message = error.message;
+			switch (error_message) {
+				case "INVALID_USER": error_message = error_trans.error_invalid_user; break;
+				case "INVALID_NO_TOKEN": error_message = error_trans.error_no_token; break;
+				case "INVALID_USER_LOGGED_IN": error_message = error_trans.error_logged_in; break;
+				case "INVALID_TOKEN": error_message = error_trans.error_invalid_token; break;
+				case "User already logged in": error_message = error_trans.error_logged_in; break;
+				case "body/username must NOT have fewer than 3 characters": error_message = error_trans.error_username_min_len; break;
+				default: error_message = error_trans.error_default; break;
+			}
+			errorText.textContent = error_message;
 			errorContainer.classList.remove('hidden');
 		} finally {
-			
+
 			setTimeout(() => {
 				submitBtn.innerHTML = originalText;
 				submitBtn.disabled = false;
+				errorContainer.classList.add("hidden");
 			}, 2000);
+			
 		}
 	});
 
@@ -562,7 +559,15 @@ export function renderLogin(root: HTMLElement) {
 		submitBtn.disabled = true;
 
 		const username = (document.getElementById('reg-username') as HTMLInputElement).value;
+		if (!isValidUsername(username)) {
+			showToast(error_trans.error_username_min_len!, 'error');
+			return renderLogin(root);
+		}
 		const password = (document.getElementById('reg-password') as HTMLInputElement).value;
+		if (!isValidPassword(password)) {
+			showToast(error_trans.error_invalid_password!, 'error');
+			return renderLogin(root);
+		}
 		const tfa: boolean = (document.getElementById('2fa_checkbox') as HTMLInputElement).checked;
 		try {
 			const res = await fetch('/api/register', {
@@ -617,6 +622,10 @@ export function renderLogin(root: HTMLElement) {
 					tfa_container.addEventListener('submit', async (e) => {
 						e.preventDefault();
 						const tfa_token = (document.getElementById('2fa_token') as HTMLInputElement).value;
+						if (!isValidToken(tfa_token)) {
+							throw new Error(error_trans.error_2fa_verify);
+							return;
+						}
 						const res = await fetch('/2fa/verify', {
 							method: 'POST',
 							headers: {

@@ -8,7 +8,7 @@ renderNav();
 initNav();
 languageStore.initLang();
 
-//get Language ftom localStoage if website has been visited before ele put default english
+//get Language ftom localStoage if website has been visited before else put default english
 let lang = localStorage.getItem('PongLanguage') as Language;
 if (!lang)
 {

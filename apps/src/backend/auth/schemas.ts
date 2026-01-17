@@ -42,7 +42,7 @@ const UsernameSchema = {
 
 const PasswordSchema = {
 	type: 'string',
-	pattern: '^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).*$',
+	pattern: '^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-])[A-Za-z0-9#?!@$%^&*-]{8,64}$',
 	minLength: 8,
 	maxLength: 64,
 } as const;
@@ -52,6 +52,7 @@ const TFA_token_schema = {
 	type: 'string',
 	minLength: 6,
 	maxLength: 6,
+	pattern: '^\\d{6}$',
 } as const;
 // export type StringSchema = FromSchema<typeof StringSchema>;
 

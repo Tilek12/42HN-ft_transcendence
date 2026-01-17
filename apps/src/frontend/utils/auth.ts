@@ -106,3 +106,27 @@ export async function apiFetch(url: RequestInfo, options: RequestInit): Promise<
 
 
 }
+
+
+export function isValidUsername(username:string)
+{
+	const regex: RegExp = /[a-zA-Z0-9].{3,30}$/;
+	if (regex.test(username))
+		return true;
+	return false;
+}
+
+export function isValidPassword(password:string)
+{
+	const regex: RegExp = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-])[A-Za-z0-9#?!@$%^&*-]{8,64}$/;
+	if (regex.test(password))
+		return true;
+	return false;
+}
+export function isValidToken(token:string)
+{
+	const regex: RegExp = /^\d{6}$/;
+	if (regex.test(token))
+		return true;
+	return false;
+}

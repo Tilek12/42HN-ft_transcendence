@@ -161,9 +161,11 @@ export async function renderGame(root: HTMLElement) {
       <!-- Info Text -->
       <div class="text-center">
         <p id="info" class="text-gray-300 text-base md:text-lg px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 inline-block animate-[fadeIn_1s_ease-in_0.5s] animate-fill-both">
-          ${tr!.info}
+			${tr?.info}
         </p>
-      </div>
+		</div>
+		<button id = "quit_button" class=" hidden mt-8 p-2 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold rounded-xl shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all duration-300 transform hover:scale-105 hover:-translate-y-0.5">${translations_game[languageStore.language].quit_button}
+		</button>
     </div>
 
     <style>
@@ -231,10 +233,11 @@ export async function renderGame(root: HTMLElement) {
 		transelate_per_id(translations_game,solo_or_local_mod === 1 ? "solo_mode" : "online_mode", lang, "info");
 		// console.log(`text: ${solo_or_local_mod === 1 ? translations_game[languageStore.language].solo_mode : translations_game[languageStore.language].online_mode}`)
 		// console.log(`gl_variable= ${solo_or_local_mod}`)
-		
+
 		transelate_per_id(translations_game, "vs", lang, "vs_translation");
 		transelate_per_id(translations_game, "game_over", lang, "game_over_translation");
 		transelate_per_id(translations_game, "continue", lang, "close-game-over");
+		transelate_per_id(translations_game, "quit_button", lang, "quit_button");
 		// transelate_per_id(translations_game_render, solo_or_local_mod === 1 ? "solo_mode" : "online_mode", lang, "info");
 
 	})
@@ -242,6 +245,7 @@ export async function renderGame(root: HTMLElement) {
 	const canvas = document.getElementById('pong') as HTMLCanvasElement;
 	const ctx = canvas.getContext('2d')!;
 	const info = document.getElementById('info')!;
+	const quit_button = document.getElementById('quit_button')!;
 	const countdown = document.getElementById('countdown')!;
 	const width = canvas.width;
 	const height = canvas.height;
@@ -286,8 +290,16 @@ export async function renderGame(root: HTMLElement) {
 		heldKeys[e.key] = false;
 	};
 
-	document.getElementById('play-alone')?.addEventListener('click', async() => startGame('solo'));
-	document.getElementById('play-online')?.addEventListener('click', async() => startGame('duel'));
+	document.getElementById('play-alone')?.addEventListener('click', async () => {
+		quit_button?.classList.remove('hidden');
+		quit_button?.addEventListener('click', async () => { wsManager.disconnectGameSocket(); document.getElementById('navbar')?.classList.remove("hidden"); renderGame(root) });
+		startGame('solo');
+	});
+	document.getElementById('play-online')?.addEventListener('click', async () => {
+		quit_button?.classList.remove('hidden');
+		quit_button?.addEventListener('click', async () => { wsManager.disconnectGameSocket(); document.getElementById('navbar')?.classList.remove("hidden"); renderGame(root) });
+		startGame('duel');
+	});
 	document.getElementById('play-local-tournament')?.addEventListener('click', () => {
 		location.hash = '#/local-tournament';
 	});
@@ -297,22 +309,26 @@ export async function renderGame(root: HTMLElement) {
 
 	// Game Over modal close handler
 	document.getElementById('close-game-over')!.addEventListener('click', () => {
-		const modal = document.getElementById('game-over-modal')!;
-		modal.classList.add('hidden');
-
-		// Show navbar, header and buttons again
+		// const modal = document.getElementById('game-over-modal')!;
+		// modal.classList.add('hidden');
+		// const text = document.getElementById('game_over_translation')
+		// if (text)
+		// 	text.innerHTML = translations_game[languageStore.language].game_over!;
+		// // Show navbar, header and buttons again
 		const navbar = document.getElementById('navbar');
-		const gameHeader = document.getElementById('game-header');
-		const gameButtons = document.getElementById('game-buttons');
+		// const gameHeader = document.getElementById('game-header');
+		// const gameButtons = document.getElementById('game-buttons');
 
 		if (navbar) navbar.classList.remove('hidden');
-		if (gameHeader) gameHeader.classList.remove('hidden');
-		if (gameButtons) gameButtons.classList.remove('hidden');
-
-		// Hide game elements
-		canvas.classList.add('hidden');
-		countdown.classList.add('hidden');
-		document.getElementById('score-display')?.classList.add('hidden');
+		// if (gameHeader) gameHeader.classList.remove('hidden');
+		// if (gameButtons) gameButtons.classList.remove('hidden');
+		// quit_button?.classList.add('hidden');
+		
+		// // Hide game elements
+		// canvas.classList.add('hidden');
+		// countdown.classList.add('hidden');
+		// document.getElementById('score-display')?.classList.add('hidden');
+		renderGame(root);
 	});
 
 	async function startGame(mode: 'solo' | 'duel') {
@@ -361,53 +377,53 @@ export async function renderGame(root: HTMLElement) {
 				case 'start':
 					// console.log('Game started! Good luck!');
 					break;
-			// DESIGN CHANGE: Added animated countdown with fade in/out and scale effects
-			case 'countdown':
-				if (msg.value > 0) {
-					countdown.classList.remove('hidden');
-					const countdownNumber = document.getElementById('countdown-number')!;
+				// DESIGN CHANGE: Added animated countdown with fade in/out and scale effects
+				case 'countdown':
+					if (msg.value > 0) {
+						countdown.classList.remove('hidden');
+						const countdownNumber = document.getElementById('countdown-number')!;
 
-					// Hide navbar, header, and buttons when countdown starts
-					const navbar = document.getElementById('navbar');
-					const gameHeader = document.getElementById('game-header');
-					const gameButtons = document.getElementById('game-buttons');
-					if (navbar) navbar.classList.add('hidden');
-					if (gameHeader) gameHeader.classList.add('hidden');
-					if (gameButtons) gameButtons.classList.add('hidden');
+						// Hide navbar, header, and buttons when countdown starts
+						const navbar = document.getElementById('navbar');
+						const gameHeader = document.getElementById('game-header');
+						const gameButtons = document.getElementById('game-buttons');
+						if (navbar) navbar.classList.add('hidden');
+						if (gameHeader) gameHeader.classList.add('hidden');
+						if (gameButtons) gameButtons.classList.add('hidden');
 
-					// Update number
-					countdownNumber.textContent = msg.value.toString();
+						// Update number
+						countdownNumber.textContent = msg.value.toString();
 
-					// Reset and trigger animation
-					countdownNumber.style.opacity = '0';
-					countdownNumber.style.transform = 'scale(0.5)';
-
-					// Fade in and scale up
-					setTimeout(() => {
-						countdownNumber.style.opacity = '1';
-						countdownNumber.style.transform = 'scale(1)';
-					}, 10);
-
-					// Fade out and scale up before next number
-					setTimeout(() => {
+						// Reset and trigger animation
 						countdownNumber.style.opacity = '0';
-						countdownNumber.style.transform = 'scale(1.3)';
-					}, 700);
-				} else if (msg.value === 0) {
-					countdown.classList.add('hidden');
-					canvas.classList.remove('hidden');
-					document.getElementById('score-display')?.classList.remove('hidden');
+						countdownNumber.style.transform = 'scale(0.5)';
 
-					// Keep navbar, header and buttons hidden during gameplay
-					const navbar = document.getElementById('navbar');
-					const gameHeader = document.getElementById('game-header');
-					const gameButtons = document.getElementById('game-buttons');
+						// Fade in and scale up
+						setTimeout(() => {
+							countdownNumber.style.opacity = '1';
+							countdownNumber.style.transform = 'scale(1)';
+						}, 10);
 
-					if (navbar) navbar.classList.add('hidden');
-					if (gameHeader) gameHeader.classList.add('hidden');
-					if (gameButtons) gameButtons.classList.add('hidden');
-				}
-				break;
+						// Fade out and scale up before next number
+						setTimeout(() => {
+							countdownNumber.style.opacity = '0';
+							countdownNumber.style.transform = 'scale(1.3)';
+						}, 700);
+					} else if (msg.value === 0) {
+						countdown.classList.add('hidden');
+						canvas.classList.remove('hidden');
+						document.getElementById('score-display')?.classList.remove('hidden');
+
+						// Keep navbar, header and buttons hidden during gameplay
+						const navbar = document.getElementById('navbar');
+						const gameHeader = document.getElementById('game-header');
+						const gameButtons = document.getElementById('game-buttons');
+
+						if (navbar) navbar.classList.add('hidden');
+						if (gameHeader) gameHeader.classList.add('hidden');
+						if (gameButtons) gameButtons.classList.add('hidden');
+					}
+					break;
 				case 'update':
 					gameState = msg.state;
 					if (msg.state?.playerNames) {
@@ -418,7 +434,7 @@ export async function renderGame(root: HTMLElement) {
 					// Show Game Over modal
 					const modal = document.getElementById('game-over-modal')!;
 					modal.classList.remove('hidden');
-
+					navigator
 					// Cleanup
 					wsManager.disconnectGameSocket();
 					cleanupListeners();
@@ -427,9 +443,14 @@ export async function renderGame(root: HTMLElement) {
 					break;
 				}
 				case 'disconnect':
-					// alert(`❌ Opponent disconnected`);
-					wsManager.disconnectGameSocket();
-					cleanupListeners();
+					//(`❌ Opponent disconnected`);
+					// wsManager.disconnectGameSocket();
+					// cleanupListeners();
+					const modal = document.getElementById('game-over-modal')!;
+					// modal.innerText += 'Opponent disconnected, you won';
+					modal.classList.remove('hidden');
+					const endtext = document.getElementById('game_over_translation');
+					if (endtext) endtext.innerHTML = translations_game[languageStore.language].disconnect!;
 					break;
 
 				default:
@@ -586,11 +607,11 @@ export async function renderGame(root: HTMLElement) {
 
 				// Subtle glow
 				const paddleGlow = ctx.createRadialGradient(
-					paddleX + paddleWidth/2,
-					paddleY + paddleHeight/2,
+					paddleX + paddleWidth / 2,
+					paddleY + paddleHeight / 2,
 					0,
-					paddleX + paddleWidth/2,
-					paddleY + paddleHeight/2,
+					paddleX + paddleWidth / 2,
+					paddleY + paddleHeight / 2,
 					paddleHeight * 0.7
 				);
 				paddleGlow.addColorStop(0, paddleColor + '60');
@@ -606,7 +627,7 @@ export async function renderGame(root: HTMLElement) {
 				ctx.fill();
 
 				// Subtle highlight on top edge
-				const topHighlight = ctx.createLinearGradient(paddleX, paddleY, paddleX, paddleY + paddleHeight/4);
+				const topHighlight = ctx.createLinearGradient(paddleX, paddleY, paddleX, paddleY + paddleHeight / 4);
 				topHighlight.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
 				topHighlight.addColorStop(1, 'rgba(255, 255, 255, 0)');
 				ctx.fillStyle = topHighlight;
@@ -614,30 +635,30 @@ export async function renderGame(root: HTMLElement) {
 				ctx.roundRect(paddleX + 2, paddleY + 2, paddleWidth - 4, paddleHeight / 4, cornerRadius);
 				ctx.fill();
 
-			ctx.restore();
-		});
+				ctx.restore();
+			});
 
-		// ========== UPDATE HTML SCORE DISPLAYS ==========
-		const playerIds = Object.keys(gameState.score);
-		if (playerIds.length >= 2) {
-			const player1Id = playerIds[0]!;
-			const player2Id = playerIds[1]!;
-			const player1Name = playerNames[player1Id] || player1Id;
-			const player2Name = playerNames[player2Id] || player2Id;
-			const player1Score = gameState.score[player1Id] || 0;
-			const player2Score = gameState.score[player2Id] || 0;
+			// ========== UPDATE HTML SCORE DISPLAYS ==========
+			const playerIds = Object.keys(gameState.score);
+			if (playerIds.length >= 2) {
+				const player1Id = playerIds[0]!;
+				const player2Id = playerIds[1]!;
+				const player1Name = playerNames[player1Id] || player1Id;
+				const player2Name = playerNames[player2Id] || player2Id;
+				const player1Score = gameState.score[player1Id] || 0;
+				const player2Score = gameState.score[player2Id] || 0;
 
-			const p1NameEl = document.getElementById('game-player1-name');
-			const p2NameEl = document.getElementById('game-player2-name');
-			const p1ScoreEl = document.getElementById('game-player1-score');
-			const p2ScoreEl = document.getElementById('game-player2-score');
+				const p1NameEl = document.getElementById('game-player1-name');
+				const p2NameEl = document.getElementById('game-player2-name');
+				const p1ScoreEl = document.getElementById('game-player1-score');
+				const p2ScoreEl = document.getElementById('game-player2-score');
 
-			if (p1NameEl) p1NameEl.textContent = player1Name;
-			if (p2NameEl) p2NameEl.textContent = player2Name;
-			if (p1ScoreEl) p1ScoreEl.textContent = player1Score.toString();
-			if (p2ScoreEl) p2ScoreEl.textContent = player2Score.toString();
-		}
-		}		requestAnimationFrame(draw);
+				if (p1NameEl) p1NameEl.textContent = player1Name;
+				if (p2NameEl) p2NameEl.textContent = player2Name;
+				if (p1ScoreEl) p1ScoreEl.textContent = player1Score.toString();
+				if (p2ScoreEl) p2ScoreEl.textContent = player2Score.toString();
+			}
+		} requestAnimationFrame(draw);
 	}
 
 	draw();

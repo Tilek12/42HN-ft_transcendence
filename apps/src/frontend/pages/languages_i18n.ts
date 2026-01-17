@@ -426,6 +426,8 @@ export const translations_game: TranslationSet = {
 		game_over: "GAME OVER",
 		solo_mode: 'Solo mode: Use W/S for left paddle, ↑/↓ for right paddle',
 		online_mode: 'Online mode: Use ↑/↓ arrows. Waiting for opponent...',
+		quit_button: "Quit",
+		disconnect: "Opponent Disconnected, You win!",
 	},
 	DE: {
 		vs: "GEGEN",
@@ -433,6 +435,8 @@ export const translations_game: TranslationSet = {
 		game_over: 'SPIEL ENDE',
 		solo_mode: 'Solo-Modus: Verwende W/S für den linken Schläger und ↑/↓ für den rechten Schläger',
 		online_mode: 'Online-Modus: Verwende die Pfeiltasten ↑/↓. Warte auf einen Gegner...',
+		quit_button: "Beenden",
+		disconnect: "Gegner hat abgebrochen, Du gewinnst!",
 
 	},
 	GR: {
@@ -441,7 +445,8 @@ export const translations_game: TranslationSet = {
 		game_over: 'ΤΕΛΟΣ ΠΑΙΧΝΙΔΙΟΥ',
 		solo_mode: 'Σόλο λειτουργία: Χρησιμοποιήστε W/S για την αριστερή ρακέτα, ↑/↓ για τη δεξιά ρακέτα',
 		online_mode: 'Διαδικτυακή λειτουργία: Χρησιμοποιήστε τα βελάκια ↑/↓. Αναμονή για αντίπαλο...',
-
+		quit_button: "Έξοδος",
+		disconnect: "Ο αντίπαλος αποσυνδέθηκε, Νικήσατε!",
 	},
 };
 
@@ -594,46 +599,49 @@ export const translations_leaderboards: TranslationSet = {
 
 export const translations_errors: TranslationSet = {
 	EN: {
-		error_invalid_password: 'The Password must be 8-64 characters, contain at least one uppercase, one lowercase, one number and one special charracter',
-		error_invalid_email: 'Invalid Email',
+		error_invalid_password: 'The Password must be 8-64 characters, contain at least one uppercase, one lowercase, one number and one special character (#?!@$%^&*-)',
 		error_invalid_user: 'User doesnt exist',
 		error_no_token: 'No 2fa token submitted',
 		error_logged_in: 'Already logged in',
 		error_invalid_token: 'Invalid 2fa code supplied',
 		error_username_taken: 'This username has already been taken',
-		error_username_min_len: 'Username has to be at least 3 characters long',
+		error_username_min_len: 'Username has to be at least 3 characters long and contain only letters and numbers',
 		error_internal: 'Internal server error',
 		error_2fa_enable: 'Enabling 2FA went wrong',
 		error_2fa_verify: 'Wrong 2fa Code',
 		error_default: "Error",
+		error_invalid_picture_type: "Please select a png or jpeg or jpg.",
+		error_no_picture: "Please select an image.",
 	},
 	DE: {
-		error_invalid_password: 'Password muss 8-64 Zeichen und mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und einen Spezialzeichen enthalten',
-		error_invalid_email: 'Email nicht korrekt',
+		error_invalid_password: 'Password muss 8-64 Zeichen und mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und einen Spezialzeichen enthalten (#?!@$%^&*-)',
 		error_invalid_user: 'Benutzer existiert nicht',
 		error_no_token: 'Kein 2fa code gesendet',
 		error_logged_in: 'Bereits eingeloggt',
 		error_invalid_token: 'Ungültiger 2fa code',
 		error_username_taken: 'Dieser Username wird bereits benutzt',
-		error_username_min_len: 'Username muss mind. 3 Buchstaben enthalten',
+		error_username_min_len: 'Username muss mind. 3 Buchstaben enthalten und darf nur aus Buchstaben und Zahlen bestehen',
 		error_internal: 'Interner Server Fehler',
 		error_2fa_enable: 'Fehler beim 2Fa erstellen',
 		error_2fa_verify: 'Falscher 2FA Code',
 		error_default: "Fehler",
+		error_invalid_picture_type: "Bild darf nur .png .jpeg oder .jpg sein!",
+		error_no_picture: "Bitte Bild auswählen.",
 	},
 	GR: {
-		error_invalid_password: 'Ο κωδικός πρέπει να έχει 8–64 χαρακτήρες, με τουλάχιστον ένα κεφαλαίο, ένα πεζό, έναν αριθμό και έναν ειδικό χαρακτήρα.',
-		error_invalid_email: 'μη έγκυρο emailQ',
+		error_invalid_password: 'Ο κωδικός πρέπει να έχει 8–64 χαρακτήρες, με τουλάχιστον ένα κεφαλαίο, ένα πεζό, έναν αριθμό και έναν ειδικό χαρακτήρα. (#?!@$%^&*-)',
 		error_invalid_user: 'Ο χρήστης δεν υπάρχει',
 		error_no_token: 'Δεν υποβλήθηκε κωδικός 2FA',
 		error_logged_in: 'Έχετε ήδη συνδεθεί',
 		error_invalid_token: 'Ο κωδικός 2FA που δόθηκε δεν είναι έγκυρος',
 		error_username_taken: 'Αυτό το όνομα χρήστη χρησιμοποιείται ήδη.',
-		error_username_min_len: 'Το όνομα χρήστη πρέπει να έχει τουλάχιστον 3 χαρακτήρες.',
+		error_username_min_len: 'Το όνομα χρήστη πρέπει να αποτελείται από τουλάχιστον 3 χαρακτήρες και να περιέχει μόνο γράμματα και αριθμούς.',
 		error_internal: 'Εσωτερικό σφάλμα διακομιστή',
 		error_2fa_enable: 'Η ενεργοποίηση του 2FA απέτυχε',
 		error_2fa_verify: 'Λάθος κωδικός 2FA',
 		error_default: "Σφάλμα",
+		error_invalid_picture_type: "Παρακαλώ επιλέξτε αρχείο μορφής png, jpeg ή jpg.",
+		error_no_picture: "Παρακαλώ επιλέξτε μια εικόνα."
 	},
 };
 

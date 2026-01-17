@@ -39,11 +39,11 @@ export const listenerUploadPicture = async (root:HTMLElement, e: any) => {
 	try {
 		const fileInput: any = document.getElementById('profile-pic-input');
 		let file = fileInput?.files[0];
-		if (!file) return alert('Please select an image. ');
+		if (!file) return showToast(translations_errors[languageStore.language].error_no_picture!, 'error');
 
 		const file_type = file.name.substring(file.name.lastIndexOf('.') + 1);
 
-		if (file_type !== 'png' && file_type !== 'jpg' && file_type !== 'jpeg') return alert('Please select a png or jpeg or jpg. ');
+		if (file_type !== 'png' && file_type !== 'jpg' && file_type !== 'jpeg') return showToast(translations_errors[languageStore.language].error_invalid_picture_type!, 'error');
 		if (file.size > 500000) file = await compressFile(file);
 
 		const formData = new FormData();
