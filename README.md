@@ -1,6 +1,6 @@
-# ft_transcendence - Real-Time Multiplayer Pong Platform
+# _This project has been created as part of the 42 curriculum by pstrohal, tnakas, ryusupov, tkubanyc, llacsivy._
 
-_This project has been created as part of the 42 curriculum by pstrohal, tnakas, ryusupov, tkubanyc, llacsivy._
+# ft_transcendence - Real-Time Multiplayer Pong Platform
 
 ## Description
 
