@@ -30,6 +30,7 @@ export interface GameState {
 	height: number;
 	status: 'playing' | 'ended';
 	playerNames: { [id: string]: string };
+	playerRoles?: { left: string; right: string };
 }
 
 export interface MoveMessage {
