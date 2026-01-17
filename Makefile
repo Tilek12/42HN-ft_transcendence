@@ -50,6 +50,7 @@ re: clean start		## 🔄 Restart everything
 
 up:		## 🐳 Start containers with build
 	@printf "$(BLUE)🐳 Starting Docker containers...$(RESET)\n"
+	@cp -n .env.example .env
 	@printf "$(RED)🐳 BE AWARE, THIS IS PRODUCTION MODE!$(RESET)\n"
 	$(PROD) $(COMPOSE) up --build || true
 	@printf "$(RED)🛑 Container stopped$(RESET)\n"
