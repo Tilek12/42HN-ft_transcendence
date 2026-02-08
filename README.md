@@ -1,8 +1,21 @@
-# _This project has been created as part of the 42 curriculum by pstrohal, tnakas, ryusupov, tkubanyc, llacsivy._
+# :desktop_computer: 42Heilbronn :de:
 
-# ft_transcendence - Real-Time Multiplayer Pong Platform
+<p align="center">
+  <img src="https://github.com/Tilek12/42-project-badges/blob/main/badges/ft_transcendencem.png">
+</p>
 
-## Description
+<h1 align="center">
+  Project - Ft_transcendence :ping_pong:
+  <h2 align="center">
+    :white_check_mark: 120/125
+  </h2>
+</h1>
+
+## :clipboard: Project info: [subject](https://github.com/Tilek12/42HN-ft_transcendence/blob/master/docs/subject-ft_transcendence.pdf)
+
+## :green_circle: Description
+
+### :small_orange_diamond: Real-Time Multiplayer Pong Platform
 
 **ft_transcendence** is a modern, full-stack web application that reimagines the classic Pong game with real-time multiplayer capabilities, tournament systems, and comprehensive user management. Built with cutting-edge web technologies, the platform provides a seamless gaming experience with advanced features including two-factor authentication, live tournaments, social features, and multi-language support.
 
@@ -16,19 +29,19 @@
 - **Responsive Design**: Full support across devices with modern UI/UX
 - **Security**: Helmet.js, CSRF protection, secure cookie handling, and SSL/TLS support
 
-## Team Members
+## :green_circle: Team Members
 
 ### Project Roles & Responsibilities
 
 | Team Member | Role(s) | Responsibilities |
 |-------------|---------|------------------|
-| **Philipp Strohal** (pstrohal) | PM | Project planning and timeline management; coordination between stakeholders and team; sprint organization; risk management; ensuring delivery of milestones and documentation. |
-| **Thomas Nakas** (tnakas) | PO | Definition of product vision and requirements; backlog prioritization; acceptance criteria; validation of features; communication of business needs to development team. |
-| **Rustamjon Yusupov** (ryusupov) | Developer | Frontend UI/UX implementation; real-time game interface; authentication flows; state management; integration with backend services. |
-| **Tilek Kubanychbekov** (tkubanyc) | Developer | Backend and frontend feature development; WebSocket game logic; API integration; bug fixing; unit tests; collaboration on architecture decisions. |
-| **Linda Lacsivy** (llacsivy) | Tech Lead | Technical architecture design; code reviews; DevOps and deployment pipeline; security and performance; mentoring developers and enforcing best practices. |
+| **[Tilek Kubanychbekov](https://github.com/Tilek12)** (tkubanyc) | Developer | Backend and frontend feature development; WebSocket game logic; API integration; bug fixing; unit tests; collaboration on architecture decisions. |
+| **[Rustamjon Yusupov](https://github.com/YusuCoder)** (ryusupov) | Developer | Frontend UI/UX implementation; real-time game interface; authentication flows; state management; integration with backend services. |
+| **[Philipp Strohal](https://github.com/strohhelm)** (pstrohal) | PM | Project planning and timeline management; coordination between stakeholders and team; sprint organization; risk management; ensuring delivery of milestones and documentation. |
+| **[Thomas Nakas](https://github.com/ThomasNakas)** (tnakas) | PO | Definition of product vision and requirements; backlog prioritization; acceptance criteria; validation of features; communication of business needs to development team. |
+| **[Linda Lacsivy](https://github.com/Code-Princess)** (llacsivy) | Tech Lead | Technical architecture design; code reviews; DevOps and deployment pipeline; security and performance; mentoring developers and enforcing best practices. |
 
-## Project Management
+## :green_circle: Project Management
 
 ### Team Organization
 
@@ -51,7 +64,7 @@
 4. Integration and testing
 5. Deployment to staging/production
 
-## Technical Stack
+## :green_circle: Technical Stack
 
 ### Frontend Technologies
 
@@ -93,7 +106,7 @@
 - **Containerization**: Docker with Docker Compose
 - **SSL/TLS**: Self-signed certificates for local development
 
-## Database Schema
+## :green_circle: Database Schema
 
 ### Entity Relationship Overview
 
@@ -206,7 +219,7 @@ User blocking functionality.
 - **Users ↔ Friends**: Self-referencing many-to-many with symmetric relationship
 - **Users ↔ Friend Requests**: Self-referencing with sender/receiver roles
 
-## Features List
+## :green_circle: Features List
 
 ### Core Features
 
@@ -243,7 +256,7 @@ User blocking functionality.
 | **Presence WebSocket** | <!-- TODO: Add member --> | User online/offline status, real-time presence updates |
 | **Tournament WebSocket** | <!-- TODO: Add member --> | Live tournament updates, bracket changes, match notifications |
 
-## Instructions
+## :green_circle: Instructions
 
 ### Prerequisites
 
@@ -358,7 +371,7 @@ The application will be available at:
 - Database is automatically created on first run
 - Reset database: `make clean` (warning: deletes all data)
 
-## Module Implementation
+## :green_circle: Module Implementation
 
 ### Mandatory Modules (18 points total)
 
@@ -387,7 +400,7 @@ The application will be available at:
 - **Scalable database design**: Normalized schema with proper foreign key relationships
 - **Type-safe codebase**: Full TypeScript implementation across frontend and backend
 
-## Resources
+## :green_circle: Resources
 
 ### Documentation
 
