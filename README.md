@@ -19,7 +19,7 @@
 
 **ft_transcendence** is a modern, full-stack web application that reimagines the classic Pong game with real-time multiplayer capabilities, tournament systems, and comprehensive user management. Built with cutting-edge web technologies, the platform provides a seamless gaming experience with advanced features including two-factor authentication, live tournaments, social features, and multi-language support.
 
-### Key Features
+### :small_orange_diamond: Key Features
 
 - **Real-time Multiplayer Pong**: Server-side game logic with WebSocket-based real-time gameplay
 - **Tournament System**: Both online and local tournament modes with bracket management
@@ -31,7 +31,7 @@
 
 ## :green_circle: Team Members
 
-### Project Roles & Responsibilities
+### :small_orange_diamond: Project Roles & Responsibilities
 
 | Team Member | Role(s) | Responsibilities |
 |-------------|---------|------------------|
@@ -43,7 +43,7 @@
 
 ## :green_circle: Project Management
 
-### Team Organization
+###  :small_orange_diamond: Team Organization
 
 - **Task Distribution**: Tasks were divided based on expertise in frontend, backend, and DevOps. Core features were broken into user stories and technical tasks, assigned during sprint planning, with workload balanced to ensure parallel development of game logic, authentication, and UI.
 
@@ -56,7 +56,7 @@
 - **Project Management Tools**: GitHub Issues for task tracking, GitHub Projects for sprint board, and pull requests for code review and quality assurance.
 
 
-### Development Workflow
+### :small_orange_diamond: Development Workflow
 
 1. Feature planning and task assignment
 2. Individual development on feature branches
@@ -66,7 +66,7 @@
 
 ## :green_circle: Technical Stack
 
-### Frontend Technologies
+### :small_orange_diamond: Frontend Technologies
 
 - **Core**: TypeScript, Vite
 - **UI Framework**: Vanilla TypeScript with custom routing system
@@ -76,7 +76,7 @@
 
 **Justification**: We chose vanilla TypeScript with Vite for maximum performance and minimal bundle size, avoiding framework overhead while maintaining type safety and modern development experience.
 
-### Backend Technologies
+### :small_orange_diamond: Backend Technologies
 
 - **Framework**: Fastify v5.6.1 (Node.js)
 - **Language**: TypeScript v5.9.3
@@ -88,7 +88,7 @@
 
 **Justification**: Fastify was selected for its exceptional performance (up to 30% faster than Express), native TypeScript support, schema-based validation, and extensive plugin ecosystem. Its low overhead makes it ideal for real-time gaming applications.
 
-### Database
+### :small_orange_diamond: Database
 
 - **Database**: SQLite3 v5.1.7
 - **Query Interface**: sqlite (async wrapper)
@@ -96,7 +96,7 @@
 
 **Justification**: SQLite provides a lightweight, serverless database solution perfect for this project's scale. It requires no separate database server, simplifies deployment, offers ACID compliance, and provides sufficient performance for concurrent users while maintaining data integrity.
 
-### Additional Technologies
+### :small_orange_diamond: Additional Technologies
 
 - **Password Hashing**: bcrypt v6.0.0
 - **2FA/OTP**: otpauth v9.4.1, qrcode v1.5.4
@@ -108,11 +108,11 @@
 
 ## :green_circle: Database Schema
 
-### Entity Relationship Overview
+### :small_orange_diamond: Entity Relationship Overview
 
 The database consists of 8 interconnected tables managing users, authentication, social features, games, and tournaments.
 
-### Core Tables
+### :small_orange_diamond: Core Tables
 
 #### 1. **users**
 Primary user authentication and account information.
@@ -210,7 +210,7 @@ User blocking functionality.
 | user_id | INTEGER | PRIMARY KEY (composite), FK → users(id) | Blocking user |
 | blocked_id | INTEGER | PRIMARY KEY (composite), FK → users(id) | Blocked user |
 
-### Relationships
+### :small_orange_diamond: Relationships
 
 - **Users ↔ Profiles**: One-to-one relationship (CASCADE delete)
 - **Users ↔ Matches**: Many-to-many (users can participate in multiple matches)
@@ -221,44 +221,44 @@ User blocking functionality.
 
 ## :green_circle: Features List
 
-### Core Features
+### :small_orange_diamond: Core Features
 
-| Feature | Team Member(s) | Description |
-|---------|---------------|-------------|
-| **User Authentication** | <!-- TODO: Add member --> | JWT-based authentication with secure password hashing (bcrypt), session management, and logout functionality |
-| **Two-Factor Authentication (2FA)** | <!-- TODO: Add member --> | TOTP-based 2FA with QR code generation, secret storage, and verification system |
-| **User Registration** | <!-- TODO: Add member --> | Account creation with username/password validation, automatic profile creation |
-| **User Profiles** | <!-- TODO: Add member --> | Profile management with statistics (wins/losses/trophies), custom profile pictures, match history |
-| **Real-time Pong Game** | <!-- TODO: Add member --> | Server-authoritative game logic, WebSocket-based real-time gameplay, collision detection, score tracking |
-| **Online Multiplayer** | <!-- TODO: Add member --> | Matchmaking system, real-time remote player support, game state synchronization |
-| **Local Multiplayer** | <!-- TODO: Add member --> | Same-device two-player mode with shared controls |
-| **Online Tournaments** | <!-- TODO: Add member --> | Tournament creation, participant management, bracket system, automatic match scheduling |
-| **Local Tournaments** | <!-- TODO: Add member --> | Offline tournament mode with manual progression and result tracking |
-| **Friend System** | <!-- TODO: Add member --> | Send/accept/decline friend requests, friends list management, remove friends |
-| **User Blocking** | <!-- TODO: Add member --> | Block/unblock users, prevent interaction with blocked users |
-| **Leaderboard** | <!-- TODO: Add member --> | Global rankings based on wins/losses/trophies, real-time updates |
-| **Match History** | <!-- TODO: Add member --> | Complete game history with scores, opponents, timestamps, and outcomes |
-| **User Search** | <!-- TODO: Add member --> | Search users by username, view public profiles |
-| **Live Presence System** | <!-- TODO: Add member --> | WebSocket-based online/offline status, real-time user activity tracking |
-| **Multi-language Support** | <!-- TODO: Add member --> | Interface translation (EN, DE, RU, FR), persistent language preference |
-| **Game Customization** | <!-- TODO: Add member --> | Customizable game settings (ball speed, paddle size, etc.) |
-| **Responsive Design** | <!-- TODO: Add member --> | Mobile-friendly UI, cross-browser compatibility, touch support |
-| **Profile Picture Upload** | <!-- TODO: Add member --> | Image upload with Sharp processing, size optimization, format validation |
-| **Settings Management** | <!-- TODO: Add member --> | Password change, username update, 2FA toggle, language preferences |
-| **API Documentation** | <!-- TODO: Add member --> | Swagger/OpenAPI documentation for all API endpoints |
-| **Security Features** | <!-- TODO: Add member --> | Helmet.js security headers, CSRF protection, XSS prevention, rate limiting |
+| Feature | Description |
+|---------|-------------|
+| **User Authentication** | JWT-based authentication with secure password hashing (bcrypt), session management, and logout functionality |
+| **Two-Factor Authentication (2FA)** | TOTP-based 2FA with QR code generation, secret storage, and verification system |
+| **User Registration** | Account creation with username/password validation, automatic profile creation |
+| **User Profiles** | Profile management with statistics (wins/losses/trophies), custom profile pictures, match history |
+| **Real-time Pong Game** | Server-authoritative game logic, WebSocket-based real-time gameplay, collision detection, score tracking |
+| **Online Multiplayer** | Matchmaking system, real-time remote player support, game state synchronization |
+| **Local Multiplayer** | Same-device two-player mode with shared controls |
+| **Online Tournaments** | Tournament creation, participant management, bracket system, automatic match scheduling |
+| **Local Tournaments** | Offline tournament mode with manual progression and result tracking |
+| **Friend System** | Send/accept/decline friend requests, friends list management, remove friends |
+| **User Blocking** | Block/unblock users, prevent interaction with blocked users |
+| **Leaderboard** | Global rankings based on wins/losses/trophies, real-time updates |
+| **Match History** | Complete game history with scores, opponents, timestamps, and outcomes |
+| **User Search** | Search users by username, view public profiles |
+| **Live Presence System** | WebSocket-based online/offline status, real-time user activity tracking |
+| **Multi-language Support** | Interface translation (EN, DE, RU, FR), persistent language preference |
+| **Game Customization** | Customizable game settings (ball speed, paddle size, etc.) |
+| **Responsive Design** | Mobile-friendly UI, cross-browser compatibility, touch support |
+| **Profile Picture Upload** | Image upload with Sharp processing, size optimization, format validation |
+| **Settings Management** | Password change, username update, 2FA toggle, language preferences |
+| **API Documentation** | Swagger/OpenAPI documentation for all API endpoints |
+| **Security Features** | Helmet.js security headers, CSRF protection, XSS prevention, rate limiting |
 
-### WebSocket Features
+### :small_orange_diamond: WebSocket Features
 
-| Feature | Team Member(s) | Description |
-|---------|---------------|-------------|
-| **Game WebSocket** | <!-- TODO: Add member --> | Real-time game state updates, player actions, ball physics |
-| **Presence WebSocket** | <!-- TODO: Add member --> | User online/offline status, real-time presence updates |
-| **Tournament WebSocket** | <!-- TODO: Add member --> | Live tournament updates, bracket changes, match notifications |
+| Feature | Description |
+|---------|-------------|
+| **Game WebSocket** | Real-time game state updates, player actions, ball physics |
+| **Presence WebSocket** | User online/offline status, real-time presence updates |
+| **Tournament WebSocket** | Live tournament updates, bracket changes, match notifications |
 
 ## :green_circle: Instructions
 
-### Prerequisites
+### :small_orange_diamond: Prerequisites
 
 #### Required Software
 
@@ -273,7 +273,7 @@ User blocking functionality.
 - Linux (Ubuntu 20.04+, Debian 11+)
 - Windows 10/11 (with WSL2 for Docker)
 
-### Installation & Setup
+### :small_orange_diamond: Installation & Setup
 
 #### 1. Clone the Repository
 
@@ -327,7 +327,7 @@ The application will be available at:
 - Backend API: `https://localhost:3000` (or configured BACKEND_PORT)
 - API Documentation: `https://localhost:3000/documentation`
 
-### Available Make Commands
+### :small_orange_diamond: Available Make Commands
 
 | Command | Description |
 |---------|-------------|
@@ -344,7 +344,7 @@ The application will be available at:
 | `make ps` | Show container status |
 | `make setup-local` | Setup local environment and certificates |
 
-### First-Time Setup
+### :small_orange_diamond: First-Time Setup
 
 1. **Run setup**: `make setup-local`
 2. **Start application**: `make dev`
@@ -353,7 +353,7 @@ The application will be available at:
 5. **Create account**: Register a new user account
 6. **Admin access**: Use credentials from `cert/admin_password.txt` to log in as admin
 
-### Troubleshooting
+### :small_orange_diamond: Troubleshooting
 
 **Port conflicts**: 
 - Check if ports 3000 and 8080 are available
@@ -373,7 +373,7 @@ The application will be available at:
 
 ## :green_circle: Module Implementation
 
-### Mandatory Modules (18 points total)
+### :small_orange_diamond: Mandatory Modules (18 points total)
 
 | Module | Type | Points | Description |
 |-------|------|--------|-------------|
@@ -392,7 +392,7 @@ The application will be available at:
 | JWT Session Auth | MINOR | 1 | Token-based session handling |
 
 
-### Architecture Highlights
+### :small_orange_diamond: Architecture Highlights
 
 - **Server-authoritative game logic**: All game physics run on server to prevent cheating
 - **Real-time communication**: WebSocket connections for game, presence, and tournaments
@@ -402,7 +402,7 @@ The application will be available at:
 
 ## :green_circle: Resources
 
-### Documentation
+### :small_orange_diamond: Documentation
 
 - [Fastify Official Documentation](https://www.fastify.io/docs/latest/)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
@@ -412,7 +412,7 @@ The application will be available at:
 - [JWT.io](https://jwt.io/introduction)
 - [TOTP RFC 6238](https://datatracker.ietf.org/doc/html/rfc6238)
 
-### Tutorials & Articles
+### :small_orange_diamond: Tutorials & Articles
 
 - [Building Real-time Applications with WebSockets](https://web.dev/websockets-basics/)
 - [Fastify vs Express Performance](https://www.fastify.io/benchmarks/)
@@ -448,18 +448,8 @@ The application will be available at:
 
 **Important Note**: All AI-generated code was thoroughly reviewed, tested, and modified by team members. AI served as a productivity tool and learning aid, not a replacement for understanding. Every feature was validated for correctness, security, and alignment with project requirements.
 
-### Additional References
+### :small_orange_diamond: Additional References
 
 - [Pong Game Physics](https://en.wikipedia.org/wiki/Pong)
 - [Real-time Game Networking](https://gafferongames.com/post/what_every_programmer_needs_to_know_about_game_networking/)
 - [42 Evaluation Guidelines](https://github.com/42School)
-
----
-
-**Project Status**: ✅ Completed and ready for evaluation
-
-**Last Updated**: January 2026
-
-
-
-
